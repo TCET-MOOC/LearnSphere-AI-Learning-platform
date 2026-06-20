@@ -1,0 +1,531 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{display:flex;flex-direction:column;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-tertiary);font-size:13px;min-height:580px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:48px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px;font-weight:500;font-size:14px;color:var(--color-text-primary)}
+.logo-icon{width:28px;height:28px;border-radius:6px;background:#3C3489;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:500}
+.role-badge{background:#EEEDFE;color:#3C3489;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.search-bar{flex:1;max-width:240px;margin:0 16px;display:flex;align-items:center;gap:8px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:0 10px;height:30px}
+.topbar-right{display:flex;align-items:center;gap:4px}
+.icon-btn{width:32px;height:32px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text-secondary);position:relative}
+.icon-btn:hover{background:var(--color-background-secondary)}
+.ndot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#E24B4A;border:1.5px solid var(--color-background-primary)}
+.avatar{width:30px;height:30px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;margin-left:6px;cursor:pointer}
+.upbtn{display:flex;align-items:center;gap:6px;background:#534AB7;color:#fff;border:none;border-radius:var(--border-radius-md);padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
+.body{display:flex;flex:1;min-height:0}
+.sidebar{width:56px;background:var(--color-background-primary);border-right:0.5px solid var(--color-border-tertiary);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:2px;flex-shrink:0}
+.ni{width:40px;height:40px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text-secondary);font-size:17px;position:relative;transition:background .15s}
+.ni:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.ni.active{background:#EEEDFE;color:#534AB7}
+.ni .tip{display:none;position:absolute;left:46px;top:50%;transform:translateY(-50%);background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:3px 9px;font-size:11px;white-space:nowrap;color:var(--color-text-primary);z-index:99;pointer-events:none}
+.ni:hover .tip{display:block}
+.ndiv{width:28px;height:0.5px;background:var(--color-border-tertiary);margin:4px 0}
+.main{flex:1;padding:14px;overflow-y:auto;background:var(--color-background-tertiary)}
+.section{display:none}.section.active{display:block}
+.pg{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.srow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.srow3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.srow2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px}
+.sc-lbl{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.sc-val{font-size:19px;font-weight:500;color:var(--color-text-primary)}
+.sc-sub{font-size:11px;margin-top:2px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:13px;margin-bottom:10px}
+.card:last-child{margin-bottom:0}
+.card-hd{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cl{font-size:11px;color:#534AB7;cursor:pointer;white-space:nowrap}
+.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.row:last-child{border-bottom:none}
+.pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.p-pu{background:#EEEDFE;color:#3C3489}
+.p-gr{background:#EAF3DE;color:#27500A}
+.p-am{background:#FAEEDA;color:#633806}
+.p-re{background:#FCEBEB;color:#791F1F}
+.p-gy{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.p-te{background:#E1F5EE;color:#085041}
+.p-bl{background:#E6F1FB;color:#0C447C}
+.thumb{width:36px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.pbar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin-top:4px}
+.pfill{height:4px;border-radius:2px;background:#534AB7}
+.ava{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0}
+.stabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.stab{padding:5px 12px;border-radius:var(--border-radius-md);font-size:12px;cursor:pointer;color:var(--color-text-secondary);border:0.5px solid transparent}
+.stab.on{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.stab:hover:not(.on){background:var(--color-background-secondary)}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.set-row:last-child{border-bottom:none}
+.toggle{width:32px;height:18px;border-radius:9px;display:flex;align-items:center;padding:2px;cursor:pointer;flex-shrink:0}
+.ton{background:#534AB7}.toff{background:var(--color-border-secondary)}
+.tknob{width:14px;height:14px;border-radius:50%;background:#fff}
+.ton .tknob{transform:translateX(14px)}
+.stars{color:#BA7517;font-size:11px;letter-spacing:1px}
+.msg-item{display:flex;gap:9px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);align-items:flex-start}
+.msg-item:last-child{border-bottom:none}
+.unread{width:7px;height:7px;border-radius:50%;background:#534AB7;margin-top:6px;flex-shrink:0}
+.bar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-lbl{font-size:11px;color:var(--color-text-secondary);width:80px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:6px;background:var(--color-background-secondary);border-radius:3px}
+.bar-fill{height:6px;border-radius:3px}
+.bar-val{font-size:11px;font-weight:500;color:var(--color-text-primary);width:28px}
+.upload-zone{border:0.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:20px;text-align:center;margin-bottom:10px;background:var(--color-background-secondary)}
+.action-btn{font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary)}
+.action-btn:hover{background:var(--color-background-secondary)}
+.action-btn.prim{background:#534AB7;color:#fff;border-color:#534AB7}
+.action-btn.danger{border-color:#F09595;color:#A32D2D;background:#FCEBEB}
+.disc-post{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px;margin-bottom:8px}
+.student-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px}
+.earning-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.earning-row:last-child{border-bottom:none}
+</style>
+
+<h2 class="sr-only">LearnSphere teacher dashboard — all 11 sections interactive mockup</h2>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">LS</div>
+      LearnSphere
+      <span class="role-badge">Teacher</span>
+    </div>
+    <div class="search-bar">
+      <i class="ti ti-search" style="font-size:13px;color:var(--color-text-secondary)" aria-hidden="true"></i>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Search students, courses…</span>
+    </div>
+    <div class="topbar-right">
+      <div class="icon-btn" aria-label="Messages"><i class="ti ti-message-circle" style="font-size:17px" aria-hidden="true"></i><span class="ndot"></span></div>
+      <div class="icon-btn" aria-label="Announcements"><i class="ti ti-speakerphone" style="font-size:17px" aria-hidden="true"></i></div>
+      <div class="icon-btn" aria-label="Notifications"><i class="ti ti-bell" style="font-size:17px" aria-hidden="true"></i><span class="ndot"></span></div>
+      <button class="upbtn" style="margin-left:8px"><i class="ti ti-upload" style="font-size:13px" aria-hidden="true"></i> Upload lecture</button>
+      <div class="avatar" style="background:#EEEDFE;color:#534AB7">AS</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="sidebar">
+      <div class="ni active" onclick="sw('dash',this)" aria-label="Dashboard"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span class="tip">Dashboard</span></div>
+      <div class="ni" onclick="sw('courses',this)" aria-label="My courses"><i class="ti ti-books" aria-hidden="true"></i><span class="tip">My courses</span></div>
+      <div class="ni" onclick="sw('upload',this)" aria-label="Upload content"><i class="ti ti-upload" aria-hidden="true"></i><span class="tip">Upload content</span></div>
+      <div class="ni" onclick="sw('students',this)" aria-label="Student standings"><i class="ti ti-chart-bar" aria-hidden="true"></i><span class="tip">Student standings</span></div>
+      <div class="ndiv"></div>
+      <div class="ni" onclick="sw('messages',this)" aria-label="Messages"><i class="ti ti-message-dots" aria-hidden="true"></i><span class="tip">Messages</span></div>
+      <div class="ni" onclick="sw('discuss',this)" aria-label="Discussion"><i class="ti ti-messages" aria-hidden="true"></i><span class="tip">Discussion</span></div>
+      <div class="ni" onclick="sw('live',this)" aria-label="Live session"><i class="ti ti-video" aria-hidden="true"></i><span class="tip">Live session</span></div>
+      <div class="ndiv"></div>
+      <div class="ni" onclick="sw('trending',this)" aria-label="Trending"><i class="ti ti-trending-up" aria-hidden="true"></i><span class="tip">Trending</span></div>
+      <div class="ni" onclick="sw('royalties',this)" aria-label="Royalties"><i class="ti ti-coin" aria-hidden="true"></i><span class="tip">Royalties</span></div>
+      <div class="ni" onclick="sw('settings',this)" aria-label="Settings"><i class="ti ti-settings" aria-hidden="true"></i><span class="tip">Settings</span></div>
+    </div>
+
+    <div class="main">
+
+      <!-- 1. DASHBOARD -->
+      <div class="section active" id="sec-dash">
+        <div class="pg">Welcome back, Prof. Sharma</div>
+        <div class="srow">
+          <div class="sc"><div class="sc-lbl">Total students</div><div class="sc-val">486</div><div class="sc-sub" style="color:#0F6E56">+12 this week</div></div>
+          <div class="sc"><div class="sc-lbl">Active courses</div><div class="sc-val">5</div><div class="sc-sub" style="color:var(--color-text-secondary)">2 draft / 1 pending</div></div>
+          <div class="sc"><div class="sc-lbl">Avg. rating</div><div class="sc-val">4.7 ★</div><div class="sc-sub" style="color:#0F6E56">Top 10% platform</div></div>
+          <div class="sc"><div class="sc-lbl">Royalty this month</div><div class="sc-val">₹18,400</div><div class="sc-sub" style="color:#534AB7">Payout on 30 Jun</div></div>
+        </div>
+        <div class="srow2">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-hd">My courses <span class="cl">Manage all</span></div>
+            <div class="row"><div class="thumb" style="background:#EEEDFE">📐</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Engineering Mathematics III</div><div style="font-size:11px;color:var(--color-text-secondary)">312 students · <span class="stars">★★★★★</span> 4.9</div></div><span class="pill p-gr">Live</span></div>
+            <div class="row"><div class="thumb" style="background:#E6F1FB">🔢</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Discrete Mathematics</div><div style="font-size:11px;color:var(--color-text-secondary)">174 students · <span class="stars">★★★★</span> 4.5</div></div><span class="pill p-gr">Live</span></div>
+            <div class="row"><div class="thumb" style="background:#FAEEDA">📊</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Statistics for Engineers</div><div style="font-size:11px;color:var(--color-text-secondary)">0 students · 8 lectures added</div></div><span class="pill p-am">Draft</span></div>
+            <div class="row"><div class="thumb" style="background:#FCEBEB">🧮</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Numerical Methods</div><div style="font-size:11px;color:var(--color-text-secondary)">Submitted · Admin review</div></div><span class="pill p-re">Pending</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="card" style="margin-bottom:0">
+              <div class="card-hd">Recent student messages <span class="cl">Inbox</span></div>
+              <div class="msg-item"><div class="unread"></div><div class="ava" style="background:#EEEDFE;color:#534AB7">RS</div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Raj Shah</div><div style="font-size:11px;color:var(--color-text-secondary)">Can you clarify Laplace lec 8? · 10m</div></div></div>
+              <div class="msg-item"><div class="unread"></div><div class="ava" style="background:#EAF3DE;color:#27500A">PK</div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Priya Kulkarni</div><div style="font-size:11px;color:var(--color-text-secondary)">Thank you for the feedback! · 1h</div></div></div>
+              <div class="msg-item"><div style="width:7px;flex-shrink:0"></div><div class="ava" style="background:#FAEEDA;color:#633806">AM</div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Arjun Mishra</div><div style="font-size:11px;color:var(--color-text-secondary)">When is the next live session? · 1d</div></div></div>
+            </div>
+            <div class="card" style="margin-bottom:0">
+              <div class="card-hd">Quick actions</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <button class="action-btn prim" style="padding:8px">Upload lecture</button>
+                <button class="action-btn" style="padding:8px">Schedule session</button>
+                <button class="action-btn" style="padding:8px">Add quiz</button>
+                <button class="action-btn" style="padding:8px">Post announcement</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. MY COURSES -->
+      <div class="section" id="sec-courses">
+        <div class="pg">My courses <button class="upbtn" style="font-size:12px;padding:5px 12px"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> New course</button></div>
+        <div class="stabs">
+          <div class="stab on">All (7)</div>
+          <div class="stab">Live (2)</div>
+          <div class="stab">Draft (3)</div>
+          <div class="stab">Pending (1)</div>
+          <div class="stab">Archived (1)</div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Engineering Mathematics III <span class="pill p-gr">Live</span></div>
+          <div class="srow3" style="margin-bottom:10px">
+            <div class="sc"><div class="sc-lbl">Enrolled students</div><div class="sc-val">312</div><div class="sc-sub" style="color:#0F6E56">+8 this week</div></div>
+            <div class="sc"><div class="sc-lbl">Rating</div><div class="sc-val">4.9 ★</div><div class="sc-sub" style="color:#0F6E56">142 reviews</div></div>
+            <div class="sc"><div class="sc-lbl">Completion rate</div><div class="sc-val">64%</div><div class="sc-sub" style="color:var(--color-text-secondary)">of enrolled</div></div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Lectures — 20 total</div>
+            <div class="row"><div style="font-size:12px;color:var(--color-text-primary);flex:1">Lec 1 — Introduction to Calculus</div><span class="pill p-gr">Published</span><button class="action-btn" style="margin-left:6px">Edit</button></div>
+            <div class="row"><div style="font-size:12px;color:var(--color-text-primary);flex:1">Lec 8 — Laplace Transforms II</div><span class="pill p-gr">Published</span><button class="action-btn" style="margin-left:6px">Edit</button></div>
+            <div class="row"><div style="font-size:12px;color:var(--color-text-primary);flex:1">Lec 9 — Fourier Series <span style="color:var(--color-text-secondary);font-size:11px">· Uploaded today</span></div><span class="pill p-am">Processing</span><button class="action-btn" style="margin-left:6px">Edit</button></div>
+            <div class="row"><div style="font-size:12px;color:var(--color-text-secondary);flex:1">Lec 10 — Z-Transforms</div><span class="pill p-gy">Draft</span><button class="action-btn prim" style="margin-left:6px">Publish</button></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="action-btn prim">+ Add lecture</button>
+            <button class="action-btn">Add quiz</button>
+            <button class="action-btn">Upload notes/PDF</button>
+            <button class="action-btn">Edit course info</button>
+            <button class="action-btn danger">Archive course</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Statistics for Engineers <span class="pill p-am">Draft</span></div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">8 lectures added · Not yet submitted for review</div>
+          <div class="pbar" style="height:6px;margin-bottom:8px"><div class="pfill" style="width:40%;height:6px"></div></div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px">Course completion: 40% · Need at least 10 lectures before submitting</div>
+          <div style="display:flex;gap:8px">
+            <button class="action-btn prim">Continue editing</button>
+            <button class="action-btn">Preview as student</button>
+            <button class="action-btn">Submit for review</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. UPLOAD CONTENT -->
+      <div class="section" id="sec-upload">
+        <div class="pg">Upload content</div>
+        <div class="stabs">
+          <div class="stab on">Video lecture</div>
+          <div class="stab">Notes / PDF</div>
+          <div class="stab">Quiz / Assessment</div>
+          <div class="stab">Assignment</div>
+          <div class="stab">Resources</div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Upload video lecture</div>
+          <div class="upload-zone">
+            <div style="font-size:28px;margin-bottom:8px">🎬</div>
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Drag and drop your video file here</div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px">MP4, MOV, AVI · Max 2GB per file</div>
+            <button class="action-btn prim" style="padding:6px 16px">Browse file</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Course</div>
+              <div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-primary)">Engineering Mathematics III <i class="ti ti-chevron-down" style="font-size:12px;float:right;color:var(--color-text-secondary)" aria-hidden="true"></i></div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Lecture number</div>
+              <div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-primary)">Lecture 10</div>
+            </div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Lecture title</div>
+            <div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-secondary)">e.g. Z-Transforms and Applications</div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Description (optional)</div>
+            <div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-secondary);height:52px">Brief description of what this lecture covers…</div>
+          </div>
+          <div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:var(--border-radius-md);padding:10px;margin-bottom:10px">
+            <div style="font-size:12px;font-weight:500;color:#085041;margin-bottom:3px">AI question extraction</div>
+            <div style="font-size:11px;color:#0F6E56">Our AI will automatically extract potential quiz questions from your lecture transcript. You can review, edit and approve them before they go live.</div>
+            <div style="margin-top:6px;display:flex;gap:8px"><span class="pill p-te" style="cursor:pointer">Enable for this upload</span></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="action-btn prim" style="padding:7px 18px">Upload &amp; publish</button>
+            <button class="action-btn" style="padding:7px 14px">Save as draft</button>
+            <button class="action-btn" style="padding:7px 14px">Schedule publish</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Recent uploads</div>
+          <div class="row"><div class="thumb" style="background:#EEEDFE">🎬</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Lec 9 — Fourier Series</div><div style="font-size:11px;color:var(--color-text-secondary)">Math III · Uploaded 2h ago · 312 students notified</div></div><span class="pill p-am">Processing</span></div>
+          <div class="row"><div class="thumb" style="background:#EEEDFE">📄</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Unit 2 Notes — Laplace.pdf</div><div style="font-size:11px;color:var(--color-text-secondary)">Math III · Uploaded yesterday · Resource</div></div><span class="pill p-gr">Live</span></div>
+          <div class="row"><div class="thumb" style="background:#EEEDFE">📝</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Unit 2 Quiz — 10 questions</div><div style="font-size:11px;color:var(--color-text-secondary)">Math III · AI-generated · Approved by you</div></div><span class="pill p-gr">Live</span></div>
+        </div>
+      </div>
+
+      <!-- 4. STUDENT STANDINGS -->
+      <div class="section" id="sec-students">
+        <div class="pg">Student standings</div>
+        <div class="stabs">
+          <div class="stab on">Math III</div>
+          <div class="stab">Discrete Math</div>
+          <div class="stab">All courses</div>
+          <div class="stab">At-risk students</div>
+        </div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Enrolled</div><div class="sc-val">312</div><div class="sc-sub" style="color:#0F6E56">Active this week: 278</div></div>
+          <div class="sc"><div class="sc-lbl">Avg. completion</div><div class="sc-val">64%</div><div class="sc-sub" style="color:var(--color-text-secondary)">Across all lectures</div></div>
+          <div class="sc"><div class="sc-lbl">At-risk students</div><div class="sc-val">18</div><div class="sc-sub" style="color:#A32D2D">Below 40% progress</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Top performers — Math III <span class="cl">Export list</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px">
+            <div class="student-card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><div class="ava" style="background:#FAEEDA;color:#633806;width:32px;height:32px;font-size:11px">PK</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Priya Kulkarni</div><div style="font-size:11px;color:#BA7517">🥇 Rank 1</div></div></div><div style="font-size:11px;color:var(--color-text-secondary)">Score: 96% · 18/20 lec</div><div class="pbar" style="margin-top:4px"><div class="pfill" style="width:96%"></div></div></div>
+            <div class="student-card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><div class="ava" style="background:#EAF3DE;color:#27500A;width:32px;height:32px;font-size:11px">AM</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Arjun Mishra</div><div style="font-size:11px;color:var(--color-text-secondary)">🥈 Rank 2</div></div></div><div style="font-size:11px;color:var(--color-text-secondary)">Score: 91% · 17/20 lec</div><div class="pbar" style="margin-top:4px"><div class="pfill" style="width:91%"></div></div></div>
+            <div class="student-card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><div class="ava" style="background:#E1F5EE;color:#085041;width:32px;height:32px;font-size:11px">NJ</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Nisha Joshi</div><div style="font-size:11px;color:var(--color-text-secondary)">🥉 Rank 3</div></div></div><div style="font-size:11px;color:var(--color-text-secondary)">Score: 88% · 16/20 lec</div><div class="pbar" style="margin-top:4px"><div class="pfill" style="width:88%"></div></div></div>
+          </div>
+          <div class="card-hd" style="margin-top:4px">Full standings</div>
+          <div class="row"><span style="width:20px;font-size:11px;color:var(--color-text-secondary)">#4</span><div class="ava" style="background:#EEEDFE;color:#534AB7">RS</div><div style="flex:1;font-size:12px;color:var(--color-text-primary)">Raj Shah</div><div style="font-size:11px;color:var(--color-text-secondary)">8/20 lec · 74%</div><div class="pbar" style="width:60px;margin-top:0"><div class="pfill" style="width:74%"></div></div></div>
+          <div class="row"><span style="width:20px;font-size:11px;color:var(--color-text-secondary)">#5</span><div class="ava" style="background:#FBEAF0;color:#993556">VD</div><div style="flex:1;font-size:12px;color:var(--color-text-primary)">Vikram Desai</div><div style="font-size:11px;color:var(--color-text-secondary)">7/20 lec · 68%</div><div class="pbar" style="width:60px;margin-top:0"><div class="pfill" style="width:68%"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">At-risk students <span class="pill p-re">18 flagged</span></div>
+          <div class="row"><div class="ava" style="background:#FCEBEB;color:#791F1F">KP</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Kiran Pawar</div><div style="font-size:11px;color:var(--color-text-secondary)">1/20 lectures · Last active 14 days ago</div></div><span class="pill p-re">Inactive</span><button class="action-btn" style="margin-left:6px">Send nudge</button></div>
+          <div class="row"><div class="ava" style="background:#FAEEDA;color:#633806">SN</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Suresh Nair</div><div style="font-size:11px;color:var(--color-text-secondary)">3/20 lectures · Remedial student</div></div><span class="pill p-am">Remedial</span><button class="action-btn" style="margin-left:6px">Send nudge</button></div>
+        </div>
+      </div>
+
+      <!-- 5. MESSAGES -->
+      <div class="section" id="sec-messages">
+        <div class="pg">Messages</div>
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;min-height:360px">
+          <div style="border-right:0.5px solid var(--color-border-tertiary);padding:10px 0">
+            <div style="padding:0 10px 8px;font-size:11px;font-weight:500;color:var(--color-text-secondary)">Conversations</div>
+            <div style="padding:8px 10px;background:#EEEDFE;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:7px"><div class="ava" style="background:#EEEDFE;color:#534AB7;border:1px solid #534AB7">RS</div><div><div style="font-size:12px;font-weight:500;color:#3C3489">Raj Shah</div><div style="font-size:10px;color:#534AB7">Can you clarify…</div></div><span style="margin-left:auto;width:7px;height:7px;border-radius:50%;background:#534AB7;flex-shrink:0"></span></div>
+            </div>
+            <div style="padding:8px 10px;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:7px"><div class="ava" style="background:#EAF3DE;color:#27500A">PK</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Priya Kulkarni</div><div style="font-size:10px;color:var(--color-text-secondary)">Thank you sir!</div></div></div>
+            </div>
+            <div style="padding:8px 10px;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:7px"><div class="ava" style="background:#FAEEDA;color:#633806">AM</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Arjun Mishra</div><div style="font-size:10px;color:var(--color-text-secondary)">Next live session?</div></div></div>
+            </div>
+            <div style="padding:8px 10px;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:7px"><div class="ava" style="background:#FCEBEB;color:#791F1F">KP</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Kiran Pawar</div><div style="font-size:10px;color:var(--color-text-secondary)">I missed lec 6…</div></div></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;padding:12px">
+            <div style="display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:10px">
+              <div class="ava" style="background:#EEEDFE;color:#534AB7;width:32px;height:32px;font-size:11px">RS</div>
+              <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Raj Shah</div><div style="font-size:11px;color:var(--color-text-secondary)">IT Dept, Sem 5 · Math III</div></div>
+              <div style="margin-left:auto;display:flex;gap:6px">
+                <button class="action-btn">View profile</button>
+                <button class="action-btn">Course progress</button>
+              </div>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><div style="background:#534AB7;color:#fff;border-radius:12px 12px 3px 12px;padding:8px 12px;font-size:12px;max-width:70%">Hello Raj, sure! The partial fraction step in Laplace is covered in the reference sheet I uploaded. Let me know if that helps.</div></div>
+              <div style="display:flex;gap:8px;margin-bottom:8px"><div class="ava" style="background:#EEEDFE;color:#534AB7;margin-top:2px">RS</div><div style="background:var(--color-background-secondary);border-radius:12px 12px 12px 3px;padding:8px 12px;font-size:12px;max-width:70%">Thank you sir, I checked the sheet but I'm still confused about the case when there are repeated roots.</div></div>
+              <div style="display:flex;justify-content:flex-end"><div style="background:#534AB7;color:#fff;border-radius:12px 12px 3px 12px;padding:8px 12px;font-size:12px;max-width:70%">Great question! For repeated roots, you use L{t·e^(at)} = 1/(s-a)². I'll add a short note on this in the lecture description.</div></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)">
+              <div style="flex:1;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:8px 14px;font-size:12px;color:var(--color-text-secondary)">Type a reply…</div>
+              <button class="action-btn prim" style="padding:7px 14px">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. DISCUSSION -->
+      <div class="section" id="sec-discuss">
+        <div class="pg">Discussion moderation</div>
+        <div class="stabs">
+          <div class="stab on">All courses</div>
+          <div class="stab">Math III</div>
+          <div class="stab">Discrete Math</div>
+          <div class="stab">Flagged (3)</div>
+          <div class="stab">Unanswered (7)</div>
+        </div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Total posts</div><div class="sc-val">284</div><div class="sc-sub" style="color:var(--color-text-secondary)">This month</div></div>
+          <div class="sc"><div class="sc-lbl">Unanswered</div><div class="sc-val">7</div><div class="sc-sub" style="color:#854F0B">Needs your reply</div></div>
+          <div class="sc"><div class="sc-lbl">Flagged posts</div><div class="sc-val">3</div><div class="sc-sub" style="color:#A32D2D">Review needed</div></div>
+        </div>
+        <div class="disc-post">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="display:flex;gap:8px;align-items:center"><div class="ava" style="background:#FAEEDA;color:#633806">PK</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Priya Kulkarni</div><div style="font-size:11px;color:var(--color-text-secondary)">Math III · Lec 8 · 1h ago · 12 likes</div></div></div>
+            <span class="pill p-am">Unanswered</span>
+          </div>
+          <div style="font-size:12px;color:var(--color-text-primary);margin-bottom:8px;line-height:1.5">Can someone explain the inverse Laplace at 22:14? I'm confused about the partial fractions decomposition step.</div>
+          <div style="display:flex;gap:6px">
+            <button class="action-btn prim">Reply</button>
+            <button class="action-btn">Pin post</button>
+            <button class="action-btn">Mark resolved</button>
+            <button class="action-btn danger">Flag / Remove</button>
+          </div>
+        </div>
+        <div class="disc-post">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="display:flex;gap:8px;align-items:center"><div class="ava" style="background:#EEEDFE;color:#534AB7">RS</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Raj Shah</div><div style="font-size:11px;color:var(--color-text-secondary)">DSA · Lec 12 · 2 days ago · 8 likes</div></div></div>
+            <span class="pill p-gr">Answered by you</span>
+          </div>
+          <div style="font-size:12px;color:var(--color-text-primary);margin-bottom:6px;line-height:1.5">What's the difference between DFS with recursion vs an explicit stack?</div>
+          <div style="background:var(--color-background-secondary);border-left:2px solid #534AB7;padding:8px;border-radius:0 6px 6px 0;font-size:12px;color:var(--color-text-primary)">Your reply: Both are equivalent. Recursive DFS uses the call stack implicitly. Explicit stack is better for large graphs to avoid stack overflow.</div>
+          <div style="margin-top:6px;display:flex;gap:6px">
+            <button class="action-btn">Edit reply</button>
+            <button class="action-btn">Mark resolved</button>
+          </div>
+        </div>
+        <div class="disc-post" style="border:0.5px solid #F09595">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="display:flex;gap:8px;align-items:center"><div class="ava" style="background:#FCEBEB;color:#791F1F">VD</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Vikram Desai</div><div style="font-size:11px;color:var(--color-text-secondary)">Math III · Lec 5 · 3 days ago</div></div></div>
+            <span class="pill p-re">AI flagged — offensive</span>
+          </div>
+          <div style="font-size:12px;color:#A32D2D;margin-bottom:8px;background:#FCEBEB;padding:6px 8px;border-radius:4px">Post content hidden — pending review</div>
+          <div style="display:flex;gap:6px">
+            <button class="action-btn danger">Remove post</button>
+            <button class="action-btn">Warn student</button>
+            <button class="action-btn">Dismiss flag</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. LIVE SESSION -->
+      <div class="section" id="sec-live">
+        <div class="pg">Live sessions</div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Sessions this month</div><div class="sc-val">4</div><div class="sc-sub" style="color:var(--color-text-secondary)">Avg. 38 attendees</div></div>
+          <div class="sc"><div class="sc-lbl">Next session</div><div class="sc-val">25 Jun</div><div class="sc-sub" style="color:#534AB7">Math III · 4pm</div></div>
+          <div class="sc"><div class="sc-lbl">Registrations</div><div class="sc-val">94</div><div class="sc-sub" style="color:#0F6E56">For next session</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Schedule a new session</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Course</div><div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-primary)">Engineering Mathematics III</div></div>
+            <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Session title</div><div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-secondary)">e.g. Doubt clearing — Unit 2</div></div>
+            <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Date</div><div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-primary)">25 Jun 2026</div></div>
+            <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Time</div><div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-primary)">4:00 PM IST</div></div>
+            <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Duration</div><div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-primary)">60 minutes</div></div>
+            <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Platform</div><div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--color-text-primary)">Built-in room / Google Meet</div></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="action-btn prim" style="padding:7px 16px">Schedule &amp; notify students</button>
+            <button class="action-btn" style="padding:7px 14px">Save draft</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Upcoming sessions</div>
+          <div class="row"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Doubt clearing — Unit 2 Laplace</div><div style="font-size:11px;color:var(--color-text-secondary)">Math III · 25 Jun · 4pm · 94 registered</div></div><span class="pill p-pu">Scheduled</span><button class="action-btn prim" style="margin-left:8px">Start now</button></div>
+          <div class="row"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Mid-term revision session</div><div style="font-size:11px;color:var(--color-text-secondary)">Discrete Math · 2 Jul · 5pm · 42 registered</div></div><span class="pill p-pu">Scheduled</span><button class="action-btn" style="margin-left:8px">Edit</button></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Past sessions &amp; recordings</div>
+          <div class="row"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Unit 1 Revision — Math III</div><div style="font-size:11px;color:var(--color-text-secondary)">10 Jun · 52 attended · Recording available</div></div><span class="pill p-gr">Recorded</span><button class="action-btn" style="margin-left:8px">Share recording</button></div>
+          <div class="row"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Intro to Discrete — Q&amp;A</div><div style="font-size:11px;color:var(--color-text-secondary)">2 Jun · 28 attended · No recording</div></div><span class="pill p-gy">No recording</span></div>
+        </div>
+      </div>
+
+      <!-- 8. TRENDING -->
+      <div class="section" id="sec-trending">
+        <div class="pg">Trending on platform</div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Your best rank</div><div class="sc-val">#2</div><div class="sc-sub" style="color:#534AB7">Engg. Math III</div></div>
+          <div class="sc"><div class="sc-lbl">Platform courses</div><div class="sc-val">62</div><div class="sc-sub" style="color:var(--color-text-secondary)">Active this month</div></div>
+          <div class="sc"><div class="sc-lbl">Your avg. vs platform</div><div class="sc-val">+0.4★</div><div class="sc-sub" style="color:#0F6E56">Above average</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Platform-wide trending courses</div>
+          <div class="row"><span style="width:20px;font-size:12px;font-weight:500;color:#BA7517">1</span><div class="thumb" style="background:#FAEEDA">💻</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Data Structures — Prof. Mehta</div><div style="font-size:11px;color:var(--color-text-secondary)">410 students · ★4.8 · 94% positive</div></div><span class="pill p-te">🔥 Hot</span></div>
+          <div class="row" style="background:#EEEDFE;border-radius:6px;margin:2px -2px;padding:7px 8px"><span style="width:20px;font-size:12px;font-weight:500;color:#534AB7">2</span><div class="thumb" style="background:#EEEDFE">📐</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#3C3489">Engg. Math III — You</div><div style="font-size:11px;color:#534AB7">312 students · ★4.9 · 97% positive</div></div><span class="pill p-pu">Your course</span></div>
+          <div class="row"><span style="width:20px;font-size:12px;color:var(--color-text-secondary)">3</span><div class="thumb" style="background:#E1F5EE">⚙️</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Thermodynamics — Prof. Patil</div><div style="font-size:11px;color:var(--color-text-secondary)">298 students · ★4.7</div></div><span class="pill p-gy">#3</span></div>
+          <div class="row"><span style="width:20px;font-size:12px;color:var(--color-text-secondary)">4</span><div class="thumb" style="background:#FBEAF0">🌐</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Web Technologies — Prof. Joshi</div><div style="font-size:11px;color:var(--color-text-secondary)">241 students · ★4.6</div></div><span class="pill p-gy">#4</span></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Student sentiment on your courses</div>
+          <div style="margin-bottom:10px">
+            <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Engineering Mathematics III</div>
+            <div class="bar-wrap"><div class="bar-lbl">Positive</div><div class="bar-track"><div class="bar-fill" style="width:97%;background:#1D9E75"></div></div><div class="bar-val">97%</div></div>
+            <div class="bar-wrap"><div class="bar-lbl">Neutral</div><div class="bar-track"><div class="bar-fill" style="width:2%;background:#BA7517"></div></div><div class="bar-val">2%</div></div>
+            <div class="bar-wrap"><div class="bar-lbl">Negative</div><div class="bar-track"><div class="bar-fill" style="width:1%;background:#E24B4A"></div></div><div class="bar-val">1%</div></div>
+          </div>
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Top student comments</div>
+          <div style="font-size:12px;color:var(--color-text-primary);background:var(--color-background-secondary);border-radius:6px;padding:8px;margin-bottom:6px;line-height:1.5">"Excellent explanations, very clear and concise. The examples really helped." <span style="color:var(--color-text-secondary);font-size:11px">— Priya K.</span></div>
+          <div style="font-size:12px;color:var(--color-text-primary);background:var(--color-background-secondary);border-radius:6px;padding:8px;line-height:1.5">"Audio quality in lec 6 was a bit low, otherwise great course." <span style="color:var(--color-text-secondary);font-size:11px">— Anonymous</span></div>
+        </div>
+      </div>
+
+      <!-- 9. ROYALTIES -->
+      <div class="section" id="sec-royalties">
+        <div class="pg">Royalties &amp; earnings</div>
+        <div class="srow">
+          <div class="sc"><div class="sc-lbl">This month</div><div class="sc-val">₹18,400</div><div class="sc-sub" style="color:#0F6E56">+22% vs last month</div></div>
+          <div class="sc"><div class="sc-lbl">Total earned</div><div class="sc-val">₹1.2L</div><div class="sc-sub" style="color:var(--color-text-secondary)">Since joining</div></div>
+          <div class="sc"><div class="sc-lbl">Next payout</div><div class="sc-val">30 Jun</div><div class="sc-sub" style="color:#534AB7">₹18,400 pending</div></div>
+          <div class="sc"><div class="sc-lbl">External enrollments</div><div class="sc-val">48</div><div class="sc-sub" style="color:#0F6E56">Paid students</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Earnings by course</div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Engineering Mathematics III</div><div style="font-size:11px;color:var(--color-text-secondary)">312 enrolled · 28 external paid</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">₹11,200</div><div style="font-size:11px;color:var(--color-text-secondary)">this month</div></div></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Discrete Mathematics</div><div style="font-size:11px;color:var(--color-text-secondary)">174 enrolled · 20 external paid</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">₹7,200</div><div style="font-size:11px;color:var(--color-text-secondary)">this month</div></div></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Statistics for Engineers</div><div style="font-size:11px;color:var(--color-text-secondary)">Draft — not yet live</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;color:var(--color-text-secondary)">—</div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Payout history <span class="cl">Download statement</span></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;color:var(--color-text-primary)">May 2026 payout</div><div style="font-size:11px;color:var(--color-text-secondary)">Transferred 30 May</div></div><span class="pill p-gr">₹15,100 paid</span></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;color:var(--color-text-primary)">Apr 2026 payout</div><div style="font-size:11px;color:var(--color-text-secondary)">Transferred 30 Apr</div></div><span class="pill p-gr">₹12,800 paid</span></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;color:var(--color-text-primary)">Jun 2026 payout</div><div style="font-size:11px;color:var(--color-text-secondary)">Scheduled 30 Jun</div></div><span class="pill p-am">₹18,400 pending</span></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Royalty breakdown</div>
+          <div class="bar-wrap"><div class="bar-lbl">External sales</div><div class="bar-track"><div class="bar-fill" style="width:72%;background:#534AB7"></div></div><div class="bar-val">72%</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">College share</div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#1D9E75"></div></div><div class="bar-val">20%</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Remedial certs</div><div class="bar-track"><div class="bar-fill" style="width:8%;background:#BA7517"></div></div><div class="bar-val">8%</div></div>
+          <div style="margin-top:8px;font-size:11px;color:var(--color-text-secondary)">Platform takes 20% of all sales. Remaining 80% is your royalty. Paid to linked bank account monthly.</div>
+        </div>
+      </div>
+
+      <!-- 10. SETTINGS -->
+      <div class="section" id="sec-settings">
+        <div class="pg">Settings</div>
+        <div class="card">
+          <div class="card-hd">Profile</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div style="width:48px;height:48px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#534AB7">AS</div>
+            <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Prof. A. Sharma</div><div style="font-size:12px;color:var(--color-text-secondary)">Mathematics Dept · MH College of Engineering</div></div>
+            <span style="margin-left:auto;font-size:11px;color:#534AB7;cursor:pointer;border:0.5px solid #AFA9EC;border-radius:6px;padding:4px 10px">Edit profile</span>
+          </div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Full name</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Ajay Sharma</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Edit</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">College email</div><div style="font-size:11px;color:var(--color-text-secondary)">a.sharma@mhcollege.edu.in</div></div><span class="pill p-gr" style="font-size:10px">Verified</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Department</div><div style="font-size:11px;color:var(--color-text-secondary)">Mathematics, MH College of Engineering</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Edit</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Bio / intro</div><div style="font-size:11px;color:var(--color-text-secondary)">Shown on your public teacher profile</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Edit</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Bank account for payouts</div><div style="font-size:11px;color:var(--color-text-secondary)">SBI ••••4821 — verified</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Update</span></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Notifications</div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">New student enrollment</div><div style="font-size:11px;color:var(--color-text-secondary)">When someone joins your course</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Student message received</div><div style="font-size:11px;color:var(--color-text-secondary)">In-app and email</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">New discussion post in my course</div><div style="font-size:11px;color:var(--color-text-secondary)">Digest or instant</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Course approved / rejected by admin</div><div style="font-size:11px;color:var(--color-text-secondary)">Review outcome</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Monthly payout processed</div><div style="font-size:11px;color:var(--color-text-secondary)">Email confirmation</div></div><div class="toggle toff"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">AI flagged a comment in my course</div><div style="font-size:11px;color:var(--color-text-secondary)">Moderation alert</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Course defaults</div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">AI question extraction</div><div style="font-size:11px;color:var(--color-text-secondary)">Auto-extract quiz questions on every upload</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Auto-notify students on new lecture</div><div style="font-size:11px;color:var(--color-text-secondary)">Notify enrolled students immediately</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Allow discussion on all lectures</div><div style="font-size:11px;color:var(--color-text-secondary)">Students can post below each lecture</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Allow direct messages from students</div><div style="font-size:11px;color:var(--color-text-secondary)">Students can initiate 1-on-1 chat</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Account</div>
+          <div class="set-row"><div style="font-size:12px;color:var(--color-text-primary)">Password</div><span style="font-size:11px;color:#534AB7;cursor:pointer">Change</span></div>
+          <div class="set-row"><div style="font-size:12px;color:var(--color-text-primary)">Download my data</div><span style="font-size:11px;color:#534AB7;cursor:pointer">Request</span></div>
+          <div class="set-row" style="border-bottom:none"><div style="font-size:12px;color:#A32D2D;cursor:pointer">Sign out</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function sw(sec, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + sec).classList.add('active');
+  el.classList.add('active');
+}
+</script>

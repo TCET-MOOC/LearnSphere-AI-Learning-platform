@@ -1,0 +1,628 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .container { padding: 16px 0; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+  .filter-btn {
+    padding: 4px 12px; border-radius: 20px; border: 1px solid var(--color-border-tertiary);
+    background: var(--color-background-secondary); color: var(--color-text-secondary);
+    font-size: 12px; cursor: pointer; transition: all .15s; font-family: var(--font-sans); white-space: nowrap;
+  }
+  .filter-btn.active { background: #534AB7; border-color: #534AB7; color: #fff; }
+  .filter-btn:hover:not(.active) { border-color: var(--color-border-primary); color: var(--color-text-primary); }
+  .search-box {
+    padding: 5px 10px; border-radius: 6px; border: 1px solid var(--color-border-tertiary);
+    background: var(--color-background-primary); color: var(--color-text-primary);
+    font-size: 12px; font-family: var(--font-mono); width: 180px; outline: none;
+  }
+  .search-box:focus { border-color: #534AB7; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; font-size: 11px; color: var(--color-text-secondary); font-family: var(--font-sans); }
+  .leg-item { display: flex; align-items: center; gap: 4px; }
+  .leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .tree { background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-radius: 8px; padding: 12px 16px; overflow-x: auto; }
+  .node-row { display: flex; align-items: flex-start; line-height: 1.75; font-size: 12.5px; color: var(--color-text-primary); cursor: pointer; border-radius: 4px; padding: 1px 4px; transition: background .1s; }
+  .node-row:hover { background: var(--color-background-tertiary); }
+  .node-row.hidden { display: none; }
+  .indent { white-space: pre; color: var(--color-border-secondary); font-size: 12px; user-select: none; }
+  .toggle { color: var(--color-text-tertiary); width: 14px; display: inline-block; user-select: none; font-size: 10px; }
+  .node-icon { margin-right: 4px; font-size: 12px; }
+  .node-name { }
+  .node-name.folder { color: #534AB7; font-weight: 500; }
+  .node-name.file-ts { color: #1D9E75; }
+  .node-name.file-html { color: #BA7517; }
+  .node-name.file-scss { color: #D85A30; }
+  .node-name.file-json { color: #185FA5; }
+  .node-name.file-env { color: #993556; }
+  .node-name.file-other { color: var(--color-text-secondary); }
+  .node-route { margin-left: 8px; font-size: 10px; font-family: var(--font-mono); color: var(--color-text-tertiary); }
+  .node-tag { margin-left: 6px; font-size: 10px; padding: 1px 6px; border-radius: 10px; font-family: var(--font-sans); white-space: nowrap; }
+  .tag-student { background: #EEEDFE; color: #3C3489; }
+  .tag-teacher { background: #E1F5EE; color: #085041; }
+  .tag-admin { background: #FAEEDA; color: #633806; }
+  .tag-shared { background: #F1EFE8; color: #444441; }
+  .tag-core { background: #FAECE7; color: #4A1B0C; }
+  .tooltip-box {
+    position: fixed; z-index: 999; background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary); border-radius: 8px; padding: 10px 12px;
+    max-width: 300px; font-family: var(--font-sans); font-size: 12px; color: var(--color-text-primary);
+    pointer-events: none; display: none; line-height: 1.5;
+  }
+  .tooltip-box strong { font-weight: 500; display: block; margin-bottom: 3px; color: #534AB7; }
+  .tooltip-box code { font-family: var(--font-mono); font-size: 11px; color: #1D9E75; display: block; margin-bottom: 5px; }
+  .tooltip-box .tip-route { font-family: var(--font-mono); font-size: 10px; color: #534AB7; display: block; margin-bottom: 5px; background: #EEEDFE; padding: 2px 6px; border-radius: 4px; }
+  .stats { font-family: var(--font-sans); font-size: 11px; color: var(--color-text-tertiary); margin-top: 10px; text-align: right; }
+  .changed { border-left: 2px solid #1D9E75; padding-left: 4px; margin-left: -6px; }
+</style>
+
+<div class="container">
+  <div class="toolbar">
+    <button class="filter-btn active" onclick="filterRole('all')">All</button>
+    <button class="filter-btn" onclick="filterRole('student')">Student</button>
+    <button class="filter-btn" onclick="filterRole('teacher')">Teacher</button>
+    <button class="filter-btn" onclick="filterRole('admin')">Admin</button>
+    <button class="filter-btn" onclick="filterRole('core')">Core</button>
+    <button class="filter-btn" onclick="filterRole('shared')">Shared</button>
+    <input class="search-box" id="search" placeholder="search files..." oninput="doSearch(this.value)" />
+    <button class="filter-btn" onclick="toggleAll(true)">expand all</button>
+    <button class="filter-btn" onclick="toggleAll(false)">collapse all</button>
+  </div>
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#534AB7"></div> student</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#1D9E75"></div> teacher</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#BA7517"></div> admin</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#888780"></div> shared</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#D85A30"></div> core</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#1D9E75; border: 1px solid #1D9E75"></div> updated / new</div>
+  </div>
+  <div class="tree" id="tree"></div>
+  <div class="stats" id="stats"></div>
+</div>
+<div class="tooltip-box" id="tooltip"></div>
+
+<script>
+const T = [
+  { n:'learnsphere/', t:'folder', d:'Angular project root', children:[
+    { n:'src/', t:'folder', children:[
+      { n:'app/', t:'folder', children:[
+
+        { n:'core/', t:'folder', tag:'core', info:'Singleton services, guards, interceptors. Imported once in AppModule.', children:[
+          { n:'auth/', t:'folder', tag:'core', children:[
+            { n:'auth.service.ts', t:'ts', info:'JWT login, logout, token refresh, and role resolution (STUDENT/TEACHER/ADMIN).' },
+            { n:'auth.guard.ts', t:'ts', info:'Blocks unauthenticated access; redirects to /login.' },
+            { n:'role.guard.ts', t:'ts', info:'Checks user role and redirects to correct dashboard (/student, /teacher, /admin).' },
+            { n:'token.interceptor.ts', t:'ts', info:'Attaches Bearer token to every outgoing HTTP request.' },
+            { n:'auth.models.ts', t:'ts', info:'AuthResponse, UserPayload, JwtClaims interfaces.' },
+          ]},
+          { n:'services/', t:'folder', tag:'core', children:[
+            { n:'api.service.ts', t:'ts', info:'Base HTTP wrapper with typed response helpers.' },
+            { n:'notification.service.ts', t:'ts', info:'In-app toasts and Firebase Cloud Messaging bridge.' },
+            { n:'storage.service.ts', t:'ts', info:'LocalStorage/SessionStorage typed abstraction.' },
+            { n:'error-handler.service.ts', t:'ts', info:'Global error handler — logs and shows user-friendly messages.' },
+          ]},
+          { n:'interceptors/', t:'folder', tag:'core', children:[
+            { n:'loading.interceptor.ts', t:'ts', info:'Sets global loading spinner state on HTTP start/end.' },
+            { n:'error.interceptor.ts', t:'ts', info:'Catches 401/403/5xx and dispatches global error events.' },
+          ]},
+          { n:'guards/', t:'folder', tag:'core', children:[
+            { n:'payment.guard.ts', t:'ts', info:'Blocks external students from paid course content without purchase.' },
+            { n:'remedial.guard.ts', t:'ts', info:'Restricts remedial students to only their assigned courses.' },
+            { n:'verified-college.guard.ts', t:'ts', info:'NEW — ensures user has completed /verify-college before accessing dashboard.', changed:true },
+          ]},
+          { n:'models/', t:'folder', tag:'core', children:[
+            { n:'user.model.ts', t:'ts', info:'User, Student, Teacher, Admin interfaces.' },
+            { n:'course.model.ts', t:'ts', info:'Course, Lecture, Chapter interfaces.' },
+            { n:'assessment.model.ts', t:'ts', info:'Quiz, Question, Submission interfaces.' },
+            { n:'payment.model.ts', t:'ts', info:'Order, Payment, Razorpay response interfaces.' },
+            { n:'api-response.model.ts', t:'ts', info:'Generic ApiResponse<T> wrapper.' },
+          ]},
+          { n:'core.module.ts', t:'ts', info:'Imports and provides all singleton services. Throws error if imported twice.' },
+        ]},
+
+        { n:'shared/', t:'folder', tag:'shared', info:'Reusable components, pipes, directives — imported by every feature module.', children:[
+          { n:'components/', t:'folder', tag:'shared', children:[
+            { n:'video-player/', t:'folder', tag:'shared', children:[
+              { n:'video-player.component.ts', t:'ts', info:'HLS adaptive player: seek, speed (0.5x–2x), subtitles, quality (360p/720p/1080p/Auto), bookmarks, notes drawer.' },
+              { n:'video-player.component.html', t:'html' },
+              { n:'video-player.component.scss', t:'scss' },
+            ]},
+            { n:'stat-card/', t:'folder', tag:'shared', children:[
+              { n:'stat-card.component.ts', t:'ts', info:'KPI stat card — icon, value, label, optional trend arrow.' },
+              { n:'stat-card.component.html', t:'html' },
+              { n:'stat-card.component.scss', t:'scss' },
+            ]},
+            { n:'sidebar/', t:'folder', tag:'shared', children:[
+              { n:'sidebar.component.ts', t:'ts', info:'Icon-only collapsed sidebar, tooltip-on-hover labels. Renders role-specific nav. Admin gets dark variant (#12102e).' },
+              { n:'sidebar.component.html', t:'html' },
+              { n:'sidebar.component.scss', t:'scss' },
+            ]},
+            { n:'topbar/', t:'folder', tag:'shared', children:[
+              { n:'topbar.component.ts', t:'ts', info:'Top bar: user avatar, notifications bell, Upload Lecture CTA (teacher only).' },
+              { n:'topbar.component.html', t:'html' },
+              { n:'topbar.component.scss', t:'scss' },
+            ]},
+            { n:'status-pill/', t:'folder', tag:'shared', children:[
+              { n:'status-pill.component.ts', t:'ts', info:'Color-coded pills: Live/Active (green), Draft (amber), Urgent/Flagged (red), In Progress (purple), Inactive (grey).' },
+            ]},
+            { n:'progress-bar/', t:'folder', tag:'shared', children:[
+              { n:'progress-bar.component.ts', t:'ts', info:'Course or lecture progress bar with percentage and optional label.' },
+            ]},
+            { n:'confirm-dialog/', t:'folder', tag:'shared', children:[
+              { n:'confirm-dialog.component.ts', t:'ts', info:'Generic confirmation modal for destructive actions (delete, blacklist, etc.).' },
+            ]},
+            { n:'empty-state/', t:'folder', tag:'shared', children:[
+              { n:'empty-state.component.ts', t:'ts', info:'Empty state card with Lottie animation and CTA button.' },
+            ]},
+            { n:'data-table/', t:'folder', tag:'shared', children:[
+              { n:'data-table.component.ts', t:'ts', info:'Sortable, filterable, paginated table. Used in users, payouts, standings.' },
+            ]},
+            { n:'avatar/', t:'folder', tag:'shared', children:[
+              { n:'avatar.component.ts', t:'ts', info:'User avatar with initials fallback and online indicator dot.' },
+            ]},
+          ]},
+          { n:'pipes/', t:'folder', tag:'shared', children:[
+            { n:'time-ago.pipe.ts', t:'ts', info:'Converts timestamps → "2 hours ago".' },
+            { n:'duration.pipe.ts', t:'ts', info:'Converts seconds → MM:SS or HH:MM:SS.' },
+            { n:'currency-inr.pipe.ts', t:'ts', info:'Formats numbers as ₹ with Indian comma notation.' },
+            { n:'truncate.pipe.ts', t:'ts', info:'Truncates strings with ellipsis at configurable length.' },
+          ]},
+          { n:'directives/', t:'folder', tag:'shared', children:[
+            { n:'role.directive.ts', t:'ts', info:'*appRole="[\'TEACHER\']" — shows/hides DOM elements by role.' },
+            { n:'click-outside.directive.ts', t:'ts', info:'Emits event when clicking outside the target element.' },
+            { n:'lazy-image.directive.ts', t:'ts', info:'IntersectionObserver-based lazy image loading.' },
+          ]},
+          { n:'shared.module.ts', t:'ts', info:'Declares and exports all shared components, pipes, directives.' },
+        ]},
+
+        { n:'features/', t:'folder', info:'All feature modules — lazy-loaded by role.', children:[
+
+          { n:'auth/', t:'folder', tag:'core', info:'Public auth pages. Route: /', children:[
+            { n:'login/', t:'folder', tag:'core', children:[
+              { n:'login.component.ts', t:'ts', route:'/login', info:'JWT login form. On success, redirects by role: /student, /teacher, or /admin dashboard.' },
+              { n:'login.component.html', t:'html' },
+              { n:'login.component.scss', t:'scss' },
+            ]},
+            { n:'register/', t:'folder', tag:'core', children:[
+              { n:'register.component.ts', t:'ts', route:'/register', info:'Multi-step registration: role selection → college search → credentials → email verification.' },
+              { n:'register.component.html', t:'html' },
+              { n:'register.component.scss', t:'scss' },
+            ]},
+            { n:'verify-college/', t:'folder', tag:'core', changed:true, children:[
+              { n:'verify-college.component.ts', t:'ts', route:'/verify-college', info:'NEW — College email verification flow. Teacher uploads ID; student confirms college email. Guarded by verified-college.guard.ts.', changed:true },
+              { n:'verify-college.component.html', t:'html', changed:true },
+              { n:'verify-college.component.scss', t:'scss', changed:true },
+            ]},
+            { n:'forgot-password/', t:'folder', tag:'core', children:[
+              { n:'forgot-password.component.ts', t:'ts', info:'Password reset via college email OTP.' },
+            ]},
+            { n:'auth-routing.module.ts', t:'ts', info:'Routes: /login  /register  /verify-college  /forgot-password', changed:true },
+            { n:'auth.module.ts', t:'ts' },
+          ]},
+
+          { n:'student/', t:'folder', tag:'student', info:'All student pages. Lazy-loaded under /student/**', children:[
+            { n:'dashboard/', t:'folder', tag:'student', children:[
+              { n:'dashboard.component.ts', t:'ts', route:'/student/dashboard', info:'Student home: greeting, 4 KPI cards (courses enrolled, attendance, leaderboard rank, certs), continue learning, pending assessments, AI-recommended courses.' },
+              { n:'dashboard.component.html', t:'html' },
+              { n:'dashboard.component.scss', t:'scss' },
+            ]},
+            { n:'courses/', t:'folder', tag:'student', changed:true, children:[
+              { n:'courses.component.ts', t:'ts', route:'/student/courses', info:'My Courses list with filter tabs (All/In Progress/Completed/Not Started/Explore). Progress bars per course.' },
+              { n:'courses.component.html', t:'html' },
+              { n:'courses.component.scss', t:'scss' },
+              { n:'course-detail/', t:'folder', tag:'student', changed:true, children:[
+                { n:'course-detail.component.ts', t:'ts', route:'/student/courses/:id', info:'NEW — Course detail page: overview, syllabus, lecture list with status pills (Done/Playing/Locked). Entry point before selecting a lecture.', changed:true },
+                { n:'course-detail.component.html', t:'html', changed:true },
+                { n:'course-detail.component.scss', t:'scss', changed:true },
+              ]},
+              { n:'lecture/', t:'folder', tag:'student', changed:true, children:[
+                { n:'lecture.component.ts', t:'ts', route:'/student/courses/:id/lecture/:lid', info:'NEW — Full video player page: HLS player, notes drawer, bookmarks, download (if enabled), per-lecture discussion section below player.', changed:true },
+                { n:'lecture.component.html', t:'html', changed:true },
+                { n:'lecture.component.scss', t:'scss', changed:true },
+                { n:'components/', t:'folder', tag:'student', children:[
+                  { n:'lecture-grid.component.ts', t:'ts', info:'Lecture list panel: Done/Playing Now/Locked/Not Started states.' },
+                  { n:'notes-drawer.component.ts', t:'ts', info:'Slide-in right panel for timestamped note creation during playback.' },
+                  { n:'lecture-discussion.component.ts', t:'ts', info:'Q&A thread below the player for the active lecture.' },
+                ]},
+              ]},
+              { n:'components/', t:'folder', tag:'student', children:[
+                { n:'course-card.component.ts', t:'ts', info:'Course card: thumbnail, progress bar, lecture count, status pill, enroll button.' },
+                { n:'explore-section.component.ts', t:'ts', info:'Cross-department free courses + external paid courses with price tags.' },
+              ]},
+            ]},
+            { n:'notes/', t:'folder', tag:'student', children:[
+              { n:'notes.component.ts', t:'ts', route:'/student/notes', info:'All timestamped notes across courses. Filter by course, tags. Export as PDF.' },
+              { n:'notes.component.html', t:'html' },
+              { n:'notes.component.scss', t:'scss' },
+              { n:'components/', t:'folder', tag:'student', children:[
+                { n:'note-card.component.ts', t:'ts', info:'Note card: timestamp link (⏱22:14), course, lecture, tags (#formula), inline edit.' },
+                { n:'note-editor.component.ts', t:'ts', info:'Modal editor for creating/editing a timestamped note.' },
+              ]},
+            ]},
+            { n:'assessments/', t:'folder', tag:'student', children:[
+              { n:'assessments.component.ts', t:'ts', route:'/student/assessments', info:'Assessment list: filter tabs All/Pending/Completed/Remedial. 3 stat cards.' },
+              { n:'assessments.component.html', t:'html' },
+              { n:'assessments.component.scss', t:'scss' },
+              { n:'quiz/', t:'folder', tag:'student', changed:true, children:[
+                { n:'quiz.component.ts', t:'ts', route:'/student/assessments/:id', info:'NEW — Live quiz page: MCQ interface with countdown timer, option selection, Next button, auto-submit on timeout. Post-submit shows score and review.', changed:true },
+                { n:'quiz.component.html', t:'html', changed:true },
+                { n:'quiz.component.scss', t:'scss', changed:true },
+                { n:'components/', t:'folder', tag:'student', children:[
+                  { n:'quiz-interface.component.ts', t:'ts', info:'MCQ question renderer: radio options, timer bar, question counter, nav arrows.' },
+                  { n:'assessment-review.component.ts', t:'ts', info:'Post-submission review: per-question correct/incorrect breakdown, score.' },
+                  { n:'remedial-card.component.ts', t:'ts', info:'Remedial certification card with attendance impact note and Attempt Now CTA.' },
+                ]},
+              ]},
+            ]},
+            { n:'bookmarks/', t:'folder', tag:'student', children:[
+              { n:'bookmarks.component.ts', t:'ts', route:'/student/bookmarks', info:'Saved lecture moments, notes, resources. Filter tabs: All/Lectures/Notes/Resources. Card grid layout.' },
+              { n:'bookmarks.component.html', t:'html' },
+              { n:'bookmarks.component.scss', t:'scss' },
+            ]},
+            { n:'leaderboard/', t:'folder', tag:'student', children:[
+              { n:'leaderboard.component.ts', t:'ts', route:'/student/leaderboard', info:'Rankings with filter tabs: My Batch/By Course/All College/Monthly. Top 3 with medals. Student row highlighted in brand purple.' },
+              { n:'leaderboard.component.html', t:'html' },
+              { n:'leaderboard.component.scss', t:'scss' },
+            ]},
+            { n:'discussion/', t:'folder', tag:'student', children:[
+              { n:'discussion.component.ts', t:'ts', route:'/student/discussion', info:'Forum by course. Thread cards with Unanswered/Answered/Pinned pills. Teacher replies indented with left border.' },
+              { n:'discussion.component.html', t:'html' },
+              { n:'discussion.component.scss', t:'scss' },
+            ]},
+            { n:'certificates/', t:'folder', tag:'student', children:[
+              { n:'certificates.component.ts', t:'ts', route:'/student/certificates', info:'Earned certs: PDF download + LinkedIn/copy-link share. In-progress with completion bar. Remedial cert with Attempt Now CTA.' },
+              { n:'certificates.component.html', t:'html' },
+              { n:'certificates.component.scss', t:'scss' },
+            ]},
+            { n:'settings/', t:'folder', tag:'student', children:[
+              { n:'settings.component.ts', t:'ts', route:'/student/settings', info:'Profile, notification toggles, preferences (video quality, playback speed, leaderboard visibility), linked payment method, data export.' },
+              { n:'settings.component.html', t:'html' },
+              { n:'settings.component.scss', t:'scss' },
+            ]},
+            { n:'services/', t:'folder', tag:'student', children:[
+              { n:'student.service.ts', t:'ts', info:'Enrollment, progress tracking, lecture completion, notes CRUD.' },
+              { n:'assessment.service.ts', t:'ts', info:'Quiz start/submit/review, remedial exam flow.' },
+              { n:'bookmark.service.ts', t:'ts', info:'Save/remove lecture moments and resources.' },
+              { n:'leaderboard.service.ts', t:'ts', info:'Fetch rankings and points breakdown.' },
+            ]},
+            { n:'student-routing.module.ts', t:'ts', info:'Routes under /student:\n  dashboard | courses | courses/:id | courses/:id/lecture/:lid | notes | assessments | assessments/:id | bookmarks | leaderboard | discussion | certificates | settings', changed:true },
+            { n:'student.module.ts', t:'ts', info:'Lazy-loaded StudentModule. Imports SharedModule.' },
+          ]},
+
+          { n:'teacher/', t:'folder', tag:'teacher', info:'All teacher pages. Lazy-loaded under /teacher/**', children:[
+            { n:'dashboard/', t:'folder', tag:'teacher', children:[
+              { n:'dashboard.component.ts', t:'ts', route:'/teacher/dashboard', info:'Teacher home: 4 KPI cards (total students, active courses, avg rating, royalty this month), my courses panel, recent messages, quick actions.' },
+              { n:'dashboard.component.html', t:'html' },
+              { n:'dashboard.component.scss', t:'scss' },
+            ]},
+            { n:'courses/', t:'folder', tag:'teacher', changed:true, children:[
+              { n:'courses.component.ts', t:'ts', route:'/teacher/courses', info:'My courses list: Live/Draft/Pending/Archived tabs. Per-course: student count, rating, completion rate.' },
+              { n:'courses.component.html', t:'html' },
+              { n:'courses.component.scss', t:'scss' },
+              { n:'course-management/', t:'folder', tag:'teacher', changed:true, children:[
+                { n:'course-management.component.ts', t:'ts', route:'/teacher/courses/:id', info:'NEW — Course management page: lecture list with publish/draft/processing status, Add Lecture, Add Quiz, Upload Notes, Edit Course Info, Archive.', changed:true },
+                { n:'course-management.component.html', t:'html', changed:true },
+                { n:'course-management.component.scss', t:'scss', changed:true },
+                { n:'components/', t:'folder', tag:'teacher', children:[
+                  { n:'lecture-list.component.ts', t:'ts', info:'Draggable lecture list with per-lecture status badge and Edit button.' },
+                  { n:'course-editor.component.ts', t:'ts', info:'Edit course: title, description, department, thumbnail, publish settings.' },
+                ]},
+              ]},
+              { n:'components/', t:'folder', tag:'teacher', children:[
+                { n:'course-card.component.ts', t:'ts', info:'Teacher course card: enrolled count, rating stars, completion %, status pill.' },
+              ]},
+            ]},
+            { n:'upload/', t:'folder', tag:'teacher', children:[
+              { n:'upload.component.ts', t:'ts', route:'/teacher/upload', info:'Tab switcher: Video / Notes·PDF / Quiz·Assessment / Assignment / Resources. AI question extraction toggle.' },
+              { n:'upload.component.html', t:'html' },
+              { n:'upload.component.scss', t:'scss' },
+              { n:'components/', t:'folder', tag:'teacher', children:[
+                { n:'video-upload.component.ts', t:'ts', info:'Drag-and-drop video upload (MP4/MOV/AVI ≤2GB). Progress bar, processing status, Publish/Draft/Schedule.' },
+                { n:'quiz-builder.component.ts', t:'ts', info:'MCQ builder. If AI extraction is on, shows AI-suggested questions from transcript for teacher review.' },
+                { n:'resource-upload.component.ts', t:'ts', info:'PDF/notes upload linked to a course and lecture.' },
+              ]},
+            ]},
+            { n:'students/', t:'folder', tag:'teacher', changed:true, children:[
+              { n:'students.component.ts', t:'ts', route:'/teacher/students', info:'RENAMED from student-standings → students (matches route). Per-course standings: top performers grid, full paginated list, at-risk panel with Send Nudge.', changed:true },
+              { n:'students.component.html', t:'html', changed:true },
+              { n:'students.component.scss', t:'scss', changed:true },
+            ]},
+            { n:'messages/', t:'folder', tag:'teacher', children:[
+              { n:'messages.component.ts', t:'ts', route:'/teacher/messages', info:'Two-panel chat: conversation list (left) + active thread (right). Student info header with View Profile + Course Progress shortcut.' },
+              { n:'messages.component.html', t:'html' },
+              { n:'messages.component.scss', t:'scss' },
+            ]},
+            { n:'discussion/', t:'folder', tag:'teacher', children:[
+              { n:'discussion.component.ts', t:'ts', route:'/teacher/discussion', info:'Moderation view: Reply/Pin/Mark Resolved/Flag·Remove per post. AI-flagged posts with red border and confidence score.' },
+              { n:'discussion.component.html', t:'html' },
+              { n:'discussion.component.scss', t:'scss' },
+            ]},
+            { n:'live/', t:'folder', tag:'teacher', changed:true, children:[
+              { n:'live.component.ts', t:'ts', route:'/teacher/live', info:'RENAMED from live-session → live (matches route). Schedule sessions: built-in room or Google Meet link. Upcoming list + past recordings.', changed:true },
+              { n:'live.component.html', t:'html', changed:true },
+              { n:'live.component.scss', t:'scss', changed:true },
+            ]},
+            { n:'trending/', t:'folder', tag:'teacher', children:[
+              { n:'trending.component.ts', t:'ts', route:'/teacher/trending', info:'Platform trending courses (teacher\'s own highlighted in purple). Student sentiment bars per course. Top and critical reviews.' },
+              { n:'trending.component.html', t:'html' },
+              { n:'trending.component.scss', t:'scss' },
+            ]},
+            { n:'royalties/', t:'folder', tag:'teacher', children:[
+              { n:'royalties.component.ts', t:'ts', route:'/teacher/royalties', info:'Earnings by course, payout history, royalty breakdown (external sales / college share / remedial certs). 20% platform fee note.' },
+              { n:'royalties.component.html', t:'html' },
+              { n:'royalties.component.scss', t:'scss' },
+            ]},
+            { n:'settings/', t:'folder', tag:'teacher', children:[
+              { n:'settings.component.ts', t:'ts', route:'/teacher/settings', info:'Profile, linked bank account, notification toggles, course defaults (AI extraction on/off, DMs, per-lecture discussions).' },
+              { n:'settings.component.html', t:'html' },
+              { n:'settings.component.scss', t:'scss' },
+            ]},
+            { n:'services/', t:'folder', tag:'teacher', children:[
+              { n:'teacher.service.ts', t:'ts', info:'Course CRUD, lecture management, student standings, nudge sending.' },
+              { n:'upload.service.ts', t:'ts', info:'Chunked S3/Azure video upload, progress tracking, processing status polling.' },
+              { n:'royalty.service.ts', t:'ts', info:'Earnings fetch, payout history, per-course revenue.' },
+              { n:'messaging.service.ts', t:'ts', info:'Student DM threads, unread counts, real-time updates.' },
+            ]},
+            { n:'teacher-routing.module.ts', t:'ts', info:'Routes under /teacher:\n  dashboard | courses | courses/:id | upload | students | messages | discussion | live | trending | royalties | settings', changed:true },
+            { n:'teacher.module.ts', t:'ts', info:'Lazy-loaded TeacherModule. Imports SharedModule.' },
+          ]},
+
+          { n:'admin/', t:'folder', tag:'admin', info:'All admin pages. Lazy-loaded under /admin/**. Dark sidebar variant (#12102e).', children:[
+            { n:'dashboard/', t:'folder', tag:'admin', children:[
+              { n:'dashboard.component.ts', t:'ts', route:'/admin/dashboard', info:'Platform overview: 4 KPI cards, top teachers/students this month, quick action buttons, platform health snapshot (4-box grid).' },
+              { n:'dashboard.component.html', t:'html' },
+              { n:'dashboard.component.scss', t:'scss' },
+            ]},
+            { n:'users/', t:'folder', tag:'admin', changed:true, children:[
+              { n:'users.component.ts', t:'ts', route:'/admin/users', info:'RENAMED from user-management → users (matches route). Searchable user table: View/Warn/Blacklist/Suspend/Restore per user. Activity breakdown bars.', changed:true },
+              { n:'users.component.html', t:'html', changed:true },
+              { n:'users.component.scss', t:'scss', changed:true },
+            ]},
+            { n:'courses/', t:'folder', tag:'admin', changed:true, children:[
+              { n:'courses.component.ts', t:'ts', route:'/admin/courses', info:'RENAMED from course-approvals → courses (matches route). Pending/Approved/Rejected tabs. Preview/Approve/Reject with reason.', changed:true },
+              { n:'courses.component.html', t:'html', changed:true },
+              { n:'courses.component.scss', t:'scss', changed:true },
+            ]},
+            { n:'colleges/', t:'folder', tag:'admin', changed:true, children:[
+              { n:'colleges.component.ts', t:'ts', route:'/admin/colleges', info:'RENAMED from college-management → colleges (matches route). Registered colleges, teacher affiliation requests, Add College.', changed:true },
+              { n:'colleges.component.html', t:'html', changed:true },
+              { n:'colleges.component.scss', t:'scss', changed:true },
+            ]},
+            { n:'revenue/', t:'folder', tag:'admin', children:[
+              { n:'revenue.component.ts', t:'ts', route:'/admin/revenue', info:'Revenue KPI cards, monthly bar chart, revenue-by-source chart (external/college sub/remedial), top earning courses list.' },
+              { n:'revenue.component.html', t:'html' },
+              { n:'revenue.component.scss', t:'scss' },
+            ]},
+            { n:'payouts/', t:'folder', tag:'admin', children:[
+              { n:'payouts.component.ts', t:'ts', route:'/admin/payouts', info:'Pending payout list: Process All + individual Pay Now. Payout history table with CSV export.' },
+              { n:'payouts.component.html', t:'html' },
+              { n:'payouts.component.scss', t:'scss' },
+            ]},
+            { n:'reports/', t:'folder', tag:'admin', children:[
+              { n:'reports.component.ts', t:'ts', route:'/admin/reports', info:'Engagement/Growth/Course Quality/Revenue tabs. Charts + scheduled auto-email reports panel.' },
+              { n:'reports.component.html', t:'html' },
+              { n:'reports.component.scss', t:'scss' },
+            ]},
+            { n:'flagged/', t:'folder', tag:'admin', changed:true, children:[
+              { n:'flagged.component.ts', t:'ts', route:'/admin/flagged', info:'RENAMED from flagged-content → flagged (matches route). AI-flagged items by risk level. Blacklist/Warn/View/Dismiss actions. High-risk items with red border.', changed:true },
+              { n:'flagged.component.html', t:'html', changed:true },
+              { n:'flagged.component.scss', t:'scss', changed:true },
+            ]},
+            { n:'sentiment/', t:'folder', tag:'admin', changed:true, children:[
+              { n:'sentiment.component.ts', t:'ts', route:'/admin/sentiment', info:'RENAMED from sentiment-analysis → sentiment (matches route). Positive/Neutral/Negative % scores, keyword cloud, AI action recommendations, per-teacher sentiment scores.', changed:true },
+              { n:'sentiment.component.html', t:'html', changed:true },
+              { n:'sentiment.component.scss', t:'scss', changed:true },
+            ]},
+            { n:'settings/', t:'folder', tag:'admin', children:[
+              { n:'settings.component.ts', t:'ts', route:'/admin/settings', info:'Platform toggles (AI detection, approvals, purchases, leaderboard). Payout config (cut %, schedule, threshold). 2FA enforcement. Audit log. Manage admins.' },
+              { n:'settings.component.html', t:'html' },
+              { n:'settings.component.scss', t:'scss' },
+            ]},
+            { n:'services/', t:'folder', tag:'admin', children:[
+              { n:'admin.service.ts', t:'ts', info:'User management, course approval, college verification CRUD.' },
+              { n:'revenue.service.ts', t:'ts', info:'Revenue aggregation, chart data, payout processing.' },
+              { n:'moderation.service.ts', t:'ts', info:'Flag retrieval, blacklist/warn actions, AI confidence data.' },
+              { n:'sentiment.service.ts', t:'ts', info:'Sentiment scores, keyword trends, teacher score table.' },
+            ]},
+            { n:'admin-routing.module.ts', t:'ts', info:'Routes under /admin:\n  dashboard | users | courses | colleges | revenue | payouts | reports | flagged | sentiment | settings', changed:true },
+            { n:'admin.module.ts', t:'ts', info:'Lazy-loaded AdminModule. Imports SharedModule. Activates dark sidebar variant.' },
+          ]},
+
+          { n:'landing/', t:'folder', tag:'core', children:[
+            { n:'landing.component.ts', t:'ts', route:'/', info:'Public homepage. Hero, value proposition for students/teachers/colleges, featured courses, CTA to register.' },
+            { n:'landing.component.html', t:'html' },
+            { n:'landing.component.scss', t:'scss' },
+          ]},
+
+          { n:'payment/', t:'folder', tag:'shared', children:[
+            { n:'checkout.component.ts', t:'ts', info:'Course purchase flow: order summary → Razorpay SDK → enrollment confirmation.' },
+            { n:'payment-success.component.ts', t:'ts', info:'Post-payment page: receipt + Start Course CTA.' },
+            { n:'payment.service.ts', t:'ts', info:'Creates Razorpay orders, verifies payment signatures, updates enrollment.' },
+          ]},
+
+          { n:'not-found/', t:'folder', tag:'core', children:[
+            { n:'not-found.component.ts', t:'ts', info:'404 page with Lottie animation and Go Home CTA.' },
+          ]},
+        ]},
+
+        { n:'store/', t:'folder', tag:'core', info:'NgRx state — one slice per domain.', children:[
+          { n:'auth/', t:'folder', tag:'core', children:[
+            { n:'auth.actions.ts', t:'ts', info:'login, logout, refreshToken, setUser, setCollegeVerified.' },
+            { n:'auth.effects.ts', t:'ts', info:'JWT login call, token refresh, role-based redirect on success.' },
+            { n:'auth.reducer.ts', t:'ts', info:'State: user, token, role, isCollegeVerified, loading, error.' },
+            { n:'auth.selectors.ts', t:'ts', info:'selectCurrentUser, selectUserRole, selectIsAuthenticated, selectIsCollegeVerified.' },
+          ]},
+          { n:'student/', t:'folder', tag:'student', children:[
+            { n:'student.actions.ts', t:'ts', info:'loadCourses, loadLecture, markLectureComplete, updateProgress, loadLeaderboard.' },
+            { n:'student.effects.ts', t:'ts' },
+            { n:'student.reducer.ts', t:'ts' },
+            { n:'student.selectors.ts', t:'ts' },
+          ]},
+          { n:'teacher/', t:'folder', tag:'teacher', children:[
+            { n:'teacher.actions.ts', t:'ts', info:'loadMyCourses, uploadLecture, submitCourseForReview, sendNudge, loadRoyalties.' },
+            { n:'teacher.effects.ts', t:'ts' },
+            { n:'teacher.reducer.ts', t:'ts' },
+            { n:'teacher.selectors.ts', t:'ts' },
+          ]},
+          { n:'app.state.ts', t:'ts', info:'Root AppState combining all feature slices.' },
+        ]},
+
+        { n:'app-routing.module.ts', t:'ts', info:'Root router. Lazy-loads StudentModule, TeacherModule, AdminModule. Applies role.guard.ts per prefix. Redirects / to landing.', changed:true },
+        { n:'app.component.ts', t:'ts', info:'Root component — just a <router-outlet> wrapper.' },
+        { n:'app.component.html', t:'html' },
+        { n:'app.module.ts', t:'ts', info:'Root AppModule: imports CoreModule, BrowserAnimationsModule, StoreModule.forRoot.' },
+      ]},
+
+      { n:'assets/', t:'folder', tag:'shared', children:[
+        { n:'icons/', t:'folder', tag:'shared', info:'SVG icons and Lottie JSON animations.' },
+        { n:'images/', t:'folder', tag:'shared', info:'Logos, hero images, fallback thumbnails.' },
+        { n:'fonts/', t:'folder', tag:'shared', info:'Custom web fonts (if not loaded via CDN).' },
+        { n:'i18n/', t:'folder', tag:'shared', info:'Translation JSONs: en.json, hi.json for future localisation.' },
+      ]},
+
+      { n:'styles/', t:'folder', tag:'shared', children:[
+        { n:'_variables.scss', t:'scss', info:'Brand tokens: --brand-purple #534AB7, --admin-sidebar #12102e, role status colors.' },
+        { n:'_typography.scss', t:'scss', info:'Font scale, heading sizes, body, mono.' },
+        { n:'_mixins.scss', t:'scss', info:'Flex/grid helpers, responsive breakpoints, truncate mixin.' },
+        { n:'_reset.scss', t:'scss', info:'Box-sizing reset, normalize base.' },
+        { n:'_animations.scss', t:'scss', info:'Shared keyframes: fade-in, slide-in, pulse for Lottie fallbacks.' },
+        { n:'styles.scss', t:'scss', info:'Global entry: imports all partials, Angular Material theme overrides.' },
+      ]},
+
+      { n:'environments/', t:'folder', tag:'core', children:[
+        { n:'environment.ts', t:'env', info:'Dev: apiUrl, razorpayKey, firebase config, feature flags.' },
+        { n:'environment.prod.ts', t:'env', info:'Prod: same keys, production values, analytics enabled.' },
+      ]},
+
+      { n:'index.html', t:'html', info:'App shell. Sets base href, loads fonts, meta tags.' },
+      { n:'main.ts', t:'ts', info:'Bootstrap entry: platformBrowserDynamic().bootstrapModule(AppModule).' },
+    ]},
+
+    { n:'angular.json', t:'json', info:'Workspace config: build/serve/test targets, global SCSS styles.' },
+    { n:'tsconfig.json', t:'json', info:'TypeScript config: strict mode, path aliases (@core, @shared, @student, @teacher, @admin).' },
+    { n:'package.json', t:'json', info:'Dependencies: Angular, NgRx, Angular Material, HLS.js, Razorpay SDK, Lottie.' },
+    { n:'.eslintrc.json', t:'json', info:'ESLint with Angular-specific rules.' },
+    { n:'.prettierrc', t:'other', info:'Prettier: single quotes, 100 char line width, trailing commas.' },
+    { n:'README.md', t:'other', info:'Setup guide, environment config, module overview.' },
+  ]},
+];
+
+const TAG_COLORS = { student:'tag-student', teacher:'tag-teacher', admin:'tag-admin', shared:'tag-shared', core:'tag-core' };
+const FILE_CLASS = { ts:'file-ts', html:'file-html', scss:'file-scss', json:'file-json', env:'file-env', other:'file-other', folder:'folder' };
+const FILE_ICON = { ts:'🟢', html:'🟠', scss:'🔴', json:'🔵', env:'🔑', other:'📄', folder:'' };
+
+let openNodes = new Set(), allRows = [], currentRole = 'all', searchQuery = '';
+
+function flattenTree(nodes, depth, prefix) {
+  nodes.forEach((node, idx) => {
+    const isLast = idx === nodes.length - 1;
+    const connector = depth === 0 ? '' : (isLast ? '└─ ' : '├─ ');
+    const childPrefix = depth === 0 ? '' : prefix + (isLast ? '   ' : '│  ');
+    const id = Math.random().toString(36).slice(2);
+    node._id = id; node._depth = depth; node._prefix = prefix + connector;
+    node._hasChildren = !!(node.children && node.children.length);
+    if (node._hasChildren) openNodes.add(id);
+    allRows.push(node);
+    if (node.children) flattenTree(node.children, depth + 1, childPrefix);
+  });
+}
+
+function matchesSearch(n) { return !searchQuery || n.n.toLowerCase().includes(searchQuery) || (n.route && n.route.toLowerCase().includes(searchQuery)); }
+
+function getAncestorIds() {
+  const vis = new Set();
+  allRows.forEach(n => {
+    if (n.t !== 'folder' && matchesSearch(n)) {
+      allRows.forEach(p => { if (p.t === 'folder' && n._prefix.startsWith(p._prefix)) vis.add(p._id); });
+    }
+  });
+  return vis;
+}
+
+function renderTree() {
+  const container = document.getElementById('tree');
+  let html = '', count = 0;
+  const ancestors = searchQuery ? getAncestorIds() : null;
+  allRows.forEach(node => {
+    const isOpen = openNodes.has(node._id);
+    let hidden = false;
+    if (searchQuery) {
+      const matches = matchesSearch(node);
+      const isAnc = ancestors && ancestors.has(node._id);
+      if (!matches && !isAnc) hidden = true;
+    }
+    if (!hidden && currentRole !== 'all' && node.t !== 'folder') {
+      const parent = findParentFolder(node);
+      if (parent && parent.tag && parent.tag !== currentRole && !['shared','core'].includes(parent.tag)) hidden = true;
+    }
+    const nameClass = FILE_CLASS[node.t] || 'file-other';
+    const icon = node.t === 'folder' ? (isOpen ? '📂' : '📁') : (FILE_ICON[node.t] || '📄');
+    const tagHtml = node.tag ? `<span class="node-tag ${TAG_COLORS[node.tag]||''}">${node.tag}</span>` : '';
+    const routeHtml = node.route ? `<span class="node-route">${node.route}</span>` : '';
+    const toggleHtml = node._hasChildren ? `<span class="toggle">${isOpen ? '▾' : '▸'}</span>` : '<span class="toggle"></span>';
+    const changedClass = node.changed ? ' changed' : '';
+    html += `<div class="node-row${hidden?' hidden':''}${changedClass}" data-id="${node._id}" onclick="handleClick('${node._id}')" onmousemove="showTip(event,'${node._id}')" onmouseleave="hideTip()">
+      <span class="indent">${node._prefix}</span>${toggleHtml}<span class="node-icon">${icon}</span><span class="node-name ${nameClass}">${node.n}</span>${routeHtml}${tagHtml}
+    </div>`;
+    if (!hidden) count++;
+  });
+  container.innerHTML = html;
+  document.getElementById('stats').textContent = `${count} items visible`;
+}
+
+function findParentFolder(node) {
+  const idx = allRows.indexOf(node);
+  for (let i = idx - 1; i >= 0; i--) {
+    if (allRows[i].t === 'folder' && node._prefix.startsWith(allRows[i]._prefix)) return allRows[i];
+  }
+  return null;
+}
+
+function handleClick(id) {
+  const node = allRows.find(n => n._id === id);
+  if (!node || !node._hasChildren) return;
+  if (openNodes.has(id)) openNodes.delete(id); else openNodes.add(id);
+  renderTree();
+}
+
+const tooltip = document.getElementById('tooltip');
+function showTip(e, id) {
+  const node = allRows.find(n => n._id === id);
+  if (!node || (!node.info && !node.route)) { hideTip(); return; }
+  const routeHtml = node.route ? `<span class="tip-route">${node.route}</span>` : '';
+  tooltip.innerHTML = `<strong>${node.n}</strong>${routeHtml}${node.info || ''}`;
+  tooltip.style.display = 'block';
+  let x = e.clientX + 14, y = e.clientY - 10;
+  if (x + 310 > window.innerWidth) x = e.clientX - 314;
+  if (y + 120 > window.innerHeight) y = e.clientY - 90;
+  tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
+}
+function hideTip() { tooltip.style.display = 'none'; }
+
+function filterRole(role) {
+  currentRole = role;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    const label = b.textContent.trim().toLowerCase();
+    b.classList.toggle('active', label === role || (role === 'all' && label === 'all'));
+  });
+  if (role !== 'all') toggleAll(true);
+  renderTree();
+}
+
+function doSearch(q) {
+  searchQuery = q.toLowerCase().trim();
+  if (searchQuery) toggleAll(true);
+  renderTree();
+}
+
+function toggleAll(expand) {
+  allRows.forEach(n => { if (n._hasChildren) { if (expand) openNodes.add(n._id); else openNodes.delete(n._id); } });
+  renderTree();
+}
+
+flattenTree(T, 0, '');
+toggleAll(false);
+['learnsphere/','src/','app/','features/','core/','shared/','student/','teacher/','admin/','styles/','environments/'].forEach(name => {
+  const n = allRows.find(x => x.n === name);
+  if (n) openNodes.add(n._id);
+});
+renderTree();
+</script>
