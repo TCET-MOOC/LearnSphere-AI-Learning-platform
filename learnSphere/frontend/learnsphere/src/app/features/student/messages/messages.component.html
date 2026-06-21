@@ -1,0 +1,89 @@
+<div class="messages-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">Messages</h1>
+    <div class="header-actions">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search conversations..." [(ngModel)]="searchText" class="search-input" />
+      </div>
+    </div>
+  </div>
+
+  <div class="messages-layout">
+
+    <!-- Left: Conversation List -->
+    <div class="conv-panel">
+      <div class="conv-filters">
+        <button class="filter-btn" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">All</button>
+        <button class="filter-btn" [class.active]="activeFilter === 'unread'" (click)="setFilter('unread')">
+          Unread <span class="badge" *ngIf="totalUnread > 0">{{ totalUnread }}</span>
+        </button>
+        <button class="filter-btn" [class.active]="activeFilter === 'courses'" (click)="setFilter('courses')">Courses</button>
+      </div>
+
+      <div class="conv-list">
+        <div class="conv-item"
+             *ngFor="let conv of filteredConversations"
+             [class.conv-item--active]="selectedConversation.id === conv.id"
+             [class.conv-item--unread]="conv.unread > 0"
+             (click)="selectConversation(conv)">
+          <div class="conv-ava" [style.background]="conv.bg" [style.color]="conv.color">{{ conv.initials }}</div>
+          <div class="conv-info">
+            <div class="conv-top">
+              <span class="conv-name">{{ conv.teacherName }}</span>
+              <span class="conv-time">{{ conv.lastTime }}</span>
+            </div>
+            <div class="conv-course">{{ conv.course }}</div>
+            <div class="conv-preview">{{ conv.lastMessage }}</div>
+          </div>
+          <div class="conv-unread" *ngIf="conv.unread > 0">{{ conv.unread }}</div>
+        </div>
+
+        <div class="conv-empty" *ngIf="filteredConversations.length === 0">
+          No conversations found
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Chat View -->
+    <div class="chat-panel" *ngIf="selectedConversation">
+
+      <div class="chat-header">
+        <div class="chat-ava" [style.background]="selectedConversation.bg" [style.color]="selectedConversation.color">
+          {{ selectedConversation.initials }}
+        </div>
+        <div class="chat-header-info">
+          <div class="chat-name">{{ selectedConversation.teacherName }}</div>
+          <div class="chat-course">{{ selectedConversation.course }}</div>
+        </div>
+      </div>
+
+      <div class="chat-thread">
+        <div class="chat-msg"
+             *ngFor="let msg of selectedConversation.messages"
+             [class.chat-msg--student]="msg.sender === 'student'"
+             [class.chat-msg--teacher]="msg.sender === 'teacher'">
+          <div class="chat-bubble">
+            <div class="chat-text">{{ msg.text }}</div>
+            <div class="chat-time">{{ msg.time }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-bar">
+        <input type="text"
+               placeholder="Type a message..."
+               [(ngModel)]="newMessage"
+               class="chat-input"
+               (keydown.enter)="sendMessage()" />
+        <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
