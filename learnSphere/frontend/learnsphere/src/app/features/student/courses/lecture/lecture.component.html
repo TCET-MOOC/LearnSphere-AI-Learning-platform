@@ -1,0 +1,92 @@
+<div class="lecture-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Student view</p>
+      <h1>Video Lectures</h1>
+    </div>
+    <button class="btn btn--primary" type="button">Continue watching</button>
+  </header>
+
+  <nav class="tabs" aria-label="Lecture filters">
+    <button
+      class="tab"
+      *ngFor="let tab of tabs"
+      [class.tab--active]="tab === activeTab"
+      (click)="setTab(tab)"
+      type="button">
+      {{ tab }}
+    </button>
+  </nav>
+
+  <section class="player-card">
+    <div class="player-head">
+      <div>
+        <h2>Now playing - Engineering Mathematics III</h2>
+        <p>Lecture 8 · Laplace Transforms - Part 2</p>
+      </div>
+      <span class="pill pill--purple">35% watched</span>
+    </div>
+
+    <div class="video-shell" aria-label="Video player preview">
+      <button class="play-button" type="button" aria-label="Play lecture">Play</button>
+      <div class="video-meta">
+        <span>08:24</span>
+        <div class="video-track"><span style="width: 35%"></span></div>
+        <span>24:00</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="lecture-layout">
+    <section class="card">
+      <div class="card-head">
+        <h2>Lecture library</h2>
+        <button class="link-btn" type="button">Recently added</button>
+      </div>
+
+      <div class="lecture-grid">
+        <article class="lecture-card" *ngFor="let lecture of lectures">
+          <div class="lecture-thumb" [class]="'lecture-thumb lecture-thumb--' + lecture.tone">
+            <span>{{ lecture.duration }}</span>
+          </div>
+          <div class="lecture-info">
+            <div class="lecture-title-row">
+              <h3>{{ lecture.title }}</h3>
+              <span class="pill" [ngClass]="getStatusClass(lecture.status)">{{ lecture.status }}</span>
+            </div>
+            <p>{{ lecture.course }}</p>
+            <div class="progress-track" aria-hidden="true">
+              <span [style.width.%]="lecture.progress"></span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      <section class="card">
+        <div class="card-head">
+          <h2>Playlist</h2>
+          <span class="pill pill--grey">4 lectures</span>
+        </div>
+        <div class="playlist-row" *ngFor="let item of playlist" [class.playlist-row--done]="item.done">
+          <span class="playlist-dot"></span>
+          <div>
+            <strong>{{ item.title }}</strong>
+            <small>{{ item.time }}</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Lecture notes</h2>
+          <button class="link-btn" type="button">Open notes</button>
+        </div>
+        <ul class="note-list">
+          <li *ngFor="let note of notes">{{ note }}</li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+</div>

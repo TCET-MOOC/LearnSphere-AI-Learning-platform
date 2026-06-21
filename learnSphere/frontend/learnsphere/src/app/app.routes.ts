@@ -8,15 +8,23 @@ import { DashboardComponent as AdminDashboard } from './features/admin/dashboard
 import { MessagesComponent as TeacherMessages } from './features/teacher/messages/messages.component';
 import { MessagesComponent as StudentMessages } from './features/student/messages/messages.component';
 import { MessagesComponent as AdminMessages } from './features/admin/messages/messages.component';
+import { CoursesComponent as StudentCourses } from './features/student/courses/courses.component';
+import { LectureComponent as StudentLectures } from './features/student/courses/lecture/lecture.component';
+import { CoursesComponent as TeacherCourses } from './features/teacher/courses/courses.component';
+import { UsersComponent as AdminUsers } from './features/admin/users/users.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'student/dashboard', component: StudentDashboard },
+  { path: 'student/courses', component: StudentCourses },
+  { path: 'student/lectures', component: StudentLectures },
   { path: 'student/messages', component: StudentMessages },
   { path: 'teacher/dashboard', component: TeacherDashboard },
+  { path: 'teacher/courses', component: TeacherCourses },
   { path: 'teacher/messages', component: TeacherMessages },
   { path: 'admin/dashboard', component: AdminDashboard },
+  { path: 'admin/users', component: AdminUsers },
   { path: 'admin/messages', component: AdminMessages }
 ];
