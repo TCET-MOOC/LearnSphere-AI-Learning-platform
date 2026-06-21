@@ -1,0 +1,64 @@
+<div class="notes-page">
+  <div class="notes-page__header">
+    <h1 class="notes-page__title">My notes</h1>
+  </div>
+
+  <!-- Dynamic course filter tabs -->
+  <div class="section-tabs">
+    <div class="stab" 
+         [class.on]="selectedCourse === 'all'" 
+         (click)="selectTab('all')">
+      All notes
+    </div>
+    <div class="stab" 
+         *ngFor="let course of courses" 
+         [class.on]="selectedCourse === course" 
+         (click)="selectTab(course)">
+      {{ course }}
+    </div>
+  </div>
+
+  <!-- Search input bar and New Note button -->
+  <div class="controls-row">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" 
+             placeholder="Search notes…" 
+             [(ngModel)]="searchQuery" 
+             (ngModelChange)="onSearchChange()" 
+             class="search-input" />
+    </div>
+    <button class="btn btn--primary" (click)="openNewNoteDialog()">
+      ➕ New note
+    </button>
+  </div>
+
+  <!-- Handles loading states and zero results display -->
+  <ng-container *ngIf="filteredNotes.length === 0; else notesGrid">
+    <app-empty-state 
+      title="No notes found" 
+      subtitle="You haven't taken any notes for this course yet, or no notes match your search.">
+    </app-empty-state>
+  </ng-container>
+
+  <!-- Notes cards grid -->
+  <ng-template #notesGrid>
+    <div class="notes-grid">
+      <app-note-card 
+        *ngFor="let note of filteredNotes" 
+        [note]="note" 
+        (changed)="onNotesChanged()">
+      </app-note-card>
+    </div>
+  </ng-template>
+
+  <!-- Bottom Export Options Panel -->
+  <div class="card export-panel">
+    <div class="card-hd">Export options</div>
+    <div class="export-actions">
+      <button class="action-btn prim" (click)="exportAll()">Export all as PDF</button>
+      <button class="action-btn" (click)="exportByCourse()">Export by course</button>
+      <button class="action-btn" (click)="copyToClipboard()">Copy to clipboard</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,118 @@
+<div class="note-editor-wrapper">
+  <!-- Top brand gradient bar -->
+  <div class="note-editor-brand-bar"></div>
+
+  <div class="note-editor">
+    <div class="note-editor__header">
+      <h2 mat-dialog-title class="note-editor__title">
+        {{ isEditMode ? 'Edit Note' : 'Create New Note' }}
+      </h2>
+      <button type="button" class="close-dialog-btn" (click)="onCancel()" aria-label="Close dialog">×</button>
+    </div>
+    
+    <div mat-dialog-content class="note-editor__content">
+      <form [formGroup]="noteForm" (submit)="onSubmit()" class="editor-form">
+        
+        <!-- Read-only lecture mapping details -->
+        <div class="form-group readonly-group">
+          <label class="form-label">LINKED LECTURE</label>
+          <div class="readonly-value">
+            <span class="course-badge">{{ courseName }}</span>
+            <span class="lecture-badge">
+              <span class="icon">🎥</span> {{ lectureLabel }}
+            </span>
+            <span class="timestamp-badge">
+              <span class="icon">⏱</span> {{ timestampSeconds * 1000 | date:'mm:ss':'UTC' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Title text field -->
+        <div class="form-group">
+          <div class="form-label-row">
+            <label for="note-title" class="form-label">NOTE TITLE</label>
+            <span class="char-counter" [class.limit-near]="(noteForm.get('title')?.value?.length || 0) > 85">
+              {{ noteForm.get('title')?.value?.length || 0 }}/100
+            </span>
+          </div>
+          <div class="input-wrapper">
+            <input id="note-title" 
+                   type="text" 
+                   formControlName="title" 
+                   class="form-control" 
+                   placeholder="Enter a descriptive note title..." />
+          </div>
+          <div class="error-msg" *ngIf="noteForm.get('title')?.touched && noteForm.get('title')?.invalid">
+            Title is required (maximum 100 characters).
+          </div>
+        </div>
+
+        <!-- Content text block with Markdown toolbar -->
+        <div class="form-group">
+          <label for="note-content" class="form-label">NOTE CONTENT</label>
+          <div class="editor-textarea-container">
+            <!-- Styling Toolbar for markdown -->
+            <div class="markdown-toolbar">
+              <button type="button" class="toolbar-btn" (click)="insertFormatting('bold')" title="Bold (Ctrl+B)">
+                <strong>B</strong>
+              </button>
+              <button type="button" class="toolbar-btn" (click)="insertFormatting('italic')" title="Italic (Ctrl+I)">
+                <em>I</em>
+              </button>
+              <button type="button" class="toolbar-btn" (click)="insertFormatting('code')" title="Inline Code">
+                <code>&lt;/&gt;</code>
+              </button>
+              <button type="button" class="toolbar-btn" (click)="insertFormatting('list')" title="Bullet List">
+                • List
+              </button>
+              <div class="toolbar-divider"></div>
+              <span class="toolbar-tip">Supports Markdown (**bold**, *italic*, `code`)</span>
+            </div>
+            
+            <textarea id="note-content" 
+                      formControlName="content" 
+                      class="form-control textarea" 
+                      placeholder="Write your notes here... Use formatting buttons above for quick markup."></textarea>
+          </div>
+          <div class="error-msg" *ngIf="noteForm.get('content')?.touched && noteForm.get('content')?.invalid">
+            Note content cannot be empty.
+          </div>
+        </div>
+
+        <!-- Tag chip inputs -->
+        <div class="form-group">
+          <label for="note-tag" class="form-label">TAGS</label>
+          <div class="tag-input-container">
+            <div class="tag-input-wrap">
+              <span class="tag-prefix">#</span>
+              <input id="note-tag" 
+                     type="text" 
+                     [(ngModel)]="currentTag" 
+                     [ngModelOptions]="{standalone: true}" 
+                     (keydown.enter)="addTag($event)" 
+                     class="form-control tag-input" 
+                     placeholder="Type tag and press Enter..." />
+            </div>
+            <button type="button" class="btn btn--secondary btn--sm" (click)="addTag($event)">Add</button>
+          </div>
+          
+          <!-- Rendered tags array -->
+          <div class="tags-chips-container" *ngIf="tags.length > 0">
+            <span class="chip" *ngFor="let t of tags">
+              #{{ t }}
+              <button type="button" class="chip__remove-btn" (click)="removeTag(t)" aria-label="Remove tag">×</button>
+            </span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div mat-dialog-actions class="editor-actions">
+          <button type="button" class="btn btn--ghost" (click)="onCancel()">Cancel</button>
+          <button type="submit" class="btn btn--primary" [disabled]="noteForm.invalid">
+            {{ isEditMode ? 'Save Changes' : 'Create Note' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
