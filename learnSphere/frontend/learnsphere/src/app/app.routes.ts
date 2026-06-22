@@ -12,6 +12,18 @@ import { CoursesComponent as StudentCourses } from './features/student/courses/c
 import { LectureComponent as StudentLectures } from './features/student/courses/lecture/lecture.component';
 import { CoursesComponent as TeacherCourses } from './features/teacher/courses/courses.component';
 import { UsersComponent as AdminUsers } from './features/admin/users/users.component';
+import { SettingsComponent as StudentSettings } from './features/student/settings/settings.component';
+import { AnnouncementsComponent as StudentAnnouncements } from './features/student/announcements/announcements.component';
+import { NotificationsComponent as StudentNotifications } from './features/student/notifications/notifications.component';
+import { ProfileComponent as StudentProfile } from './features/student/profile/profile.component';
+import { SettingsComponent as TeacherSettings } from './features/teacher/settings/settings.component';
+import { AnnouncementsComponent as TeacherAnnouncements } from './features/teacher/announcements/announcements.component';
+import { NotificationsComponent as TeacherNotifications } from './features/teacher/notifications/notifications.component';
+import { ProfileComponent as TeacherProfile } from './features/teacher/profile/profile.component';
+import { SettingsComponent as AdminSettings } from './features/admin/settings/settings.component';
+import { AnnouncementsComponent as AdminAnnouncements } from './features/admin/announcements/announcements.component';
+import { NotificationsComponent as AdminNotifications } from './features/admin/notifications/notifications.component';
+import { ProfileComponent as AdminProfile } from './features/admin/profile/profile.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, pathMatch: 'full' },
@@ -21,10 +33,22 @@ export const routes: Routes = [
   { path: 'student/courses', component: StudentCourses },
   { path: 'student/lectures', component: StudentLectures },
   { path: 'student/messages', component: StudentMessages },
+  { path: 'student/settings', component: StudentSettings },
+  { path: 'student/announcements', component: StudentAnnouncements },
+  { path: 'student/notifications', component: StudentNotifications },
+  { path: 'student/profile', component: StudentProfile },
   { path: 'teacher/dashboard', component: TeacherDashboard },
   { path: 'teacher/courses', component: TeacherCourses },
   { path: 'teacher/messages', component: TeacherMessages },
+  { path: 'teacher/settings', component: TeacherSettings },
+  { path: 'teacher/announcements', component: TeacherAnnouncements },
+  { path: 'teacher/notifications', component: TeacherNotifications },
+  { path: 'teacher/profile', component: TeacherProfile },
   { path: 'admin/dashboard', component: AdminDashboard },
   { path: 'admin/users', component: AdminUsers },
-  { path: 'admin/messages', component: AdminMessages }
+  { path: 'admin/messages', component: AdminMessages },
+  { path: 'admin/settings', component: AdminSettings },
+  { path: 'admin/announcements', component: AdminAnnouncements },
+  { path: 'admin/notifications', component: AdminNotifications },
+  { path: 'admin/profile', component: AdminProfile }
 ];
