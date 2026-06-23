@@ -1,0 +1,235 @@
+$brand-purple: #534AB7;
+$brand-purple-lt: #EEEDFE;
+$border-color: #E8E7EF;
+$text-primary: #1A1830;
+$text-secondary: #6B6880;
+$topbar-height: 72px;
+
+.topbar {
+  height: $topbar-height;
+  background: #ffffff;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  flex-shrink: 0;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+    }
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    background: #F5F5F8;
+    padding: 8px 16px;
+    border-radius: 24px;
+    width: 340px;
+    border: 1px solid transparent;
+    transition: border 0.2s, background 0.2s;
+
+    &:focus-within {
+      border-color: $border-color;
+      background: #ffffff;
+    }
+
+    .search-icon {
+      margin-right: 10px;
+      width: 16px;
+      height: 16px;
+      color: $text-secondary;
+    }
+
+    input {
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: $text-primary;
+      &::placeholder { color: #A09DB8; }
+    }
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      color: $text-secondary;
+      transition: background 0.2s, color 0.2s;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      &:hover {
+        background: #F5F5F8;
+        color: $text-primary;
+      }
+
+      .badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #E5453A;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+      }
+    }
+
+    .user-profile {
+      margin-left: 12px;
+      cursor: pointer;
+
+      .avatar {
+        width: 36px;
+        height: 36px;
+        background: $brand-purple-lt;
+        color: $brand-purple;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 13px;
+        border: 1px solid rgba($brand-purple, 0.1);
+        transition: opacity 0.2s;
+
+        &:hover { opacity: 0.8; }
+      }
+    }
+  }
+}
+
+/* ── PROFILE DROPDOWN CONTAINER ── */
+.profile-container {
+  position: relative; /* Crucial: Keeps the dropdown anchored to the avatar */
+  margin-left: 8px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #534AB7;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+/* ── INVISIBLE CLICK-OUTSIDE BACKDROP ── */
+.dropdown-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 99; /* Sits just below the dropdown */
+  cursor: default;
+}
+
+/* ── THE DROPDOWN MENU ── */
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 12px); /* Floats exactly 12px below the avatar */
+  right: 0;
+  width: 220px;
+  background: #ffffff;
+  border: 1px solid #E8E7EF;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  overflow: hidden;
+  animation: slideDown 0.2s ease forwards;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+  padding: 16px;
+  background: #F8FAF8;
+
+  .user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1A1830;
+    margin-bottom: 4px;
+  }
+  .user-email {
+    font-size: 12px;
+    color: #6B6880;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #E8E7EF;
+}
+
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: inherit;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: #F5F5F8;
+  }
+
+  &.text-danger {
+    color: #E5453A;
+    &:hover { background: #FCEBEB; }
+  }
+}
