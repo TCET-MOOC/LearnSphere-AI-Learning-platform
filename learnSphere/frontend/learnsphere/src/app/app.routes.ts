@@ -5,6 +5,9 @@ import { LandingComponent } from './features/landing/landing.component';
 import { DashboardComponent as StudentDashboard } from './features/student/dashboard/dashboard.component';
 import { DashboardComponent as TeacherDashboard } from './features/teacher/dashboard/dashboard.component';
 import { DashboardComponent as AdminDashboard } from './features/admin/dashboard/dashboard.component';
+import { BookmarksComponent as StudentBookmarks } from './features/student/bookmarks/bookmarks.component';
+import { DiscussionComponent as TeacherDiscussion } from './features/teacher/discussion/discussion.component';
+import { ReportsComponent as AdminReports } from './features/admin/reports/reports.component';
 import { MessagesComponent as TeacherMessages } from './features/teacher/messages/messages.component';
 import { MessagesComponent as StudentMessages } from './features/student/messages/messages.component';
 import { MessagesComponent as AdminMessages } from './features/admin/messages/messages.component';
@@ -20,11 +23,15 @@ export const routes: Routes = [
   { path: 'student/dashboard', component: StudentDashboard },
   { path: 'student/courses', component: StudentCourses },
   { path: 'student/lectures', component: StudentLectures },
+  { path: 'student/bookmarks', component: StudentBookmarks },
   { path: 'student/messages', component: StudentMessages },
   { path: 'teacher/dashboard', component: TeacherDashboard },
   { path: 'teacher/courses', component: TeacherCourses },
   { path: 'teacher/messages', component: TeacherMessages },
+  { path: 'teacher/discuss', component: TeacherDiscussion },
+  { path: 'teacher/discussion', redirectTo: 'teacher/discuss', pathMatch: 'full' },
   { path: 'admin/dashboard', component: AdminDashboard },
   { path: 'admin/users', component: AdminUsers },
-  { path: 'admin/messages', component: AdminMessages }
+  { path: 'admin/messages', component: AdminMessages },
+  { path: 'admin/reports', component: AdminReports }
 ];

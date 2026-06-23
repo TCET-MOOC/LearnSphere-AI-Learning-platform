@@ -1,0 +1,128 @@
+<div class="bookmarks-page">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">Student workspace</span>
+      <h1 class="page-title">Bookmarks</h1>
+      <p class="page-subtitle">Resume saved lectures, open notes, and keep course resources within reach.</p>
+    </div>
+    <button type="button" class="action-btn action-btn--primary" (click)="clearFilters()">Reset view</button>
+  </div>
+
+  <section class="kpi-row" aria-label="Bookmark summary">
+    <div class="kpi-card" *ngFor="let stat of stats">
+      <div class="kpi-lbl">{{ stat.label }}</div>
+      <div class="kpi-val" [style.color]="stat.color">{{ stat.value }}</div>
+      <div class="kpi-sub">{{ stat.sub }}</div>
+    </div>
+  </section>
+
+  <section class="toolbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="search"
+        placeholder="Search bookmarks by title, course, or lecture"
+        [value]="searchTerm"
+        (input)="onSearch($event)"
+      >
+    </div>
+
+    <div class="filter-tabs" role="tablist" aria-label="Bookmark filters">
+      <button
+        type="button"
+        class="filter-tab"
+        *ngFor="let filter of filters"
+        [class.is-active]="activeFilter === filter.value"
+        (click)="setFilter(filter.value)"
+      >
+        {{ filter.label }}
+      </button>
+    </div>
+  </section>
+
+  <div class="content-grid">
+    <section class="card bookmark-list">
+      <div class="card-hd">
+        Saved learning items
+        <span>{{ visibleBookmarks.length }} shown</span>
+      </div>
+
+      <ng-container *ngIf="visibleBookmarks.length; else emptyState">
+        <article
+          class="bookmark-card"
+          *ngFor="let item of visibleBookmarks; trackBy: trackByBookmark"
+          [class.is-selected]="selectedBookmark?.id === item.id"
+          (click)="selectBookmark(item.id)"
+        >
+          <div class="bookmark-avatar" [style.background]="item.background" [style.color]="item.color">
+            {{ item.initials }}
+          </div>
+
+          <div class="bookmark-main">
+            <div class="bookmark-topline">
+              <span class="pill" [ngClass]="'pill--' + item.tone">{{ item.typeLabel }}</span>
+              <span class="bookmark-date">{{ item.savedAt }}</span>
+            </div>
+            <h2 class="bookmark-title">{{ item.title }}</h2>
+            <p class="bookmark-meta">{{ item.course }} · {{ item.context }} · {{ item.meta }}</p>
+            <div class="progress-line" *ngIf="item.progress !== undefined">
+              <div class="progress-track">
+                <div class="progress-fill" [style.width.%]="item.progress" [style.background]="item.color"></div>
+              </div>
+              <span>{{ item.progress }}%</span>
+            </div>
+          </div>
+
+          <div class="bookmark-actions">
+            <span class="status-text">{{ item.status }}</span>
+            <button type="button" class="action-btn" (click)="selectBookmark(item.id); $event.stopPropagation()">
+              {{ item.actionLabel }}
+            </button>
+            <button type="button" class="link-btn" (click)="removeBookmark(item.id); $event.stopPropagation()">
+              Remove
+            </button>
+          </div>
+        </article>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <div class="empty-title">No bookmarks match this view</div>
+          <p>Try a different filter or clear the search to see your saved learning items.</p>
+          <button type="button" class="action-btn action-btn--primary" (click)="clearFilters()">Clear filters</button>
+        </div>
+      </ng-template>
+    </section>
+
+    <aside class="card detail-panel" *ngIf="selectedBookmark as selected">
+      <div class="card-hd">Bookmark preview</div>
+      <div class="detail-hero" [style.background]="selected.background" [style.color]="selected.color">
+        {{ selected.initials }}
+      </div>
+      <span class="pill" [ngClass]="'pill--' + selected.tone">{{ selected.typeLabel }}</span>
+      <h2>{{ selected.title }}</h2>
+      <p class="detail-course">{{ selected.course }}</p>
+      <p class="detail-note">{{ selected.note }}</p>
+
+      <div class="detail-list">
+        <div>
+          <span>Location</span>
+          <strong>{{ selected.context }}</strong>
+        </div>
+        <div>
+          <span>Saved</span>
+          <strong>{{ selected.savedAt }}</strong>
+        </div>
+        <div>
+          <span>Status</span>
+          <strong>{{ selected.status }}</strong>
+        </div>
+      </div>
+
+      <button type="button" class="action-btn action-btn--primary full-width">{{ selected.actionLabel }}</button>
+    </aside>
+  </div>
+</div>
