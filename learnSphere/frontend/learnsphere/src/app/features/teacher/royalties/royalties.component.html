@@ -1,0 +1,86 @@
+<div class="page-container">
+  <h1 class="page-title">Royalties & earnings</h1>
+
+  <div class="stats-grid">
+    <div class="stat-box">
+      <span class="stat-label">This month</span>
+      <span class="stat-value">₹18,400</span>
+      <span class="stat-subtext text-success">+22% vs last month</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Total earned</span>
+      <span class="stat-value">₹1.2L</span>
+      <span class="stat-subtext">Since joining</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Next payout</span>
+      <span class="stat-value">30 Jun</span>
+      <span class="stat-subtext text-purple">₹18,400 pending</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">External enrollments</span>
+      <span class="stat-value">48</span>
+      <span class="stat-subtext text-success">Paid students</span>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2 class="section-title">Earnings by course</h2>
+    <div class="list-container">
+      <div class="list-row" *ngFor="let course of earningsByCourse">
+        <div class="row-left">
+          <h3 class="row-title">{{ course.title }}</h3>
+          <p class="row-subtitle" *ngIf="!course.isDraft">
+            {{ course.enrolled }} enrolled · {{ course.externalPaid }} external paid
+          </p>
+          <p class="row-subtitle" *ngIf="course.isDraft">{{ course.status }}</p>
+        </div>
+        <div class="row-right">
+          <span class="row-amount">{{ course.amount }}</span>
+          <span class="row-status" *ngIf="!course.isDraft">{{ course.status }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <h2 class="section-title m-0">Payout history</h2>
+      <a href="#" class="text-link">Download statement</a>
+    </div>
+    <div class="list-container">
+      <div class="list-row" *ngFor="let payout of payoutHistory">
+        <div class="row-left">
+          <h3 class="row-title">{{ payout.month }}</h3>
+          <p class="row-subtitle">{{ payout.date }}</p>
+        </div>
+        <div class="row-right">
+          <span class="status-badge" [ngClass]="payout.statusClass">
+            {{ payout.amount }} {{ payout.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2 class="section-title">Royalty breakdown</h2>
+    <div class="breakdown-container">
+      <div class="breakdown-row" *ngFor="let item of royaltyBreakdown">
+        <span class="breakdown-label">{{ item.label }}</span>
+        
+        <div class="breakdown-bar-track">
+          <div class="breakdown-bar-fill" 
+               [style.width.%]="item.percentage" 
+               [style.backgroundColor]="item.color">
+          </div>
+        </div>
+        
+        <span class="breakdown-percent">{{ item.percentage }}%</span>
+      </div>
+    </div>
+    <p class="disclaimer-text">
+      Platform takes 20% of all sales. Remaining 80% is your royalty. Paid to linked bank account monthly.
+    </p>
+  </div>
+</div>

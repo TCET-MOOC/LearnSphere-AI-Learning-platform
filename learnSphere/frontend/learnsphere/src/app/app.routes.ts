@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/login/login.component';
 import { CertificatesComponent } from './features/student/certificates/certificates.component';
+import { RoyaltiesComponent as TeacherRoyalties } from './features/teacher/royalties/royalties.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { LandingComponent } from './features/landing/landing.component';
 import { DashboardComponent as StudentDashboard } from './features/student/dashboard/dashboard.component';
@@ -27,6 +28,7 @@ export const routes: Routes = [
   { path: 'student/messages', component: StudentMessages },
   { path: 'student/leaderboard', component: StudentLeaderboard },
   { path: 'student/certificates', component: CertificatesComponent },
+  { path: 'teacher/royalties', component: TeacherRoyalties },
   { path: 'teacher/dashboard', component: TeacherDashboard },
   { path: 'teacher/courses', component: TeacherCourses },
   { path: 'teacher/messages', component: TeacherMessages },
