@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { MessagesComponent } from './messages/messages.component';
 
+
 const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'messages', component: MessagesComponent },
