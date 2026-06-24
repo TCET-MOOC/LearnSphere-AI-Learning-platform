@@ -12,6 +12,9 @@ import { CoursesComponent as StudentCourses } from './features/student/courses/c
 import { LectureComponent as StudentLectures } from './features/student/courses/lecture/lecture.component';
 import { CoursesComponent as TeacherCourses } from './features/teacher/courses/courses.component';
 import { UsersComponent as AdminUsers } from './features/admin/users/users.component';
+import { LeaderboardComponent as StudentLeaderboard } from './features/student/leaderboard/leaderboard.component';
+import { LiveComponent as TeacherLive } from './features/teacher/live/live.component';
+import { PayoutsComponent as AdminPayouts } from './features/admin/payouts/payouts.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, pathMatch: 'full' },
@@ -21,10 +24,13 @@ export const routes: Routes = [
   { path: 'student/courses', component: StudentCourses },
   { path: 'student/lectures', component: StudentLectures },
   { path: 'student/messages', component: StudentMessages },
+  { path: 'student/leaderboard', component: StudentLeaderboard },
   { path: 'teacher/dashboard', component: TeacherDashboard },
   { path: 'teacher/courses', component: TeacherCourses },
   { path: 'teacher/messages', component: TeacherMessages },
+  { path: 'teacher/live', component: TeacherLive },
   { path: 'admin/dashboard', component: AdminDashboard },
   { path: 'admin/users', component: AdminUsers },
-  { path: 'admin/messages', component: AdminMessages }
+  { path: 'admin/messages', component: AdminMessages },
+  { path: 'admin/payouts', component: AdminPayouts }
 ];
