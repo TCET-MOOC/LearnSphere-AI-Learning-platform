@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/login/login.component';
 import { CertificatesComponent } from './features/student/certificates/certificates.component';
 import { RoyaltiesComponent as TeacherRoyalties } from './features/teacher/royalties/royalties.component';
+import { SentimentComponent as AdminSentiment } from './features/admin/sentiment/sentiment.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { LandingComponent } from './features/landing/landing.component';
 import { DashboardComponent as StudentDashboard } from './features/student/dashboard/dashboard.component';
@@ -29,6 +30,8 @@ export const routes: Routes = [
   { path: 'student/leaderboard', component: StudentLeaderboard },
   { path: 'student/certificates', component: CertificatesComponent },
   { path: 'teacher/royalties', component: TeacherRoyalties },
+  { path: 'admin/sentiment', component: AdminSentiment },
+  
   { path: 'teacher/dashboard', component: TeacherDashboard },
   { path: 'teacher/courses', component: TeacherCourses },
   { path: 'teacher/messages', component: TeacherMessages },
@@ -37,4 +40,5 @@ export const routes: Routes = [
   { path: 'admin/users', component: AdminUsers },
   { path: 'admin/messages', component: AdminMessages },
   { path: 'admin/payouts', component: AdminPayouts }
+  
 ];
