@@ -1,0 +1,139 @@
+<div class="leaderboard-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-header__title">🏆 Leaderboard</h1>
+      <p class="page-header__sub">IT Dept · Sem 5 · Jun 2026</p>
+    </div>
+    <div class="tabs">
+      <button class="tabs__item" [class.tabs__item--active]="activeTab === 'batch'" (click)="setTab('batch')">My Batch</button>
+      <button class="tabs__item" [class.tabs__item--active]="activeTab === 'course'" (click)="setTab('course')">By Course</button>
+      <button class="tabs__item" [class.tabs__item--active]="activeTab === 'college'" (click)="setTab('college')">All College</button>
+      <button class="tabs__item" [class.tabs__item--active]="activeTab === 'monthly'" (click)="setTab('monthly')">Monthly</button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-card__icon" style="background:#EEEDFE">🏅</div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__value">#12</div>
+        <div class="kpi-card__label">Your Rank</div>
+        <div class="kpi-card__sub" style="color:#534AB7">of 340 students</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__icon" style="background:#E3F6F0">⭐</div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__value">1,920</div>
+        <div class="kpi-card__label">Your Points</div>
+        <div class="kpi-card__sub" style="color:#1D9E75">↑ +80 this week</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__icon" style="background:#FEF6E4">🚀</div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__value">−20 pts</div>
+        <div class="kpi-card__label">To Next Rank</div>
+        <div class="kpi-card__sub" style="color:#D08C1A">Beat Nisha (#11)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="panel">
+    <div class="panel__header">
+      <span class="panel__title">Batch Leaderboard</span>
+      <button class="btn btn--link">View full table →</button>
+    </div>
+
+    <div class="lb-list">
+      <!-- Rank 1 -->
+      <div class="lb-item">
+        <div class="lb-item__rank">🥇</div>
+        <div class="lb-item__avatar" style="background:#FEF6E4;color:#D08C1A">PK</div>
+        <div class="lb-item__info">
+          <div class="lb-item__name">Priya Kulkarni</div>
+          <div class="lb-item__meta">7 courses · 18/20 avg score</div>
+        </div>
+        <div class="lb-item__points" style="color:#D08C1A">2,840 pts</div>
+      </div>
+      <!-- Rank 2 -->
+      <div class="lb-item">
+        <div class="lb-item__rank">🥈</div>
+        <div class="lb-item__avatar" style="background:#F1EFE8;color:#888780">AM</div>
+        <div class="lb-item__info">
+          <div class="lb-item__name">Arjun Mishra</div>
+          <div class="lb-item__meta">6 courses · 16/20 avg score</div>
+        </div>
+        <div class="lb-item__points" style="color:#888780">2,710 pts</div>
+      </div>
+      <!-- Rank 3 -->
+      <div class="lb-item">
+        <div class="lb-item__rank">🥉</div>
+        <div class="lb-item__avatar" style="background:#E3F6F0;color:#1D9E75">NJ</div>
+        <div class="lb-item__info">
+          <div class="lb-item__name">Nisha Joshi</div>
+          <div class="lb-item__meta">5 courses · 15/20 avg score</div>
+        </div>
+        <div class="lb-item__points" style="color:#1D9E75">1,940 pts</div>
+      </div>
+
+      <div class="lb-divider">· · · ranks 4 – 11 · · ·</div>
+
+      <!-- Rank 12 — YOU -->
+      <div class="lb-item lb-item--me">
+        <div class="lb-item__rank">#12</div>
+        <div class="lb-item__avatar" style="background:#534AB7;color:#fff">RS</div>
+        <div class="lb-item__info">
+          <div class="lb-item__name">You — Raj Shah</div>
+          <div class="lb-item__meta">7 courses · 14/20 avg score</div>
+        </div>
+        <div class="lb-item__points">1,920 pts</div>
+      </div>
+
+      <!-- Rank 13 -->
+      <div class="lb-item">
+        <div class="lb-item__rank">#13</div>
+        <div class="lb-item__avatar" style="background:#F5F5F8;color:#A09DB8">VD</div>
+        <div class="lb-item__info">
+          <div class="lb-item__name">Vikram Desai</div>
+          <div class="lb-item__meta">6 courses</div>
+        </div>
+        <div class="lb-item__points" style="color:#A09DB8">1,870 pts</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Points Guide -->
+  <div class="panel">
+    <div class="panel__header">
+      <span class="panel__title">How Points Are Earned</span>
+    </div>
+    <div class="points-grid">
+      <div class="points-item">
+        <span class="points-item__icon">✅</span>
+        Complete a lecture
+        <span class="points-item__value">+10 pts</span>
+      </div>
+      <div class="points-item">
+        <span class="points-item__icon">📝</span>
+        Submit an assessment
+        <span class="points-item__value">+25 pts</span>
+      </div>
+      <div class="points-item">
+        <span class="points-item__icon">🏆</span>
+        Score above 90%
+        <span class="points-item__value">+50 pts</span>
+      </div>
+      <div class="points-item">
+        <span class="points-item__icon">💬</span>
+        Helpful discussion post
+        <span class="points-item__value">+5 pts</span>
+      </div>
+    </div>
+  </div>
+
+</div>
