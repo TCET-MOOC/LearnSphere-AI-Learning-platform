@@ -1,0 +1,11 @@
+<section class="portal-page">
+  <header class="page-header"><div><div class="eyebrow">Student workspace</div><h1>Settings</h1><p>Control your account, communication, and workspace preferences.</p></div><div class="header-actions"><span class="saved-toast" *ngIf="saved">Changes saved</span><button class="primary-btn" (click)="showSaved()">Save changes</button></div></header>
+  <div class="settings-layout">
+    <nav class="settings-nav" aria-label="Settings sections"><button *ngFor="let tab of tabs" [class.active]="activeTab === tab" (click)="activeTab = tab">{{ tab }}</button><div class="settings-user"><div>RS</div><span><b>{{ name }}</b><small>{{ email }}</small></span></div></nav>
+    <div class="settings-content">
+      <section class="settings-card"><div class="settings-heading"><h2>{{ panels[activeTab].title }}</h2><p>{{ panels[activeTab].description }}</p></div><div class="setting-row" *ngFor="let row of panels[activeTab].rows"><div><h3>{{ row.label }}</h3><p>{{ row.hint }}</p></div><div class="setting-action"><span class="setting-value" *ngIf="row.value">{{ row.value }}</span><button class="text-btn" *ngIf="row.action" (click)="showSaved()">{{ row.action }}</button><button class="toggle" *ngIf="row.enabled !== undefined" [class.on]="row.enabled" (click)="toggle(row)"><span></span></button></div></div></section>
+      <section class="settings-card danger-card" *ngIf="activeTab === 'Account'"><div><h2>Account access</h2><p>Securely end this session on the current device.</p></div><button class="danger-btn">Sign out</button></section>
+    </div>
+  </div>
+</section>
+
