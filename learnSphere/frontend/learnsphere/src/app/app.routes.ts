@@ -56,9 +56,8 @@ export const routes: Routes = [
   { path: 'admin/dashboard', component: AdminDashboard },
   { path: 'admin/users', component: AdminUsers },
   { path: 'admin/messages', component: AdminMessages },
-<<<<<<< HEAD
   { path: 'admin/payouts', component: AdminPayouts },
-  { path: 'admin/flagged', component: AdminFlagged }
+  { path: 'admin/flagged', component: AdminFlagged },
   { path: 'student/settings', component: StudentSettings },
   { path: 'student/announcements', component: StudentAnnouncements },
   { path: 'student/notifications', component: StudentNotifications },
@@ -76,7 +75,7 @@ export const routes: Routes = [
   { path: 'admin/settings', component: AdminSettings },
   { path: 'admin/announcements', component: AdminAnnouncements },
   { path: 'admin/notifications', component: AdminNotifications },
-  { path: 'admin/profile', component: AdminProfile }
+  { path: 'admin/profile', component: AdminProfile },
   { path: 'admin/payouts', component: AdminPayouts }
   
 ];
