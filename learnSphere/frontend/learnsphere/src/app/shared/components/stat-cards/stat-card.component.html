@@ -1,0 +1,15 @@
+<div class="stat-card">
+  <div class="stat-card__header">
+    <div class="stat-card__icon-wrapper">
+      <span class="stat-card__icon">{{ getEmoji() }}</span>
+    </div>
+    <div class="stat-card__trend" *ngIf="trend" [ngClass]="'stat-card__trend--' + trend">
+      <span class="trend-arrow">{{ trend === 'up' ? '▲' : '▼' }}</span>
+      <span class="trend-value" *ngIf="trendValue">{{ trendValue }}</span>
+    </div>
+  </div>
+  <div class="stat-card__body">
+    <div class="stat-card__value">{{ value }}</div>
+    <div class="stat-card__label">{{ label }}</div>
+  </div>
+</div>
