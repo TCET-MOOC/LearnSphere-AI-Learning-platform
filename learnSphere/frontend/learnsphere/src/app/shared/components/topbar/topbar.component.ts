@@ -1,32 +1,23 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router'; // <-- Add this import
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule], // <-- Ensure CommonModule is here for *ngIf
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.scss']
 })
 export class TopbarComponent {
   isMenuOpen = false;
 
+  // Placeholder user data (You can make this dynamic later!)
   userName = 'Admin User';
   userEmail = 'admin@learnsphere.in';
   userInitials = 'AD';
 
   constructor(private router: Router) {}
-
-  // The topbar is shared by Student, Teacher, and Admin — derive the
-  // current role from the URL so the message icon links to the right route.
-  getMessagesRoute(): string {
-    const url = this.router.url;
-    if (url.startsWith('/student')) return '/student/messages';
-    if (url.startsWith('/teacher')) return '/teacher/messages';
-    if (url.startsWith('/admin')) return '/admin/messages';
-    return '/login';
-  }
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
@@ -38,6 +29,7 @@ export class TopbarComponent {
 
   signOut() {
     this.closeMenu();
+    // Route the user back to the login page
     this.router.navigate(['/login']);
   }
 }
