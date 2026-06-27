@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/login/login.component';
+import { CertificatesComponent } from './features/student/certificates/certificates.component';
+import { RoyaltiesComponent as TeacherRoyalties } from './features/teacher/royalties/royalties.component';
+import { SentimentComponent as AdminSentiment } from './features/admin/sentiment/sentiment.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { LandingComponent } from './features/landing/landing.component';
 import { DashboardComponent as StudentDashboard } from './features/student/dashboard/dashboard.component';
@@ -18,7 +21,6 @@ import { LiveComponent as TeacherLive } from './features/teacher/live/live.compo
 import { TrendingComponent as TeacherTrending } from './features/teacher/trending/trending.component';
 import { PayoutsComponent as AdminPayouts } from './features/admin/payouts/payouts.component';
 import { FlaggedComponent as AdminFlagged } from './features/admin/flagged/flagged.component';
-=======
 import { SettingsComponent as StudentSettings } from './features/student/settings/settings.component';
 import { AnnouncementsComponent as StudentAnnouncements } from './features/student/announcements/announcements.component';
 import { NotificationsComponent as StudentNotifications } from './features/student/notifications/notifications.component';
@@ -42,6 +44,10 @@ export const routes: Routes = [
   { path: 'student/messages', component: StudentMessages },
   { path: 'student/leaderboard', component: StudentLeaderboard },
   { path: 'student/discussion', component: StudentDiscussion },
+  { path: 'student/certificates', component: CertificatesComponent },
+  { path: 'teacher/royalties', component: TeacherRoyalties },
+  { path: 'admin/sentiment', component: AdminSentiment },
+  
   { path: 'teacher/dashboard', component: TeacherDashboard },
   { path: 'teacher/courses', component: TeacherCourses },
   { path: 'teacher/messages', component: TeacherMessages },
@@ -50,6 +56,7 @@ export const routes: Routes = [
   { path: 'admin/dashboard', component: AdminDashboard },
   { path: 'admin/users', component: AdminUsers },
   { path: 'admin/messages', component: AdminMessages },
+<<<<<<< HEAD
   { path: 'admin/payouts', component: AdminPayouts },
   { path: 'admin/flagged', component: AdminFlagged }
   { path: 'student/settings', component: StudentSettings },
@@ -70,3 +77,6 @@ export const routes: Routes = [
   { path: 'admin/announcements', component: AdminAnnouncements },
   { path: 'admin/notifications', component: AdminNotifications },
   { path: 'admin/profile', component: AdminProfile }
+  { path: 'admin/payouts', component: AdminPayouts }
+  
+];
