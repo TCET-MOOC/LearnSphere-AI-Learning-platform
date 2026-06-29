@@ -28,7 +28,7 @@
 
   <div class="course-layout">
     <section class="course-stack">
-      <article class="course-card" *ngFor="let course of courses">
+      <article class="course-card" *ngFor="let course of filteredCourses" (click)="handleCourseAction(course, 'View')" style="cursor: pointer;">
         <div class="course-card__head">
           <div class="course-id" [class]="'course-id course-id--' + course.tone">{{ course.code }}</div>
           <div class="course-title">
@@ -58,9 +58,9 @@
         </div>
 
         <div class="course-actions">
-          <button class="btn btn--soft" type="button">{{ course.nextAction }}</button>
-          <button class="btn btn--ghost" type="button">Edit course</button>
-          <button class="btn btn--ghost" type="button">Preview</button>
+          <button class="btn btn--soft" type="button" (click)="$event.stopPropagation(); handleCourseAction(course, course.nextAction)">{{ course.nextAction }}</button>
+          <button class="btn btn--ghost" type="button" (click)="$event.stopPropagation(); handleCourseAction(course, 'Edit')">Edit course</button>
+          <button class="btn btn--ghost" type="button" (click)="$event.stopPropagation(); handleCourseAction(course, 'Preview')">Preview</button>
         </div>
       </article>
     </section>

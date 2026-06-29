@@ -47,7 +47,7 @@
           <span>Actions</span>
         </div>
 
-        <div class="user-row" role="row" *ngFor="let user of users" [class.user-row--flagged]="user.status === 'Flagged'">
+        <div class="user-row" role="row" *ngFor="let user of filteredUsers" [class.user-row--flagged]="user.status === 'Flagged'" (click)="handleUserAction(user, 'View Details')" style="cursor: pointer;">
           <div class="user-profile">
             <div class="avatar" [class]="'avatar avatar--' + user.tone">{{ user.initials }}</div>
             <div>
@@ -59,9 +59,9 @@
           <span>{{ user.role }}</span>
           <span class="pill" [ngClass]="getStatusClass(user.status)">{{ user.status }}</span>
           <div class="action-set">
-            <button class="btn btn--ghost" type="button">View</button>
-            <button class="btn btn--ghost" type="button">{{ user.status === 'Teacher' ? 'Suspend' : 'Warn' }}</button>
-            <button class="btn" [class.btn--danger]="user.status !== 'Blacklisted'" [class.btn--success]="user.status === 'Blacklisted'" type="button">
+            <button class="btn btn--ghost" type="button" (click)="$event.stopPropagation(); handleUserAction(user, 'View')">View</button>
+            <button class="btn btn--ghost" type="button" (click)="$event.stopPropagation(); handleUserAction(user, user.status === 'Teacher' ? 'Suspend' : 'Warn')">{{ user.status === 'Teacher' ? 'Suspend' : 'Warn' }}</button>
+            <button class="btn" [class.btn--danger]="user.status !== 'Blacklisted'" [class.btn--success]="user.status === 'Blacklisted'" type="button" (click)="$event.stopPropagation(); handleUserAction(user, user.status === 'Blacklisted' ? 'Restore' : 'Blacklist')">
               {{ user.status === 'Blacklisted' ? 'Restore' : 'Blacklist' }}
             </button>
           </div>

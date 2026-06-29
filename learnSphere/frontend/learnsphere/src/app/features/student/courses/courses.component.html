@@ -49,7 +49,7 @@
     </div>
 
     <div class="course-list">
-      <article class="course-row" *ngFor="let course of courses">
+      <article class="course-row" *ngFor="let course of filteredCourses" (click)="goToCourse(course.code)" style="cursor: pointer;">
         <div class="course-thumb" [class]="'course-thumb course-thumb--' + course.tone">{{ course.code }}</div>
         <div class="course-main">
           <div class="course-title-row">

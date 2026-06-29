@@ -89,8 +89,20 @@ export class UsersComponent {
     { label: 'Inactive 30d+', value: 14, tone: 'red' }
   ];
 
+  get filteredUsers(): AdminUser[] {
+    if (this.activeTab.startsWith('Students')) return this.users.filter(u => u.role === 'Student');
+    if (this.activeTab.startsWith('Teachers')) return this.users.filter(u => u.role === 'Teacher');
+    if (this.activeTab.startsWith('Flagged')) return this.users.filter(u => u.status === 'Flagged');
+    if (this.activeTab.startsWith('Blacklisted')) return this.users.filter(u => u.status === 'Blacklisted');
+    return this.users;
+  }
+
   setTab(tab: string): void {
     this.activeTab = tab;
+  }
+
+  handleUserAction(user: AdminUser, action: string): void {
+    alert(`${action} user: ${user.name}`);
   }
 
   getStatusClass(status: AdminUser['status']): string {

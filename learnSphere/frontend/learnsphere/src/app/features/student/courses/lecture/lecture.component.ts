@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 interface LectureCard {
   title: string;
@@ -17,9 +18,22 @@ interface LectureCard {
   templateUrl: './lecture.component.html',
   styleUrls: ['./lecture.component.scss']
 })
-export class LectureComponent {
+export class LectureComponent implements OnInit {
   tabs = ['All courses', 'Engineering Math III', 'DSA', 'Thermodynamics'];
   activeTab = 'All courses';
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['course']) {
+        const code = params['course'];
+        if (code === 'MA') this.activeTab = 'Engineering Math III';
+        else if (code === 'DS') this.activeTab = 'DSA';
+        else if (code === 'TH') this.activeTab = 'Thermodynamics';
+      }
+    });
+  }
 
   lectures: LectureCard[] = [
     { title: 'Laplace Transforms - Part 2', course: 'Engineering Mathematics III', duration: '24 min', progress: 35, status: 'Playing', tone: 'purple' },
@@ -43,8 +57,20 @@ export class LectureComponent {
     'Ask about inverse transform shortcut in discussion.'
   ];
 
+  get filteredLectures(): LectureCard[] {
+    if (this.activeTab === 'All courses') return this.lectures;
+    return this.lectures.filter(l => 
+      l.course.includes(this.activeTab.replace('Engineering Math III', 'Engineering Mathematics III')) || 
+      (this.activeTab === 'DSA' && l.course === 'Data Structures & Algorithms')
+    );
+  }
+
   setTab(tab: string): void {
     this.activeTab = tab;
+  }
+
+  playLecture(lecture: LectureCard): void {
+    alert(`Playing lecture: ${lecture.title}`);
   }
 
   getStatusClass(status: LectureCard['status']): string {
