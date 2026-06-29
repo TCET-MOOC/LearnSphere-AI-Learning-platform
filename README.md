@@ -528,6 +528,7 @@ AI detects offensive/suspicious content (comment / DM / post)
   <img src="https://contrib.rocks/image?repo=TCET-MOOC/LearnSphere-AI-Learning-platform" />
 </a>
 
+Made with [contrib.rocks](https://contrib.rocks).
 ---
 
 *This document is the single source of truth for the LearnSphere project during ideation and early development. Update this file as features evolve.*
