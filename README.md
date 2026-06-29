@@ -523,5 +523,11 @@ AI detects offensive/suspicious content (comment / DM / post)
 - **Leaderboard points** are computed server-side and should not be client-modifiable. All point events (lecture completion, quiz submission, discussion upvote) are logged in a separate `point_events` table for auditability.
 
 ---
+# Contributors
+<a href="https://github.com/TCET-MOOC/LearnSphere-AI-Learning-platform/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=TCET-MOOC/LearnSphere-AI-Learning-platform" />
+</a>
+
+---
 
 *This document is the single source of truth for the LearnSphere project during ideation and early development. Update this file as features evolve.*
