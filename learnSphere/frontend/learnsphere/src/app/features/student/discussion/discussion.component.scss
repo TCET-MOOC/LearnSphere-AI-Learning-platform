@@ -1,0 +1,365 @@
+@use "sass:color";
+
+// ── Design tokens ──────────────────
+$brand-purple: #534AB7;
+$brand-purple-lt: #EEEDFE;
+$status-red: #E5453A;
+$status-amber: #D08C1A;
+$status-green: #1D9E75;
+$surface: #FFFFFF;
+$bg: #F5F5F8;
+$border: #E8E7EF;
+$text-primary: #1A1830;
+$text-secondary: #6B6880;
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 14px;
+
+// ── Page wrapper ────────────────────────────────────────
+.discussion-page {
+  padding: 28px 32px;
+  background: $bg;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100%;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    gap: 16px;
+  }
+}
+
+// ── Header ──────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  &__title {
+    font-size: 26px;
+    font-weight: 700;
+    color: $text-primary;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  &__sub {
+    font-size: 13px;
+    color: $text-secondary;
+    margin-top: 3px;
+    margin-bottom: 0;
+  }
+}
+
+// ── Tabs ────────────────────────────────────────────────
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: 4px;
+  width: fit-content;
+
+  &__item {
+    padding: 6px 14px;
+    border-radius: $radius-sm;
+    font-size: 12px;
+    font-weight: 500;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+
+    &:hover:not(.tabs__item--active) {
+      background: $bg;
+      color: $text-primary;
+    }
+
+    &--active {
+      background: $brand-purple;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba($brand-purple, 0.3);
+    }
+  }
+}
+
+// ── Search & Actions ────────────────────────────────────
+.search-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+
+  .search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    padding: 0 14px;
+    height: 40px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus-within {
+      border-color: $brand-purple;
+      box-shadow: 0 0 0 3px rgba($brand-purple, 0.1);
+    }
+
+    i {
+      font-size: 16px;
+      color: $text-secondary;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      color: $text-primary;
+      font-family: inherit;
+      width: 100%;
+
+      &::placeholder {
+        color: $text-secondary;
+      }
+    }
+  }
+
+  .new-post-btn {
+    background: $brand-purple;
+    color: #fff;
+    border: none;
+    border-radius: $radius-md;
+    padding: 0 20px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    gap: 8px;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.1s;
+
+    &:hover {
+      background: color.adjust($brand-purple, $lightness: -8%);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    i {
+      font-size: 16px;
+    }
+  }
+}
+
+// ── Main Content Area ───────────────────────────────────
+.discussions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.disc-post {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+  }
+
+  .post-layout {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .post-content {
+    flex: 1;
+    min-width: 0; // prevent overflow
+  }
+
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+
+    .post-author {
+      font-size: 15px;
+      font-weight: 600;
+      color: $text-primary;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .you-badge {
+      font-size: 12px;
+      font-weight: 500;
+      color: $text-secondary;
+      background: $bg;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .post-meta {
+      font-size: 13px;
+      color: $text-secondary;
+      margin-top: 4px;
+    }
+  }
+
+  .post-text {
+    font-size: 15px;
+    color: $text-primary;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .teacher-reply {
+    margin-top: 12px;
+    background: #F8F7FF;
+    border-radius: $radius-md;
+    padding: 12px 16px;
+    border-left: 3px solid $brand-purple;
+
+    .reply-author {
+      font-size: 13px;
+      font-weight: 600;
+      color: $brand-purple;
+    }
+
+    .reply-text {
+      font-size: 14px;
+      color: $text-primary;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+  }
+
+  .post-actions {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-top: 1px solid $border;
+    padding-top: 12px;
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: $text-secondary;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      padding: 0;
+
+      &:hover {
+        color: $brand-purple;
+      }
+
+      &.reply-btn {
+        color: $brand-purple;
+      }
+    }
+  }
+}
+
+.ava {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+
+  &.pk {
+    background: #FAEEDA;
+    color: #8C5A14;
+  }
+
+  &.rs {
+    background: $brand-purple-lt;
+    color: $brand-purple;
+  }
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.p-pu {
+    background: $brand-purple-lt;
+    color: $brand-purple;
+  }
+
+  &.p-gr {
+    background: #EAF3DE;
+    color: #27500A;
+  }
+}
+
+// ── New Post Input Area ─────────────────────────────────
+.new-post-input {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: $surface;
+  padding: 16px 20px;
+  border-radius: $radius-lg;
+  border: 1px solid $border;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  margin-bottom: 24px;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .input-box {
+    flex: 1;
+    background: $bg;
+    border: 1px solid transparent;
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 14px;
+    color: $text-secondary;
+    cursor: text;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $border;
+    }
+  }
+}

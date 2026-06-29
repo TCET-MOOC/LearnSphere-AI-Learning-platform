@@ -1,0 +1,117 @@
+<div class="students-page">
+  <div class="students-page__header">
+    <h1 class="students-page__title">Student standings</h1>
+  </div>
+
+  <!-- Course filter tabs -->
+  <div class="stabs">
+    <div class="stab" 
+         *ngFor="let course of courses" 
+         [class.on]="selectedTab === course" 
+         (click)="selectTab(course)">
+      {{ course }}
+    </div>
+    <div class="stab" 
+         [class.on]="selectedTab === 'All courses'" 
+         (click)="selectTab('All courses')">
+      All courses
+    </div>
+    <div class="stab" 
+         [class.on]="selectedTab === 'At-risk students'" 
+         (click)="selectTab('At-risk students')">
+      At-risk students
+    </div>
+  </div>
+
+  <!-- KPI stats cards row -->
+  <div class="srow3">
+    <app-stat-card icon="users" [value]="totalEnrolled" label="Enrolled"></app-stat-card>
+    <app-stat-card icon="book-open" [value]="avgCompletion + '%'" label="Avg. completion"></app-stat-card>
+    <app-stat-card icon="shield-exclamation" [value]="atRiskCount" label="At-risk students"></app-stat-card>
+  </div>
+
+  <!-- Top Performers Section -->
+  <div class="card" *ngIf="topPerformers.length > 0">
+    <div class="card-hd">
+      Top performers — {{ selectedTab }}
+      <a href="#" (click)="exportList($event)" class="cl">Export list</a>
+    </div>
+    
+    <div class="top-performers-grid">
+      <div class="student-card" *ngFor="let p of topPerformers">
+        <div class="student-card__header">
+          <div class="ava" [ngClass]="p.rank === 1 ? 'gold' : p.rank === 2 ? 'silver' : 'bronze'">
+            {{ p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : '🥉' }}
+          </div>
+          <div class="student-card__info">
+            <div class="student-card__name">{{ p.name }}</div>
+            <div class="student-card__rank">Rank {{ p.rank }}</div>
+          </div>
+        </div>
+        <div class="student-card__details">
+          Score: {{ p.scorePercent }}% · {{ p.lecturesWatched }}/{{ p.totalLectures }} lectures
+        </div>
+        <div class="student-card__progress">
+          <app-progress-bar [value]="(p.lecturesWatched / p.totalLectures) * 100"></app-progress-bar>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full Standings Table -->
+    <div class="card-hd standings-table-header" *ngIf="otherStandings.length > 0">
+      Full standings
+    </div>
+    <div class="standings-table-container" *ngIf="otherStandings.length > 0">
+      <app-data-table 
+        [columns]="tableColumns" 
+        [data]="otherStandings" 
+        [pageSize]="10">
+      </app-data-table>
+    </div>
+  </div>
+
+  <!-- Empty state for no standings data -->
+  <ng-container *ngIf="filteredStandings.length === 0">
+    <app-empty-state 
+      title="No students found" 
+      subtitle="No student record matches the selected course or filter criteria.">
+    </app-empty-state>
+  </ng-container>
+
+  <!-- At-risk Students Panel -->
+  <div class="card at-risk-panel" *ngIf="filteredStandings.length > 0">
+    <div class="card-hd">
+      At-risk students
+      <app-status-pill [status]="atRiskCount + ' flagged'"></app-status-pill>
+    </div>
+    
+    <div class="at-risk-list">
+      <ng-container *ngFor="let student of filteredStandings">
+        <div class="row" *ngIf="student.isAtRisk">
+          <div class="ava risk-avatar">
+            {{ student.name.substring(0, 2).toUpperCase() }}
+          </div>
+          <div class="at-risk-info">
+            <div class="at-risk-name">{{ student.name }}</div>
+            <div class="at-risk-sub">
+              {{ student.lecturesWatched }}/{{ student.totalLectures }} lectures · 
+              Last active: {{ student.lastActiveAt | timeAgo }}
+            </div>
+          </div>
+          
+          <app-status-pill [status]="student.isRemedial ? 'Remedial' : 'Inactive'"></app-status-pill>
+          
+          <button class="action-btn nudge-btn" 
+                  [disabled]="isNudging(student.studentId)" 
+                  (click)="sendNudge(student.studentId)">
+            {{ isNudging(student.studentId) ? 'Sending...' : 'Send nudge' }}
+          </button>
+        </div>
+      </ng-container>
+      
+      <div class="no-risk-students" *ngIf="atRiskCount === 0">
+        🎉 No students are currently flagged as at-risk. Great job!
+      </div>
+    </div>
+  </div>
+</div>

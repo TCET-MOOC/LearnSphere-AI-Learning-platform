@@ -1,0 +1,180 @@
+<div class="live-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-header__title">📡 Live Sessions</h1>
+      <p class="page-header__sub">Schedule, manage and track your live teaching sessions</p>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-card__icon" style="background:#EEEDFE">📅</div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__value">4</div>
+        <div class="kpi-card__label">Sessions This Month</div>
+        <div class="kpi-card__sub" style="color:#6B6880">Avg. 38 attendees</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__icon" style="background:#E3F6F0">🎯</div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__value">25 Jun</div>
+        <div class="kpi-card__label">Next Session</div>
+        <div class="kpi-card__sub" style="color:#534AB7">Math III · 4 PM IST</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__icon" style="background:#FEF6E4">👥</div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__value">94</div>
+        <div class="kpi-card__label">Registrations</div>
+        <div class="kpi-card__sub" style="color:#1D9E75">For next session</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- Left col: Schedule form + upcoming -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+      <!-- Schedule form -->
+      <div class="panel">
+        <div class="panel__header">
+          <div>
+            <div class="panel__title">Schedule a New Session</div>
+            <div class="panel__sub">Students will be notified immediately on schedule</div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-field__label">Course</label>
+            <select class="form-field__select">
+              <option>Engineering Mathematics III</option>
+              <option>Discrete Mathematics</option>
+              <option>Linear Algebra</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Session Title</label>
+            <input class="form-field__input" placeholder="e.g. Doubt clearing — Unit 2" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Date</label>
+            <input class="form-field__input" type="date" value="2026-06-25" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Time</label>
+            <input class="form-field__input" type="time" value="16:00" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Duration</label>
+            <select class="form-field__select">
+              <option>30 minutes</option>
+              <option selected>60 minutes</option>
+              <option>90 minutes</option>
+              <option>2 hours</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label">Platform</label>
+            <select class="form-field__select">
+              <option>Built-in Room</option>
+              <option>Google Meet</option>
+              <option>Zoom</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn--primary" (click)="scheduleSession()">📢 Schedule & Notify Students</button>
+          <button class="btn btn--ghost" (click)="saveDraft()">Save Draft</button>
+        </div>
+      </div>
+
+      <!-- Upcoming sessions -->
+      <div class="panel">
+        <div class="panel__header">
+          <span class="panel__title">Upcoming Sessions</span>
+          <span class="pill pill--purple">2 scheduled</span>
+        </div>
+
+        <div class="session-list">
+          <div class="session-item">
+            <div class="session-item__date">
+              <div class="session-item__date-day">25</div>
+              <div class="session-item__date-mon">Jun</div>
+            </div>
+            <div class="session-item__info">
+              <div class="session-item__title">Doubt Clearing — Unit 2 Laplace</div>
+              <div class="session-item__meta">Math III · 4:00 PM · 60 min · 94 registered</div>
+            </div>
+            <div class="session-item__actions">
+              <span class="pill pill--purple">Scheduled</span>
+              <button class="btn btn--primary" style="font-size:12px;padding:7px 14px" (click)="startSession()">▶ Start Now</button>
+            </div>
+          </div>
+
+          <div class="session-item">
+            <div class="session-item__date">
+              <div class="session-item__date-day">02</div>
+              <div class="session-item__date-mon">Jul</div>
+            </div>
+            <div class="session-item__info">
+              <div class="session-item__title">Mid-Term Revision Session</div>
+              <div class="session-item__meta">Discrete Math · 5:00 PM · 90 min · 42 registered</div>
+            </div>
+            <div class="session-item__actions">
+              <span class="pill pill--purple">Scheduled</span>
+              <button class="btn btn--ghost" style="font-size:12px;padding:7px 14px">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right col: Past sessions -->
+    <div class="panel">
+      <div class="panel__header">
+        <span class="panel__title">Past Sessions</span>
+        <button class="btn btn--link">View all →</button>
+      </div>
+
+      <div class="session-list">
+        <div class="session-item" style="flex-wrap:wrap;gap:10px">
+          <div class="session-item__date" style="background:#E3F6F0">
+            <div class="session-item__date-day" style="color:#1D9E75">10</div>
+            <div class="session-item__date-mon" style="color:#1D9E75">Jun</div>
+          </div>
+          <div class="session-item__info">
+            <div class="session-item__title">Unit 1 Revision — Math III</div>
+            <div class="session-item__meta">52 attended · Recording available</div>
+          </div>
+          <div class="session-item__actions" style="width:100%;justify-content:flex-end">
+            <span class="pill pill--green">Recorded</span>
+            <button class="btn btn--ghost" style="font-size:12px;padding:7px 12px">Share Recording</button>
+          </div>
+        </div>
+
+        <div class="session-item" style="flex-wrap:wrap;gap:10px">
+          <div class="session-item__date" style="background:#F1EFE8">
+            <div class="session-item__date-day" style="color:#888780">02</div>
+            <div class="session-item__date-mon" style="color:#888780">Jun</div>
+          </div>
+          <div class="session-item__info">
+            <div class="session-item__title">Intro to Discrete — Q&A</div>
+            <div class="session-item__meta">28 attended · No recording</div>
+          </div>
+          <div class="session-item__actions" style="width:100%;justify-content:flex-end">
+            <span class="pill pill--grey">No Recording</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

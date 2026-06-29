@@ -1,0 +1,99 @@
+<div class="page-container">
+  <h1 class="page-title">Sentiment analysis</h1>
+
+  <div class="tabs-container">
+    <button *ngFor="let tab of tabs" 
+            class="tab-btn" 
+            [class.active]="tab === activeTab"
+            (click)="setTab(tab)">
+      {{ tab }}
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-box">
+      <span class="stat-label">Comments analysed</span>
+      <span class="stat-value">4,820</span>
+      <span class="stat-subtext">This month</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">AI confidence</span>
+      <span class="stat-value">94%</span>
+      <span class="stat-subtext text-success">Accuracy score</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Negative trend</span>
+      <span class="stat-value">-2%</span>
+      <span class="stat-subtext text-success">Improving vs May</span>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2 class="section-title">Overall platform sentiment</h2>
+    
+    <div class="sentiment-blocks">
+      <div class="block positive">
+        <span class="block-value">72%</span>
+        <span class="block-label">Positive</span>
+      </div>
+      <div class="block neutral">
+        <span class="block-value">19%</span>
+        <span class="block-label">Neutral</span>
+      </div>
+      <div class="block negative">
+        <span class="block-value">9%</span>
+        <span class="block-label">Negative</span>
+      </div>
+    </div>
+
+    <h2 class="section-title mt-24">Sentiment by course type</h2>
+    <div class="course-type-bars">
+      <div class="bar-row" *ngFor="let course of courseTypeSentiment">
+        <span class="bar-label">{{ course.type }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" [style.width.%]="course.positive" [style.backgroundColor]="course.color"></div>
+        </div>
+        <span class="bar-percent">{{ course.positive }}% +</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2 class="section-title">Top negative keywords (flagged themes)</h2>
+    <div class="keyword-pills">
+      <span class="keyword-pill" *ngFor="let kw of negativeKeywords" [ngClass]="'severity-' + kw.severity">
+        {{ kw.word }} ({{ kw.count }})
+      </span>
+    </div>
+
+    <h2 class="section-title mt-24">Action recommendations</h2>
+    <div class="action-list">
+      <div class="action-item" *ngFor="let rec of recommendations">
+        <div class="action-text">
+          <h3 class="action-title">{{ rec.title }}</h3>
+          <p class="action-desc">{{ rec.description }}</p>
+        </div>
+        <button class="action-btn" [ngClass]="rec.actionClass">{{ rec.action }}</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2 class="section-title">Teacher sentiment scores</h2>
+    <div class="teacher-list">
+      <div class="teacher-item" *ngFor="let teacher of teacherScores">
+        <div class="teacher-info">
+          <div class="avatar" [ngClass]="teacher.status">{{ teacher.initials }}</div>
+          <div>
+            <h3 class="teacher-name">{{ teacher.name }}</h3>
+            <p class="teacher-desc">{{ teacher.comments }} comments analysed</p>
+          </div>
+        </div>
+        <span class="score-pill" [ngClass]="teacher.status">{{ teacher.score }}</span>
+      </div>
+    </div>
+    <div class="footer-note">
+      <p>Prof. Patil's score dropped 12% — audio quality complaints in Lec 4–6 are the main driver.</p>
+    </div>
+  </div>
+</div>

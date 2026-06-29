@@ -1,0 +1,88 @@
+<div class="student-courses">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Student view</p>
+      <h1>My Courses</h1>
+    </div>
+    <button class="btn btn--primary">Explore courses</button>
+  </header>
+
+  <nav class="tabs" aria-label="Course filters">
+    <button
+      class="tab"
+      *ngFor="let tab of tabs"
+      [class.tab--active]="tab === activeTab"
+      (click)="setTab(tab)"
+      type="button">
+      {{ tab }}
+    </button>
+  </nav>
+
+  <section class="summary-grid" aria-label="Course summary">
+    <article class="summary-card" *ngFor="let card of summaryCards" [class]="'summary-card summary-card--' + card.tone">
+      <span>{{ card.label }}</span>
+      <strong>{{ card.value }}</strong>
+      <small>{{ card.sub }}</small>
+    </article>
+  </section>
+
+  <section class="progress-panel">
+    <div class="progress-score">
+      <strong>71%</strong>
+      <span>Avg. progress</span>
+    </div>
+    <div class="progress-details">
+      <div class="progress-copy">
+        <h2>Overall completion across enrolled courses</h2>
+        <p>3 completed, 2 in progress, and 2 ready to begin.</p>
+      </div>
+      <div class="progress-track" aria-hidden="true">
+        <span style="width: 71%"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Enrolled courses</h2>
+      <button class="link-btn" type="button">Sort by progress</button>
+    </div>
+
+    <div class="course-list">
+      <article class="course-row" *ngFor="let course of courses">
+        <div class="course-thumb" [class]="'course-thumb course-thumb--' + course.tone">{{ course.code }}</div>
+        <div class="course-main">
+          <div class="course-title-row">
+            <h3>{{ course.title }}</h3>
+            <span class="pill" [ngClass]="getStatusClass(course.status)">{{ course.status }}</span>
+          </div>
+          <p>{{ course.teacher }} · {{ course.department }} · {{ course.completed }}/{{ course.lectures }} lectures</p>
+          <div class="progress-track progress-track--small" aria-hidden="true">
+            <span [style.width.%]="course.progress"></span>
+          </div>
+          <small>Next: {{ course.next }}</small>
+        </div>
+        <div class="course-progress">{{ course.progress }}%</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Explore more courses</h2>
+      <span class="pill pill--purple">Free for you</span>
+    </div>
+
+    <div class="explore-grid">
+      <article class="explore-card" *ngFor="let course of exploreCourses">
+        <div class="explore-card__top">
+          <span class="mini-mark" [class]="'mini-mark mini-mark--' + course.tone">{{ course.title.slice(0, 2) }}</span>
+          <span class="rating">{{ course.rating }}</span>
+        </div>
+        <h3>{{ course.title }}</h3>
+        <p>{{ course.teacher }}</p>
+        <button class="btn btn--soft" type="button">{{ course.tag }}</button>
+      </article>
+    </div>
+  </section>
+</div>
