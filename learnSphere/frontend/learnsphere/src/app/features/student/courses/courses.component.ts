@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 interface StudentCourse {
   code: string;
@@ -32,6 +33,8 @@ interface ExploreCourse {
 export class CoursesComponent {
   tabs = ['All (7)', 'In progress (2)', 'Completed (3)', 'Not started (2)', 'Explore'];
   activeTab = 'All (7)';
+
+  constructor(private router: Router) {}
 
   summaryCards = [
     { label: 'Average progress', value: '71%', sub: 'Across enrolled courses', tone: 'purple' },
@@ -133,8 +136,19 @@ export class CoursesComponent {
     { title: 'Robotics Intro', teacher: 'Prof. Rao', rating: '4.5', tag: 'Free', tone: 'blue' }
   ];
 
+  get filteredCourses(): StudentCourse[] {
+    if (this.activeTab.startsWith('In progress')) return this.courses.filter(c => c.status === 'In progress');
+    if (this.activeTab.startsWith('Completed')) return this.courses.filter(c => c.status === 'Completed');
+    if (this.activeTab.startsWith('Not started')) return this.courses.filter(c => c.status === 'Not started');
+    return this.courses;
+  }
+
   setTab(tab: string): void {
     this.activeTab = tab;
+  }
+
+  goToCourse(courseCode: string): void {
+    this.router.navigate(['/student/lectures'], { queryParams: { course: courseCode } });
   }
 
   getStatusClass(status: StudentCourse['status']): string {

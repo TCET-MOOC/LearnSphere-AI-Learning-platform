@@ -96,8 +96,20 @@ export class CoursesComponent {
     { title: 'Lec 10 - Z-Transforms', status: 'Draft', meta: 'Ready to publish' }
   ];
 
+  get filteredCourses(): TeacherCourse[] {
+    if (this.activeTab.startsWith('Live')) return this.courses.filter(c => c.status === 'Live');
+    if (this.activeTab.startsWith('Draft')) return this.courses.filter(c => c.status === 'Draft');
+    if (this.activeTab.startsWith('Pending')) return this.courses.filter(c => c.status === 'Pending');
+    if (this.activeTab.startsWith('Archived')) return this.courses.filter(c => c.status === 'Archived');
+    return this.courses;
+  }
+
   setTab(tab: string): void {
     this.activeTab = tab;
+  }
+
+  handleCourseAction(course: TeacherCourse, action: string): void {
+    alert(`${action} for course: ${course.title}`);
   }
 
   getStatusClass(status: TeacherCourse['status'] | LectureItem['status']): string {

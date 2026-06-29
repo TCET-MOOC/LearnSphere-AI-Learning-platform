@@ -45,7 +45,7 @@
       </div>
 
       <div class="lecture-grid">
-        <article class="lecture-card" *ngFor="let lecture of lectures">
+        <article class="lecture-card" *ngFor="let lecture of filteredLectures" (click)="playLecture(lecture)" style="cursor: pointer;">
           <div class="lecture-thumb" [class]="'lecture-thumb lecture-thumb--' + lecture.tone">
             <span>{{ lecture.duration }}</span>
           </div>
