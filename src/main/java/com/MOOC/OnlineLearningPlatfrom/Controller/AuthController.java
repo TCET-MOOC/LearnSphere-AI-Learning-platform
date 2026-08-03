@@ -38,8 +38,15 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        authService.forgotPassword(request);
-        return ResponseEntity.ok(Map.of("message", "If an account exists for that email, a reset link has been sent."));
+        String resetToken = authService.forgotPassword(request);
+        Map<String, String> body = new java.util.HashMap<>();
+        body.put("message", "If an account exists for that email, a reset link has been sent.");
+        // No SMTP is configured in this project: the token is returned directly instead of emailed
+        // so the reset flow stays usable end-to-end. A real deployment would drop this field.
+        if (resetToken != null) {
+            body.put("resetToken", resetToken);
+        }
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping("/reset-password")

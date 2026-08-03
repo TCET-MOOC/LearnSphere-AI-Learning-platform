@@ -23,14 +23,14 @@ export class AdminService {
   /**
    * Verifies a pending college.
    */
-  verifyCollege(collegeId: string): Observable<{ success: boolean }> {
+  verifyCollege(collegeId: number): Observable<{ success: boolean }> {
     return this.apiService.put<{ success: boolean }>(`/admin/colleges/${collegeId}/verify`, {});
   }
 
   /**
    * Rejects a pending college, removing it.
    */
-  rejectCollege(collegeId: string): Observable<{ success: boolean }> {
+  rejectCollege(collegeId: number): Observable<{ success: boolean }> {
     return this.apiService.delete<{ success: boolean }>(`/admin/colleges/${collegeId}`);
   }
 
@@ -51,14 +51,14 @@ export class AdminService {
   /**
    * Approves a teacher's affiliation request.
    */
-  approveAffiliation(requestId: string): Observable<{ success: boolean }> {
+  approveAffiliation(requestId: number): Observable<{ success: boolean }> {
     return this.apiService.put<{ success: boolean }>(`/admin/colleges/affiliations/${requestId}/approve`, {});
   }
 
   /**
    * Rejects a teacher's affiliation request.
    */
-  rejectAffiliation(requestId: string): Observable<{ success: boolean }> {
+  rejectAffiliation(requestId: number): Observable<{ success: boolean }> {
     return this.apiService.put<{ success: boolean }>(`/admin/colleges/affiliations/${requestId}/reject`, {});
   }
 }

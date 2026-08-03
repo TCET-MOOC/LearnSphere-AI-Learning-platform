@@ -128,11 +128,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void forgotPassword(ForgotPasswordRequest request) {
+    public String forgotPassword(ForgotPasswordRequest request) {
         UserAccount user = userAccountRepository.findByEmail(request.getEmail());
         if (user == null) {
             // Do not leak whether the email exists.
-            return;
+            return null;
         }
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setUser(user);
@@ -141,6 +141,7 @@ public class AuthServiceImpl implements AuthService {
         passwordResetTokenRepository.save(resetToken);
         // No SMTP configured in this project: log the reset link instead of emailing it.
         log.info("Password reset requested for {}. Reset token: {}", user.getEmail(), resetToken.getToken());
+        return resetToken.getToken();
     }
 
     @Override

@@ -6,50 +6,46 @@ export enum UserRole {
 
 /**
  * Base User interface containing shared properties.
+ * Matches UserResponseDto returned by the backend for every authenticated user,
+ * regardless of role — role-specific fields are optional and populated as relevant.
  */
 export interface User {
-  id: string;
+  id: number;
+  fullName: string;
   email: string;
   role: UserRole;
-  collegeId: string;
-  name: string;
+  collegeId?: number;
+  collegeName?: string;
+  collegeVerificationStatus?: 'VERIFIED' | 'PENDING';
+  departmentId?: number;
+  departmentName?: string;
   avatarUrl?: string;
+  bio?: string;
+  status?: 'ACTIVE' | 'FLAGGED' | 'BLACKLISTED';
+  twoFactorEnabled?: boolean;
+  bankAccountLinked?: boolean;
+  royaltyBalance?: number;
+  attendanceScore?: number;
+  leaderboardPoints?: number;
+  lastActiveAt?: string;
   createdAt: string;
 }
 
-/**
- * Interface representing Student profile details.
- */
-export interface Student extends User {
-  enrolledCourses: string[];
-  attendanceScore: number;
-  leaderboardPoints: number;
-}
+/** Convenience alias: student-facing view of User. */
+export type Student = User;
 
-/**
- * Interface representing Teacher profile details.
- */
-export interface Teacher extends User {
-  department: string;
-  bio: string;
-  bankAccountLinked: boolean;
-  royaltyBalance: number;
-}
+/** Convenience alias: teacher-facing view of User. */
+export type Teacher = User;
 
-/**
- * Interface representing Admin profile details.
- */
-export interface Admin extends User {
-  twoFactorEnabled: boolean;
-  lastAuditAction: string;
-}
+/** Convenience alias: admin-facing view of User. */
+export type Admin = User;
 
 /**
  * Interface representing Student Standing for standings dashboard.
  * Used by teachers to see progress and identify at-risk students.
  */
 export interface StudentStanding {
-  studentId: string;
+  studentId: number;
   name: string;
   avatarUrl?: string;
   rank: number;
@@ -66,14 +62,14 @@ export interface StudentStanding {
  * Managed by admin in the college-management dashboard.
  */
 export interface College {
-  id: string;
+  id: number;
   name: string;
   city: string;
   studentCount: number;
   teacherCount: number;
   courseCount: number;
   verificationStatus: 'VERIFIED' | 'PENDING';
-  appliedAt?: string; // e.g. "Applied 19 Jun"
+  appliedAt?: string;
 }
 
 /**
@@ -81,10 +77,10 @@ export interface College {
  * Requires admin review and ID document check.
  */
 export interface AffiliationRequest {
-  id: string;
+  id: number;
   teacherName: string;
   avatarUrl?: string;
   claimedDepartment: string;
   claimedCollegeName: string;
-  idDocumentUrl: string; // URL to the uploaded ID document image or PDF
+  idDocumentUrl: string;
 }

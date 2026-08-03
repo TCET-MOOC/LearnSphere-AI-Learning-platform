@@ -1,0 +1,45 @@
+<div class="auth-layout">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="logo-box">LS</div>
+      <h2>{{ isTeacher ? 'Verify your college affiliation' : 'Link your college' }}</h2>
+      <p *ngIf="isTeacher">Admins review teacher affiliation requests before granting course-publishing access.</p>
+      <p *ngIf="!isTeacher">Select your college so we can personalize your dashboard.</p>
+    </div>
+
+    <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <div *ngIf="!submitted">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+          <label for="collegeId">College</label>
+          <select id="collegeId" formControlName="collegeId" class="custom-select">
+            <option [ngValue]="null" disabled>Select your college</option>
+            <option *ngFor="let college of colleges" [ngValue]="college.id">{{ college.name }} — {{ college.city }}</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="isTeacher">
+          <label for="claimedDepartment">Department</label>
+          <input type="text" id="claimedDepartment" formControlName="claimedDepartment" placeholder="e.g. Computer Science" />
+        </div>
+
+        <div class="form-group" *ngIf="isTeacher">
+          <label for="idDocumentUrl">ID document URL</label>
+          <input type="text" id="idDocumentUrl" formControlName="idDocumentUrl" placeholder="Link to your faculty ID / proof" />
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="form.invalid || submitting">
+          {{ submitting ? 'Submitting…' : (isTeacher ? 'Submit for review' : 'Link college') }}
+        </button>
+      </form>
+
+      <button type="button" class="btn-secondary" (click)="skipForNow()">Skip for now</button>
+    </div>
+
+    <div *ngIf="submitted && isTeacher" class="submitted-state">
+      <p>Your affiliation request has been submitted. An admin will review your document and approve access shortly.</p>
+      <button type="button" class="btn-submit" (click)="skipForNow()">Go to dashboard</button>
+    </div>
+  </div>
+</div>

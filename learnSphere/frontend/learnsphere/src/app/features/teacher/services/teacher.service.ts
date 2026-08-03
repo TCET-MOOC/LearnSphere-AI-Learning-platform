@@ -23,7 +23,7 @@ export class TeacherService {
   /**
    * Sends a nudge/warning notification to a specific student about their course progress.
    */
-  sendNudge(studentId: string, courseId: string): Observable<{ success: boolean; message: string }> {
+  sendNudge(studentId: number, courseId: string): Observable<{ success: boolean; message: string }> {
     return this.apiService.post<{ success: boolean; message: string }>(`/teacher/courses/${courseId}/nudge/${studentId}`, {});
   }
 }
