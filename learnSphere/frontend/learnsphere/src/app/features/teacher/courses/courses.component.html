@@ -1,0 +1,114 @@
+<div class="teacher-courses">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Teacher view</p>
+      <h1>My Courses</h1>
+    </div>
+    <button class="btn btn--primary" type="button">New course</button>
+  </header>
+
+  <nav class="tabs" aria-label="Course status filters">
+    <button
+      class="tab"
+      *ngFor="let tab of tabs"
+      [class.tab--active]="tab === activeTab"
+      (click)="setTab(tab)"
+      type="button">
+      {{ tab }}
+    </button>
+  </nav>
+
+  <section class="metric-grid" aria-label="Course metrics">
+    <article class="metric-card" *ngFor="let metric of metrics" [class]="'metric-card metric-card--' + metric.tone">
+      <span>{{ metric.label }}</span>
+      <strong>{{ metric.value }}</strong>
+      <small>{{ metric.sub }}</small>
+    </article>
+  </section>
+
+  <div class="course-layout">
+    <section class="course-stack">
+      <article class="course-card" *ngFor="let course of courses">
+        <div class="course-card__head">
+          <div class="course-id" [class]="'course-id course-id--' + course.tone">{{ course.code }}</div>
+          <div class="course-title">
+            <h2>{{ course.title }}</h2>
+            <p>{{ course.lectures }} lectures · Updated {{ course.updated }}</p>
+          </div>
+          <span class="pill" [ngClass]="getStatusClass(course.status)">{{ course.status }}</span>
+        </div>
+
+        <div class="course-stats">
+          <div>
+            <span>Students</span>
+            <strong>{{ course.students }}</strong>
+          </div>
+          <div>
+            <span>Rating</span>
+            <strong>{{ course.rating }}</strong>
+          </div>
+          <div>
+            <span>Completion</span>
+            <strong>{{ course.completion }}%</strong>
+          </div>
+        </div>
+
+        <div class="progress-track" aria-hidden="true">
+          <span [style.width.%]="course.completion"></span>
+        </div>
+
+        <div class="course-actions">
+          <button class="btn btn--soft" type="button">{{ course.nextAction }}</button>
+          <button class="btn btn--ghost" type="button">Edit course</button>
+          <button class="btn btn--ghost" type="button">Preview</button>
+        </div>
+      </article>
+    </section>
+
+    <aside class="side-stack">
+      <section class="card">
+        <div class="card-head">
+          <h2>Engineering Mathematics III</h2>
+          <span class="pill pill--green">Live</span>
+        </div>
+
+        <div class="mini-grid">
+          <div>
+            <span>Enrolled</span>
+            <strong>312</strong>
+          </div>
+          <div>
+            <span>Rating</span>
+            <strong>4.9</strong>
+          </div>
+          <div>
+            <span>Completion</span>
+            <strong>64%</strong>
+          </div>
+        </div>
+
+        <div class="lecture-list">
+          <div class="lecture-row" *ngFor="let lecture of lectures">
+            <div>
+              <strong>{{ lecture.title }}</strong>
+              <small>{{ lecture.meta }}</small>
+            </div>
+            <span class="pill" [ngClass]="getStatusClass(lecture.status)">{{ lecture.status }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Quick actions</h2>
+        </div>
+        <div class="action-grid">
+          <button class="btn btn--primary" type="button">Upload lecture</button>
+          <button class="btn btn--ghost" type="button">Add quiz</button>
+          <button class="btn btn--ghost" type="button">Upload notes</button>
+          <button class="btn btn--danger" type="button">Archive course</button>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>

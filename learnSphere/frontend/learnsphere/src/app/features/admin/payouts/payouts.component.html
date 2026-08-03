@@ -1,0 +1,193 @@
+<div class="payouts-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-header__title">💸 Payouts</h1>
+      <p class="page-header__sub">Manage teacher earnings and process monthly payouts</p>
+    </div>
+    <button class="btn btn--primary" (click)="processAll()">⚡ Process All Pending</button>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-card__icon" style="background:#FEF6E4">⏳</div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__value">₹32,400</div>
+        <div class="kpi-card__label">Pending Payouts</div>
+        <div class="kpi-card__sub" style="color:#D08C1A">To 12 teachers · Due 30 Jun</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__icon" style="background:#E3F6F0">✅</div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__value">₹1.14L</div>
+        <div class="kpi-card__label">Paid This Month</div>
+        <div class="kpi-card__sub" style="color:#1D9E75">To 28 teachers</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__icon" style="background:#EEEDFE">🏦</div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__value">₹84,000</div>
+        <div class="kpi-card__label">Platform Cut (20%)</div>
+        <div class="kpi-card__sub" style="color:#534AB7">June retained</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+
+    <!-- Left: Pending payouts -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div class="panel">
+        <div class="panel__header">
+          <span class="panel__title">Pending Payouts — Jun 2026</span>
+          <span class="pill pill--amber">Due 30 Jun</span>
+        </div>
+
+        <div class="payout-list">
+          <div class="payout-item">
+            <div class="payout-item__avatar" style="background:#EEEDFE;color:#534AB7">AS</div>
+            <div class="payout-item__info">
+              <div class="payout-item__name">Prof. A. Sharma</div>
+              <div class="payout-item__meta">SBI ••••4821 · 2 courses · Math Dept</div>
+            </div>
+            <div class="payout-item__amount">₹18,400</div>
+            <button class="btn btn--pay" (click)="payTeacher('Prof. A. Sharma')">Pay Now</button>
+          </div>
+
+          <div class="payout-item">
+            <div class="payout-item__avatar" style="background:#E3F6F0;color:#1D9E75">SM</div>
+            <div class="payout-item__info">
+              <div class="payout-item__name">Prof. S. Mehta</div>
+              <div class="payout-item__meta">HDFC ••••7732 · 1 course · CS Dept</div>
+            </div>
+            <div class="payout-item__amount">₹14,000</div>
+            <button class="btn btn--pay" (click)="payTeacher('Prof. S. Mehta')">Pay Now</button>
+          </div>
+
+          <div class="payout-item">
+            <div class="payout-item__avatar" style="background:#E3F6F0;color:#1D9E75">RP</div>
+            <div class="payout-item__info">
+              <div class="payout-item__name">Prof. R. Patil</div>
+              <div class="payout-item__meta">ICICI ••••2210 · 1 course · Mech Dept</div>
+            </div>
+            <div class="payout-item__amount">₹9,800</div>
+            <button class="btn btn--pay" (click)="payTeacher('Prof. R. Patil')">Pay Now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payout history -->
+      <div class="panel">
+        <div class="panel__header">
+          <span class="panel__title">Payout History</span>
+          <button class="btn btn--link">Download CSV →</button>
+        </div>
+
+        <div class="history-list">
+          <div class="history-item">
+            <div class="history-item__info">
+              <div class="history-item__period">May 2026 — All teachers</div>
+              <div class="history-item__meta">Processed 30 May · 24 teachers</div>
+            </div>
+            <span class="pill pill--green">₹88,400 paid</span>
+          </div>
+
+          <div class="history-item">
+            <div class="history-item__info">
+              <div class="history-item__period">Apr 2026 — All teachers</div>
+              <div class="history-item__meta">Processed 30 Apr · 20 teachers</div>
+            </div>
+            <span class="pill pill--green">₹74,200 paid</span>
+          </div>
+
+          <div class="history-item">
+            <div class="history-item__info">
+              <div class="history-item__period">Mar 2026 — All teachers</div>
+              <div class="history-item__meta">Processed 30 Mar · 18 teachers</div>
+            </div>
+            <span class="pill pill--green">₹61,800 paid</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Summary + Top earners -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+      <!-- June summary -->
+      <div class="panel">
+        <div class="panel__header">
+          <span class="panel__title">June Summary</span>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-box__row">
+            <span>Gross revenue</span>
+            <span class="summary-box__value">₹4,20,000</span>
+          </div>
+          <div class="summary-box__row">
+            <span>Platform cut (20%)</span>
+            <span class="summary-box__value">₹84,000</span>
+          </div>
+          <div class="summary-box__row">
+            <span>Already paid out</span>
+            <span class="summary-box__value">₹1,14,000</span>
+          </div>
+          <div class="summary-box__row summary-box__row--total">
+            <span>Pending</span>
+            <span style="color:#D08C1A">₹32,400</span>
+          </div>
+        </div>
+
+        <button class="btn btn--primary" style="width:100%;justify-content:center" (click)="processAll()">
+          ⚡ Process All Pending
+        </button>
+      </div>
+
+      <!-- Top earners -->
+      <div class="panel">
+        <div class="panel__header">
+          <span class="panel__title">Top Earners — June</span>
+        </div>
+
+        <div class="payout-list">
+          <div class="payout-item" style="padding: 10px 0">
+            <div style="font-size:16px;width:24px;text-align:center;flex-shrink:0">🥇</div>
+            <div class="payout-item__avatar" style="background:#EEEDFE;color:#534AB7;width:32px;height:32px;min-width:32px;font-size:11px">AS</div>
+            <div class="payout-item__info">
+              <div class="payout-item__name" style="font-size:12px">Prof. A. Sharma</div>
+              <div class="payout-item__meta">486 students · ★4.9</div>
+            </div>
+            <span style="font-size:13px;font-weight:700;color:#534AB7">₹18.4k</span>
+          </div>
+
+          <div class="payout-item" style="padding: 10px 0">
+            <div style="font-size:16px;width:24px;text-align:center;flex-shrink:0">🥈</div>
+            <div class="payout-item__avatar" style="background:#E3F6F0;color:#1D9E75;width:32px;height:32px;min-width:32px;font-size:11px">SM</div>
+            <div class="payout-item__info">
+              <div class="payout-item__name" style="font-size:12px">Prof. S. Mehta</div>
+              <div class="payout-item__meta">410 students · ★4.8</div>
+            </div>
+            <span style="font-size:13px;font-weight:700;color:#534AB7">₹14.0k</span>
+          </div>
+
+          <div class="payout-item" style="padding: 10px 0">
+            <div style="font-size:16px;width:24px;text-align:center;flex-shrink:0">🥉</div>
+            <div class="payout-item__avatar" style="background:#E3F6F0;color:#1D9E75;width:32px;height:32px;min-width:32px;font-size:11px">RP</div>
+            <div class="payout-item__info">
+              <div class="payout-item__name" style="font-size:12px">Prof. R. Patil</div>
+              <div class="payout-item__meta">298 students · ★4.7</div>
+            </div>
+            <span style="font-size:13px;font-weight:700;color:#534AB7">₹9.8k</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

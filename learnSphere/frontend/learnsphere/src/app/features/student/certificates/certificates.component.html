@@ -1,0 +1,72 @@
+<div class="page-container">
+  <h1 class="page-title">Certificates</h1>
+
+  <div class="stats-grid">
+    <div class="stat-box">
+      <span class="stat-label">Certificates earned</span>
+      <span class="stat-value">3</span>
+      <span class="stat-subtext text-success">All downloadable</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">In progress</span>
+      <span class="stat-value">2</span>
+      <span class="stat-subtext text-purple">Complete to unlock</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Remedial certs</span>
+      <span class="stat-value">1</span>
+      <span class="stat-subtext text-amber">Pending attempt</span>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2 class="section-title">Earned certificates</h2>
+    <div class="certs-grid">
+      <div class="cert-card" *ngFor="let cert of earnedCerts">
+        <div class="cert-header">
+          <div class="icon-placeholder" [class.icon-green]="cert.icon === '✅'">{{ cert.icon }}</div>
+          <div class="cert-info">
+            <h3 class="course-name">{{ cert.courseName }}</h3>
+            <p class="issue-details">Issued {{ cert.date }} · {{ cert.teacher }}</p>
+          </div>
+        </div>
+        <div class="cert-actions">
+          <span class="status-pill completed">Completed</span>
+          <button class="btn-link">⬇ Download PDF</button>
+          <button class="btn-text">Share</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card mt-24">
+    <h2 class="section-title">Certificates in progress</h2>
+    
+    <div class="progress-item" *ngFor="let prog of inProgressCerts">
+      <h3 class="course-name">{{ prog.courseName }}</h3>
+      <p class="requirement-text">{{ prog.requirement }}</p>
+      
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="prog.progressValue"></div>
+      </div>
+      
+      <p class="progress-details">{{ prog.progressText }}</p>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="remedial-item" *ngFor="let rem of remedialCerts">
+      <div class="remedial-content">
+        <h3 class="course-name">Remedial — {{ rem.courseName }}</h3>
+        <p class="requirement-text">{{ rem.requirement }}</p>
+        
+        <div class="progress-track">
+          <div class="progress-fill" style="width: 0%"></div>
+        </div>
+        
+        <p class="remedial-status text-danger">{{ rem.statusText }}</p>
+      </div>
+      <button class="btn-primary">Attempt now</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,191 @@
+.page-container {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #202124;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+/* Stat Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-box {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+
+  .stat-label { font-size: 14px; color: #5f6368; margin-bottom: 12px; }
+  .stat-value { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+  .stat-subtext { font-size: 13px; font-weight: 500; }
+}
+
+/* Section Cards */
+.section-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+}
+
+/* Grid for Earned Certs */
+.certs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.cert-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+
+  .cert-header {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    
+    .icon-placeholder {
+      font-size: 24px;
+      background: #fdf3eb; /* default light orange background */
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      
+      &.icon-green {
+        background: #e6f4ea;
+      }
+    }
+    
+    .course-name { font-size: 15px; font-weight: 600; margin: 0 0 4px 0; }
+    .issue-details { font-size: 13px; color: #5f6368; margin: 0; }
+  }
+
+  .cert-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    
+    .btn-link {
+      background: none;
+      border: none;
+      color: #534AB7;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+    }
+    
+    .btn-text {
+      background: none;
+      border: none;
+      color: #3c4043;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+    }
+  }
+}
+
+/* Hardcoded Status Pill */
+.status-pill {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  
+  &.completed {
+    background-color: #e6f4ea;
+    color: #137333;
+  }
+}
+
+/* Progress Sections */
+.progress-item, .remedial-item {
+  margin-bottom: 24px;
+  
+  .course-name { font-size: 15px; font-weight: 600; margin: 0 0 4px 0; }
+  .requirement-text { font-size: 13px; color: #5f6368; margin: 0 0 12px 0; }
+  .progress-details { font-size: 13px; color: #5f6368; margin-top: 8px; }
+}
+
+/* Hardcoded Progress Bar */
+.progress-track {
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #534AB7;
+  border-radius: 3px;
+}
+
+.remedial-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 0;
+  
+  .remedial-content {
+    flex: 1;
+    margin-right: 24px;
+  }
+  
+  .remedial-status {
+    font-size: 13px;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+}
+
+.btn-primary {
+  background: #534AB7;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid #e0e0e0;
+  margin: 24px 0;
+}
+
+/* Color Utils */
+.text-success { color: #137333; }
+.text-purple { color: #534AB7; }
+.text-amber { color: #b06000; }
+.text-danger { color: #c5221f; }
+.mt-24 { margin-top: 24px; }

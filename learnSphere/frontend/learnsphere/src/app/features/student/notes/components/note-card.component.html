@@ -1,0 +1,33 @@
+<div class="note-card">
+  <div class="note-card__header">
+    <div class="note-card__meta">
+      <div class="note-card__title">{{ note.title }}</div>
+      <div class="note-card__sub">
+        {{ note.courseName }} · {{ note.lectureLabel }} · 
+        <a href="#" (click)="navigateToTimestamp($event)" class="note-card__timestamp">
+          ⏱ {{ note.timestampSeconds | duration }}
+        </a> · 
+        <span class="note-card__time">{{ note.createdAt | timeAgo }}</span>
+      </div>
+    </div>
+    
+    <div class="note-card__actions">
+      <app-status-pill status="YOUR_ITEM"></app-status-pill>
+      
+      <button class="kebab-btn" [matMenuTriggerFor]="cardMenu" aria-label="Note options">
+        ⋮
+      </button>
+      <mat-menu #cardMenu="matMenu">
+        <button mat-menu-item (click)="onEdit()">Edit</button>
+        <button mat-menu-item (click)="onDelete()" class="menu-item-danger">Delete</button>
+      </mat-menu>
+    </div>
+  </div>
+  
+  <div class="note-card__body" [innerHTML]="formattedContent">
+  </div>
+  
+  <div class="note-card__tags" *ngIf="note.tags && note.tags.length > 0">
+    <span class="tag" *ngFor="let tag of note.tags">#{{ tag }}</span>
+  </div>
+</div>

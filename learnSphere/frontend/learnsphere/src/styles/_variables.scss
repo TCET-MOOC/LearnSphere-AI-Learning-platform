@@ -1,0 +1,45 @@
+// ── Color Palette Design Tokens ──
+$brand-purple: #534AB7;
+$brand-purple-light: #EEEDFE;
+$brand-purple-dark: #3C3489;
+
+// Admin Unique Backgrounds (Dark Mode Sidebar)
+$admin-sidebar-bg: #12102e;
+$admin-sidebar-hover: rgba(255, 255, 255, 0.08);
+$admin-sidebar-active: rgba(83, 74, 183, 0.35);
+
+// Status Color Mappings (Background & Foreground pairs)
+$status-green-bg: #EAF3DE;
+$status-green-text: #27500A;
+
+$status-amber-bg: #FAEEDA;
+$status-amber-text: #633806;
+
+$status-red-bg: #FCEBEB;
+$status-red-text: #791F1F;
+
+$status-purple-bg: #EEEDFE;
+$status-purple-text: #3C3489;
+
+$status-grey-bg: #F1EFE8;
+$status-grey-text: #444441;
+
+$status-teal-bg: #E1F5EE;
+$status-teal-text: #085041;
+
+$status-blue-bg: #E6F1FB;
+$status-blue-text: #0C447C;
+
+// Layout spacing scale tokens
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+
+// Border Radius Tokens
+$border-radius-sm: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 8px;
+$border-radius-xl: 12px;
+$border-radius-round: 20px;

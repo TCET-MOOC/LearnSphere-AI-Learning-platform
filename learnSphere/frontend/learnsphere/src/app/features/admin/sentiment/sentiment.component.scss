@@ -1,0 +1,219 @@
+.page-container {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #202124;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+/* Tabs */
+.tabs-container {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.tab-btn {
+  background: none;
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #5f6368;
+  cursor: pointer;
+  border-radius: 16px;
+  transition: all 0.2s;
+  
+  &.active {
+    color: #534AB7;
+    border-color: #534AB7;
+    background-color: #f0effff0;
+  }
+
+  &:hover:not(.active) {
+    background-color: #f1f3f4;
+  }
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-box {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+
+  .stat-label { font-size: 14px; color: #5f6368; margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+  .stat-subtext { font-size: 13px; font-weight: 500; }
+}
+
+/* Section Cards */
+.section-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+}
+
+.mt-24 { margin-top: 24px; }
+
+/* 3 Sentiment Blocks */
+.sentiment-blocks {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.block {
+  padding: 24px 20px;
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+
+  .block-value { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+  .block-label { font-size: 14px; font-weight: 600; }
+
+  &.positive { background-color: #e6f4ea; color: #137333; }
+  &.neutral { background-color: #fef7e0; color: #b06000; }
+  &.negative { background-color: #fce8e6; color: #c5221f; }
+}
+
+/* Course Type Bars */
+.course-type-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+
+  .bar-label { width: 120px; font-size: 14px; text-align: right; margin-right: 16px; font-weight: 500;}
+  .bar-track { flex: 1; height: 8px; background: #f1f3f4; border-radius: 4px; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .bar-percent { width: 48px; text-align: right; font-size: 14px; font-weight: 600; margin-left: 16px;}
+}
+
+/* Keyword Pills */
+.keyword-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.keyword-pill {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+
+  &.severity-high { background-color: #fce8e6; color: #c5221f; }
+  &.severity-medium { background-color: #fdf3eb; color: #8d4b14; }
+  &.severity-low { background-color: #f1f3f4; color: #5f6368; }
+}
+
+/* Action Recommendations */
+.action-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f3f4;
+
+  &:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .action-title { font-size: 15px; font-weight: 600; margin: 0 0 6px 0; }
+  .action-desc { font-size: 13px; color: #5f6368; margin: 0; }
+}
+
+.action-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  background: white;
+  cursor: pointer;
+
+  &.btn-outline-amber { border: 1px solid #f29900; color: #b06000; background-color: #fffaf0;}
+  &.btn-outline-grey { border: 1px solid #dadce0; color: #3c4043; }
+}
+
+/* Teacher List */
+.teacher-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f3f4;
+  
+  &:last-child { border-bottom: none; }
+}
+
+.teacher-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+
+    &.positive { background-color: #f0effff0; color: #534AB7; }
+    &.warning { background-color: #e6f4ea; color: #1e8e3e; }
+  }
+
+  .teacher-name { font-size: 15px; font-weight: 600; margin: 0 0 4px 0; }
+  .teacher-desc { font-size: 13px; color: #5f6368; margin: 0; }
+}
+
+.score-pill {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+
+  &.positive { background-color: #e6f4ea; color: #137333; }
+  &.warning { background-color: #fdf3eb; color: #b06000; }
+}
+
+.footer-note {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 13px;
+  color: #3c4043;
+}
+
+/* Utils */
+.text-success { color: #137333; }

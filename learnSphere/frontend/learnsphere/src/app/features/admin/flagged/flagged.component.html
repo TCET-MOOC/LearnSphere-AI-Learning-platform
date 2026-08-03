@@ -1,0 +1,120 @@
+<div class="flagged-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <h1 class="page-title">🚩 Flagged Content</h1>
+      <p class="page-subtitle">AI-powered moderation queue · Review and take action</p>
+    </div>
+    <span class="badge-red">14 open</span>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card__label">Open flags</div>
+      <div class="stat-card__value">14</div>
+      <div class="stat-card__sub stat-card__sub--red">4 high risk</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__label">Resolved this month</div>
+      <div class="stat-card__value">38</div>
+      <div class="stat-card__sub stat-card__sub--green">Avg. 4h response</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__label">AI detection rate</div>
+      <div class="stat-card__value">94%</div>
+      <div class="stat-card__sub stat-card__sub--purple">Accuracy score</div>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="tabs">
+    <button
+      *ngFor="let tab of tabs"
+      class="tab-btn"
+      [class.tab-btn--active]="activeTab === tab.id"
+      (click)="setTab(tab.id)">
+      {{ tab.label }}
+    </button>
+  </div>
+
+  <!-- Flagged Posts -->
+  <div class="flagged-list">
+
+    <!-- High Risk Post 1 -->
+    <div class="flag-card flag-card--high">
+      <div class="flag-card__header">
+        <div class="flag-card__user">
+          <div class="ava ava--red">VD</div>
+          <div>
+            <div class="ava__name">Vikram Desai</div>
+            <div class="ava__meta">Comment · DSA discussion · 2h ago</div>
+          </div>
+        </div>
+        <span class="pill pill--red">🚨 High risk — bullying</span>
+      </div>
+      <div class="flag-card__content flag-card__content--danger">
+        Content hidden — AI flagged as targeted harassment toward another student.
+      </div>
+      <div class="flag-card__ai-info">
+        AI confidence: <strong>96%</strong> · User has 1 prior warning
+      </div>
+      <div class="flag-card__actions">
+        <button class="btn btn--danger">Blacklist user</button>
+        <button class="btn btn--warn">Issue warning</button>
+        <button class="btn btn--ghost">View full post</button>
+        <button class="btn btn--ghost">Dismiss</button>
+      </div>
+    </div>
+
+    <!-- Medium Risk Post -->
+    <div class="flag-card">
+      <div class="flag-card__header">
+        <div class="flag-card__user">
+          <div class="ava ava--amber">AK</div>
+          <div>
+            <div class="ava__name">Anil Kumar</div>
+            <div class="ava__meta">Review · Math III · 5h ago</div>
+          </div>
+        </div>
+        <span class="pill pill--amber">Spam / off-topic</span>
+      </div>
+      <div class="flag-card__content flag-card__content--neutral">
+        AI confidence: <strong>88%</strong> · First offence
+      </div>
+      <div class="flag-card__actions">
+        <button class="btn btn--danger">Remove post</button>
+        <button class="btn btn--ghost">View post</button>
+        <button class="btn btn--ghost">Dismiss</button>
+      </div>
+    </div>
+
+    <!-- High Risk Post 2 -->
+    <div class="flag-card flag-card--high">
+      <div class="flag-card__header">
+        <div class="flag-card__user">
+          <div class="ava ava--purple">RM</div>
+          <div>
+            <div class="ava__name">Rehan Malik</div>
+            <div class="ava__meta">Direct message · Sent to student · 1d ago</div>
+          </div>
+        </div>
+        <span class="pill pill--red">🚨 Suspicious contact</span>
+      </div>
+      <div class="flag-card__content flag-card__content--danger">
+        DM content hidden — flagged for inappropriate contact with minor-age student.
+      </div>
+      <div class="flag-card__ai-info">
+        AI confidence: <strong>91%</strong> · No prior warnings
+      </div>
+      <div class="flag-card__actions">
+        <button class="btn btn--danger">Blacklist user</button>
+        <button class="btn btn--warn">Issue warning</button>
+        <button class="btn btn--ghost">View message</button>
+        <button class="btn btn--ghost">Dismiss</button>
+      </div>
+    </div>
+
+  </div>
+</div>

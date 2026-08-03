@@ -1,0 +1,606 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{display:flex;flex-direction:column;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-tertiary);font-size:13px;min-height:580px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:48px;background:#12102e;border-bottom:0.5px solid rgba(255,255,255,0.07);flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px;font-weight:500;font-size:14px;color:#fff}
+.logo-icon{width:28px;height:28px;border-radius:6px;background:#534AB7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:500}
+.role-badge{background:rgba(255,255,255,0.1);color:#AFA9EC;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.search-bar{flex:1;max-width:240px;margin:0 16px;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.12);border-radius:var(--border-radius-md);padding:0 10px;height:30px}
+.topbar-right{display:flex;align-items:center;gap:4px}
+.icon-btn{width:32px;height:32px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,0.55);position:relative}
+.icon-btn:hover{background:rgba(255,255,255,0.08)}
+.ndot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#E24B4A;border:1.5px solid #12102e}
+.avatar{width:30px;height:30px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#fff;margin-left:6px;cursor:pointer}
+.body{display:flex;flex:1;min-height:0}
+.sidebar{width:56px;background:#0e0c26;border-right:0.5px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:2px;flex-shrink:0}
+.ni{width:40px;height:40px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,0.4);font-size:17px;position:relative;transition:background .15s}
+.ni:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85)}
+.ni.active{background:rgba(83,74,183,0.35);color:#AFA9EC}
+.ni .tip{display:none;position:absolute;left:46px;top:50%;transform:translateY(-50%);background:#1a1740;border:0.5px solid rgba(255,255,255,0.14);border-radius:6px;padding:3px 9px;font-size:11px;white-space:nowrap;color:#fff;z-index:99;pointer-events:none}
+.ni:hover .tip{display:block}
+.ndiv{width:28px;height:0.5px;background:rgba(255,255,255,0.08);margin:4px 0}
+.main{flex:1;padding:14px;overflow-y:auto;background:var(--color-background-tertiary)}
+.section{display:none}.section.active{display:block}
+.pg{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.srow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.srow3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.srow2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px}
+.sc-lbl{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.sc-val{font-size:19px;font-weight:500;color:var(--color-text-primary)}
+.sc-sub{font-size:11px;margin-top:2px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:13px;margin-bottom:10px}
+.card:last-child{margin-bottom:0}
+.card-hd{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.cl{font-size:11px;color:#534AB7;cursor:pointer;white-space:nowrap}
+.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.row:last-child{border-bottom:none}
+.pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.p-pu{background:#EEEDFE;color:#3C3489}
+.p-gr{background:#EAF3DE;color:#27500A}
+.p-am{background:#FAEEDA;color:#633806}
+.p-re{background:#FCEBEB;color:#791F1F}
+.p-gy{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.p-te{background:#E1F5EE;color:#085041}
+.p-bl{background:#E6F1FB;color:#0C447C}
+.ava{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0}
+.stabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.stab{padding:5px 12px;border-radius:var(--border-radius-md);font-size:12px;cursor:pointer;color:var(--color-text-secondary);border:0.5px solid transparent}
+.stab.on{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.stab:hover:not(.on){background:var(--color-background-secondary)}
+.action-btn{font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary)}
+.action-btn:hover{background:var(--color-background-secondary)}
+.action-btn.prim{background:#534AB7;color:#fff;border-color:#534AB7}
+.action-btn.grn{background:#EAF3DE;color:#27500A;border-color:#5DCAA5}
+.action-btn.danger{border-color:#F09595;color:#A32D2D;background:#FCEBEB}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.set-row:last-child{border-bottom:none}
+.toggle{width:32px;height:18px;border-radius:9px;display:flex;align-items:center;padding:2px;cursor:pointer;flex-shrink:0}
+.ton{background:#534AB7}.toff{background:var(--color-border-secondary)}
+.tknob{width:14px;height:14px;border-radius:50%;background:#fff}
+.ton .tknob{transform:translateX(14px)}
+.bar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-lbl{font-size:11px;color:var(--color-text-secondary);width:90px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:6px;background:var(--color-background-secondary);border-radius:3px}
+.bar-fill{height:6px;border-radius:3px}
+.bar-val{font-size:11px;font-weight:500;color:var(--color-text-primary);width:36px}
+.flag-post{border-radius:var(--border-radius-md);padding:11px;margin-bottom:8px;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
+.flag-post.high{border-color:#F09595;background:#FCEBEB10}
+.earning-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.earning-row:last-child{border-bottom:none}
+.sent-box{border-radius:var(--border-radius-md);padding:10px;text-align:center}
+.user-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.user-row:last-child{border-bottom:none}
+.thumb{width:36px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">LS</div>
+      LearnSphere
+      <span class="role-badge">Admin</span>
+    </div>
+    <div class="search-bar">
+      <i class="ti ti-search" style="font-size:13px;color:rgba(255,255,255,0.35)" aria-hidden="true"></i>
+      <span style="font-size:12px;color:rgba(255,255,255,0.35)">Search users, courses, colleges…</span>
+    </div>
+    <div class="topbar-right">
+      <div class="icon-btn" aria-label="Flagged"><i class="ti ti-shield-exclamation" style="font-size:17px" aria-hidden="true"></i><span class="ndot"></span></div>
+      <div class="icon-btn" aria-label="Reports"><i class="ti ti-file-report" style="font-size:17px" aria-hidden="true"></i></div>
+      <div class="icon-btn" aria-label="Notifications"><i class="ti ti-bell" style="font-size:17px" aria-hidden="true"></i><span class="ndot"></span></div>
+      <div class="avatar">AD</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="sidebar">
+      <div class="ni active" onclick="sw('dash',this)" aria-label="Dashboard"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span class="tip">Dashboard</span></div>
+      <div class="ni" onclick="sw('users',this)" aria-label="User management"><i class="ti ti-users" aria-hidden="true"></i><span class="tip">User management</span></div>
+      <div class="ni" onclick="sw('courses',this)" aria-label="Course approvals"><i class="ti ti-clipboard-check" aria-hidden="true"></i><span class="tip">Course approvals</span></div>
+      <div class="ni" onclick="sw('colleges',this)" aria-label="College management"><i class="ti ti-building" aria-hidden="true"></i><span class="tip">College management</span></div>
+      <div class="ndiv"></div>
+      <div class="ni" onclick="sw('revenue',this)" aria-label="Revenue"><i class="ti ti-chart-bar" aria-hidden="true"></i><span class="tip">Revenue</span></div>
+      <div class="ni" onclick="sw('payouts',this)" aria-label="Payouts"><i class="ti ti-coin" aria-hidden="true"></i><span class="tip">Payouts</span></div>
+      <div class="ni" onclick="sw('reports',this)" aria-label="Reports"><i class="ti ti-file-analytics" aria-hidden="true"></i><span class="tip">Reports</span></div>
+      <div class="ndiv"></div>
+      <div class="ni" onclick="sw('flagged',this)" aria-label="Flagged content"><i class="ti ti-flag" aria-hidden="true"></i><span class="tip">Flagged content</span></div>
+      <div class="ni" onclick="sw('sentiment',this)" aria-label="Sentiment analysis"><i class="ti ti-brain" aria-hidden="true"></i><span class="tip">Sentiment analysis</span></div>
+      <div class="ni" onclick="sw('settings',this)" aria-label="Settings"><i class="ti ti-settings" aria-hidden="true"></i><span class="tip">Settings</span></div>
+    </div>
+
+    <div class="main">
+
+      <!-- 1. DASHBOARD -->
+      <div class="section active" id="sec-dash">
+        <div class="pg">Platform overview</div>
+        <div class="srow">
+          <div class="sc"><div class="sc-lbl">Total revenue</div><div class="sc-val">₹4.2L</div><div class="sc-sub" style="color:#0F6E56">+18% this month</div></div>
+          <div class="sc"><div class="sc-lbl">Registered users</div><div class="sc-val">3,840</div><div class="sc-sub" style="color:#534AB7">+48 today</div></div>
+          <div class="sc"><div class="sc-lbl">Active courses</div><div class="sc-val">62</div><div class="sc-sub" style="color:#854F0B">7 pending review</div></div>
+          <div class="sc"><div class="sc-lbl">Flagged items</div><div class="sc-val">14</div><div class="sc-sub" style="color:#A32D2D">Needs action</div></div>
+        </div>
+        <div class="srow2">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-hd">Top teachers this month <span class="cl">All teachers</span></div>
+            <div class="row"><span style="font-size:13px;width:22px">🥇</span><div class="ava" style="background:#EEEDFE;color:#534AB7">AS</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. A. Sharma</div><div style="font-size:11px;color:var(--color-text-secondary)">486 students · ★4.9</div></div><span class="pill p-pu">₹18.4k</span></div>
+            <div class="row"><span style="font-size:13px;width:22px">🥈</span><div class="ava" style="background:#EAF3DE;color:#27500A">SM</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. S. Mehta</div><div style="font-size:11px;color:var(--color-text-secondary)">410 students · ★4.8</div></div><span class="pill p-gr">₹14.2k</span></div>
+            <div class="row"><span style="font-size:13px;width:22px">🥉</span><div class="ava" style="background:#E1F5EE;color:#085041">RP</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. R. Patil</div><div style="font-size:11px;color:var(--color-text-secondary)">298 students · ★4.7</div></div><span class="pill p-gy">₹9.8k</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="card" style="margin-bottom:0">
+              <div class="card-hd">Top students this month</div>
+              <div class="row"><span style="font-size:13px;width:22px">🥇</span><div class="ava" style="background:#FAEEDA;color:#633806">PK</div><div style="flex:1;font-size:12px;font-weight:500;color:var(--color-text-primary)">Priya Kulkarni</div><span class="pill p-pu">2,840 pts</span></div>
+              <div class="row"><span style="font-size:13px;width:22px">🥈</span><div class="ava" style="background:#EAF3DE;color:#27500A">AM</div><div style="flex:1;font-size:12px;font-weight:500;color:var(--color-text-primary)">Arjun Mishra</div><span class="pill p-gr">2,710 pts</span></div>
+              <div class="row"><span style="font-size:13px;width:22px">🥉</span><div class="ava" style="background:#E1F5EE;color:#085041">NJ</div><div style="flex:1;font-size:12px;font-weight:500;color:var(--color-text-primary)">Nisha Joshi</div><span class="pill p-gy">1,940 pts</span></div>
+            </div>
+            <div class="card" style="margin-bottom:0">
+              <div class="card-hd">Quick actions</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <button class="action-btn prim" style="padding:7px">Review courses</button>
+                <button class="action-btn" style="padding:7px">Manage users</button>
+                <button class="action-btn" style="padding:7px">Process payouts</button>
+                <button class="action-btn danger" style="padding:7px">Review flags (14)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Platform health snapshot</div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+            <div style="background:#EAF3DE;border-radius:var(--border-radius-md);padding:10px;text-align:center"><div style="font-size:18px;font-weight:500;color:#27500A">72%</div><div style="font-size:11px;color:#3B6D11;margin-top:2px">Positive sentiment</div></div>
+            <div style="background:#EEEDFE;border-radius:var(--border-radius-md);padding:10px;text-align:center"><div style="font-size:18px;font-weight:500;color:#3C3489">94%</div><div style="font-size:11px;color:#534AB7;margin-top:2px">Course approval rate</div></div>
+            <div style="background:#E1F5EE;border-radius:var(--border-radius-md);padding:10px;text-align:center"><div style="font-size:18px;font-weight:500;color:#085041">78%</div><div style="font-size:11px;color:#0F6E56;margin-top:2px">Avg. student completion</div></div>
+            <div style="background:#FCEBEB;border-radius:var(--border-radius-md);padding:10px;text-align:center"><div style="font-size:18px;font-weight:500;color:#791F1F">14</div><div style="font-size:11px;color:#A32D2D;margin-top:2px">Open flags</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. USER MANAGEMENT -->
+      <div class="section" id="sec-users">
+        <div class="pg">User management <button class="action-btn prim" style="padding:5px 12px;font-size:12px">+ Add user</button></div>
+        <div class="stabs">
+          <div class="stab on">All users (3,840)</div>
+          <div class="stab">Students (3,420)</div>
+          <div class="stab">Teachers (398)</div>
+          <div class="stab">Flagged (22)</div>
+          <div class="stab">Blacklisted (6)</div>
+        </div>
+        <div class="srow">
+          <div class="sc"><div class="sc-lbl">Total users</div><div class="sc-val">3,840</div><div class="sc-sub" style="color:#0F6E56">+48 today</div></div>
+          <div class="sc"><div class="sc-lbl">Students</div><div class="sc-val">3,420</div><div class="sc-sub" style="color:var(--color-text-secondary)">Across 8 colleges</div></div>
+          <div class="sc"><div class="sc-lbl">Teachers</div><div class="sc-val">398</div><div class="sc-sub" style="color:var(--color-text-secondary)">62 active courses</div></div>
+          <div class="sc"><div class="sc-lbl">Blacklisted</div><div class="sc-val">6</div><div class="sc-sub" style="color:#A32D2D">Permanent ban</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">All users <span style="display:flex;gap:6px;align-items:center"><input placeholder="Search name / email…" style="font-size:11px;padding:4px 10px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);width:160px"/><span class="cl">Filter ▾</span></span></div>
+          <div class="user-row">
+            <div class="ava" style="background:#EEEDFE;color:#534AB7">RS</div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Raj Shah</div><div style="font-size:11px;color:var(--color-text-secondary)">raj.shah@mhcollege.edu.in · Student · IT Dept</div></div>
+            <span class="pill p-gr" style="margin-right:6px">Active</span>
+            <button class="action-btn">View</button>
+            <button class="action-btn" style="margin-left:4px">Warn</button>
+            <button class="action-btn danger" style="margin-left:4px">Blacklist</button>
+          </div>
+          <div class="user-row">
+            <div class="ava" style="background:#FAEEDA;color:#633806">PK</div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Priya Kulkarni</div><div style="font-size:11px;color:var(--color-text-secondary)">priya.k@mhcollege.edu.in · Student · IT Dept</div></div>
+            <span class="pill p-gr" style="margin-right:6px">Active</span>
+            <button class="action-btn">View</button>
+            <button class="action-btn" style="margin-left:4px">Warn</button>
+            <button class="action-btn danger" style="margin-left:4px">Blacklist</button>
+          </div>
+          <div class="user-row">
+            <div class="ava" style="background:#EEEDFE;color:#534AB7">AS</div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. A. Sharma</div><div style="font-size:11px;color:var(--color-text-secondary)">a.sharma@mhcollege.edu.in · Teacher · Math Dept</div></div>
+            <span class="pill p-pu" style="margin-right:6px">Teacher</span>
+            <button class="action-btn">View</button>
+            <button class="action-btn" style="margin-left:4px">Suspend</button>
+          </div>
+          <div class="user-row" style="background:#FCEBEB08">
+            <div class="ava" style="background:#FCEBEB;color:#791F1F">VD</div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#A32D2D">Vikram Desai</div><div style="font-size:11px;color:var(--color-text-secondary)">v.desai@mhcollege.edu.in · Student · AI flagged · 1 warning</div></div>
+            <span class="pill p-re" style="margin-right:6px">Flagged</span>
+            <button class="action-btn">View</button>
+            <button class="action-btn danger" style="margin-left:4px">Blacklist</button>
+          </div>
+          <div class="user-row">
+            <div class="ava" style="background:#F1EFE8;color:#444">KP</div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-secondary)">Kiran Pawar</div><div style="font-size:11px;color:var(--color-text-secondary)">k.pawar@ext.edu · Student · External · Blacklisted</div></div>
+            <span style="background:#A32D2D;color:#fff;border-radius:20px;font-size:11px;padding:2px 7px;margin-right:6px">Blacklisted</span>
+            <button class="action-btn grn">Restore</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">User activity breakdown</div>
+          <div class="bar-wrap"><div class="bar-lbl">Daily active</div><div class="bar-track"><div class="bar-fill" style="width:62%;background:#534AB7"></div></div><div class="bar-val">62%</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Weekly active</div><div class="bar-track"><div class="bar-fill" style="width:81%;background:#1D9E75"></div></div><div class="bar-val">81%</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Inactive 30d+</div><div class="bar-track"><div class="bar-fill" style="width:14%;background:#E24B4A"></div></div><div class="bar-val">14%</div></div>
+        </div>
+      </div>
+
+      <!-- 3. COURSE APPROVALS -->
+      <div class="section" id="sec-courses">
+        <div class="pg">Course approvals</div>
+        <div class="stabs">
+          <div class="stab on">Pending (7)</div>
+          <div class="stab">Approved (55)</div>
+          <div class="stab">Rejected (4)</div>
+          <div class="stab">All courses</div>
+        </div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Pending review</div><div class="sc-val">7</div><div class="sc-sub" style="color:#854F0B">Avg. wait 2 days</div></div>
+          <div class="sc"><div class="sc-lbl">Approved this month</div><div class="sc-val">12</div><div class="sc-sub" style="color:#0F6E56">94% approval rate</div></div>
+          <div class="sc"><div class="sc-lbl">Total live courses</div><div class="sc-val">55</div><div class="sc-sub" style="color:var(--color-text-secondary)">Across 8 colleges</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Pending review — action required</div>
+          <div class="row">
+            <div class="thumb" style="background:#EEEDFE">📐</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Statistics for Engineers</div>
+              <div style="font-size:11px;color:var(--color-text-secondary)">Prof. A. Sharma · Math Dept · 8 lectures · Submitted 18 Jun</div>
+            </div>
+            <button class="action-btn" style="margin-right:4px">Preview</button>
+            <button class="action-btn grn" style="margin-right:4px">✓ Approve</button>
+            <button class="action-btn danger">✗ Reject</button>
+          </div>
+          <div class="row">
+            <div class="thumb" style="background:#E1F5EE">⚗️</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Fluid Mechanics</div>
+              <div style="font-size:11px;color:var(--color-text-secondary)">Prof. R. Nair · Mech Dept · 12 lectures · Submitted 17 Jun</div>
+            </div>
+            <button class="action-btn" style="margin-right:4px">Preview</button>
+            <button class="action-btn grn" style="margin-right:4px">✓ Approve</button>
+            <button class="action-btn danger">✗ Reject</button>
+          </div>
+          <div class="row">
+            <div class="thumb" style="background:#FAEEDA">🤖</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Machine Learning Basics</div>
+              <div style="font-size:11px;color:var(--color-text-secondary)">Prof. R. Gupta · CS Dept · 18 lectures · Submitted 16 Jun</div>
+            </div>
+            <button class="action-btn" style="margin-right:4px">Preview</button>
+            <button class="action-btn grn" style="margin-right:4px">✓ Approve</button>
+            <button class="action-btn danger">✗ Reject</button>
+          </div>
+          <div class="row">
+            <div class="thumb" style="background:#FCEBEB">🧬</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Biomedical Engineering Intro</div>
+              <div style="font-size:11px;color:var(--color-text-secondary)">Prof. S. Iyer · Biotech Dept · 10 lectures · Submitted 15 Jun</div>
+            </div>
+            <button class="action-btn" style="margin-right:4px">Preview</button>
+            <button class="action-btn grn" style="margin-right:4px">✓ Approve</button>
+            <button class="action-btn danger">✗ Reject</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Recently approved <span class="cl">View all 55</span></div>
+          <div class="row"><div class="thumb" style="background:#E6F1FB">💻</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Data Structures &amp; Algorithms</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Mehta · Approved 10 Jun · 410 enrolled</div></div><span class="pill p-gr">Live</span></div>
+          <div class="row"><div class="thumb" style="background:#EEEDFE">📐</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Engineering Mathematics III</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Sharma · Approved 1 Jun · 312 enrolled</div></div><span class="pill p-gr">Live</span></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Rejected courses <span class="cl">View all</span></div>
+          <div class="row"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Random Topics Vol. 1</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. X · Rejected — incomplete content, no syllabus alignment</div></div><span class="pill p-re">Rejected</span></div>
+        </div>
+      </div>
+
+      <!-- 4. COLLEGE MANAGEMENT -->
+      <div class="section" id="sec-colleges">
+        <div class="pg">College management <button class="action-btn prim" style="padding:5px 12px;font-size:12px">+ Add college</button></div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Registered colleges</div><div class="sc-val">8</div><div class="sc-sub" style="color:#0F6E56">2 pending verification</div></div>
+          <div class="sc"><div class="sc-lbl">Total students</div><div class="sc-val">3,420</div><div class="sc-sub" style="color:var(--color-text-secondary)">Across all colleges</div></div>
+          <div class="sc"><div class="sc-lbl">Total teachers</div><div class="sc-val">398</div><div class="sc-sub" style="color:var(--color-text-secondary)">College-verified</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Registered colleges</div>
+          <div class="user-row">
+            <div style="width:32px;height:32px;border-radius:6px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🏛️</div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">MH College of Engineering</div><div style="font-size:11px;color:var(--color-text-secondary)">Mumbai · 1,240 students · 96 teachers · 24 courses</div></div>
+            <span class="pill p-gr" style="margin-right:6px">Verified</span>
+            <button class="action-btn">Manage</button>
+          </div>
+          <div class="user-row">
+            <div style="width:32px;height:32px;border-radius:6px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🏛️</div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Sardar Patel Institute of Tech.</div><div style="font-size:11px;color:var(--color-text-secondary)">Mumbai · 980 students · 74 teachers · 18 courses</div></div>
+            <span class="pill p-gr" style="margin-right:6px">Verified</span>
+            <button class="action-btn">Manage</button>
+          </div>
+          <div class="user-row">
+            <div style="width:32px;height:32px;border-radius:6px;background:#FAEEDA;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🏛️</div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">DY Patil College of Engineering</div><div style="font-size:11px;color:var(--color-text-secondary)">Pune · 620 students · 48 teachers · 10 courses</div></div>
+            <span class="pill p-am" style="margin-right:6px">Pending</span>
+            <button class="action-btn grn" style="margin-right:4px">Verify</button>
+            <button class="action-btn danger">Reject</button>
+          </div>
+          <div class="user-row">
+            <div style="width:32px;height:32px;border-radius:6px;background:#FCEBEB;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🏛️</div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">VIT Vellore (External partner)</div><div style="font-size:11px;color:var(--color-text-secondary)">Vellore · Not yet verified · Applied 19 Jun</div></div>
+            <span class="pill p-am" style="margin-right:6px">Pending</span>
+            <button class="action-btn grn" style="margin-right:4px">Verify</button>
+            <button class="action-btn danger">Reject</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Teacher affiliation requests <span class="pill p-am">5 pending</span></div>
+          <div class="row"><div class="ava" style="background:#E6F1FB;color:#0C447C">RG</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. R. Gupta</div><div style="font-size:11px;color:var(--color-text-secondary)">Claims: CS Dept, MH College · ID uploaded</div></div><button class="action-btn" style="margin-right:4px">Review ID</button><button class="action-btn grn" style="margin-right:4px">Approve</button><button class="action-btn danger">Reject</button></div>
+          <div class="row"><div class="ava" style="background:#EAF3DE;color:#27500A">SI</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. S. Iyer</div><div style="font-size:11px;color:var(--color-text-secondary)">Claims: Biotech, MH College · ID uploaded</div></div><button class="action-btn" style="margin-right:4px">Review ID</button><button class="action-btn grn" style="margin-right:4px">Approve</button><button class="action-btn danger">Reject</button></div>
+        </div>
+      </div>
+
+      <!-- 5. REVENUE -->
+      <div class="section" id="sec-revenue">
+        <div class="pg">Revenue</div>
+        <div class="stabs">
+          <div class="stab on">This month</div>
+          <div class="stab">Last 3 months</div>
+          <div class="stab">This year</div>
+          <div class="stab">By college</div>
+          <div class="stab">By course</div>
+        </div>
+        <div class="srow">
+          <div class="sc"><div class="sc-lbl">Total revenue</div><div class="sc-val">₹4.2L</div><div class="sc-sub" style="color:#0F6E56">+18% vs May</div></div>
+          <div class="sc"><div class="sc-lbl">External paid</div><div class="sc-val">₹2.86L</div><div class="sc-sub" style="color:#534AB7">68% of total</div></div>
+          <div class="sc"><div class="sc-lbl">College subscriptions</div><div class="sc-val">₹1.01L</div><div class="sc-sub" style="color:#1D9E75">24% of total</div></div>
+          <div class="sc"><div class="sc-lbl">Remedial fees</div><div class="sc-val">₹33,600</div><div class="sc-sub" style="color:#BA7517">8% of total</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Monthly revenue trend</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;height:80px;padding-top:10px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="flex:1;width:100%;background:#EEEDFE;border-radius:3px 3px 0 0;min-height:20px" style="height:45%"></div><div style="font-size:9px;color:var(--color-text-secondary)">Feb</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="height:55%;width:100%;background:#C8C4F0;border-radius:3px 3px 0 0"></div><div style="font-size:9px;color:var(--color-text-secondary)">Mar</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="height:60%;width:100%;background:#AFA9EC;border-radius:3px 3px 0 0"></div><div style="font-size:9px;color:var(--color-text-secondary)">Apr</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="height:72%;width:100%;background:#9590E4;border-radius:3px 3px 0 0"></div><div style="font-size:9px;color:var(--color-text-secondary)">May</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="height:100%;width:100%;background:#534AB7;border-radius:3px 3px 0 0"></div><div style="font-size:9px;color:#534AB7;font-weight:500">Jun ▲</div></div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--color-text-secondary)">
+            <span>Feb: ₹2.1L</span><span>Mar: ₹2.6L</span><span>Apr: ₹2.9L</span><span>May: ₹3.6L</span><span style="color:#534AB7;font-weight:500">Jun: ₹4.2L</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Revenue by source</div>
+          <div class="bar-wrap"><div class="bar-lbl">External paid</div><div class="bar-track"><div class="bar-fill" style="width:68%;background:#534AB7"></div></div><div class="bar-val">₹2.86L</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">College sub.</div><div class="bar-track"><div class="bar-fill" style="width:24%;background:#1D9E75"></div></div><div class="bar-val">₹1.01L</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Remedial</div><div class="bar-track"><div class="bar-fill" style="width:8%;background:#BA7517"></div></div><div class="bar-val">₹33.6k</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Top earning courses this month</div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Data Structures — Prof. Mehta</div><div style="font-size:11px;color:var(--color-text-secondary)">410 enrolled · 62 external paid</div></div><span class="pill p-pu">₹24,800</span></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Engg. Math III — Prof. Sharma</div><div style="font-size:11px;color:var(--color-text-secondary)">312 enrolled · 28 external paid</div></div><span class="pill p-gr">₹18,400</span></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Thermodynamics — Prof. Patil</div><div style="font-size:11px;color:var(--color-text-secondary)">298 enrolled · 18 external paid</div></div><span class="pill p-gy">₹12,200</span></div>
+        </div>
+      </div>
+
+      <!-- 6. PAYOUTS -->
+      <div class="section" id="sec-payouts">
+        <div class="pg">Payouts <button class="action-btn prim" style="padding:5px 14px;font-size:12px">Process all pending</button></div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Pending payouts</div><div class="sc-val">₹32,400</div><div class="sc-sub" style="color:#854F0B">To 12 teachers</div></div>
+          <div class="sc"><div class="sc-lbl">Paid this month</div><div class="sc-val">₹1.14L</div><div class="sc-sub" style="color:#0F6E56">To 28 teachers</div></div>
+          <div class="sc"><div class="sc-lbl">Platform cut (20%)</div><div class="sc-val">₹84,000</div><div class="sc-sub" style="color:#534AB7">June retained</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Pending payouts — Jun 2026 <span class="pill p-am">Due 30 Jun</span></div>
+          <div class="earning-row"><div class="ava" style="background:#EEEDFE;color:#534AB7;margin-right:4px">AS</div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. A. Sharma</div><div style="font-size:11px;color:var(--color-text-secondary)">SBI ••••4821 · 2 courses</div></div><span style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-right:8px">₹18,400</span><button class="action-btn grn">Pay now</button></div>
+          <div class="earning-row"><div class="ava" style="background:#EAF3DE;color:#27500A;margin-right:4px">SM</div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. S. Mehta</div><div style="font-size:11px;color:var(--color-text-secondary)">HDFC ••••7732 · 1 course</div></div><span style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-right:8px">₹14,000</span><button class="action-btn grn">Pay now</button></div>
+          <div class="earning-row"><div class="ava" style="background:#E1F5EE;color:#085041;margin-right:4px">RP</div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. R. Patil</div><div style="font-size:11px;color:var(--color-text-secondary)">ICICI ••••2210 · 1 course</div></div><span style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-right:8px">₹9,800</span><button class="action-btn grn">Pay now</button></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Payout history <span class="cl">Download CSV</span></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;color:var(--color-text-primary)">May 2026 — all teachers</div><div style="font-size:11px;color:var(--color-text-secondary)">Processed 30 May · 24 teachers</div></div><span class="pill p-gr">₹88,400 paid</span></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;color:var(--color-text-primary)">Apr 2026 — all teachers</div><div style="font-size:11px;color:var(--color-text-secondary)">Processed 30 Apr · 20 teachers</div></div><span class="pill p-gr">₹74,200 paid</span></div>
+          <div class="earning-row"><div style="flex:1"><div style="font-size:12px;color:var(--color-text-primary)">Mar 2026 — all teachers</div><div style="font-size:11px;color:var(--color-text-secondary)">Processed 30 Mar · 18 teachers</div></div><span class="pill p-gr">₹61,800 paid</span></div>
+        </div>
+      </div>
+
+      <!-- 7. REPORTS -->
+      <div class="section" id="sec-reports">
+        <div class="pg">Platform reports <button class="action-btn prim" style="padding:5px 12px;font-size:12px">Export PDF</button></div>
+        <div class="stabs">
+          <div class="stab on">Engagement</div>
+          <div class="stab">Growth</div>
+          <div class="stab">Course quality</div>
+          <div class="stab">Revenue</div>
+        </div>
+        <div class="srow">
+          <div class="sc"><div class="sc-lbl">Avg. session time</div><div class="sc-val">34 min</div><div class="sc-sub" style="color:#0F6E56">+6 min vs May</div></div>
+          <div class="sc"><div class="sc-lbl">Videos watched</div><div class="sc-val">12,480</div><div class="sc-sub" style="color:#534AB7">This month</div></div>
+          <div class="sc"><div class="sc-lbl">Quizzes attempted</div><div class="sc-val">4,210</div><div class="sc-sub" style="color:var(--color-text-secondary)">78% pass rate</div></div>
+          <div class="sc"><div class="sc-lbl">New enrollments</div><div class="sc-val">842</div><div class="sc-sub" style="color:#0F6E56">This month</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Engagement by department</div>
+          <div class="bar-wrap"><div class="bar-lbl">IT / CS</div><div class="bar-track"><div class="bar-fill" style="width:84%;background:#534AB7"></div></div><div class="bar-val">84%</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Mechanical</div><div class="bar-track"><div class="bar-fill" style="width:71%;background:#1D9E75"></div></div><div class="bar-val">71%</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Civil</div><div class="bar-track"><div class="bar-fill" style="width:58%;background:#BA7517"></div></div><div class="bar-val">58%</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Electronics</div><div class="bar-track"><div class="bar-fill" style="width:63%;background:#0C447C"></div></div><div class="bar-val">63%</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Biotech</div><div class="bar-track"><div class="bar-fill" style="width:44%;background:#993556"></div></div><div class="bar-val">44%</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Platform growth</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">New students (Jun)</div><div style="font-size:18px;font-weight:500;color:var(--color-text-primary)">+386</div><div style="font-size:11px;color:#0F6E56;margin-top:2px">↑ 22% vs May</div></div>
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">New teachers (Jun)</div><div style="font-size:18px;font-weight:500;color:var(--color-text-primary)">+14</div><div style="font-size:11px;color:#0F6E56;margin-top:2px">↑ 12% vs May</div></div>
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">External paid users</div><div style="font-size:18px;font-weight:500;color:var(--color-text-primary)">+128</div><div style="font-size:11px;color:#534AB7;margin-top:2px">↑ 34% vs May</div></div>
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Certificates issued</div><div style="font-size:18px;font-weight:500;color:var(--color-text-primary)">218</div><div style="font-size:11px;color:#0F6E56;margin-top:2px">↑ 18% vs May</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Scheduled reports</div>
+          <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">Monthly platform report<div style="font-size:11px;color:var(--color-text-secondary)">Auto-generated 1st of every month · Email to admin</div></div><span class="pill p-gr">Active</span></div>
+          <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">Weekly flagged content digest<div style="font-size:11px;color:var(--color-text-secondary)">Every Monday · Email to admin</div></div><span class="pill p-gr">Active</span></div>
+          <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">Payout summary<div style="font-size:11px;color:var(--color-text-secondary)">End of month · Email to admin + finance</div></div><span class="pill p-gr">Active</span></div>
+        </div>
+      </div>
+
+      <!-- 8. FLAGGED CONTENT -->
+      <div class="section" id="sec-flagged">
+        <div class="pg">Flagged content <span class="pill p-re">14 open</span></div>
+        <div class="stabs">
+          <div class="stab on">All (14)</div>
+          <div class="stab">High risk (4)</div>
+          <div class="stab">Bullying (3)</div>
+          <div class="stab">Spam (5)</div>
+          <div class="stab">Suspicious (2)</div>
+        </div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Open flags</div><div class="sc-val">14</div><div class="sc-sub" style="color:#A32D2D">4 high risk</div></div>
+          <div class="sc"><div class="sc-lbl">Resolved this month</div><div class="sc-val">38</div><div class="sc-sub" style="color:#0F6E56">Avg. 4h response</div></div>
+          <div class="sc"><div class="sc-lbl">AI detection rate</div><div class="sc-val">94%</div><div class="sc-sub" style="color:#534AB7">Accuracy score</div></div>
+        </div>
+        <div class="flag-post high">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="display:flex;gap:8px;align-items:center"><div class="ava" style="background:#FCEBEB;color:#791F1F">VD</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Vikram Desai</div><div style="font-size:11px;color:var(--color-text-secondary)">Comment · DSA discussion · 2h ago</div></div></div>
+            <span class="pill p-re">🚨 High risk — bullying</span>
+          </div>
+          <div style="font-size:12px;background:#FCEBEB;padding:8px;border-radius:6px;color:#791F1F;margin-bottom:8px">Content hidden — AI flagged as targeted harassment toward another student.</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">AI confidence: 96% · User has 1 prior warning</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="action-btn danger">Blacklist user</button>
+            <button class="action-btn" style="color:#854F0B;border-color:#E8B96F;background:#FAEEDA">Issue warning</button>
+            <button class="action-btn">View full post</button>
+            <button class="action-btn">Dismiss</button>
+          </div>
+        </div>
+        <div class="flag-post">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="display:flex;gap:8px;align-items:center"><div class="ava" style="background:#FAEEDA;color:#633806">AK</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Anil Kumar</div><div style="font-size:11px;color:var(--color-text-secondary)">Review · Math III · 5h ago</div></div></div>
+            <span class="pill p-am">Spam / off-topic</span>
+          </div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px;background:var(--color-background-secondary);padding:8px;border-radius:6px">AI confidence: 88% · First offence</div>
+          <div style="display:flex;gap:6px">
+            <button class="action-btn danger">Remove post</button>
+            <button class="action-btn">View post</button>
+            <button class="action-btn">Dismiss</button>
+          </div>
+        </div>
+        <div class="flag-post high">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="display:flex;gap:8px;align-items:center"><div class="ava" style="background:#EEEDFE;color:#534AB7">RM</div><div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Rehan Malik</div><div style="font-size:11px;color:var(--color-text-secondary)">Direct message · Sent to student · 1d ago</div></div></div>
+            <span class="pill p-re">🚨 Suspicious contact</span>
+          </div>
+          <div style="font-size:12px;background:#FCEBEB;padding:8px;border-radius:6px;color:#791F1F;margin-bottom:8px">DM content hidden — flagged for inappropriate contact with minor-age student.</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">AI confidence: 91% · No prior warnings</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="action-btn danger">Blacklist user</button>
+            <button class="action-btn" style="color:#854F0B;border-color:#E8B96F;background:#FAEEDA">Issue warning</button>
+            <button class="action-btn">View message</button>
+            <button class="action-btn">Dismiss</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. SENTIMENT ANALYSIS -->
+      <div class="section" id="sec-sentiment">
+        <div class="pg">Sentiment analysis</div>
+        <div class="stabs">
+          <div class="stab on">Platform-wide</div>
+          <div class="stab">By course</div>
+          <div class="stab">By teacher</div>
+          <div class="stab">By college</div>
+        </div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Comments analysed</div><div class="sc-val">4,820</div><div class="sc-sub" style="color:var(--color-text-secondary)">This month</div></div>
+          <div class="sc"><div class="sc-lbl">AI confidence</div><div class="sc-val">94%</div><div class="sc-sub" style="color:#0F6E56">Accuracy score</div></div>
+          <div class="sc"><div class="sc-lbl">Negative trend</div><div class="sc-val">−2%</div><div class="sc-sub" style="color:#0F6E56">Improving vs May</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Overall platform sentiment</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+            <div class="sent-box" style="background:#EAF3DE"><div style="font-size:22px;font-weight:500;color:#27500A">72%</div><div style="font-size:11px;color:#3B6D11;margin-top:2px">Positive</div></div>
+            <div class="sent-box" style="background:#FAEEDA"><div style="font-size:22px;font-weight:500;color:#633806">19%</div><div style="font-size:11px;color:#854F0B;margin-top:2px">Neutral</div></div>
+            <div class="sent-box" style="background:#FCEBEB"><div style="font-size:22px;font-weight:500;color:#791F1F">9%</div><div style="font-size:11px;color:#A32D2D;margin-top:2px">Negative</div></div>
+          </div>
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Sentiment by course type</div>
+          <div class="bar-wrap"><div class="bar-lbl">Math / Science</div><div class="bar-track"><div class="bar-fill" style="width:76%;background:#1D9E75"></div></div><div class="bar-val">76% +</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Engineering</div><div class="bar-track"><div class="bar-fill" style="width:71%;background:#534AB7"></div></div><div class="bar-val">71% +</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">CS / IT</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:#0C447C"></div></div><div class="bar-val">80% +</div></div>
+          <div class="bar-wrap"><div class="bar-lbl">Remedial</div><div class="bar-track"><div class="bar-fill" style="width:52%;background:#BA7517"></div></div><div class="bar-val">52% +</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Top negative keywords (flagged themes)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+            <span class="pill p-re">difficult (214)</span>
+            <span class="pill p-re">confusing (188)</span>
+            <span class="pill p-am">slow pace (144)</span>
+            <span class="pill p-am">audio issue (112)</span>
+            <span class="pill p-am">incomplete (98)</span>
+            <span class="pill p-gy">boring (76)</span>
+            <span class="pill p-gy">too fast (64)</span>
+            <span class="pill p-re">rude (22)</span>
+          </div>
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Action recommendations</div>
+          <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">"audio issue" spike in Thermodynamics<div style="font-size:11px;color:var(--color-text-secondary)">14 comments mention low audio in Lec 4–6</div></div><button class="action-btn" style="color:#854F0B;border-color:#E8B96F;background:#FAEEDA;white-space:nowrap">Notify teacher</button></div>
+          <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">"rude" keyword in DSA discussion<div style="font-size:11px;color:var(--color-text-secondary)">Possible conflict between students — 3 posts</div></div><button class="action-btn danger" style="white-space:nowrap">Review posts</button></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Teacher sentiment scores</div>
+          <div class="row"><div class="ava" style="background:#EEEDFE;color:#534AB7">AS</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. A. Sharma</div><div style="font-size:11px;color:var(--color-text-secondary)">142 comments analysed</div></div><span class="pill p-gr">97% positive</span></div>
+          <div class="row"><div class="ava" style="background:#EAF3DE;color:#27500A">SM</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. S. Mehta</div><div style="font-size:11px;color:var(--color-text-secondary)">118 comments analysed</div></div><span class="pill p-gr">91% positive</span></div>
+          <div class="row"><div class="ava" style="background:#E1F5EE;color:#085041">RP</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Prof. R. Patil</div><div style="font-size:11px;color:var(--color-text-secondary)">88 comments analysed</div></div><span class="pill p-am">68% positive</span></div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;padding-top:6px;border-top:0.5px solid var(--color-border-tertiary)">Prof. Patil's score dropped 12% — audio quality complaints in Lec 4–6 are the main driver.</div>
+        </div>
+      </div>
+
+      <!-- 10. SETTINGS -->
+      <div class="section" id="sec-settings">
+        <div class="pg">Admin settings</div>
+        <div class="card">
+          <div class="card-hd">Admin profile</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div style="width:48px;height:48px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#fff">AD</div>
+            <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Admin User</div><div style="font-size:12px;color:var(--color-text-secondary)">admin@learnsphere.in · Super Admin</div></div>
+            <span style="margin-left:auto;font-size:11px;color:#534AB7;cursor:pointer;border:0.5px solid #AFA9EC;border-radius:6px;padding:4px 10px">Edit</span>
+          </div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Admin name</div><div style="font-size:11px;color:var(--color-text-secondary)">Admin User</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Edit</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Admin email</div><div style="font-size:11px;color:var(--color-text-secondary)">admin@learnsphere.in</div></div><span class="pill p-gr" style="font-size:10px">Verified</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Two-factor authentication</div><div style="font-size:11px;color:var(--color-text-secondary)">Required for admin accounts</div></div><span class="pill p-gr" style="font-size:10px">Enabled</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Password</div><div style="font-size:11px;color:var(--color-text-secondary)">Last changed 12 days ago</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Change</span></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Platform settings</div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">AI abuse detection</div><div style="font-size:11px;color:var(--color-text-secondary)">Auto-flag comments, posts, DMs</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">AI question extraction</div><div style="font-size:11px;color:var(--color-text-secondary)">Auto-extract quiz questions from uploads</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Sentiment analysis</div><div style="font-size:11px;color:var(--color-text-secondary)">Run on all new comments and reviews</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Course approval required</div><div style="font-size:11px;color:var(--color-text-secondary)">Admin must approve before a course goes live</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Teacher ID verification</div><div style="font-size:11px;color:var(--color-text-secondary)">Require ID proof before approving teacher</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">External student purchases</div><div style="font-size:11px;color:var(--color-text-secondary)">Allow outside-college paid enrollments</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Leaderboard public visibility</div><div style="font-size:11px;color:var(--color-text-secondary)">Students can see batchmate rankings</div></div><div class="toggle toff"><div class="tknob"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Payout settings</div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Platform royalty cut</div><div style="font-size:11px;color:var(--color-text-secondary)">Percentage retained from all external sales</div></div><span style="font-size:12px;font-weight:500;color:var(--color-text-primary)">20% <span style="font-size:11px;color:#534AB7;cursor:pointer">Edit</span></span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Payout schedule</div><div style="font-size:11px;color:var(--color-text-secondary)">When teacher royalties are processed</div></div><span style="font-size:12px;color:var(--color-text-primary)">30th monthly <span style="font-size:11px;color:#534AB7;cursor:pointer">Edit</span></span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Minimum payout threshold</div><div style="font-size:11px;color:var(--color-text-secondary)">Below this amount, payout is held to next month</div></div><span style="font-size:12px;color:var(--color-text-primary)">₹500 <span style="font-size:11px;color:#534AB7;cursor:pointer">Edit</span></span></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Notifications</div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">High-risk flag alerts</div><div style="font-size:11px;color:var(--color-text-secondary)">Instant email when AI flags high-risk content</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">New college application</div><div style="font-size:11px;color:var(--color-text-secondary)">When a college submits for verification</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Course submitted for review</div><div style="font-size:11px;color:var(--color-text-secondary)">Email when teacher submits a course</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Weekly platform digest</div><div style="font-size:11px;color:var(--color-text-secondary)">Summary of users, revenue, flags</div></div><div class="toggle ton"><div class="tknob"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Account</div>
+          <div class="set-row"><div style="font-size:12px;color:var(--color-text-primary)">Audit log</div><span style="font-size:11px;color:#534AB7;cursor:pointer">View all admin actions</span></div>
+          <div class="set-row"><div style="font-size:12px;color:var(--color-text-primary)">Manage admin accounts</div><span style="font-size:11px;color:#534AB7;cursor:pointer">Add / remove admins</span></div>
+          <div class="set-row" style="border-bottom:none"><div style="font-size:12px;color:#A32D2D;cursor:pointer">Sign out</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function sw(sec, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + sec).classList.add('active');
+  el.classList.add('active');
+}
+</script>

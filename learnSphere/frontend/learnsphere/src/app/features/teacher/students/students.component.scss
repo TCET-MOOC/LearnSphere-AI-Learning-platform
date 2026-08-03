@@ -1,0 +1,283 @@
+@import 'variables';
+
+.students-page {
+  padding: $spacing-xs;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  &__header {
+    margin-bottom: $spacing-sm;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+}
+
+// Spacing utility for cards row
+.srow3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+// Tab headers styling
+.stabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-border-secondary);
+
+  .stab {
+    padding: 8px 16px;
+    border-radius: $border-radius-md $border-radius-md 0 0;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    border: 1px solid transparent;
+    border-bottom: none;
+    margin-bottom: -1px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &.on {
+      background: var(--color-background-primary);
+      color: $brand-purple;
+      border-color: var(--color-border-secondary);
+      border-bottom: 2px solid $brand-purple;
+    }
+
+    &:hover:not(.on) {
+      color: var(--color-text-primary);
+      background: var(--color-background-secondary);
+    }
+  }
+}
+
+// Reusable card container styles
+.card {
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: $border-radius-lg;
+  padding: $spacing-lg;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  .card-hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border-secondary);
+    padding-bottom: $spacing-sm;
+    margin-bottom: $spacing-xs;
+
+    .cl {
+      font-size: 12px;
+      color: $brand-purple;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: $brand-purple-dark;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Top Performers Grid & Cards
+.top-performers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+
+  .student-card {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-tertiary);
+    border-radius: $border-radius-md;
+    padding: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    &__header {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+    }
+
+    &__info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    &__name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    &__rank {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+
+    &__details {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+
+    &__progress {
+      margin-top: auto;
+    }
+
+    .ava {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      border: 2px solid transparent;
+
+      &.gold {
+        background-color: #FFFDF0;
+        border-color: #FFD700;
+      }
+
+      &.silver {
+        background-color: #F8F9FA;
+        border-color: #C0C0C0;
+      }
+
+      &.bronze {
+        background-color: #FAF5F0;
+        border-color: #CD7F32;
+      }
+    }
+  }
+}
+
+// Standings Table Styling
+.standings-table-header {
+  margin-top: $spacing-sm;
+}
+
+.standings-table-container {
+  overflow-x: auto;
+  border-radius: $border-radius-md;
+  border: 1px solid var(--color-border-secondary);
+}
+
+// At-risk panel & rows
+.at-risk-panel {
+  margin-top: $spacing-xs;
+}
+
+.at-risk-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius-md;
+    background: var(--color-background-secondary);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--color-border-tertiary);
+      background: var(--color-background-primary);
+    }
+
+    .ava.risk-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: $status-red-bg;
+      color: $status-red-text;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid lighten($status-red-text, 50%);
+    }
+
+    .at-risk-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+
+      .at-risk-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+      }
+
+      .at-risk-sub {
+        font-size: 11px;
+        color: var(--color-text-secondary);
+      }
+    }
+
+    .action-btn.nudge-btn {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: $border-radius-md;
+      border: 1px solid $brand-purple;
+      background: transparent;
+      color: $brand-purple;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover:not(:disabled) {
+        background: $brand-purple;
+        color: #fff;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        border-color: var(--color-border-secondary);
+        color: var(--color-text-secondary);
+      }
+    }
+  }
+
+  .no-risk-students {
+    text-align: center;
+    padding: $spacing-lg;
+    color: $status-green-text;
+    background-color: $status-green-bg;
+    border-radius: $border-radius-md;
+    font-size: 13px;
+    font-weight: 500;
+  }
+}

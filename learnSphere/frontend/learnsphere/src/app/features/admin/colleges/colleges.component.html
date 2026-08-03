@@ -1,0 +1,157 @@
+<div class="colleges-page">
+  <div class="colleges-page__header">
+    <h1 class="colleges-page__title">College management</h1>
+    <button class="btn btn--primary add-btn" (click)="openAddCollegeDialog()">
+      ➕ Add college
+    </button>
+  </div>
+
+  <!-- KPI Stats Row -->
+  <div class="kpi-row">
+    <app-stat-card 
+      icon="award" 
+      [value]="totalCollegesCount" 
+      label="Registered Colleges"
+      [trend]="pendingCollegesCount > 0 ? 'down' : undefined"
+      [trendValue]="pendingCollegesCount > 0 ? pendingCollegesCount + ' pending' : undefined">
+    </app-stat-card>
+    
+    <app-stat-card 
+      icon="users" 
+      [value]="totalStudents" 
+      label="Total Students">
+    </app-stat-card>
+    
+    <app-stat-card 
+      icon="graduation-cap" 
+      [value]="totalTeachers" 
+      label="Total Teachers">
+    </app-stat-card>
+  </div>
+
+  <!-- Registered Colleges List Card -->
+  <div class="card font-card">
+    <div class="card-hd">
+      <span>Registered colleges</span>
+    </div>
+    
+    <div class="colleges-list">
+      <div class="college-row" *ngFor="let college of colleges">
+        <div class="college-info">
+          <div class="college-name">{{ college.name }}</div>
+          <div class="college-sub">
+            📍 {{ college.city }} · 👨‍🎓 {{ college.studentCount }} students · 👩‍🏫 {{ college.teacherCount }} teachers · 📚 {{ college.courseCount }} courses
+          </div>
+        </div>
+        
+        <div class="college-actions">
+          <app-status-pill [status]="college.verificationStatus"></app-status-pill>
+          
+          <ng-container *ngIf="college.verificationStatus === 'VERIFIED'">
+            <button class="action-btn manage-btn" (click)="manageCollege(college)">
+              Manage
+            </button>
+          </ng-container>
+          
+          <ng-container *ngIf="college.verificationStatus === 'PENDING'">
+            <button class="action-btn verify-btn" (click)="verifyCollege(college)">
+              Verify
+            </button>
+            <button class="action-btn reject-btn" (click)="rejectCollege(college)">
+              Reject
+            </button>
+          </ng-container>
+        </div>
+      </div>
+      
+      <div class="no-colleges" *ngIf="colleges.length === 0">
+        🔍 No colleges registered. Click "+ Add college" to register one.
+      </div>
+    </div>
+  </div>
+
+  <!-- Teacher Affiliation Requests Card -->
+  <div class="card font-card requests-panel">
+    <div class="card-hd">
+      <span>Teacher affiliation requests</span>
+      <app-status-pill *ngIf="affiliationRequests.length > 0" [status]="affiliationRequests.length + ' pending'"></app-status-pill>
+    </div>
+    
+    <div class="requests-list">
+      <div class="request-row" *ngFor="let req of affiliationRequests">
+        <div class="teacher-avatar">
+          {{ req.teacherName.substring(0, 2).toUpperCase() }}
+        </div>
+        
+        <div class="request-info">
+          <div class="teacher-name">{{ req.teacherName }}</div>
+          <div class="teacher-details">
+            Claiming: <strong>{{ req.claimedDepartment }}</strong> at <em>{{ req.claimedCollegeName }}</em>
+          </div>
+        </div>
+        
+        <div class="request-actions">
+          <button class="action-btn review-btn" (click)="reviewDocument(req.idDocumentUrl)">
+            Review ID
+          </button>
+          <button class="action-btn approve-btn" (click)="approveRequest(req)">
+            Approve
+          </button>
+          <button class="action-btn reject-btn" (click)="rejectRequest(req)">
+            Reject
+          </button>
+        </div>
+      </div>
+      
+      <div class="no-requests" *ngIf="affiliationRequests.length === 0">
+        🎉 No pending affiliation requests. All clear!
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inline Template for Add College Modal Dialog -->
+<ng-template #addCollegeTpl>
+  <div class="add-college-modal">
+    <h2 class="modal-title">Register New College</h2>
+    
+    <form [formGroup]="collegeForm" (ngSubmit)="onSubmitCollege()" class="modal-form">
+      <div class="form-field">
+        <label for="college-name" class="form-label">College Name</label>
+        <input 
+          type="text" 
+          id="college-name" 
+          formControlName="name" 
+          class="form-input" 
+          placeholder="e.g. MH College of Engineering"
+        />
+        <div class="form-error" *ngIf="collegeForm.get('name')?.touched && collegeForm.get('name')?.invalid">
+          Name must be at least 3 characters long.
+        </div>
+      </div>
+      
+      <div class="form-field">
+        <label for="college-city" class="form-label">City</label>
+        <input 
+          type="text" 
+          id="college-city" 
+          formControlName="city" 
+          class="form-input" 
+          placeholder="e.g. Mumbai"
+        />
+        <div class="form-error" *ngIf="collegeForm.get('city')?.touched && collegeForm.get('city')?.invalid">
+          City must be at least 2 characters long.
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" mat-dialog-close>
+          Cancel
+        </button>
+        <button type="submit" class="btn btn--primary" [disabled]="collegeForm.invalid">
+          Register College
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>

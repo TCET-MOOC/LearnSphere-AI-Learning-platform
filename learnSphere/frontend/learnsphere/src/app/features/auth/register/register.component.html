@@ -1,0 +1,43 @@
+<div class="auth-layout">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="logo-box">LS</div>
+      <h2>Create an Account</h2>
+      <p>Join LearnSphere to start learning or teaching.</p>
+    </div>
+
+    <div class="role-selector">
+      <button 
+        *ngFor="let role of roles"
+        type="button" 
+        class="role-btn" 
+        [class.active]="selectedRole === role.value" 
+        (click)="setRole(role.value)">
+        {{ role.label }}
+      </button>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" formControlName="fullName" placeholder="e.g. Arjun Mehta" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">College Email</label>
+        <input type="email" id="email" formControlName="email" placeholder="name@college.edu" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" formControlName="password" placeholder="Min. 6 characters" />
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="registerForm.invalid">Create Account</button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Already have an account? <a routerLink="/login">Sign in</a></p>
+    </div>
+  </div>
+</div>

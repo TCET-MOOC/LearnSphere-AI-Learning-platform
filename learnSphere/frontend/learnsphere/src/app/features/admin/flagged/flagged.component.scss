@@ -1,0 +1,297 @@
+@use "sass:color";
+
+$brand-purple: #534AB7;
+$brand-purple-lt: #EEEDFE;
+$red: #E24B4A;
+$red-lt: #FCEBEB;
+$red-text: #791F1F;
+$amber: #BA7517;
+$amber-lt: #FAEEDA;
+$amber-text: #633806;
+$green: #1D9E75;
+$green-lt: #EAF3DE;
+$green-text: #27500A;
+$surface: #FFFFFF;
+$bg: #F5F5F8;
+$border: #E8E7EF;
+$text-primary: #1A1830;
+$text-secondary: #6B6880;
+
+.flagged-page {
+  padding: 24px;
+  background: var(--color-background-tertiary, $bg);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  color: $text-primary;
+}
+
+// ── Header ────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary, $text-primary);
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: var(--color-text-secondary, $text-secondary);
+  margin: 0;
+}
+
+.badge-red {
+  background: $red-lt;
+  color: $red-text;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba($red, 0.3);
+  white-space: nowrap;
+}
+
+// ── Stats Grid ────────────────────────────────────────
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--color-background-primary, $surface);
+  border: 1px solid var(--color-border-tertiary, $border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  &__label {
+    font-size: 13px;
+    color: var(--color-text-secondary, $text-secondary);
+    margin-bottom: 6px;
+  }
+
+  &__value {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--color-text-primary, $text-primary);
+    margin-bottom: 4px;
+  }
+
+  &__sub {
+    font-size: 12px;
+    font-weight: 500;
+
+    &--red    { color: #A32D2D; }
+    &--green  { color: $green; }
+    &--purple { color: $brand-purple; }
+  }
+}
+
+// ── Filter Tabs ───────────────────────────────────────
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary, $text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+
+  &:hover:not(.tab-btn--active) {
+    background: var(--color-background-secondary, $bg);
+    color: var(--color-text-primary, $text-primary);
+  }
+
+  &--active {
+    background: $brand-purple-lt;
+    color: $brand-purple;
+    border-color: rgba($brand-purple, 0.3);
+  }
+}
+
+// ── Flag Cards ────────────────────────────────────────
+.flagged-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.flag-card {
+  background: var(--color-background-primary, $surface);
+  border: 1px solid var(--color-border-tertiary, $border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  &--high {
+    border-color: rgba($red, 0.4);
+    background: rgba($red-lt, 0.4);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__content {
+    font-size: 13px;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    line-height: 1.6;
+
+    &--danger {
+      background: $red-lt;
+      color: $red-text;
+    }
+
+    &--neutral {
+      background: var(--color-background-secondary, $bg);
+      color: var(--color-text-secondary, $text-secondary);
+    }
+  }
+
+  &__ai-info {
+    font-size: 12px;
+    color: var(--color-text-secondary, $text-secondary);
+    margin-bottom: 12px;
+
+    strong {
+      color: var(--color-text-primary, $text-primary);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+// ── Avatar ────────────────────────────────────────────
+.ava {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+
+  &--red    { background: $red-lt;    color: $red-text;    }
+  &--amber  { background: $amber-lt;  color: $amber-text;  }
+  &--purple { background: $brand-purple-lt; color: $brand-purple; }
+  &--green  { background: $green-lt;  color: $green-text;  }
+
+  &__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary, $text-primary);
+    margin-bottom: 2px;
+  }
+
+  &__meta {
+    font-size: 12px;
+    color: var(--color-text-secondary, $text-secondary);
+  }
+}
+
+// ── Pills ─────────────────────────────────────────────
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--red   { background: $red-lt;   color: $red-text;   }
+  &--amber { background: $amber-lt; color: $amber-text; }
+  &--green { background: $green-lt; color: $green-text; }
+  &--grey  { background: $bg; color: $text-secondary;   }
+}
+
+// ── Action Buttons ────────────────────────────────────
+.btn {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1px solid;
+  font-family: inherit;
+  transition: all 0.15s ease;
+
+  &--danger {
+    background: $red-lt;
+    color: $red-text;
+    border-color: rgba($red, 0.4);
+
+    &:hover {
+      background: $red;
+      color: #fff;
+      border-color: $red;
+    }
+  }
+
+  &--warn {
+    background: $amber-lt;
+    color: $amber-text;
+    border-color: rgba($amber, 0.4);
+
+    &:hover {
+      background: color.adjust($amber-lt, $lightness: -8%);
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--color-text-secondary, $text-secondary);
+    border-color: var(--color-border-secondary, $border);
+
+    &:hover {
+      background: var(--color-background-secondary, $bg);
+      color: var(--color-text-primary, $text-primary);
+    }
+  }
+}

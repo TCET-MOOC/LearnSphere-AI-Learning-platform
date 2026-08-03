@@ -1,0 +1,106 @@
+<div class="admin-users">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Admin view</p>
+      <h1>User Management</h1>
+    </div>
+    <button class="btn btn--primary" type="button">Add user</button>
+  </header>
+
+  <nav class="tabs" aria-label="User filters">
+    <button
+      class="tab"
+      *ngFor="let tab of tabs"
+      [class.tab--active]="tab === activeTab"
+      (click)="setTab(tab)"
+      type="button">
+      {{ tab }}
+    </button>
+  </nav>
+
+  <section class="summary-grid" aria-label="User summary">
+    <article class="summary-card" *ngFor="let card of summaryCards" [class]="'summary-card summary-card--' + card.tone">
+      <span>{{ card.label }}</span>
+      <strong>{{ card.value }}</strong>
+      <small>{{ card.sub }}</small>
+    </article>
+  </section>
+
+  <div class="admin-layout">
+    <section class="card user-card">
+      <div class="card-head">
+        <h2>All users</h2>
+        <div class="toolbar">
+          <label class="search-box">
+            <span>Search</span>
+            <input type="search" value="name / email" aria-label="Search users">
+          </label>
+          <button class="btn btn--ghost" type="button">Filter</button>
+        </div>
+      </div>
+
+      <div class="user-table" role="table" aria-label="Users">
+        <div class="user-row user-row--head" role="row">
+          <span>User</span>
+          <span>Role</span>
+          <span>Status</span>
+          <span>Actions</span>
+        </div>
+
+        <div class="user-row" role="row" *ngFor="let user of users" [class.user-row--flagged]="user.status === 'Flagged'">
+          <div class="user-profile">
+            <div class="avatar" [class]="'avatar avatar--' + user.tone">{{ user.initials }}</div>
+            <div>
+              <strong>{{ user.name }}</strong>
+              <small>{{ user.email }} · {{ user.department }}</small>
+              <em>{{ user.meta }}</em>
+            </div>
+          </div>
+          <span>{{ user.role }}</span>
+          <span class="pill" [ngClass]="getStatusClass(user.status)">{{ user.status }}</span>
+          <div class="action-set">
+            <button class="btn btn--ghost" type="button">View</button>
+            <button class="btn btn--ghost" type="button">{{ user.status === 'Teacher' ? 'Suspend' : 'Warn' }}</button>
+            <button class="btn" [class.btn--danger]="user.status !== 'Blacklisted'" [class.btn--success]="user.status === 'Blacklisted'" type="button">
+              {{ user.status === 'Blacklisted' ? 'Restore' : 'Blacklist' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      <section class="card">
+        <div class="card-head">
+          <h2>User activity breakdown</h2>
+        </div>
+        <div class="activity-row" *ngFor="let item of activity">
+          <span>{{ item.label }}</span>
+          <div class="bar-track" aria-hidden="true">
+            <i [class]="'bar-fill bar-fill--' + item.tone" [style.width.%]="item.value"></i>
+          </div>
+          <strong>{{ item.value }}%</strong>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Moderation queue</h2>
+          <span class="pill pill--red">22 flagged</span>
+        </div>
+        <div class="queue-item">
+          <strong>3 repeated warning cases</strong>
+          <small>Review before next automated action.</small>
+        </div>
+        <div class="queue-item">
+          <strong>6 blacklist appeals</strong>
+          <small>Oldest appeal pending for 2 days.</small>
+        </div>
+        <div class="queue-item">
+          <strong>13 AI sentiment flags</strong>
+          <small>Prioritize student discussion reports.</small>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>

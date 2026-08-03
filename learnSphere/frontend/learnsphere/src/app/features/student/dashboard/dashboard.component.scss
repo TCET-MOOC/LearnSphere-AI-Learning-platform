@@ -1,0 +1,559 @@
+// ──────────────────────────────────────────────────────
+// Student Dashboard Component Styles
+// Uses variables from src/styles/_variables.scss
+// Brand purple: $brand-purple (#534AB7)
+// Status colours: $status-red, $status-amber, $status-green, $status-purple, $status-grey
+// ──────────────────────────────────────────────────────
+@use "sass:color"; 
+$brand-purple:    #534AB7;
+$brand-purple-lt: #EEEDFE;
+$status-red:      #E5453A;
+$status-red-lt:   #FDECEA;
+$status-amber:    #D08C1A;
+$status-amber-lt: #FEF6E4;
+$status-green:    #1D9E75;
+$status-green-lt: #E3F6F0;
+$status-purple:   $brand-purple;
+$status-grey:     #888780;
+$status-grey-lt:  #F1EFE8;
+ 
+$surface:         #FFFFFF;
+$bg:              #F5F5F8;
+$border:          #E8E7EF;
+$text-primary:    #1A1830;
+$text-secondary:  #6B6880;
+$text-tertiary:   #A09DB8;
+$radius-sm:       6px;
+$radius-md:       10px;
+$radius-lg:       14px;
+ 
+// ── Layout ──────────────────────────────────────────
+ 
+.dashboard {
+  padding: 28px 32px;
+  background: $bg;
+//   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+ 
+  @media (max-width: 768px) {
+    padding: 16px;
+    gap: 16px;
+  }
+}
+ 
+// ── Header ──────────────────────────────────────────
+ 
+.dashboard__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+ 
+.header__greeting {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+ 
+.greeting__eyebrow {
+  font-size: 13px;
+  color: $text-tertiary;
+  letter-spacing: 0.02em;
+}
+ 
+.greeting__name {
+  font-size: 26px;
+  font-weight: 700;
+  color: $text-primary;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+ 
+.greeting__date {
+  font-size: 13px;
+  color: $text-secondary;
+  margin-top: 2px;
+}
+ 
+// ── Buttons ──────────────────────────────────────────
+ 
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  border-radius: $radius-sm;
+ 
+  &--primary {
+    background: $brand-purple;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 13px;
+ 
+    &:hover { background: color.adjust($brand-purple, $lightness: -8%); }
+  }
+ 
+  &--sm {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+ 
+  &--ghost {
+    background: $surface;
+    border: 1px solid $border;
+    color: $text-primary;
+    padding: 8px 14px;
+    font-size: 13px;
+ 
+    &:hover { border-color: $brand-purple; color: $brand-purple; }
+  }
+ 
+  &--link {
+    background: none;
+    color: $brand-purple;
+    padding: 0;
+    font-size: 12px;
+ 
+    &:hover { text-decoration: underline; }
+  }
+ 
+  &__icon { font-size: 14px; }
+}
+ 
+// ── KPI Cards ────────────────────────────────────────
+ 
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+ 
+  @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 600px)  { grid-template-columns: 1fr 1fr; gap: 10px; }
+}
+ 
+.kpi-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  transition: box-shadow 0.15s;
+ 
+  &:hover { box-shadow: 0 4px 16px rgba($brand-purple, 0.08); }
+ 
+  &__icon-wrap {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: $brand-purple-lt;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+ 
+    svg {
+      width: 18px;
+      height: 18px;
+      color: $brand-purple;
+    }
+  }
+ 
+  &__body { flex: 1; min-width: 0; }
+ 
+  &__value {
+    font-size: 24px;
+    font-weight: 700;
+    color: $text-primary;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+ 
+  &__label {
+    font-size: 12px;
+    color: $text-secondary;
+    margin-top: 3px;
+  }
+ 
+  &__trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    font-size: 11px;
+    color: $text-tertiary;
+  }
+}
+ 
+.trend__arrow {
+  font-weight: 700;
+  font-size: 12px;
+ 
+  &--up   { color: $status-green; }
+  &--down { color: $status-red; }
+}
+ 
+// ── Main Content Grid ─────────────────────────────────
+ 
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  align-items: start;
+ 
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+ 
+  &__left, &__right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+ 
+// ── Panels ────────────────────────────────────────────
+ 
+.panel {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 20px;
+ 
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+ 
+  &__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+ 
+.title-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: linear-gradient(135deg, $brand-purple, #7C6CE0);
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+ 
+// ── Continue Learning ────────────────────────────────
+ 
+.course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+ 
+.course-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 8px;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background 0.12s;
+ 
+  &:hover { background: $bg; }
+ 
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: $radius-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+ 
+  &__info { flex: 1; min-width: 0; }
+ 
+  &__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+  }
+ 
+  &__dept {
+    font-size: 10px;
+    color: $text-tertiary;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+ 
+  &__time {
+    font-size: 10px;
+    color: $text-tertiary;
+  }
+ 
+  &__title {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+ 
+  &__teacher {
+    font-size: 11px;
+    color: $text-secondary;
+    margin-bottom: 6px;
+  }
+ 
+  &__pct {
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: right;
+  }
+}
+ 
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+ 
+.progress-bar {
+  flex: 1;
+  height: 4px;
+  background: $bg;
+  border-radius: 99px;
+  overflow: hidden;
+ 
+  &__fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+}
+ 
+.progress-label {
+  font-size: 10px;
+  color: $text-tertiary;
+  white-space: nowrap;
+}
+ 
+// ── Assessments ───────────────────────────────────────
+ 
+.assessment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+ 
+.assessment-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  transition: border-color 0.12s, box-shadow 0.12s;
+ 
+  &:hover {
+    border-color: color.adjust($brand-purple, $lightness: 20%);
+    box-shadow: 0 2px 10px rgba($brand-purple, 0.06);
+  }
+ 
+  &__left { flex: 1; min-width: 0; }
+ 
+  &__title {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 2px;
+  }
+ 
+  &__course {
+    font-size: 11px;
+    color: $text-secondary;
+    margin-bottom: 6px;
+  }
+ 
+  &__meta {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: $text-tertiary;
+  }
+ 
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+}
+ 
+// ── Status Pills ──────────────────────────────────────
+ 
+.pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+ 
+  &--red    { background: $status-red-lt;    color: $status-red;    }
+  &--amber  { background: $status-amber-lt;  color: $status-amber;  }
+  &--purple { background: $brand-purple-lt;  color: $brand-purple;  }
+  &--green  { background: $status-green-lt;  color: $status-green;  }
+  &--grey   { background: $status-grey-lt;   color: $status-grey;   }
+}
+ 
+// ── Notifications ─────────────────────────────────────
+ 
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+ 
+.notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: $radius-sm;
+  position: relative;
+  transition: background 0.12s;
+ 
+  &:hover { background: $bg; }
+ 
+  &--unread { background: $brand-purple-lt; }
+ 
+  &__icon {
+    font-size: 16px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+ 
+  &__body { flex: 1; min-width: 0; }
+ 
+  &__text {
+    font-size: 12px;
+    color: $text-primary;
+    line-height: 1.45;
+    margin: 0;
+  }
+ 
+  &__time {
+    font-size: 10px;
+    color: $text-tertiary;
+    display: block;
+    margin-top: 3px;
+  }
+ 
+  &__dot {
+    width: 7px;
+    height: 7px;
+    min-width: 7px;
+    background: $brand-purple;
+    border-radius: 50%;
+    margin-top: 5px;
+  }
+}
+ 
+// ── Recommended Courses ───────────────────────────────
+ 
+.rec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+ 
+.rec-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background 0.12s;
+ 
+  &:hover { background: $bg; }
+ 
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: $brand-purple-lt;
+    color: $brand-purple;
+    border-radius: $radius-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+ 
+  &__info { flex: 1; min-width: 0; }
+ 
+  &__title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+ 
+  &__teacher {
+    font-size: 11px;
+    color: $text-secondary;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+ 
+  &__stats {
+    display: flex;
+    gap: 10px;
+    font-size: 10px;
+    color: $text-tertiary;
+    margin-top: 4px;
+  }
+ 
+  &__tag {
+    font-size: 10px;
+    font-weight: 600;
+    background: $brand-purple-lt;
+    color: $brand-purple;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+ 

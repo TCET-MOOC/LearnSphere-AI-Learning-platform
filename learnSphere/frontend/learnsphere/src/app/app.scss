@@ -1,0 +1,48 @@
+/* ── Forces the footer to always stay at the bottom ── */
+.scroll-container > app-footer {
+  margin-top: auto;
+}
+
+/* Add this to your global styles.scss file */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+.layout-wrapper {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #F8FAF8;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── NEW: Safely wraps the dashboard and footer ── */
+.scroll-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%; 
+}
+

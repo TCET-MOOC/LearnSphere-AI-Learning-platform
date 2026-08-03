@@ -1,0 +1,674 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.app{display:flex;flex-direction:column;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-tertiary);font-size:13px;min-height:560px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:48px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px;font-weight:500;font-size:14px;color:var(--color-text-primary)}
+.logo-icon{width:28px;height:28px;border-radius:6px;background:#534AB7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:500}
+.search-bar{flex:1;max-width:240px;margin:0 16px;display:flex;align-items:center;gap:8px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:0 10px;height:30px}
+.topbar-right{display:flex;align-items:center;gap:4px}
+.icon-btn{width:32px;height:32px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text-secondary);position:relative}
+.icon-btn:hover{background:var(--color-background-secondary)}
+.notif-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#E24B4A;border:1.5px solid var(--color-background-primary)}
+.avatar{width:30px;height:30px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;margin-left:6px;cursor:pointer}
+.body{display:flex;flex:1;min-height:0}
+.sidebar{width:56px;background:var(--color-background-primary);border-right:0.5px solid var(--color-border-tertiary);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:2px;flex-shrink:0}
+.ni{width:40px;height:40px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text-secondary);font-size:17px;position:relative;transition:background .15s}
+.ni:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.ni.active{background:#EEEDFE;color:#534AB7}
+.ni .tip{display:none;position:absolute;left:46px;top:50%;transform:translateY(-50%);background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:3px 9px;font-size:11px;white-space:nowrap;color:var(--color-text-primary);z-index:99;pointer-events:none}
+.ni:hover .tip{display:block}
+.ndiv{width:28px;height:0.5px;background:var(--color-border-tertiary);margin:4px 0}
+.main{flex:1;padding:14px;overflow-y:auto;background:var(--color-background-tertiary)}
+.section{display:none}.section.active{display:block}
+.pg{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:12px}
+.pg-sub{font-size:12px;color:var(--color-text-secondary);margin-top:-8px;margin-bottom:12px}
+.srow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.srow3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.srow2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px}
+.sc-lbl{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.sc-val{font-size:19px;font-weight:500;color:var(--color-text-primary)}
+.sc-sub{font-size:11px;margin-top:2px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:13px;margin-bottom:10px}
+.card-hd{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:9px;display:flex;align-items:center;justify-content:space-between}
+.cl{font-size:11px;color:#534AB7;cursor:pointer}
+.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.row:last-child{border-bottom:none}
+.pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.p-pu{background:#EEEDFE;color:#3C3489}
+.p-gr{background:#EAF3DE;color:#27500A}
+.p-am{background:#FAEEDA;color:#633806}
+.p-re{background:#FCEBEB;color:#791F1F}
+.p-gy{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.p-te{background:#E1F5EE;color:#085041}
+.p-bl{background:#E6F1FB;color:#0C447C}
+.thumb{width:36px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.pbar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin-top:4px}
+.pfill{height:4px;border-radius:2px;background:#534AB7}
+.ava{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0}
+.note-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px;margin-bottom:8px}
+.tag{display:inline-flex;padding:1px 7px;border-radius:20px;font-size:10px;background:#EEEDFE;color:#3C3489;margin-right:4px}
+.video-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.vcard{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden;cursor:pointer}
+.vcard:hover{border-color:var(--color-border-secondary)}
+.vthumb{height:72px;display:flex;align-items:center;justify-content:center;font-size:22px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.vmeta{padding:9px}
+.cert-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cert-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;display:flex;flex-direction:column;gap:6px}
+.cert-badge{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.lb-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;margin-bottom:3px}
+.lb-row.me{background:#EEEDFE}
+.disc-post{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px;margin-bottom:8px}
+.bm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.bm-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px;display:flex;gap:10px;align-items:flex-start}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.set-row:last-child{border-bottom:none}
+.toggle{width:32px;height:18px;border-radius:9px;background:#534AB7;display:flex;align-items:center;padding:2px;cursor:pointer;flex-shrink:0}
+.toggle-off{background:var(--color-border-secondary)}
+.toggle-knob{width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle-on .toggle-knob{transform:translateX(14px)}
+.section-tabs{display:flex;gap:4px;margin-bottom:12px}
+.stab{padding:5px 12px;border-radius:var(--border-radius-md);font-size:12px;cursor:pointer;color:var(--color-text-secondary);border:0.5px solid transparent}
+.stab.on{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.stab:hover:not(.on){background:var(--color-background-secondary)}
+.quiz-q{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;margin-bottom:8px}
+.opt{display:flex;align-items:center;gap:8px;padding:7px 9px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;margin-top:6px;cursor:pointer;font-size:12px}
+.opt:hover{background:var(--color-background-secondary)}
+.opt.sel{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489}
+.progress-ring{display:flex;align-items:center;gap:14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;margin-bottom:10px}
+</style>
+
+<h2 class="sr-only">LearnSphere student dashboard — all 10 sections interactive mockup</h2>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">LS</div>
+      LearnSphere
+    </div>
+    <div class="search-bar">
+      <i class="ti ti-search" style="font-size:13px;color:var(--color-text-secondary)" aria-hidden="true"></i>
+      <span style="font-size:12px;color:var(--color-text-secondary)">Search courses, notes…</span>
+    </div>
+    <div class="topbar-right">
+      <div class="icon-btn" aria-label="Messages"><i class="ti ti-message-circle" style="font-size:17px" aria-hidden="true"></i><span class="notif-dot"></span></div>
+      <div class="icon-btn" aria-label="Announcements"><i class="ti ti-speakerphone" style="font-size:17px" aria-hidden="true"></i></div>
+      <div class="icon-btn" aria-label="Notifications"><i class="ti ti-bell" style="font-size:17px" aria-hidden="true"></i><span class="notif-dot"></span></div>
+      <div class="avatar">RS</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="sidebar">
+      <div class="ni active" data-sec="dashboard" onclick="sw('dashboard',this)" aria-label="Dashboard"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span class="tip">Dashboard</span></div>
+      <div class="ni" data-sec="courses" onclick="sw('courses',this)" aria-label="Courses"><i class="ti ti-books" aria-hidden="true"></i><span class="tip">My courses</span></div>
+      <div class="ni" data-sec="videos" onclick="sw('videos',this)" aria-label="Video lectures"><i class="ti ti-player-play" aria-hidden="true"></i><span class="tip">Video lectures</span></div>
+      <div class="ni" data-sec="notes" onclick="sw('notes',this)" aria-label="Notes"><i class="ti ti-notebook" aria-hidden="true"></i><span class="tip">My notes</span></div>
+      <div class="ni" data-sec="assess" onclick="sw('assess',this)" aria-label="Assessments"><i class="ti ti-clipboard-check" aria-hidden="true"></i><span class="tip">Assessments</span></div>
+      <div class="ndiv"></div>
+      <div class="ni" data-sec="bookmarks" onclick="sw('bookmarks',this)" aria-label="Bookmarks"><i class="ti ti-bookmark" aria-hidden="true"></i><span class="tip">Bookmarks</span></div>
+      <div class="ni" data-sec="leaderboard" onclick="sw('leaderboard',this)" aria-label="Leaderboard"><i class="ti ti-trophy" aria-hidden="true"></i><span class="tip">Leaderboard</span></div>
+      <div class="ni" data-sec="discuss" onclick="sw('discuss',this)" aria-label="Discussion"><i class="ti ti-message-dots" aria-hidden="true"></i><span class="tip">Discussion</span></div>
+      <div class="ndiv"></div>
+      <div class="ni" data-sec="certs" onclick="sw('certs',this)" aria-label="Certificates"><i class="ti ti-certificate" aria-hidden="true"></i><span class="tip">Certificates</span></div>
+      <div class="ni" data-sec="settings" onclick="sw('settings',this)" aria-label="Settings"><i class="ti ti-settings" aria-hidden="true"></i><span class="tip">Settings</span></div>
+    </div>
+
+    <div class="main">
+
+      <!-- 1. DASHBOARD -->
+      <div class="section active" id="sec-dashboard">
+        <div class="pg">Good morning, Raj 👋 <span style="font-size:12px;font-weight:400;color:var(--color-text-secondary)">— Saturday, 20 Jun 2026</span></div>
+        <div class="srow">
+          <div class="sc"><div class="sc-lbl">Enrolled courses</div><div class="sc-val">7</div><div class="sc-sub" style="color:#0F6E56">2 in progress</div></div>
+          <div class="sc"><div class="sc-lbl">Attendance score</div><div class="sc-val">84%</div><div class="sc-sub" style="color:#854F0B">Need 90% by Aug</div></div>
+          <div class="sc"><div class="sc-lbl">Leaderboard rank</div><div class="sc-val">#12</div><div class="sc-sub" style="color:#534AB7">of 340 students</div></div>
+          <div class="sc"><div class="sc-lbl">Certificates earned</div><div class="sc-val">3</div><div class="sc-sub" style="color:var(--color-text-secondary)">Download ready</div></div>
+        </div>
+        <div class="srow2">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-hd">Continue learning <span class="cl">View all</span></div>
+            <div class="row"><div class="thumb" style="background:#EEEDFE">📐</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Engineering Mathematics III</div><div style="font-size:11px;color:var(--color-text-secondary)">Lec 8/20 · Prof. Sharma</div><div class="pbar"><div class="pfill" style="width:40%"></div></div></div><span class="pill p-pu">40%</span></div>
+            <div class="row"><div class="thumb" style="background:#E1F5EE">⚙️</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Thermodynamics — Mech Dept</div><div style="font-size:11px;color:var(--color-text-secondary)">Lec 3/15 · Prof. Patil</div><div class="pbar"><div class="pfill" style="width:20%"></div></div></div><span class="pill p-gr">20%</span></div>
+            <div class="row"><div class="thumb" style="background:#FAEEDA">💻</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Data Structures &amp; Algorithms</div><div style="font-size:11px;color:var(--color-text-secondary)">Lec 14/20 · Prof. Mehta</div><div class="pbar"><div class="pfill" style="width:70%"></div></div></div><span class="pill p-am">70%</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="card" style="margin-bottom:0">
+              <div class="card-hd">Pending assessments <span class="cl">All</span></div>
+              <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">Unit 2 Quiz — Math III<div style="font-size:11px;color:var(--color-text-secondary)">Due 22 Jun · 10 Qs</div></div><span class="pill p-re">Urgent</span></div>
+              <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">Mid-term — DSA<div style="font-size:11px;color:var(--color-text-secondary)">Due 28 Jun · 25 Qs</div></div><span class="pill p-am">Soon</span></div>
+            </div>
+            <div class="card" style="margin-bottom:0">
+              <div class="card-hd">Recent notifications</div>
+              <div style="font-size:12px;color:var(--color-text-primary);padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">📌 Prof. Sharma uploaded Lec 9 <span style="color:var(--color-text-secondary);font-size:11px">· 2h ago</span></div>
+              <div style="font-size:12px;color:var(--color-text-primary);padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">🏆 You moved to rank #12! <span style="color:var(--color-text-secondary);font-size:11px">· 4h ago</span></div>
+              <div style="font-size:12px;color:var(--color-text-primary);padding:5px 0">💬 Prof. Patil replied in DSA discussion <span style="color:var(--color-text-secondary);font-size:11px">· 1d ago</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hd">Recommended for you — AI picks <span class="cl">Refresh</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Machine Learning Basics</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Prof. Gupta · Free</div><span class="pill p-pu" style="margin-top:6px;display:inline-flex">AI pick</span></div>
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Fluid Mechanics</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Prof. Nair · Free</div><span class="pill p-gr" style="margin-top:6px;display:inline-flex">Trending</span></div>
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Python for Engineers</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Prof. Mehta · Free</div><span class="pill p-te" style="margin-top:6px;display:inline-flex">New</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. COURSES -->
+      <div class="section" id="sec-courses">
+        <div class="pg">My courses</div>
+        <div class="section-tabs">
+          <div class="stab on">All (7)</div>
+          <div class="stab">In progress (2)</div>
+          <div class="stab">Completed (3)</div>
+          <div class="stab">Not started (2)</div>
+          <div class="stab">Explore</div>
+        </div>
+        <div class="progress-ring">
+          <div style="text-align:center;min-width:60px"><div style="font-size:22px;font-weight:500;color:var(--color-text-primary)">71%</div><div style="font-size:11px;color:var(--color-text-secondary)">Avg. progress</div></div>
+          <div style="flex:1">
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Overall completion across all enrolled courses</div>
+            <div class="pbar" style="height:8px"><div class="pfill" style="width:71%;height:8px"></div></div>
+            <div style="display:flex;gap:12px;margin-top:6px">
+              <span style="font-size:11px;color:#0F6E56">✓ 3 completed</span>
+              <span style="font-size:11px;color:#534AB7">▶ 2 in progress</span>
+              <span style="font-size:11px;color:var(--color-text-secondary)">○ 2 not started</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Enrolled courses</div>
+          <div class="row"><div class="thumb" style="background:#EEEDFE">📐</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Engineering Mathematics III</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Sharma · 20 lectures · 8 completed</div><div class="pbar"><div class="pfill" style="width:40%"></div></div></div><span class="pill p-pu">40%</span></div>
+          <div class="row"><div class="thumb" style="background:#FAEEDA">💻</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Data Structures &amp; Algorithms</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Mehta · 20 lectures · 14 completed</div><div class="pbar"><div class="pfill" style="width:70%"></div></div></div><span class="pill p-am">70%</span></div>
+          <div class="row"><div class="thumb" style="background:#E1F5EE">⚙️</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Thermodynamics — Mech Dept</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Patil · 15 lectures · 3 completed</div><div class="pbar"><div class="pfill" style="width:20%"></div></div></div><span class="pill p-gr">20%</span></div>
+          <div class="row"><div class="thumb" style="background:#E6F1FB">🧠</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Operating Systems</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Kulkarni · 18 lectures · Completed</div><div class="pbar"><div class="pfill" style="width:100%"></div></div></div><span class="pill p-gr">Done ✓</span></div>
+          <div class="row"><div class="thumb" style="background:#FBEAF0">🌐</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Web Technologies</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Joshi · 12 lectures · Completed</div><div class="pbar"><div class="pfill" style="width:100%"></div></div></div><span class="pill p-gr">Done ✓</span></div>
+          <div class="row"><div class="thumb" style="background:#F1EFE8">📡</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Computer Networks</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Deshpande · 16 lectures · Not started</div><div class="pbar"><div class="pfill" style="width:0%"></div></div></div><span class="pill p-gy">0%</span></div>
+          <div class="row"><div class="thumb" style="background:#FCEBEB">🧬</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Discrete Mathematics</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Sharma · 14 lectures · Not started</div><div class="pbar"><div class="pfill" style="width:0%"></div></div></div><span class="pill p-gy">0%</span></div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hd">Explore more courses <span class="pill p-pu">Free for you</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Machine Learning Basics</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Gupta</div><div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between"><span class="pill p-bl">Enroll free</span><span style="font-size:11px;color:var(--color-text-secondary)">★4.8</span></div></div>
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Fluid Mechanics</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Nair (Mech)</div><div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between"><span class="pill p-bl">Enroll free</span><span style="font-size:11px;color:var(--color-text-secondary)">★4.6</span></div></div>
+            <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Robotics Intro</div><div style="font-size:11px;color:var(--color-text-secondary)">Prof. Rao (EE)</div><div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between"><span class="pill p-bl">Enroll free</span><span style="font-size:11px;color:var(--color-text-secondary)">★4.5</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. VIDEO LECTURES -->
+      <div class="section" id="sec-videos">
+        <div class="pg">Video lectures</div>
+        <div class="section-tabs">
+          <div class="stab on">All courses</div>
+          <div class="stab">Engineering Math III</div>
+          <div class="stab">DSA</div>
+          <div class="stab">Thermodynamics</div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Now playing — Engineering Mathematics III <span class="pill p-pu">Lecture 8</span></div>
+          <div style="background:#12102e;border-radius:var(--border-radius-md);height:110px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative">
+            <div style="text-align:center">
+              <div style="font-size:28px;color:rgba(255,255,255,0.6)">▶</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px">Laplace Transforms — Part 2</div>
+            </div>
+            <div style="position:absolute;bottom:8px;left:12px;right:12px">
+              <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:2px"><div style="width:35%;height:3px;background:#534AB7;border-radius:2px"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px"><span>14:22</span><span>42:10</span></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="pill p-pu">Speed: 1x</span>
+            <span class="pill p-gy">Subtitles: ON</span>
+            <span class="pill p-gy">Quality: 720p</span>
+            <span class="pill p-te">Notes: Open</span>
+            <span class="pill p-bl">Bookmark this</span>
+            <span class="pill p-gy">Download</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">All lectures — Engineering Mathematics III <span class="cl">Switch course</span></div>
+          <div class="video-grid">
+            <div class="vcard"><div class="vthumb" style="background:#EEEDFE">📐</div><div class="vmeta"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Lec 1 — Introduction</div><div style="font-size:10px;color:var(--color-text-secondary)">38 min · <span style="color:#0F6E56">✓ Done</span></div></div></div>
+            <div class="vcard"><div class="vthumb" style="background:#EEEDFE">📐</div><div class="vmeta"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Lec 2 — Differentiation</div><div style="font-size:10px;color:var(--color-text-secondary)">44 min · <span style="color:#0F6E56">✓ Done</span></div></div></div>
+            <div class="vcard" style="border-color:#AFA9EC"><div class="vthumb" style="background:#534AB7">▶</div><div class="vmeta"><div style="font-size:11px;font-weight:500;color:#3C3489">Lec 8 — Laplace II</div><div style="font-size:10px;color:#534AB7">42 min · Playing now</div></div></div>
+            <div class="vcard"><div class="vthumb" style="background:var(--color-background-secondary)">🔒</div><div class="vmeta"><div style="font-size:11px;font-weight:500;color:var(--color-text-secondary)">Lec 9 — Fourier</div><div style="font-size:10px;color:var(--color-text-secondary)">51 min · Locked</div></div></div>
+            <div class="vcard"><div class="vthumb" style="background:var(--color-background-secondary)">🔒</div><div class="vmeta"><div style="font-size:11px;font-weight:500;color:var(--color-text-secondary)">Lec 10 — Z-Transform</div><div style="font-size:10px;color:var(--color-text-secondary)">48 min · Locked</div></div></div>
+            <div class="vcard"><div class="vthumb" style="background:var(--color-background-secondary)">+11</div><div class="vmeta"><div style="font-size:11px;font-weight:500;color:var(--color-text-secondary)">More lectures</div><div style="font-size:10px;color:var(--color-text-secondary)">11 remaining</div></div></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hd">Discussion below this lecture <span class="cl">View all 24 comments</span></div>
+          <div class="disc-post" style="margin-bottom:6px">
+            <div style="display:flex;gap:8px;align-items:flex-start">
+              <div class="ava" style="background:#FAEEDA;color:#633806">PK</div>
+              <div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Priya Kulkarni <span style="font-weight:400;color:var(--color-text-secondary);font-size:11px">· 1h ago</span></div><div style="font-size:12px;color:var(--color-text-primary);margin-top:3px">Can someone explain the inverse Laplace at 22:14? I'm confused about the partial fractions step.</div><div style="margin-top:6px;display:flex;gap:8px"><span style="font-size:11px;color:#534AB7;cursor:pointer">↩ Reply</span><span style="font-size:11px;color:var(--color-text-secondary);cursor:pointer">👍 12</span></div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;padding-top:6px">
+            <div class="ava" style="background:#EEEDFE;color:#534AB7">RS</div>
+            <div style="flex:1;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:7px 14px;font-size:12px;color:var(--color-text-secondary)">Ask a question or add a comment…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. NOTES -->
+      <div class="section" id="sec-notes">
+        <div class="pg">My notes</div>
+        <div class="section-tabs">
+          <div class="stab on">All notes</div>
+          <div class="stab">Math III</div>
+          <div class="stab">DSA</div>
+          <div class="stab">Thermodynamics</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:0 10px;height:32px"><i class="ti ti-search" style="font-size:13px;color:var(--color-text-secondary)" aria-hidden="true"></i><span style="font-size:12px;color:var(--color-text-secondary)">Search notes…</span></div>
+          <div style="background:#534AB7;color:#fff;border-radius:var(--border-radius-md);padding:0 14px;height:32px;display:flex;align-items:center;font-size:12px;font-weight:500;cursor:pointer;gap:6px"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> New note</div>
+        </div>
+        <div class="note-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+            <div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Laplace Transform — key formulas</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px">Math III · Lec 8 · <span style="color:#534AB7">⏱ 22:14</span> · Today</div></div>
+            <div style="display:flex;gap:6px"><span class="pill p-pu">Timestamped</span><span style="font-size:14px;cursor:pointer;color:var(--color-text-secondary)">⋯</span></div>
+          </div>
+          <div style="font-size:12px;color:var(--color-text-primary);line-height:1.6;background:var(--color-background-secondary);border-radius:6px;padding:8px">L{f(t)} = ∫₀^∞ e^(-st) f(t) dt. Key pairs: L{1} = 1/s, L{e^(at)} = 1/(s−a), L{sin(at)} = a/(s²+a²)</div>
+          <div style="margin-top:6px"><span class="tag">formula</span><span class="tag">laplace</span><span class="tag">math3</span></div>
+        </div>
+        <div class="note-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+            <div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Binary Search Tree — insertion logic</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px">DSA · Lec 14 · <span style="color:#534AB7">⏱ 08:45</span> · Yesterday</div></div>
+            <div style="display:flex;gap:6px"><span class="pill p-am">Timestamped</span><span style="font-size:14px;cursor:pointer;color:var(--color-text-secondary)">⋯</span></div>
+          </div>
+          <div style="font-size:12px;color:var(--color-text-primary);line-height:1.6;background:var(--color-background-secondary);border-radius:6px;padding:8px">If value &lt; root → go left. If value &gt; root → go right. Repeat until null node found. Insert there. Time complexity: O(log n) average, O(n) worst case (skewed tree).</div>
+          <div style="margin-top:6px"><span class="tag">DSA</span><span class="tag">BST</span><span class="tag">trees</span></div>
+        </div>
+        <div class="note-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+            <div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">First law of thermodynamics</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px">Thermodynamics · Lec 3 · <span style="color:#534AB7">⏱ 31:00</span> · 2 days ago</div></div>
+            <div style="display:flex;gap:6px"><span class="pill p-te">Timestamped</span><span style="font-size:14px;cursor:pointer;color:var(--color-text-secondary)">⋯</span></div>
+          </div>
+          <div style="font-size:12px;color:var(--color-text-primary);line-height:1.6;background:var(--color-background-secondary);border-radius:6px;padding:8px">ΔU = Q − W. Energy cannot be created or destroyed. Q = heat added to system, W = work done BY system. Sign conventions are critical!</div>
+          <div style="margin-top:6px"><span class="tag">thermo</span><span class="tag">laws</span></div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hd">Export options</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="pill p-bl" style="cursor:pointer;padding:5px 12px">Export all as PDF</span>
+            <span class="pill p-gy" style="cursor:pointer;padding:5px 12px">Export by course</span>
+            <span class="pill p-gy" style="cursor:pointer;padding:5px 12px">Copy to clipboard</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. ASSESSMENTS -->
+      <div class="section" id="sec-assess">
+        <div class="pg">Assessments</div>
+        <div class="section-tabs">
+          <div class="stab on">All</div>
+          <div class="stab">Pending (3)</div>
+          <div class="stab">Completed (8)</div>
+          <div class="stab">Remedial</div>
+        </div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Assessments done</div><div class="sc-val">8</div><div class="sc-sub" style="color:#0F6E56">Avg. score 78%</div></div>
+          <div class="sc"><div class="sc-lbl">Pending</div><div class="sc-val">3</div><div class="sc-sub" style="color:#A32D2D">1 urgent</div></div>
+          <div class="sc"><div class="sc-lbl">Highest score</div><div class="sc-val">96%</div><div class="sc-sub" style="color:#534AB7">OS Mid-term</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Pending assessments</div>
+          <div class="row">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Unit 2 Quiz — Engineering Mathematics III</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">10 questions · 20 min · Due: 22 Jun 2026</div>
+            </div>
+            <span class="pill p-re" style="margin-right:8px">Urgent</span>
+            <span style="background:#534AB7;color:#fff;border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;white-space:nowrap">Start now</span>
+          </div>
+          <div class="row">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Mid-term Exam — Data Structures</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">25 questions · 60 min · Due: 28 Jun 2026</div>
+            </div>
+            <span class="pill p-am" style="margin-right:8px">Upcoming</span>
+            <span style="border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;color:var(--color-text-secondary);white-space:nowrap">Start</span>
+          </div>
+          <div class="row">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Remedial Certification — Thermodynamics</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">30 questions · Unlocks attendance credit · No deadline</div>
+            </div>
+            <span class="pill p-pu" style="margin-right:8px">Remedial</span>
+            <span style="border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;color:var(--color-text-secondary);white-space:nowrap">Start</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Sample quiz — Unit 2 Math III <span class="pill p-re">Live attempt</span></div>
+          <div class="quiz-q">
+            <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Q1. What is the Laplace transform of f(t) = e^(at)?</div>
+            <div class="opt sel">A. 1 / (s − a)</div>
+            <div class="opt">B. 1 / (s + a)</div>
+            <div class="opt">C. a / (s² + a²)</div>
+            <div class="opt">D. s / (s − a)</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;color:var(--color-text-secondary)">Question 1 of 10 · ⏱ 18:42 remaining</span>
+            <span style="background:#534AB7;color:#fff;border-radius:6px;padding:5px 16px;font-size:12px;cursor:pointer">Next →</span>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hd">Completed assessments <span class="cl">View all</span></div>
+          <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">OS Mid-term <span style="color:var(--color-text-secondary);font-size:11px">· 15 Jun</span></div><span class="pill p-gr">96%</span></div>
+          <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">Web Tech Quiz 3 <span style="color:var(--color-text-secondary);font-size:11px">· 10 Jun</span></div><span class="pill p-gr">88%</span></div>
+          <div class="row"><div style="flex:1;font-size:12px;color:var(--color-text-primary)">DSA Unit 1 Quiz <span style="color:var(--color-text-secondary);font-size:11px">· 5 Jun</span></div><span class="pill p-am">72%</span></div>
+        </div>
+      </div>
+
+      <!-- 6. BOOKMARKS -->
+      <div class="section" id="sec-bookmarks">
+        <div class="pg">Bookmarks</div>
+        <div class="section-tabs">
+          <div class="stab on">All</div>
+          <div class="stab">Lectures</div>
+          <div class="stab">Notes</div>
+          <div class="stab">Resources</div>
+        </div>
+        <div class="bm-grid">
+          <div class="bm-card">
+            <div style="font-size:20px;flex-shrink:0">📐</div>
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Laplace Transforms — Part 2</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Math III · Lec 8 · <span style="color:#534AB7">⏱ 22:14</span></div>
+              <div style="margin-top:5px;display:flex;gap:6px"><span class="pill p-pu">Lecture</span><span style="font-size:11px;color:#534AB7;cursor:pointer">▶ Resume</span></div>
+            </div>
+          </div>
+          <div class="bm-card">
+            <div style="font-size:20px;flex-shrink:0">💻</div>
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Graph Algorithms — BFS &amp; DFS</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">DSA · Lec 12 · <span style="color:#534AB7">⏱ 05:30</span></div>
+              <div style="margin-top:5px;display:flex;gap:6px"><span class="pill p-am">Lecture</span><span style="font-size:11px;color:#534AB7;cursor:pointer">▶ Resume</span></div>
+            </div>
+          </div>
+          <div class="bm-card">
+            <div style="font-size:20px;flex-shrink:0">📄</div>
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">BST insertion logic — my note</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">DSA · Note · Saved yesterday</div>
+              <div style="margin-top:5px;display:flex;gap:6px"><span class="pill p-te">Note</span><span style="font-size:11px;color:#534AB7;cursor:pointer">Open</span></div>
+            </div>
+          </div>
+          <div class="bm-card">
+            <div style="font-size:20px;flex-shrink:0">📑</div>
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Thermo reference sheet — Prof. Patil</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Thermodynamics · Resource PDF</div>
+              <div style="margin-top:5px;display:flex;gap:6px"><span class="pill p-gr">Resource</span><span style="font-size:11px;color:#534AB7;cursor:pointer">Download</span></div>
+            </div>
+          </div>
+          <div class="bm-card">
+            <div style="font-size:20px;flex-shrink:0">⚙️</div>
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Carnot Cycle explained</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Thermo · Lec 3 · <span style="color:#534AB7">⏱ 15:00</span></div>
+              <div style="margin-top:5px;display:flex;gap:6px"><span class="pill p-te">Lecture</span><span style="font-size:11px;color:#534AB7;cursor:pointer">▶ Resume</span></div>
+            </div>
+          </div>
+          <div class="bm-card">
+            <div style="font-size:20px;flex-shrink:0">🔢</div>
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Sorting algorithms cheat sheet</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">DSA · Resource PDF · 3 days ago</div>
+              <div style="margin-top:5px;display:flex;gap:6px"><span class="pill p-gr">Resource</span><span style="font-size:11px;color:#534AB7;cursor:pointer">Download</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. LEADERBOARD -->
+      <div class="section" id="sec-leaderboard">
+        <div class="pg">Leaderboard</div>
+        <div class="section-tabs">
+          <div class="stab on">My batch</div>
+          <div class="stab">By course</div>
+          <div class="stab">All college</div>
+          <div class="stab">Monthly</div>
+        </div>
+        <div class="srow3" style="margin-bottom:12px">
+          <div class="sc"><div class="sc-lbl">Your rank</div><div class="sc-val">#12</div><div class="sc-sub" style="color:#534AB7">of 340 students</div></div>
+          <div class="sc"><div class="sc-lbl">Your points</div><div class="sc-val">1,920</div><div class="sc-sub" style="color:#0F6E56">+80 this week</div></div>
+          <div class="sc"><div class="sc-lbl">To next rank</div><div class="sc-val">−20 pts</div><div class="sc-sub" style="color:#854F0B">Beat Nisha (#11)</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Batch leaderboard — IT Dept, Sem 5</div>
+          <div class="lb-row" style="background:#FAEEDA;border-radius:6px;margin-bottom:3px">
+            <span style="font-size:14px;width:24px">🥇</span>
+            <div class="ava" style="background:#BA7517;color:#fff">PK</div>
+            <div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Priya Kulkarni</div><div style="font-size:11px;color:var(--color-text-secondary)">7 courses · 18/20 avg</div></div>
+            <span style="font-size:13px;font-weight:500;color:#633806">2,840 pts</span>
+          </div>
+          <div class="lb-row" style="background:var(--color-background-secondary);border-radius:6px;margin-bottom:3px">
+            <span style="font-size:14px;width:24px">🥈</span>
+            <div class="ava" style="background:#888780;color:#fff">AM</div>
+            <div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Arjun Mishra</div><div style="font-size:11px;color:var(--color-text-secondary)">6 courses · 16/20 avg</div></div>
+            <span style="font-size:13px;font-weight:500;color:#444441">2,710 pts</span>
+          </div>
+          <div class="lb-row" style="background:var(--color-background-secondary);border-radius:6px;margin-bottom:3px">
+            <span style="font-size:14px;width:24px">🥉</span>
+            <div class="ava" style="background:#5DCAA5;color:#04342C">NJ</div>
+            <div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Nisha Joshi</div><div style="font-size:11px;color:var(--color-text-secondary)">5 courses · 15/20 avg</div></div>
+            <span style="font-size:13px;font-weight:500;color:#444441">1,940 pts</span>
+          </div>
+          <div style="text-align:center;padding:6px 0;font-size:11px;color:var(--color-text-secondary)">· · · ranks 4 – 11 · · ·</div>
+          <div class="lb-row me" style="border-radius:6px;margin-bottom:3px">
+            <span style="font-size:12px;font-weight:500;width:24px;color:#534AB7">#12</span>
+            <div class="ava" style="background:#534AB7;color:#fff">RS</div>
+            <div style="flex:1"><div style="font-size:12px;font-weight:500;color:#3C3489">You — Raj Shah</div><div style="font-size:11px;color:#534AB7">7 courses · 14/20 avg</div></div>
+            <span style="font-size:13px;font-weight:500;color:#3C3489">1,920 pts</span>
+          </div>
+          <div class="lb-row" style="border-radius:6px">
+            <span style="font-size:12px;width:24px;color:var(--color-text-secondary)">#13</span>
+            <div class="ava" style="background:var(--color-background-secondary);color:var(--color-text-secondary)">VD</div>
+            <div style="flex:1"><div style="font-size:12px;color:var(--color-text-secondary)">Vikram Desai</div><div style="font-size:11px;color:var(--color-text-secondary)">6 courses</div></div>
+            <span style="font-size:13px;color:var(--color-text-secondary)">1,870 pts</span>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hd">How points are earned</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:6px;padding:8px">✅ Complete a lecture — <strong style="color:var(--color-text-primary)">+10 pts</strong></div>
+            <div style="font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:6px;padding:8px">📝 Submit an assessment — <strong style="color:var(--color-text-primary)">+25 pts</strong></div>
+            <div style="font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:6px;padding:8px">🏆 Score above 90% — <strong style="color:var(--color-text-primary)">+50 bonus</strong></div>
+            <div style="font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:6px;padding:8px">💬 Helpful discussion post — <strong style="color:var(--color-text-primary)">+5 pts</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. DISCUSSION -->
+      <div class="section" id="sec-discuss">
+        <div class="pg">Discussion</div>
+        <div class="section-tabs">
+          <div class="stab on">All courses</div>
+          <div class="stab">Math III</div>
+          <div class="stab">DSA</div>
+          <div class="stab">My posts</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:0 10px;height:32px"><i class="ti ti-search" style="font-size:13px;color:var(--color-text-secondary)" aria-hidden="true"></i><span style="font-size:12px;color:var(--color-text-secondary)">Search discussions…</span></div>
+          <div style="background:#534AB7;color:#fff;border-radius:var(--border-radius-md);padding:0 14px;height:32px;display:flex;align-items:center;font-size:12px;font-weight:500;cursor:pointer;gap:6px;white-space:nowrap"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> New post</div>
+        </div>
+        <div class="disc-post">
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <div class="ava" style="background:#FAEEDA;color:#633806;width:30px;height:30px;font-size:11px">PK</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Priya Kulkarni</div><div style="font-size:11px;color:var(--color-text-secondary)">Math III · Lec 8 · 1h ago</div></div>
+                <span class="pill p-pu">Unanswered</span>
+              </div>
+              <div style="font-size:12px;color:var(--color-text-primary);margin-top:5px;line-height:1.5">Can someone explain the inverse Laplace at 22:14? I'm confused about the partial fractions decomposition step.</div>
+              <div style="margin-top:7px;display:flex;gap:10px">
+                <span style="font-size:11px;color:#534AB7;cursor:pointer">↩ Reply</span>
+                <span style="font-size:11px;color:var(--color-text-secondary);cursor:pointer">👍 12 likes</span>
+                <span style="font-size:11px;color:var(--color-text-secondary)">0 replies</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="disc-post">
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <div class="ava" style="background:#EEEDFE;color:#534AB7;width:30px;height:30px;font-size:11px">RS</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Raj Shah <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">(You)</span></div><div style="font-size:11px;color:var(--color-text-secondary)">DSA · Lec 12 · 2 days ago</div></div>
+                <span class="pill p-gr">Answered</span>
+              </div>
+              <div style="font-size:12px;color:var(--color-text-primary);margin-top:5px;line-height:1.5">What's the difference between DFS using recursion vs an explicit stack? Is one preferred in practice?</div>
+              <div style="margin-top:6px;background:var(--color-background-secondary);border-radius:6px;padding:8px;border-left:2px solid #534AB7">
+                <div style="font-size:11px;font-weight:500;color:#534AB7">Prof. Mehta replied:</div>
+                <div style="font-size:11px;color:var(--color-text-primary);margin-top:3px">Both are equivalent. Recursive DFS uses the call stack implicitly. Explicit stack is better for large graphs to avoid stack overflow.</div>
+              </div>
+              <div style="margin-top:7px;display:flex;gap:10px">
+                <span style="font-size:11px;color:#534AB7;cursor:pointer">↩ Reply</span>
+                <span style="font-size:11px;color:var(--color-text-secondary)">👍 8 · 1 reply</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="ava" style="background:#EEEDFE;color:#534AB7;width:30px;height:30px;font-size:11px">RS</div>
+          <div style="flex:1;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:8px 14px;font-size:12px;color:var(--color-text-secondary)">Start a new discussion or ask a doubt…</div>
+        </div>
+      </div>
+
+      <!-- 9. CERTIFICATES -->
+      <div class="section" id="sec-certs">
+        <div class="pg">Certificates</div>
+        <div class="srow3">
+          <div class="sc"><div class="sc-lbl">Certificates earned</div><div class="sc-val">3</div><div class="sc-sub" style="color:#0F6E56">All downloadable</div></div>
+          <div class="sc"><div class="sc-lbl">In progress</div><div class="sc-val">2</div><div class="sc-sub" style="color:#534AB7">Complete to unlock</div></div>
+          <div class="sc"><div class="sc-lbl">Remedial certs</div><div class="sc-val">1</div><div class="sc-sub" style="color:#854F0B">Pending attempt</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Earned certificates</div>
+          <div class="cert-grid">
+            <div class="cert-card">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="cert-badge" style="background:#FAEEDA">🏆</div>
+                <div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Operating Systems</div><div style="font-size:11px;color:var(--color-text-secondary)">Issued 15 Jun 2026 · Prof. Kulkarni</div></div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <span class="pill p-gr">Completed</span>
+                <span style="font-size:11px;color:#534AB7;cursor:pointer">⬇ Download PDF</span>
+                <span style="font-size:11px;color:var(--color-text-secondary);cursor:pointer">Share</span>
+              </div>
+            </div>
+            <div class="cert-card">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="cert-badge" style="background:#EEEDFE">🎓</div>
+                <div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Web Technologies</div><div style="font-size:11px;color:var(--color-text-secondary)">Issued 10 Jun 2026 · Prof. Joshi</div></div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <span class="pill p-gr">Completed</span>
+                <span style="font-size:11px;color:#534AB7;cursor:pointer">⬇ Download PDF</span>
+                <span style="font-size:11px;color:var(--color-text-secondary);cursor:pointer">Share</span>
+              </div>
+            </div>
+            <div class="cert-card">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="cert-badge" style="background:#E1F5EE">✅</div>
+                <div><div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Python Fundamentals</div><div style="font-size:11px;color:var(--color-text-secondary)">Issued 1 Jun 2026 · Prof. Mehta</div></div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <span class="pill p-gr">Completed</span>
+                <span style="font-size:11px;color:#534AB7;cursor:pointer">⬇ Download PDF</span>
+                <span style="font-size:11px;color:var(--color-text-secondary);cursor:pointer">Share</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hd">Certificates in progress</div>
+          <div class="row">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Engineering Mathematics III</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Complete all 20 lectures + pass final quiz</div>
+              <div class="pbar" style="margin-top:6px"><div class="pfill" style="width:40%"></div></div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px">40% done · 8/20 lectures</div>
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Remedial — Thermodynamics</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Complete 30-question certification exam</div>
+              <div class="pbar" style="margin-top:6px"><div class="pfill" style="width:0%;background:#E24B4A"></div></div>
+              <div style="font-size:11px;color:#A32D2D;margin-top:3px">Not attempted — needed for attendance</div>
+            </div>
+            <span style="background:#534AB7;color:#fff;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;white-space:nowrap;margin-left:8px">Attempt now</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10. SETTINGS -->
+      <div class="section" id="sec-settings">
+        <div class="pg">Settings</div>
+        <div class="card">
+          <div class="card-hd">Profile</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div class="ava" style="width:48px;height:48px;font-size:15px;background:#EEEDFE;color:#534AB7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:500">RS</div>
+            <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Raj Shah</div><div style="font-size:12px;color:var(--color-text-secondary)">raj.shah@mhcollege.edu.in · IT Dept, Sem 5</div></div>
+            <span style="margin-left:auto;font-size:11px;color:#534AB7;cursor:pointer;border:0.5px solid #AFA9EC;border-radius:6px;padding:4px 10px">Edit profile</span>
+          </div>
+          <div class="set-row">
+            <div><div style="font-size:12px;color:var(--color-text-primary)">Full name</div><div style="font-size:11px;color:var(--color-text-secondary)">Raj Shah</div></div>
+            <span style="font-size:11px;color:#534AB7;cursor:pointer">Edit</span>
+          </div>
+          <div class="set-row">
+            <div><div style="font-size:12px;color:var(--color-text-primary)">College email</div><div style="font-size:11px;color:var(--color-text-secondary)">raj.shah@mhcollege.edu.in</div></div>
+            <span class="pill p-gr" style="font-size:10px">Verified</span>
+          </div>
+          <div class="set-row">
+            <div><div style="font-size:12px;color:var(--color-text-primary)">Password</div><div style="font-size:11px;color:var(--color-text-secondary)">Last changed 30 days ago</div></div>
+            <span style="font-size:11px;color:#534AB7;cursor:pointer">Change</span>
+          </div>
+          <div class="set-row">
+            <div><div style="font-size:12px;color:var(--color-text-primary)">Profile photo</div><div style="font-size:11px;color:var(--color-text-secondary)">Using initials avatar</div></div>
+            <span style="font-size:11px;color:#534AB7;cursor:pointer">Upload</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Notifications</div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">New lecture uploaded</div><div style="font-size:11px;color:var(--color-text-secondary)">Notify when your enrolled teacher uploads</div></div><div class="toggle toggle-on"><div class="toggle-knob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Assessment due reminders</div><div style="font-size:11px;color:var(--color-text-secondary)">48h and 24h before deadline</div></div><div class="toggle toggle-on"><div class="toggle-knob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Teacher replies to my post</div><div style="font-size:11px;color:var(--color-text-secondary)">In-app and email</div></div><div class="toggle toggle-on"><div class="toggle-knob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Leaderboard rank change</div><div style="font-size:11px;color:var(--color-text-secondary)">When you move up or down</div></div><div class="toggle toggle-off"><div class="toggle-knob"></div></div></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Promotional announcements</div><div style="font-size:11px;color:var(--color-text-secondary)">New courses, platform news</div></div><div class="toggle toggle-off"><div class="toggle-knob"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Preferences</div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Video default quality</div><div style="font-size:11px;color:var(--color-text-secondary)">Auto (based on connection)</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Change</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Video playback speed</div><div style="font-size:11px;color:var(--color-text-secondary)">1x (normal)</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Change</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Leaderboard visibility</div><div style="font-size:11px;color:var(--color-text-secondary)">Visible to batchmates</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Change</span></div>
+          <div class="set-row"><div><div style="font-size:12px;color:var(--color-text-primary)">Language</div><div style="font-size:11px;color:var(--color-text-secondary)">English</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Change</span></div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hd">Account</div>
+          <div class="set-row"><div style="font-size:12px;color:var(--color-text-primary)">Linked payment method</div><div style="font-size:11px;color:var(--color-text-secondary)">For external course purchases</div></span><span style="font-size:11px;color:#534AB7;cursor:pointer">Add card</span></div>
+          <div class="set-row"><div style="font-size:12px;color:var(--color-text-primary)">Download data</div></div><span style="font-size:11px;color:#534AB7;cursor:pointer">Request</span></div>
+          <div class="set-row" style="border-bottom:none"><div style="font-size:12px;color:#A32D2D;cursor:pointer">Sign out</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function sw(sec, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + sec).classList.add('active');
+  el.classList.add('active');
+}
+</script>
