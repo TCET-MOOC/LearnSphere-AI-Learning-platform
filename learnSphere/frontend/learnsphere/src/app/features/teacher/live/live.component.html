@@ -13,25 +13,25 @@
     <div class="kpi-card">
       <div class="kpi-card__icon" style="background:#EEEDFE">📅</div>
       <div class="kpi-card__body">
-        <div class="kpi-card__value">4</div>
-        <div class="kpi-card__label">Sessions This Month</div>
-        <div class="kpi-card__sub" style="color:#6B6880">Avg. 38 attendees</div>
+        <div class="kpi-card__value">{{ sessions.length }}</div>
+        <div class="kpi-card__label">Total Sessions</div>
+        <div class="kpi-card__sub" style="color:#6B6880">All time</div>
       </div>
     </div>
     <div class="kpi-card">
       <div class="kpi-card__icon" style="background:#E3F6F0">🎯</div>
       <div class="kpi-card__body">
-        <div class="kpi-card__value">25 Jun</div>
-        <div class="kpi-card__label">Next Session</div>
-        <div class="kpi-card__sub" style="color:#534AB7">Math III · 4 PM IST</div>
+        <div class="kpi-card__value">{{ upcomingSessions.length }}</div>
+        <div class="kpi-card__label">Upcoming Sessions</div>
+        <div class="kpi-card__sub" style="color:#534AB7">Scheduled or live</div>
       </div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-card__icon" style="background:#FEF6E4">👥</div>
+      <div class="kpi-card__icon" style="background:#FEF6E4">🎬</div>
       <div class="kpi-card__body">
-        <div class="kpi-card__value">94</div>
-        <div class="kpi-card__label">Registrations</div>
-        <div class="kpi-card__sub" style="color:#1D9E75">For next session</div>
+        <div class="kpi-card__value">{{ pastSessions.length }}</div>
+        <div class="kpi-card__label">Past Sessions</div>
+        <div class="kpi-card__sub" style="color:#1D9E75">Ended</div>
       </div>
     </div>
   </div>
@@ -52,45 +52,29 @@
         <div class="form-grid">
           <div class="form-field">
             <label class="form-field__label">Course</label>
-            <select class="form-field__select">
-              <option>Engineering Mathematics III</option>
-              <option>Discrete Mathematics</option>
-              <option>Linear Algebra</option>
+            <select class="form-field__select" [(ngModel)]="selectedCourseId" name="courseId">
+              <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
             </select>
           </div>
           <div class="form-field">
             <label class="form-field__label">Session Title</label>
-            <input class="form-field__input" placeholder="e.g. Doubt clearing — Unit 2" />
+            <input class="form-field__input" placeholder="e.g. Doubt clearing — Unit 2"
+                   [(ngModel)]="sessionTitle" name="sessionTitle" />
           </div>
           <div class="form-field">
             <label class="form-field__label">Date</label>
-            <input class="form-field__input" type="date" value="2026-06-25" />
+            <input class="form-field__input" type="date" [(ngModel)]="sessionDate" name="sessionDate" />
           </div>
           <div class="form-field">
             <label class="form-field__label">Time</label>
-            <input class="form-field__input" type="time" value="16:00" />
-          </div>
-          <div class="form-field">
-            <label class="form-field__label">Duration</label>
-            <select class="form-field__select">
-              <option>30 minutes</option>
-              <option selected>60 minutes</option>
-              <option>90 minutes</option>
-              <option>2 hours</option>
-            </select>
-          </div>
-          <div class="form-field">
-            <label class="form-field__label">Platform</label>
-            <select class="form-field__select">
-              <option>Built-in Room</option>
-              <option>Google Meet</option>
-              <option>Zoom</option>
-            </select>
+            <input class="form-field__input" type="time" [(ngModel)]="sessionTime" name="sessionTime" />
           </div>
         </div>
 
         <div class="btn-row">
-          <button class="btn btn--primary" (click)="scheduleSession()">📢 Schedule & Notify Students</button>
+          <button class="btn btn--primary" [disabled]="scheduling" (click)="scheduleSession()">
+            {{ scheduling ? 'Scheduling…' : '📢 Schedule & Notify Students' }}
+          </button>
           <button class="btn btn--ghost" (click)="saveDraft()">Save Draft</button>
         </div>
       </div>
@@ -99,39 +83,40 @@
       <div class="panel">
         <div class="panel__header">
           <span class="panel__title">Upcoming Sessions</span>
-          <span class="pill pill--purple">2 scheduled</span>
+          <span class="pill pill--purple">{{ upcomingSessions.length }} scheduled</span>
         </div>
 
-        <div class="session-list">
-          <div class="session-item">
+        <div class="session-list" *ngIf="!loading && upcomingSessions.length > 0">
+          <div class="session-item" *ngFor="let s of upcomingSessions">
             <div class="session-item__date">
-              <div class="session-item__date-day">25</div>
-              <div class="session-item__date-mon">Jun</div>
+              <div class="session-item__date-day">{{ s.scheduledAt | date:'d' }}</div>
+              <div class="session-item__date-mon">{{ s.scheduledAt | date:'MMM' }}</div>
             </div>
             <div class="session-item__info">
-              <div class="session-item__title">Doubt Clearing — Unit 2 Laplace</div>
-              <div class="session-item__meta">Math III · 4:00 PM · 60 min · 94 registered</div>
+              <div class="session-item__title">{{ s.title }}</div>
+              <div class="session-item__meta">{{ s.courseTitle }} · {{ s.scheduledAt | date:'shortTime' }}</div>
             </div>
             <div class="session-item__actions">
-              <span class="pill pill--purple">Scheduled</span>
-              <button class="btn btn--primary" style="font-size:12px;padding:7px 14px" (click)="startSession()">▶ Start Now</button>
+              <span class="pill" [ngClass]="s.status === 'LIVE' ? 'pill--green' : 'pill--purple'">
+                {{ s.status === 'LIVE' ? 'Live now' : 'Scheduled' }}
+              </span>
+              <button *ngIf="s.status === 'SCHEDULED'" class="btn btn--primary"
+                      style="font-size:12px;padding:7px 14px" [disabled]="isStarting(s.id)"
+                      (click)="startSession(s.id)">
+                {{ isStarting(s.id) ? 'Starting…' : '▶ Start Now' }}
+              </button>
+              <button *ngIf="s.status === 'LIVE'" class="btn btn--ghost"
+                      style="font-size:12px;padding:7px 14px" [disabled]="isEnding(s.id)"
+                      (click)="endSession(s.id)">
+                {{ isEnding(s.id) ? 'Ending…' : '⏹ End Session' }}
+              </button>
             </div>
           </div>
+        </div>
 
-          <div class="session-item">
-            <div class="session-item__date">
-              <div class="session-item__date-day">02</div>
-              <div class="session-item__date-mon">Jul</div>
-            </div>
-            <div class="session-item__info">
-              <div class="session-item__title">Mid-Term Revision Session</div>
-              <div class="session-item__meta">Discrete Math · 5:00 PM · 90 min · 42 registered</div>
-            </div>
-            <div class="session-item__actions">
-              <span class="pill pill--purple">Scheduled</span>
-              <button class="btn btn--ghost" style="font-size:12px;padding:7px 14px">Edit</button>
-            </div>
-          </div>
+        <div *ngIf="loading" style="padding:12px;color:#888780;font-size:13px">Loading sessions…</div>
+        <div *ngIf="!loading && upcomingSessions.length === 0" style="padding:12px;color:#888780;font-size:13px">
+          No upcoming sessions — schedule one above.
         </div>
       </div>
 
@@ -141,38 +126,26 @@
     <div class="panel">
       <div class="panel__header">
         <span class="panel__title">Past Sessions</span>
-        <button class="btn btn--link">View all →</button>
       </div>
 
-      <div class="session-list">
-        <div class="session-item" style="flex-wrap:wrap;gap:10px">
+      <div class="session-list" *ngIf="pastSessions.length > 0">
+        <div class="session-item" style="flex-wrap:wrap;gap:10px" *ngFor="let s of pastSessions">
           <div class="session-item__date" style="background:#E3F6F0">
-            <div class="session-item__date-day" style="color:#1D9E75">10</div>
-            <div class="session-item__date-mon" style="color:#1D9E75">Jun</div>
+            <div class="session-item__date-day" style="color:#1D9E75">{{ s.scheduledAt | date:'d' }}</div>
+            <div class="session-item__date-mon" style="color:#1D9E75">{{ s.scheduledAt | date:'MMM' }}</div>
           </div>
           <div class="session-item__info">
-            <div class="session-item__title">Unit 1 Revision — Math III</div>
-            <div class="session-item__meta">52 attended · Recording available</div>
+            <div class="session-item__title">{{ s.title }}</div>
+            <div class="session-item__meta">{{ s.courseTitle }}</div>
           </div>
           <div class="session-item__actions" style="width:100%;justify-content:flex-end">
-            <span class="pill pill--green">Recorded</span>
-            <button class="btn btn--ghost" style="font-size:12px;padding:7px 12px">Share Recording</button>
+            <span class="pill pill--grey">Ended</span>
           </div>
         </div>
+      </div>
 
-        <div class="session-item" style="flex-wrap:wrap;gap:10px">
-          <div class="session-item__date" style="background:#F1EFE8">
-            <div class="session-item__date-day" style="color:#888780">02</div>
-            <div class="session-item__date-mon" style="color:#888780">Jun</div>
-          </div>
-          <div class="session-item__info">
-            <div class="session-item__title">Intro to Discrete — Q&A</div>
-            <div class="session-item__meta">28 attended · No recording</div>
-          </div>
-          <div class="session-item__actions" style="width:100%;justify-content:flex-end">
-            <span class="pill pill--grey">No Recording</span>
-          </div>
-        </div>
+      <div *ngIf="pastSessions.length === 0" style="padding:12px;color:#888780;font-size:13px">
+        No past sessions yet.
       </div>
     </div>
   </div>

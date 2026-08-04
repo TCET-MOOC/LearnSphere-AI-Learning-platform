@@ -96,7 +96,7 @@ public class CertificateServiceImpl implements CertificateService {
             if (maxMarks <= 0) {
                 continue;
             }
-            List<TestAttempt> attempts = testAttemptRepository.findByUserIdAndTest_Id(userId, test.getTestId());
+            List<TestAttempt> attempts = testAttemptRepository.findByUserIdAndTest_TestId(userId, test.getTestId());
             for (TestAttempt attempt : attempts) {
                 if ("COMPLETED".equalsIgnoreCase(attempt.getStatus()) && attempt.getScore() != null) {
                     double percent = (attempt.getScore() * 100.0) / maxMarks;

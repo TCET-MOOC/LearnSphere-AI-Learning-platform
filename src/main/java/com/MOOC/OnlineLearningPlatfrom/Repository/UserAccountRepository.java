@@ -17,4 +17,8 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, Long> 
             "AND (:collegeId IS NULL OR ur.user.college.id = :collegeId) " +
             "ORDER BY ur.user.leaderboardPoints DESC")
     List<UserAccount> findStudentLeaderboard(@Param("collegeId") Long collegeId);
+
+    @Query("SELECT DISTINCT ur.user FROM UserRole ur WHERE ur.role.name = 'TEACHER' " +
+            "AND ur.user.royaltyBalance > 0 ORDER BY ur.user.royaltyBalance DESC")
+    List<UserAccount> findTeachersWithPendingRoyalty();
 }

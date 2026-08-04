@@ -44,6 +44,8 @@ import { AnnouncementsComponent as AdminAnnouncements } from './features/admin/a
 import { NotificationsComponent as AdminNotifications } from './features/admin/notifications/notifications.component';
 import { ProfileComponent as AdminProfile } from './features/admin/profile/profile.component';
 import { CollegesComponent as AdminColleges } from './features/admin/colleges/colleges.component';
+import { CheckoutComponent } from './features/payment/checkout.component';
+import { PaymentSuccessComponent } from './features/payment/payment-success.component';
 import { authGuard } from './core/auth/auth.guard';
 // Note: admin/courses, admin/revenue, admin/reports components are still empty scaffolding
 // (no exported component class yet) — their routes will be added once those are implemented.
@@ -60,6 +62,8 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'verify-college', component: VerifyCollegeComponent, canActivate: [authGuard] },
+  { path: 'payment/checkout/:courseId', component: CheckoutComponent, canActivate: [authGuard] },
+  { path: 'payment/success', component: PaymentSuccessComponent, canActivate: [authGuard] },
 
   // Student portal
   { path: 'student/dashboard', component: StudentDashboard, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },

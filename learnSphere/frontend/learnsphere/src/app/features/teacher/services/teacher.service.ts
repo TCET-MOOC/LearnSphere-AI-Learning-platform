@@ -4,6 +4,17 @@ import { StudentStanding } from '@core/models/user.model';
 import { ApiService } from '@core/services/api.service';
 import { Course, Lecture } from '@core/models/course.model';
 
+/** A single row in GET /api/courses/trending. */
+export interface TrendingCourse {
+  id: number;
+  title: string;
+  thumbnail: string | null;
+  teacherName: string | null;
+  teacherId: number | null;
+  enrolledCount: number;
+  rank: number;
+}
+
 /**
  * TeacherService handles all API integrations for the teacher workspace.
  * Resolves student standings, warning nudge triggers, and course/lecture
@@ -68,5 +79,13 @@ export class TeacherService {
 
   deleteLecture(lectureId: number): Observable<void> {
     return this.apiService.delete<void>(`/teacher/lectures/${lectureId}`);
+  }
+
+  // --- Trending ---
+
+  /** Top LIVE courses platform-wide, ranked by enrollment count. */
+  getTrendingCourses(limit?: number): Observable<TrendingCourse[]> {
+    const options = limit ? { params: { limit } } : undefined;
+    return this.apiService.get<TrendingCourse[]>('/courses/trending', options);
   }
 }
