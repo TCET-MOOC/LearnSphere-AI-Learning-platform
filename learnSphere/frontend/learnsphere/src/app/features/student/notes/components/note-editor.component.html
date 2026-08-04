@@ -14,7 +14,7 @@
       <form [formGroup]="noteForm" (submit)="onSubmit()" class="editor-form">
         
         <!-- Read-only lecture mapping details -->
-        <div class="form-group readonly-group">
+        <div class="form-group readonly-group" *ngIf="lectureId">
           <label class="form-label">LINKED LECTURE</label>
           <div class="readonly-value">
             <span class="course-badge">{{ courseName }}</span>

@@ -1,0 +1,147 @@
+$brand: #534ab7;
+$brand-soft: #eeedfe;
+$text: #1a1830;
+$muted: #6b6880;
+$border: #e8e7ef;
+$bg: #f5f5f8;
+$red: #a32d2d;
+
+.lecture-list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lecture-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h3 { margin: 0; font-size: 14px; color: $text; }
+}
+
+.hint {
+  color: $muted;
+  font-size: 12px;
+}
+
+.lecture-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lecture-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid $border;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.lecture-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: $brand-soft;
+  color: $brand;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.lecture-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong { font-size: 12.5px; color: $text; }
+  small { font-size: 10.5px; color: $muted; }
+}
+
+.lecture-row-actions {
+  display: flex;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.link-btn {
+  border: none;
+  background: transparent;
+  color: $brand;
+  font: 600 11px Inter, Arial;
+  cursor: pointer;
+  padding: 0;
+
+  &--danger { color: $red; }
+}
+
+.lecture-form-overlay {
+  border: 1px dashed $brand;
+  border-radius: 10px;
+  padding: 14px;
+  background: $bg;
+}
+
+.lecture-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  h4 { grid-column: 1 / -1; margin: 0 0 4px; font-size: 13px; }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 11px;
+    color: $muted;
+  }
+
+  label.full { grid-column: 1 / -1; }
+
+  label.checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  input, select {
+    border: 1px solid #dedce7;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font: 12px Inter, Arial;
+    color: $text;
+    background: #fff;
+  }
+
+  .upload-hint {
+    font-size: 10.5px;
+    color: $muted;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: 600 11.5px Inter, Arial;
+  cursor: pointer;
+}
+.btn--soft { background: $brand-soft; color: $brand; }
+.btn--primary { background: $brand; color: #fff; }
+.btn--primary:disabled { opacity: 0.6; cursor: default; }
+.btn--ghost { background: transparent; color: $muted; border: 1px solid $border; }

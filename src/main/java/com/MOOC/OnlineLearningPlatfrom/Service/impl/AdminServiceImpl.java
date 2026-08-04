@@ -8,6 +8,7 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.UserAccount;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.AffiliationRequestRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CollegeRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserRoleRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.AdminService;
 import org.springframework.stereotype.Service;
@@ -21,13 +22,16 @@ public class AdminServiceImpl implements AdminService {
     private final CollegeRepository collegeRepository;
     private final UserRoleRepository userRoleRepository;
     private final AffiliationRequestRepository affiliationRequestRepository;
+    private final CourseRepository courseRepository;
 
     public AdminServiceImpl(CollegeRepository collegeRepository,
                              UserRoleRepository userRoleRepository,
-                             AffiliationRequestRepository affiliationRequestRepository) {
+                             AffiliationRequestRepository affiliationRequestRepository,
+                             CourseRepository courseRepository) {
         this.collegeRepository = collegeRepository;
         this.userRoleRepository = userRoleRepository;
         this.affiliationRequestRepository = affiliationRequestRepository;
+        this.courseRepository = courseRepository;
     }
 
     @Override
@@ -90,8 +94,7 @@ public class AdminServiceImpl implements AdminService {
     private CollegeResponseDto toDto(College college) {
         long students = userRoleRepository.countByRole_NameAndUser_College_Id("STUDENT", college.getId());
         long teachers = userRoleRepository.countByRole_NameAndUser_College_Id("TEACHER", college.getId());
-        // Course domain is wired separately; course counts default to 0 until CourseRepository is injected here.
-        long courses = 0;
+        long courses = courseRepository.countByTeacher_College_Id(college.getId());
         return CollegeResponseDto.from(college, students, teachers, courses);
     }
 }

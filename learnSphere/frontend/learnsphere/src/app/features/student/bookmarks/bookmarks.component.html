@@ -1,0 +1,36 @@
+<div class="bookmarks-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Student view</p>
+      <h1>Bookmarks</h1>
+    </div>
+  </header>
+
+  <p class="hint" *ngIf="loading">Loading bookmarks…</p>
+
+  <section class="card" *ngIf="!loading">
+    <div class="bookmark-list" *ngIf="bookmarks.length > 0; else empty">
+      <article class="bookmark-row" *ngFor="let bookmark of bookmarks">
+        <div class="bookmark-time">{{ bookmark.timestampSeconds | duration }}</div>
+        <div class="bookmark-main">
+          <strong>{{ bookmark.label }}</strong>
+          <small>{{ bookmark.courseName }} · {{ bookmark.lectureTitle }} · {{ bookmark.createdAt | timeAgo }}</small>
+        </div>
+        <div class="bookmark-actions">
+          <a
+            class="btn btn--soft"
+            *ngIf="bookmark.courseId && bookmark.lectureId"
+            [routerLink]="['/student/courses', bookmark.courseId, 'lecture', bookmark.lectureId]"
+            [queryParams]="{ t: bookmark.timestampSeconds }">
+            Jump to lecture
+          </a>
+          <button class="btn btn--ghost" type="button" (click)="remove(bookmark)">Remove</button>
+        </div>
+      </article>
+    </div>
+
+    <ng-template #empty>
+      <p class="hint">No bookmarks yet. Save a moment while watching a lecture to see it here.</p>
+    </ng-template>
+  </section>
+</div>

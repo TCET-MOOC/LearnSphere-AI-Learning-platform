@@ -11,7 +11,11 @@ public class Enrollment {
     private Long enrollmentId;
 
     private Long userId;
-    private Long courseId;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
+
     private LocalDateTime enrolledAt;
     private String role; // e.g., "STUDENT", "INSTRUCTOR"
 
@@ -33,12 +37,12 @@ public class Enrollment {
         this.userId = userId;
     }
 
-    public Long getCourseId() {
-        return courseId;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     public LocalDateTime getEnrolledAt() {

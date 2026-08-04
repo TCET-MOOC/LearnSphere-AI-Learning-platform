@@ -1,0 +1,62 @@
+$brand: #534ab7;
+$text: #1a1830;
+$muted: #6b6880;
+$border: #e8e7ef;
+$bg: #f5f5f8;
+
+:host {
+  display: block;
+}
+
+.course-management {
+  min-height: 100%;
+  padding: 24px 32px;
+  background: $bg;
+  color: $text;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  h1 { margin: 4px 0; font-size: 22px; }
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 700;
+  color: $brand;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 14px;
+
+  h2 { margin: 0 0 14px; font-size: 15px; }
+}
+
+.hint {
+  color: $muted;
+  font-size: 12px;
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font: 600 12px Inter, Arial;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+}
+.btn--ghost { background: transparent; color: $muted; border: 1px solid $border; }

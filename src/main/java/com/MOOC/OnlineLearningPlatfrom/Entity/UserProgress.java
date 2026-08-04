@@ -11,7 +11,11 @@ public class UserProgress {
     private Long progressId;
 
     private Long userId;
-    private Long contentId; // Could be a video, article, quiz, etc.
+
+    @ManyToOne
+    @JoinColumn(name = "lecture_id")
+    private Lecture lecture;
+
     private LocalDateTime completedAt;
     private Integer progressPercent;
     private Integer secondsWatched;
@@ -34,12 +38,12 @@ public class UserProgress {
         this.userId = userId;
     }
 
-    public Long getContentId() {
-        return contentId;
+    public Lecture getLecture() {
+        return lecture;
     }
 
-    public void setContentId(Long contentId) {
-        this.contentId = contentId;
+    public void setLecture(Lecture lecture) {
+        this.lecture = lecture;
     }
 
     public LocalDateTime getCompletedAt() {

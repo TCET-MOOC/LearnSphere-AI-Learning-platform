@@ -15,7 +15,12 @@ import { MessagesComponent as StudentMessages } from './features/student/message
 import { MessagesComponent as AdminMessages } from './features/admin/messages/messages.component';
 import { CoursesComponent as StudentCourses } from './features/student/courses/courses.component';
 import { LectureComponent as StudentLectures } from './features/student/courses/lecture/lecture.component';
+import { CourseDetailComponent as StudentCourseDetail } from './features/student/courses/course-details/course-detail.component';
+import { NotesComponent as StudentNotes } from './features/student/notes/notes.component';
+import { BookmarksComponent as StudentBookmarks } from './features/student/bookmarks/bookmarks.component';
 import { CoursesComponent as TeacherCourses } from './features/teacher/courses/courses.component';
+import { CourseManagementComponent as TeacherCourseManagement } from './features/teacher/courses/course-management/course-management.component';
+import { UploadComponent as TeacherUpload } from './features/teacher/upload/upload.component';
 import { UsersComponent as AdminUsers } from './features/admin/users/users.component';
 import { LeaderboardComponent as StudentLeaderboard } from './features/student/leaderboard/leaderboard.component';
 import { DiscussionComponent as StudentDiscussion } from './features/student/discussion/discussion.component';
@@ -56,7 +61,11 @@ export const routes: Routes = [
   // Student portal
   { path: 'student/dashboard', component: StudentDashboard, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/courses', component: StudentCourses, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/courses/:id', component: StudentCourseDetail, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/courses/:courseId/lecture/:lectureId', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/lectures', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/notes', component: StudentNotes, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/bookmarks', component: StudentBookmarks, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/messages', component: StudentMessages, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/leaderboard', component: StudentLeaderboard, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/discussion', component: StudentDiscussion, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
@@ -69,6 +78,9 @@ export const routes: Routes = [
   // Teacher portal
   { path: 'teacher/dashboard', component: TeacherDashboard, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/courses', component: TeacherCourses, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/courses/new', component: TeacherCourseManagement, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/courses/:id/manage', component: TeacherCourseManagement, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/upload', component: TeacherUpload, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/messages', component: TeacherMessages, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/live', component: TeacherLive, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/trending', component: TeacherTrending, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },

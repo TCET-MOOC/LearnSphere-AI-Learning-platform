@@ -42,37 +42,53 @@ export class NoteEditorComponent implements OnInit {
    */
   currentTag: string = '';
 
-  // Default mock course/lecture metadata for new notes opened from "My Notes" main page
-  courseName: string = 'Engineering Mathematics III';
-  courseId: string = 'math-iii';
-  lectureId: string = 'lec-8';
-  lectureLabel: string = 'Lec 8';
-  timestampSeconds: number = 1334; // Default playback timestamp (e.g. ⏱ 22:14)
+  // Course/lecture metadata for the note being created/edited. Left undefined
+  // for freestanding notes created from the "My Notes" page without lecture context.
+  courseName: string = 'General';
+  courseId?: number;
+  lectureId?: number;
+  lectureLabel: string = '';
+  timestampSeconds: number = 0;
 
   constructor(
     private fb: FormBuilder,
     private studentService: StudentService,
     public dialogRef: MatDialogRef<NoteEditorComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { note?: Note }
+    @Inject(MAT_DIALOG_DATA) public data: {
+      note?: Note | null;
+      courseId?: number;
+      courseName?: string;
+      lectureId?: number;
+      lectureLabel?: string;
+      timestampSeconds?: number;
+    }
   ) {}
 
   ngOnInit(): void {
     this.isEditMode = !!this.data && !!this.data.note;
-    
+
     if (this.isEditMode && this.data.note) {
       const note = this.data.note;
-      this.courseName = note.courseName;
+      this.courseName = note.courseName ?? 'General';
       this.courseId = note.courseId;
       this.lectureId = note.lectureId;
-      this.lectureLabel = note.lectureLabel;
-      this.timestampSeconds = note.timestampSeconds;
+      this.lectureLabel = note.lectureLabel ?? '';
+      this.timestampSeconds = note.timestampSeconds ?? 0;
       this.tags = [...note.tags];
-      
+
       this.noteForm = this.fb.group({
         title: [note.title, [Validators.required, Validators.maxLength(100)]],
         content: [note.content, [Validators.required]]
       });
     } else {
+      // Creation mode — pick up any lecture context passed in (e.g. from the
+      // lecture player's notes drawer); falls back to a freestanding note.
+      this.courseName = this.data?.courseName ?? 'General';
+      this.courseId = this.data?.courseId;
+      this.lectureId = this.data?.lectureId;
+      this.lectureLabel = this.data?.lectureLabel ?? '';
+      this.timestampSeconds = this.data?.timestampSeconds ?? 0;
+
       this.noteForm = this.fb.group({
         title: ['', [Validators.required, Validators.maxLength(100)]],
         content: ['', [Validators.required]]

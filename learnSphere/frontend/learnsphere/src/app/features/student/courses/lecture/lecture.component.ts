@@ -1,58 +1,177 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface LectureCard {
-  title: string;
-  course: string;
-  duration: string;
-  progress: number;
-  status: 'Playing' | 'Completed' | 'New' | 'Saved';
-  tone: 'purple' | 'green' | 'amber' | 'blue';
-}
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { StudentService } from '../../services/student.service';
+import { BookmarkService } from '../../services/bookmark.service';
+import { Course, Lecture, LectureProgress } from '@core/models/course.model';
+import { VideoPlayerComponent, VideoTimeUpdate } from '@shared/components/video-player/video-player.component';
+import { LectureGridComponent } from './components/lecture-grid.component';
+import { NotesDrawerComponent } from './components/notes-drawer.component';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-student-lecture',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule, VideoPlayerComponent, LectureGridComponent, NotesDrawerComponent],
   templateUrl: './lecture.component.html',
   styleUrls: ['./lecture.component.scss']
 })
-export class LectureComponent {
-  tabs = ['All courses', 'Engineering Math III', 'DSA', 'Thermodynamics'];
-  activeTab = 'All courses';
+export class LectureComponent implements OnInit {
+  loading = true;
+  courseId: number | null = null;
+  course: Course | null = null;
+  lectures: Lecture[] = [];
 
-  lectures: LectureCard[] = [
-    { title: 'Laplace Transforms - Part 2', course: 'Engineering Mathematics III', duration: '24 min', progress: 35, status: 'Playing', tone: 'purple' },
-    { title: 'Fourier Series Basics', course: 'Engineering Mathematics III', duration: '31 min', progress: 0, status: 'New', tone: 'purple' },
-    { title: 'Graph Traversal: BFS', course: 'Data Structures & Algorithms', duration: '28 min', progress: 100, status: 'Completed', tone: 'amber' },
-    { title: 'Entropy and Availability', course: 'Thermodynamics', duration: '22 min', progress: 20, status: 'Saved', tone: 'green' },
-    { title: 'Process Synchronization', course: 'Operating Systems', duration: '34 min', progress: 100, status: 'Completed', tone: 'blue' },
-    { title: 'Routing Algorithms', course: 'Computer Networks', duration: '26 min', progress: 0, status: 'New', tone: 'blue' }
-  ];
+  currentLecture: Lecture | null = null;
+  currentProgress: LectureProgress | null = null;
+  loadingLecture = false;
 
-  playlist = [
-    { title: 'Lec 7 - Laplace Transform I', time: '21 min', done: true },
-    { title: 'Lec 8 - Laplace Transform II', time: '24 min', done: false },
-    { title: 'Lec 9 - Fourier Series', time: '31 min', done: false },
-    { title: 'Lec 10 - Z-Transforms', time: '29 min', done: false }
-  ];
+  completedIds = new Set<number>();
+  private autoCompletedForLecture: number | null = null;
+  playbackPosition = 0;
 
-  notes = [
-    'Review convolution theorem before the quiz.',
-    'Bookmark examples 3 and 4 for assignment practice.',
-    'Ask about inverse transform shortcut in discussion.'
-  ];
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private studentService: StudentService,
+    private bookmarkService: BookmarkService,
+    private notificationService: NotificationService
+  ) {}
 
-  setTab(tab: string): void {
-    this.activeTab = tab;
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const courseIdParam = params.get('courseId');
+      const lectureIdParam = params.get('lectureId');
+      if (courseIdParam && lectureIdParam) {
+        this.loadCourseContext(Number(courseIdParam), Number(lectureIdParam));
+      } else {
+        this.loadDefaultContext();
+      }
+    });
   }
 
-  getStatusClass(status: LectureCard['status']): string {
-    return {
-      Playing: 'pill--purple',
-      Completed: 'pill--green',
-      New: 'pill--blue',
-      Saved: 'pill--amber'
-    }[status];
+  private loadDefaultContext(): void {
+    this.loading = true;
+    this.studentService.getEnrolledCourses().subscribe({
+      next: (courses) => {
+        const candidate = courses.find(c => (c.lectureCount || 0) > 0) || courses[0];
+        if (!candidate) {
+          this.loading = false;
+          return;
+        }
+        this.studentService.getCourseLectures(candidate.id).subscribe({
+          next: (lectures) => {
+            if (lectures.length === 0) {
+              this.courseId = candidate.id;
+              this.course = candidate;
+              this.lectures = [];
+              this.loading = false;
+              return;
+            }
+            this.loadCourseContext(candidate.id, lectures[0].id);
+          },
+          error: () => (this.loading = false)
+        });
+      },
+      error: () => (this.loading = false)
+    });
+  }
+
+  private loadCourseContext(courseId: number, lectureId: number): void {
+    this.loading = true;
+    this.courseId = courseId;
+    this.studentService.getPublicCourse(courseId).subscribe({
+      next: (course) => (this.course = course),
+      error: () => (this.course = null)
+    });
+    this.studentService.getCourseLectures(courseId).subscribe({
+      next: (lectures) => {
+        this.lectures = lectures;
+        this.loading = false;
+      },
+      error: () => (this.loading = false)
+    });
+    this.selectLecture(lectureId);
+  }
+
+  selectLecture(lecture: Lecture | number): void {
+    const lectureId = typeof lecture === 'number' ? lecture : lecture.id;
+    if (!this.courseId) return;
+
+    // Navigate so the URL reflects the lecture being watched (deep-linkable, matches notes navigation).
+    if (this.currentLecture?.id !== lectureId) {
+      this.router.navigate(['/student/courses', this.courseId, 'lecture', lectureId], { replaceUrl: true });
+    }
+
+    this.autoCompletedForLecture = null;
+    this.playbackPosition = 0;
+    this.loadingLecture = true;
+    this.studentService.getLecture(this.courseId, lectureId).subscribe({
+      next: (fullLecture) => {
+        this.currentLecture = fullLecture;
+        this.loadingLecture = false;
+      },
+      error: () => {
+        this.loadingLecture = false;
+      }
+    });
+    this.studentService.getWatchProgress(lectureId).subscribe({
+      next: (progress) => {
+        this.currentProgress = progress;
+        if ((progress.progressPercent || 0) >= 100) {
+          this.completedIds.add(lectureId);
+        }
+      },
+      error: () => (this.currentProgress = null)
+    });
+  }
+
+  onLectureGridSelect(lecture: Lecture): void {
+    this.selectLecture(lecture);
+  }
+
+  onTimeUpdate(event: VideoTimeUpdate): void {
+    this.playbackPosition = event.currentTime;
+    if (
+      this.currentLecture &&
+      this.autoCompletedForLecture !== this.currentLecture.id &&
+      event.duration > 0 &&
+      event.currentTime / event.duration >= 0.95
+    ) {
+      this.autoCompletedForLecture = this.currentLecture.id;
+      this.markComplete();
+    }
+  }
+
+  markComplete(): void {
+    if (!this.currentLecture) return;
+    const lectureId = this.currentLecture.id;
+    this.studentService.markLectureComplete(lectureId).subscribe({
+      next: (progress) => {
+        this.currentProgress = progress;
+        this.completedIds.add(lectureId);
+        this.notificationService.success('Lecture marked as complete.');
+      },
+      error: () => this.notificationService.error('Could not update progress.')
+    });
+  }
+
+  get watchedPercent(): number {
+    return this.currentProgress?.progressPercent || 0;
+  }
+
+  addBookmark(): void {
+    if (!this.currentLecture) return;
+    const defaultLabel = `Bookmark at ${Math.floor(this.playbackPosition / 60)}:${Math.floor(this.playbackPosition % 60).toString().padStart(2, '0')}`;
+    const label = window.prompt('Label this bookmark:', defaultLabel);
+    if (label === null) return;
+    this.bookmarkService.createBookmark({
+      lectureId: this.currentLecture.id,
+      timestampSeconds: Math.floor(this.playbackPosition),
+      label: label || defaultLabel
+    }).subscribe({
+      next: () => this.notificationService.success('Bookmark saved.'),
+      error: () => this.notificationService.error('Could not save bookmark.')
+    });
   }
 }
