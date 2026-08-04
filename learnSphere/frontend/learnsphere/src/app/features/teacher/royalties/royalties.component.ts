@@ -1,6 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RoyaltyService, RoyaltyBreakdownRow, RoyaltySourceSplit, PayoutRow } from '../services/royalty.service';
+import { NotificationService } from '@core/services/notification.service';
 
+interface EarningsRow {
+  title: string;
+  enrolled: number;
+  externalPaid: number;
+  amount: string;
+  status: string;
+  isDraft: boolean;
+}
+
+interface PayoutHistoryRow {
+  month: string;
+  date: string;
+  amount: string;
+  status: string;
+  statusClass: string;
+}
+
+interface BreakdownRow {
+  label: string;
+  percentage: number;
+  color: string;
+}
+
+const SOURCE_COLORS: Record<string, string> = {
+  EXTERNAL_SALES: '#534AB7',
+  COLLEGE_SHARE: '#0f9d58',
+  REMEDIAL_CERTS: '#b97700'
+};
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Real earnings/payouts data pulled from RoyaltyService — replaces the previous static
+ * earningsByCourse/payoutHistory/royaltyBreakdown demo arrays.
+ */
 @Component({
   selector: 'app-royalties',
   standalone: true,
@@ -9,62 +46,100 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./royalties.component.scss']
 })
 export class RoyaltiesComponent implements OnInit {
+  loading = true;
 
-  // Mock data matching the UI design
-  earningsByCourse = [
-    {
-      title: 'Engineering Mathematics III',
-      enrolled: 312,
-      externalPaid: 28,
-      amount: '₹11,200',
-      status: 'this month'
-    },
-    {
-      title: 'Discrete Mathematics',
-      enrolled: 174,
-      externalPaid: 20,
-      amount: '₹7,200',
-      status: 'this month'
-    },
-    {
-      title: 'Statistics for Engineers',
-      status: 'Draft — not yet live',
-      amount: '—',
-      isDraft: true
+  thisMonthTotal = '₹0';
+  totalEarned = '₹0';
+  pendingPayoutAmount = '₹0';
+  externalEnrollments = 0;
+
+  earningsByCourse: EarningsRow[] = [];
+  payoutHistory: PayoutHistoryRow[] = [];
+  royaltyBreakdown: BreakdownRow[] = [];
+
+  constructor(
+    private royaltyService: RoyaltyService,
+    private notificationService: NotificationService
+  ) {}
+
+  ngOnInit(): void {
+    this.royaltyService.getRoyalties().subscribe({
+      next: (res) => {
+        this.thisMonthTotal = this.formatCurrency(res.summary.thisMonthTotal);
+        this.totalEarned = this.formatCurrency(res.summary.totalEarned);
+        this.pendingPayoutAmount = this.formatCurrency(res.summary.pendingPayout);
+        this.externalEnrollments = res.summary.externalEnrollments;
+
+        this.earningsByCourse = res.byCourse.map((c: RoyaltyBreakdownRow) => ({
+          title: c.courseTitle,
+          enrolled: c.enrolledCount,
+          externalPaid: c.externalPaidCount,
+          amount: c.isDraft ? '—' : this.formatCurrency(c.amount),
+          status: c.status,
+          isDraft: c.isDraft
+        }));
+
+        this.royaltyBreakdown = res.sourceBreakdown.map((s: RoyaltySourceSplit) => ({
+          label: s.label,
+          percentage: s.percentage,
+          color: SOURCE_COLORS[s.source] ?? '#888'
+        }));
+
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.notificationService.error('Failed to load royalty earnings.');
+      }
+    });
+
+    this.royaltyService.getPayouts().subscribe({
+      next: (payouts) => {
+        this.payoutHistory = payouts.map((p: PayoutRow) => this.toPayoutRow(p));
+      },
+      error: () => {
+        this.notificationService.error('Failed to load payout history.');
+      }
+    });
+  }
+
+  private toPayoutRow(p: PayoutRow): PayoutHistoryRow {
+    const label = this.formatPeriod(p.period);
+    const isPaid = p.status === 'PAID';
+    return {
+      month: `${label} payout`,
+      date: isPaid && p.transferredAt
+        ? `Transferred ${this.formatDate(p.transferredAt)}`
+        : `Scheduled ${this.formatDate(p.createdAt)}`,
+      amount: this.formatCurrency(p.amount),
+      status: isPaid ? 'paid' : 'pending',
+      statusClass: isPaid ? 'status-green' : 'status-amber'
+    };
+  }
+
+  private formatPeriod(period: string): string {
+    const [year, month] = period.split('-').map(Number);
+    if (!year || !month) {
+      return period;
     }
-  ];
+    return `${MONTH_NAMES[month - 1]} ${year}`;
+  }
 
-  payoutHistory = [
-    {
-      month: 'May 2026 payout',
-      date: 'Transferred 30 May',
-      amount: '₹15,100',
-      status: 'paid',
-      statusClass: 'status-green'
-    },
-    {
-      month: 'Apr 2026 payout',
-      date: 'Transferred 30 Apr',
-      amount: '₹12,800',
-      status: 'paid',
-      statusClass: 'status-green'
-    },
-    {
-      month: 'Jun 2026 payout',
-      date: 'Scheduled 30 Jun',
-      amount: '₹18,400',
-      status: 'pending',
-      statusClass: 'status-amber'
+  private formatDate(iso: string): string {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) {
+      return iso;
     }
-  ];
+    return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
+  }
 
-  royaltyBreakdown = [
-    { label: 'External sales', percentage: 72, color: '#534AB7' }, 
-    { label: 'College share', percentage: 20, color: '#0f9d58' },  
-    { label: 'Remedial certs', percentage: 8, color: '#b97700' }   
-  ];
-
-  constructor() { }
-
-  ngOnInit(): void { }
+  private formatCurrency(amount: number): string {
+    if (amount == null) {
+      return '₹0';
+    }
+    if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(1)}L`;
+    }
+    return `₹${Math.round(amount).toLocaleString('en-IN')}`;
+  }
 }

@@ -40,51 +40,40 @@
 
     <div class="col">
       <div class="card">
-        <div class="card-hd">Revenue by type</div>
-        <div class="rev-row"><div class="dot" style="background:#534AB7"></div><div class="rev-lbl">External</div><div class="rev-val">68%</div></div>
-        <div class="rev-row"><div class="dot" style="background:#1D9E75"></div><div class="rev-lbl">College sub.</div><div class="rev-val">24%</div></div>
-        <div class="rev-row"><div class="dot" style="background:#D08C1A"></div><div class="rev-lbl">Remedial</div><div class="rev-val">8%</div></div>
-        
+        <div class="card-hd">Revenue split</div>
+        <div class="rev-row"><div class="dot" style="background:#534AB7"></div><div class="rev-lbl">Teacher royalties</div><div class="rev-val">{{ kpiCards.length ? kpiCards[0].sub : '' }}</div></div>
+
         <div class="divider"></div>
         <div class="payout-lbl">Pending payouts</div>
-        <div class="payout-val">₹32,400 <span class="payout-sub">to 12 teachers</span></div>
+        <div class="payout-val">₹{{ pendingPayoutTotal | number }} <span class="payout-sub">to {{ pendingPayouts.length }} teachers</span></div>
       </div>
 
       <div class="card">
         <div class="card-hd">Quick actions</div>
         <div class="action-grid">
-          <button class="action-btn prim">Review courses</button>
-          <button class="action-btn">Manage users</button>
-          <button class="action-btn">Process payouts</button>
-          <button class="action-btn danger">Review flags (14)</button>
+          <button class="action-btn prim" (click)="goToCourses()">Review courses</button>
+          <button class="action-btn" (click)="goToUsers()">Manage users</button>
+          <button class="action-btn" (click)="goToPayouts()">Process payouts</button>
+          <button class="action-btn danger" (click)="goToFlags()">Review flags ({{ openFlags }})</button>
         </div>
       </div>
     </div>
 
     <div class="col">
-      <div class="card">
-        <div class="card-hd">Course approvals <span class="card-link">Review all</span></div>
+      <div class="card" id="course-approvals">
+        <div class="card-hd">Course approvals <span class="card-link" (click)="goToFlags()">Review all</span></div>
         <div class="list-row" *ngFor="let app of courseApprovals">
           <div class="ava" style="background:#F5F5F8">{{ app.icon }}</div>
           <div class="info">
             <div class="title">{{ app.title }}</div>
-            <div class="meta">{{ app.meta }}</div>
+            <div class="meta">by {{ app.teacherName }}</div>
           </div>
           <div class="btn-group">
-            <button class="btn-icon check">✓</button>
-            <button class="btn-icon cross">✕</button>
+            <button class="btn-icon check" (click)="approveCourse(app)">✓</button>
+            <button class="btn-icon cross" (click)="rejectCourse(app)">✕</button>
           </div>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-hd">Platform health snapshot</div>
-        <div class="health-grid">
-          <div class="h-box" style="background:#EAF3DE; color:#27500A">72%<span class="h-sub" style="color:#3B6D11">Pos. sentiment</span></div>
-          <div class="h-box" style="background:#EEEDFE; color:#3C3489">94%<span class="h-sub" style="color:#534AB7">Approval rate</span></div>
-          <div class="h-box" style="background:#E1F5EE; color:#085041">78%<span class="h-sub" style="color:#0F6E56">Avg. completion</span></div>
-          <div class="h-box" style="background:#FCEBEB; color:#791F1F">14<span class="h-sub" style="color:#A32D2D">Open flags</span></div>
-        </div>
+        <p class="hint" *ngIf="!loading && courseApprovals.length === 0">No courses awaiting review.</p>
       </div>
     </div>
 

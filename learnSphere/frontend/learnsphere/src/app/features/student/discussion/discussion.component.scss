@@ -354,12 +354,85 @@ $radius-lg: 14px;
     border-radius: 30px;
     padding: 10px 20px;
     font-size: 14px;
-    color: $text-secondary;
+    color: $text-primary;
+    font-family: inherit;
     cursor: text;
     transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      background: $surface;
+      border-color: $brand-purple;
+    }
 
     &:hover {
       background: $border;
     }
   }
+
+  .new-post-btn {
+    background: $brand-purple;
+    color: #fff;
+    border: none;
+    border-radius: $radius-md;
+    padding: 0 18px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    gap: 6px;
+    white-space: nowrap;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ── Reply input row ─────────────────────────────────────
+.reply-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+
+  input {
+    flex: 1;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: $brand-purple;
+    }
+  }
+
+  button {
+    background: $brand-purple;
+    color: #fff;
+    border: none;
+    border-radius: $radius-sm;
+    padding: 0 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  color: $text-secondary;
+  font-size: 13px;
+  padding: 24px;
 }

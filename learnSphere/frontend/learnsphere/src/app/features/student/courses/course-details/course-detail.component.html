@@ -1,0 +1,50 @@
+<div class="course-detail">
+  <p class="hint" *ngIf="loading">Loading course…</p>
+
+  <ng-container *ngIf="!loading && course as c">
+    <header class="detail-head">
+      <div>
+        <p class="eyebrow">{{ c.department }}</p>
+        <h1>{{ c.title }}</h1>
+        <p class="teacher">By {{ c.teacherName || 'Instructor' }}</p>
+      </div>
+      <div class="detail-actions">
+        <span class="pill" [ngClass]="'pill--' + (c.status || '').toLowerCase()">{{ c.status }}</span>
+        <button
+          *ngIf="!isEnrolled"
+          class="btn btn--primary"
+          type="button"
+          [disabled]="enrolling"
+          (click)="enroll()">
+          {{ enrolling ? 'Enrolling…' : (isFree ? 'Enroll free' : 'Requires payment') }}
+        </button>
+        <span class="pill pill--green" *ngIf="isEnrolled">Enrolled</span>
+      </div>
+    </header>
+
+    <p class="description">{{ c.description }}</p>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Lectures</h2>
+        <span class="pill pill--grey">{{ lectures.length }}</span>
+      </div>
+
+      <p class="hint" *ngIf="!isEnrolled">Enroll in this course to unlock lecture playback.</p>
+
+      <div class="lecture-list">
+        <button
+          type="button"
+          class="lecture-row"
+          *ngFor="let lecture of lectures"
+          [disabled]="!isEnrolled"
+          (click)="goToLecture(lecture)">
+          <span class="lecture-number">{{ lecture.number }}</span>
+          <span class="lecture-title">{{ lecture.title }}</span>
+          <span class="lecture-status pill" [ngClass]="'pill--' + (lecture.status || '').toLowerCase()">{{ lecture.status }}</span>
+        </button>
+        <p class="hint" *ngIf="lectures.length === 0">No lectures published yet.</p>
+      </div>
+    </section>
+  </ng-container>
+</div>

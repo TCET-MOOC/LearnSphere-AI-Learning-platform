@@ -4,6 +4,9 @@ $border: #E8E7EF;
 
 :host { display: block; width: 100%; }
 
+.hint { color: $text-secondary; font-size: 13px; }
+.card-link { cursor: pointer; }
+
 .dashboard-container {
   padding: 24px 32px; font-family: 'Inter', sans-serif;
   display: flex; flex-direction: column; gap: 20px;

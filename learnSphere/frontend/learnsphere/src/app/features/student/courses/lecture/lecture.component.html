@@ -4,89 +4,67 @@
       <p class="eyebrow">Student view</p>
       <h1>Video Lectures</h1>
     </div>
-    <button class="btn btn--primary" type="button">Continue watching</button>
   </header>
 
-  <nav class="tabs" aria-label="Lecture filters">
-    <button
-      class="tab"
-      *ngFor="let tab of tabs"
-      [class.tab--active]="tab === activeTab"
-      (click)="setTab(tab)"
-      type="button">
-      {{ tab }}
-    </button>
-  </nav>
+  <p class="hint" *ngIf="loading">Loading…</p>
 
-  <section class="player-card">
-    <div class="player-head">
-      <div>
-        <h2>Now playing - Engineering Mathematics III</h2>
-        <p>Lecture 8 · Laplace Transforms - Part 2</p>
-      </div>
-      <span class="pill pill--purple">35% watched</span>
-    </div>
-
-    <div class="video-shell" aria-label="Video player preview">
-      <button class="play-button" type="button" aria-label="Play lecture">Play</button>
-      <div class="video-meta">
-        <span>08:24</span>
-        <div class="video-track"><span style="width: 35%"></span></div>
-        <span>24:00</span>
-      </div>
-    </div>
-  </section>
-
-  <div class="lecture-layout">
-    <section class="card">
-      <div class="card-head">
-        <h2>Lecture library</h2>
-        <button class="link-btn" type="button">Recently added</button>
+  <ng-container *ngIf="!loading">
+    <section class="player-card" *ngIf="currentLecture; else noLecture">
+      <div class="player-head">
+        <div>
+          <h2>Now playing — {{ course?.title || 'Course' }}</h2>
+          <p>Lec {{ currentLecture.number }} · {{ currentLecture.title }}</p>
+        </div>
+        <div class="player-head__actions">
+          <span class="pill pill--purple">{{ watchedPercent }}% watched</span>
+          <button class="btn btn--soft" type="button" (click)="addBookmark()">Bookmark moment</button>
+          <button class="btn btn--soft" type="button" (click)="markComplete()">Mark complete</button>
+        </div>
       </div>
 
-      <div class="lecture-grid">
-        <article class="lecture-card" *ngFor="let lecture of filteredLectures" (click)="playLecture(lecture)" style="cursor: pointer;">
-          <div class="lecture-thumb" [class]="'lecture-thumb lecture-thumb--' + lecture.tone">
-            <span>{{ lecture.duration }}</span>
-          </div>
-          <div class="lecture-info">
-            <div class="lecture-title-row">
-              <h3>{{ lecture.title }}</h3>
-              <span class="pill" [ngClass]="getStatusClass(lecture.status)">{{ lecture.status }}</span>
-            </div>
-            <p>{{ lecture.course }}</p>
-            <div class="progress-track" aria-hidden="true">
-              <span [style.width.%]="lecture.progress"></span>
-            </div>
-          </div>
-        </article>
-      </div>
+      <app-video-player
+        [src]="currentLecture.videoUrl"
+        (timeUpdate)="onTimeUpdate($event)">
+      </app-video-player>
     </section>
 
-    <aside class="side-stack">
+    <ng-template #noLecture>
+      <section class="card">
+        <p class="hint">No lecture selected yet. Enroll in a course to start watching.</p>
+      </section>
+    </ng-template>
+
+    <div class="lecture-layout">
       <section class="card">
         <div class="card-head">
-          <h2>Playlist</h2>
-          <span class="pill pill--grey">4 lectures</span>
+          <h2>Lecture library</h2>
+          <span class="pill pill--grey">{{ lectures.length }} lectures</span>
         </div>
-        <div class="playlist-row" *ngFor="let item of playlist" [class.playlist-row--done]="item.done">
-          <span class="playlist-dot"></span>
-          <div>
-            <strong>{{ item.title }}</strong>
-            <small>{{ item.time }}</small>
-          </div>
-        </div>
+
+        <app-lecture-grid
+          [lectures]="lectures"
+          [currentLectureId]="currentLecture?.id ?? null"
+          [completedIds]="completedIds"
+          (select)="onLectureGridSelect($event)">
+        </app-lecture-grid>
       </section>
 
-      <section class="card">
-        <div class="card-head">
-          <h2>Lecture notes</h2>
-          <button class="link-btn" type="button">Open notes</button>
-        </div>
-        <ul class="note-list">
-          <li *ngFor="let note of notes">{{ note }}</li>
-        </ul>
-      </section>
-    </aside>
-  </div>
+      <aside class="side-stack">
+        <app-notes-drawer
+          [courseId]="courseId ?? undefined"
+          [courseName]="course?.title || ''"
+          [lectureId]="currentLecture?.id"
+          [lectureLabel]="currentLecture ? ('Lec ' + currentLecture.number + ': ' + currentLecture.title) : ''"
+          [timestampSeconds]="playbackPosition">
+        </app-notes-drawer>
+
+        <app-lecture-discussion
+          *ngIf="courseId && currentLecture"
+          [courseId]="courseId"
+          [lectureId]="currentLecture.id"
+          [lectureLabel]="'Lec ' + currentLecture.number + ': ' + currentLecture.title">
+        </app-lecture-discussion>
+      </aside>
+    </div>
+  </ng-container>
 </div>

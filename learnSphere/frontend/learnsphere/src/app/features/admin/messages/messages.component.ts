@@ -1,6 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MessagingService } from '../services/messaging.service';
+import { AuthService } from '@core/auth/auth.service';
+import { NotificationService } from '@core/services/notification.service';
+import { ConversationDto, MessageDto } from '@core/models/social.model';
+import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
+import { formatClockTime, timeAgo } from '@core/utils/time.util';
 
 // Admin messages page — mirrors teacher/student messages component structure.
 // Admin can message both teachers and students (platform-level oversight).
@@ -15,7 +21,7 @@ interface Message {
 }
 
 interface Conversation {
-  id: string;
+  id: number;
   personName: string;
   role: 'teacher' | 'student';
   initials: string;
@@ -35,85 +41,67 @@ interface Conversation {
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss']
 })
-export class MessagesComponent {
+export class MessagesComponent implements OnInit {
   searchText = '';
   activeFilter: 'all' | 'unread' = 'all';
   newMessage = '';
 
-  // Mock conversations — admin can message both teachers and students.
-  // In production these come from MessagingService.getConversations().
-  conversations: Conversation[] = [
-    {
-      id: '1',
-      personName: 'Prof. Rakesh Sharma',
-      role: 'teacher',
-      initials: 'RS',
-      bg: '#EEEDFE',
-      color: '#534AB7',
-      context: 'Course approval query',
-      lastMessage: 'When will the Statistics course be approved?',
-      lastTime: '15m ago',
-      unread: 2,
-      messages: [
-        { id: 'm1', sender: 'other', text: 'Hi, I submitted my Statistics course for review 3 days ago. Any update?', time: '2:30 PM' },
-        { id: 'm2', sender: 'admin', text: 'Hi Prof. Sharma, we\'re reviewing it now. Should be approved by end of day.', time: '2:35 PM' },
-        { id: 'm3', sender: 'other', text: 'When will the Statistics course be approved?', time: '2:40 PM' }
-      ]
-    },
-    {
-      id: '2',
-      personName: 'Priya Kulkarni',
-      role: 'student',
-      initials: 'PK',
-      bg: '#EAF3DE',
-      color: '#27500A',
-      context: 'Payment issue',
-      lastMessage: 'The payment didn\'t go through for the ML course.',
-      lastTime: '1h ago',
-      unread: 1,
-      messages: [
-        { id: 'm1', sender: 'other', text: 'Hello, I tried purchasing the ML course but the payment failed.', time: '11:00 AM' },
-        { id: 'm2', sender: 'admin', text: 'I\'m sorry to hear that. Can you share the transaction ID?', time: '11:05 AM' },
-        { id: 'm3', sender: 'other', text: 'The payment didn\'t go through for the ML course.', time: '11:10 AM' }
-      ]
-    },
-    {
-      id: '3',
-      personName: 'Dr. Priya Nair',
-      role: 'teacher',
-      initials: 'PN',
-      bg: '#FAEEDA',
-      color: '#633806',
-      context: 'Royalty payout',
-      lastMessage: 'Thank you for processing the payout.',
-      lastTime: '2d ago',
-      unread: 0,
-      messages: [
-        { id: 'm1', sender: 'other', text: 'Hi, my royalty for May hasn\'t been credited yet.', time: '2 days ago' },
-        { id: 'm2', sender: 'admin', text: 'We\'ve processed it now. You should see it in your account within 24 hours.', time: '2 days ago' },
-        { id: 'm3', sender: 'other', text: 'Thank you for processing the payout.', time: '2 days ago' }
-      ]
-    },
-    {
-      id: '4',
-      personName: 'Arjun Mishra',
-      role: 'student',
-      initials: 'AM',
-      bg: '#FCEBEB',
-      color: '#791F1F',
-      context: 'Certificate issue',
-      lastMessage: 'Got it, I\'ll check the portal.',
-      lastTime: '3d ago',
-      unread: 0,
-      messages: [
-        { id: 'm1', sender: 'other', text: 'My certificate for DSA course isn\'t showing up.', time: '3 days ago' },
-        { id: 'm2', sender: 'admin', text: 'It was issued yesterday. Please refresh the Certificates page — it should appear now.', time: '3 days ago' },
-        { id: 'm3', sender: 'other', text: 'Got it, I\'ll check the portal.', time: '3 days ago' }
-      ]
-    }
-  ];
+  conversations: Conversation[] = [];
+  selectedConversation: Conversation | null = null;
+  loading = false;
 
-  selectedConversation: Conversation = this.conversations[0];
+  constructor(
+    private messagingService: MessagingService,
+    private authService: AuthService,
+    private notify: NotificationService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadConversations();
+  }
+
+  private loadConversations(): void {
+    this.loading = true;
+    this.messagingService.getConversations().subscribe({
+      next: (dtos) => {
+        this.conversations = dtos.map((dto) => this.toConversation(dto));
+        this.loading = false;
+        if (this.conversations.length > 0) {
+          this.selectConversation(this.conversations[0]);
+        }
+      },
+      error: () => {
+        this.loading = false;
+        this.notify.error('Could not load conversations.');
+      }
+    });
+  }
+
+  private toConversation(dto: ConversationDto): Conversation {
+    return {
+      id: dto.id,
+      personName: dto.otherUserName,
+      role: dto.otherUserRole === 'teacher' ? 'teacher' : 'student',
+      initials: getInitials(dto.otherUserName),
+      bg: getAvatarBg(dto.otherUserName),
+      color: getAvatarColor(dto.otherUserName),
+      context: dto.courseName || 'Direct message',
+      lastMessage: dto.lastMessage || '',
+      lastTime: dto.lastMessageAt ? timeAgo(dto.lastMessageAt) : '',
+      unread: dto.unreadCount,
+      messages: []
+    };
+  }
+
+  private toMessage(dto: MessageDto): Message {
+    const currentUserId = this.authService.currentUser?.id;
+    return {
+      id: String(dto.id),
+      sender: dto.senderId === currentUserId ? 'admin' : 'other',
+      text: dto.text,
+      time: formatClockTime(dto.sentAt)
+    };
+  }
 
   get filteredConversations(): Conversation[] {
     let list = this.conversations;
@@ -138,21 +126,28 @@ export class MessagesComponent {
   selectConversation(conv: Conversation): void {
     this.selectedConversation = conv;
     conv.unread = 0;
+    this.messagingService.getMessages(conv.id).subscribe({
+      next: (dtos) => {
+        conv.messages = dtos.map((dto) => this.toMessage(dto));
+      },
+      error: () => this.notify.error('Could not load messages.')
+    });
   }
 
   sendMessage(): void {
     const text = this.newMessage.trim();
-    if (!text) return;
+    if (!text || !this.selectedConversation) return;
+    const conv = this.selectedConversation;
 
-    this.selectedConversation.messages.push({
-      id: 'm' + Date.now(),
-      sender: 'admin',
-      text,
-      time: 'Just now'
+    this.messagingService.sendMessage(conv.id, text).subscribe({
+      next: (dto) => {
+        conv.messages.push(this.toMessage(dto));
+        conv.lastMessage = text;
+        conv.lastTime = 'Just now';
+        this.newMessage = '';
+      },
+      error: () => this.notify.error('Could not send message.')
     });
-    this.selectedConversation.lastMessage = text;
-    this.selectedConversation.lastTime = 'Just now';
-    this.newMessage = '';
   }
 
   setFilter(filter: 'all' | 'unread'): void {

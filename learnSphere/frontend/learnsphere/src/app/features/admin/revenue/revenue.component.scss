@@ -1,0 +1,112 @@
+.page-container {
+  padding: 24px;
+  font-family: 'Inter', sans-serif;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1A1830;
+  margin: 0 0 20px;
+}
+
+.hint {
+  color: #6B6880;
+  font-size: 14px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-box {
+  background: #fff;
+  border: 1px solid #E8E7EF;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #6B6880;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1A1830;
+}
+
+.stat-subtext {
+  font-size: 12px;
+  color: #9C99AC;
+}
+
+.section-card {
+  background: #fff;
+  border: 1px solid #E8E7EF;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1A1830;
+  margin: 0 0 16px;
+}
+
+.month-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 100px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.month-label, .month-amount {
+  font-size: 13px;
+  color: #1A1830;
+}
+
+.bar-track {
+  height: 10px;
+  background: #F0EFF7;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #534AB7;
+  border-radius: 6px;
+}
+
+.course-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #F0EFF7;
+  font-size: 13px;
+  color: #1A1830;
+}
+
+.course-row--head {
+  font-weight: 600;
+  color: #6B6880;
+  border-bottom: 2px solid #E8E7EF;
+}

@@ -4,62 +4,43 @@
   <div class="srow3">
     <div class="sc">
       <div class="sc-lbl">Your best rank</div>
-      <div class="sc-val">#2</div>
-      <div class="sc-sub" style="color:#534AB7">Engg. Math III</div>
+      <div class="sc-val">{{ myBestRank ? '#' + myBestRank.rank : '—' }}</div>
+      <div class="sc-sub" style="color:#534AB7">{{ myBestRank ? myBestRank.title : 'Not in top list yet' }}</div>
     </div>
     <div class="sc">
-      <div class="sc-lbl">Platform courses</div>
-      <div class="sc-val">62</div>
-      <div class="sc-sub" style="color:var(--color-text-secondary)">Active this month</div>
+      <div class="sc-lbl">Trending courses shown</div>
+      <div class="sc-val">{{ trendingCourses.length }}</div>
+      <div class="sc-sub" style="color:var(--color-text-secondary)">Ranked by enrollments</div>
     </div>
     <div class="sc">
-      <div class="sc-lbl">Your avg. vs platform</div>
-      <div class="sc-val">+0.4★</div>
-      <div class="sc-sub" style="color:#1D9E75">Above average</div>
+      <div class="sc-lbl">Top course enrollments</div>
+      <div class="sc-val">{{ trendingCourses[0]?.enrolledCount ?? 0 }}</div>
+      <div class="sc-sub" style="color:#1D9E75">#1 on the platform</div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-hd">Platform-wide trending courses</div>
-    
-    <div class="row">
-      <span style="width:24px;font-size:14px;font-weight:600;color:#BA7517;text-align:center">1</span>
-      <div class="thumb" style="background:#FAEEDA">💻</div>
+
+    <div class="row" *ngFor="let c of trendingCourses"
+         [ngClass]="{ 'own-course-row': isMine(c) }">
+      <span style="width:24px;font-size:14px;font-weight:600;color:var(--color-text-secondary);text-align:center">{{ c.rank }}</span>
+      <div class="thumb" *ngIf="!c.thumbnail">📚</div>
+      <img *ngIf="c.thumbnail" [src]="c.thumbnail" alt="" class="thumb" style="object-fit:cover" />
       <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px">Data Structures — Prof. Mehta</div>
-        <div style="font-size:12px;color:var(--color-text-secondary)">410 students · ★4.8 · 94% positive</div>
+        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px">
+          {{ c.title }}{{ isMine(c) ? ' — You' : (c.teacherName ? ' — ' + c.teacherName : '') }}
+        </div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">{{ c.enrolledCount }} students</div>
       </div>
-      <span class="pill p-te">🔥 Hot</span>
+      <span class="pill p-pu" *ngIf="isMine(c)">Your course</span>
+      <span class="pill p-te" *ngIf="!isMine(c) && c.rank === 1">🔥 Hot</span>
+      <span class="pill p-gy" *ngIf="!isMine(c) && c.rank !== 1">#{{ c.rank }}</span>
     </div>
-    
-    <div class="row" style="background:#EEEDFE;border:1px solid #AFA9EC;box-shadow:0 2px 8px rgba(83,74,183,0.1)">
-      <span style="width:24px;font-size:14px;font-weight:600;color:#534AB7;text-align:center">2</span>
-      <div class="thumb" style="background:#FFFFFF;box-shadow:0 2px 4px rgba(0,0,0,0.05)">📐</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:600;color:#3C3489;margin-bottom:2px">Engg. Math III — You</div>
-        <div style="font-size:12px;color:#534AB7">312 students · ★4.9 · 97% positive</div>
-      </div>
-      <span class="pill p-pu">Your course</span>
-    </div>
-    
-    <div class="row">
-      <span style="width:24px;font-size:14px;font-weight:600;color:var(--color-text-secondary);text-align:center">3</span>
-      <div class="thumb" style="background:#E1F5EE">⚙️</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px">Thermodynamics — Prof. Patil</div>
-        <div style="font-size:12px;color:var(--color-text-secondary)">298 students · ★4.7</div>
-      </div>
-      <span class="pill p-gy">#3</span>
-    </div>
-    
-    <div class="row">
-      <span style="width:24px;font-size:14px;font-weight:600;color:var(--color-text-secondary);text-align:center">4</span>
-      <div class="thumb" style="background:#FBEAF0">🌐</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px">Web Technologies — Prof. Joshi</div>
-        <div style="font-size:12px;color:var(--color-text-secondary)">241 students · ★4.6</div>
-      </div>
-      <span class="pill p-gy">#4</span>
+
+    <div *ngIf="loading" style="padding:12px;color:var(--color-text-secondary);font-size:13px">Loading trending courses…</div>
+    <div *ngIf="!loading && trendingCourses.length === 0" style="padding:12px;color:var(--color-text-secondary);font-size:13px">
+      No live courses with enrollments yet.
     </div>
   </div>
 
