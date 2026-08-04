@@ -11,11 +11,16 @@ public class Test {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long testId;
-    private Long courseId;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
+
     private String title;
     private Integer durationMinutes;
     private String securityPolicy;
     private LocalDateTime scheduledAt;
+    private Boolean isRemedial = false;
 
     // --- NEW RELATIONSHIPS ---
 
@@ -40,12 +45,24 @@ public class Test {
         this.testId = testId;
     }
 
-    public Long getCourseId() {
-        return courseId;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public Long getCourseId() {
+        return course != null ? course.getId() : null;
+    }
+
+    public Boolean getIsRemedial() {
+        return isRemedial;
+    }
+
+    public void setIsRemedial(Boolean isRemedial) {
+        this.isRemedial = isRemedial;
     }
 
     public String getTitle() {

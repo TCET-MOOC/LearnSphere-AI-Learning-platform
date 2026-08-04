@@ -5,16 +5,18 @@ import { TeacherService } from '../../services/teacher.service';
 import { Course } from '@core/models/course.model';
 import { CourseEditorComponent } from './components/course-editor.component';
 import { LectureListComponent } from './components/lecture-list.component';
+import { QuizBuilderComponent } from '../../upload/components/quiz-builder.component';
 import { NotificationService } from '@core/services/notification.service';
 
 /**
  * CourseManagementComponent is the single-course authoring page: create a
- * new course, or edit an existing one's metadata and manage its lectures.
+ * new course, or edit an existing one's metadata, manage its lectures, and
+ * build tests/quizzes against it.
  */
 @Component({
   selector: 'app-course-management',
   standalone: true,
-  imports: [CommonModule, RouterModule, CourseEditorComponent, LectureListComponent],
+  imports: [CommonModule, RouterModule, CourseEditorComponent, LectureListComponent, QuizBuilderComponent],
   templateUrl: './course-management.component.html',
   styleUrls: ['./course-management.component.scss']
 })

@@ -3,6 +3,8 @@ package com.MOOC.OnlineLearningPlatfrom.Entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "questions")
 public class Question {
@@ -16,6 +18,15 @@ public class Question {
     private String body;
     private String questionType;
     private Integer marks;
+
+    // Options for MCQ-type questions (nullable for non-MCQ types)
+    @ElementCollection
+    @CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "question_id"))
+    @Column(name = "option_text")
+    private List<String> options;
+
+    // The correct option text (for MCQ) or a short-answer key. Never exposed to students.
+    private String correctAnswer;
 
     // --- NEW RELATIONSHIP ---
     // Many questions can belong to one test.
@@ -65,5 +76,21 @@ public class Question {
 
     public void setTest(Test test) {
         this.test = test;
+    }
+
+    public List<String> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<String> options) {
+        this.options = options;
+    }
+
+    public String getCorrectAnswer() {
+        return correctAnswer;
+    }
+
+    public void setCorrectAnswer(String correctAnswer) {
+        this.correctAnswer = correctAnswer;
     }
 }

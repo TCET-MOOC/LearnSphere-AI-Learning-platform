@@ -21,6 +21,8 @@ import { BookmarksComponent as StudentBookmarks } from './features/student/bookm
 import { CoursesComponent as TeacherCourses } from './features/teacher/courses/courses.component';
 import { CourseManagementComponent as TeacherCourseManagement } from './features/teacher/courses/course-management/course-management.component';
 import { UploadComponent as TeacherUpload } from './features/teacher/upload/upload.component';
+import { AssessmentsComponent as StudentAssessments } from './features/student/assessments/assessments.component';
+import { QuizComponent as StudentQuiz } from './features/student/assessments/quiz/quiz.component';
 import { UsersComponent as AdminUsers } from './features/admin/users/users.component';
 import { LeaderboardComponent as StudentLeaderboard } from './features/student/leaderboard/leaderboard.component';
 import { DiscussionComponent as StudentDiscussion } from './features/student/discussion/discussion.component';
@@ -70,6 +72,8 @@ export const routes: Routes = [
   { path: 'student/leaderboard', component: StudentLeaderboard, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/discussion', component: StudentDiscussion, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/certificates', component: CertificatesComponent, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/assessments', component: StudentAssessments, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/assessments/:id', component: StudentQuiz, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/settings', component: StudentSettings, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/announcements', component: StudentAnnouncements, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/notifications', component: StudentNotifications, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },

@@ -1,0 +1,36 @@
+<div class="quiz-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Student view</p>
+      <h1>{{ assessment?.title || 'Assessment' }}</h1>
+    </div>
+    <a class="btn btn--ghost" (click)="backToList()">Back to assessments</a>
+  </header>
+
+  <p class="hint" *ngIf="stage === 'loading'">Loading…</p>
+  <p class="hint hint--error" *ngIf="stage === 'error'">{{ errorMessage }}</p>
+
+  <section class="card" *ngIf="stage === 'intro' && assessment">
+    <app-remedial-card [visible]="!!assessment.isRemedial"></app-remedial-card>
+    <p class="meta">{{ assessment.questions.length }} question{{ assessment.questions.length === 1 ? '' : 's' }} · {{ assessment.durationMinutes }} minutes</p>
+    <p class="hint">Once you begin, your answers are saved as you go. Submit when you're done to see your results.</p>
+    <button type="button" class="btn btn--primary" (click)="beginAttempt()">Begin attempt</button>
+  </section>
+
+  <section class="card" *ngIf="stage === 'taking' && assessment">
+    <app-remedial-card [visible]="!!assessment.isRemedial"></app-remedial-card>
+    <app-quiz-interface
+      [questions]="assessment.questions"
+      (answerChanged)="onAnswerChanged($event)"
+      (finish)="onFinish()">
+    </app-quiz-interface>
+  </section>
+
+  <p class="hint" *ngIf="stage === 'submitting'">Submitting your test…</p>
+
+  <section class="card" *ngIf="stage === 'review' && review">
+    <app-remedial-card [visible]="!!review.isRemedial"></app-remedial-card>
+    <app-assessment-review [review]="review"></app-assessment-review>
+    <button type="button" class="btn btn--ghost mt-16" (click)="backToList()">Back to assessments</button>
+  </section>
+</div>

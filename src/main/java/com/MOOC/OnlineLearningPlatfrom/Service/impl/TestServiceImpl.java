@@ -55,6 +55,13 @@ public class TestServiceImpl implements TestService {
         test.setTitle(testDetails.getTitle());
         test.setDurationMinutes(testDetails.getDurationMinutes());
         test.setSecurityPolicy(testDetails.getSecurityPolicy());
+        test.setScheduledAt(testDetails.getScheduledAt());
+        if (testDetails.getCourse() != null) {
+            test.setCourse(testDetails.getCourse());
+        }
+        if (testDetails.getIsRemedial() != null) {
+            test.setIsRemedial(testDetails.getIsRemedial());
+        }
         return testRepository.save(test);
     }
 
@@ -103,13 +110,28 @@ public class TestServiceImpl implements TestService {
         List<StudentAnswer> answers = attempt.getStudentAnswers();
         int totalScore = 0;
         for (StudentAnswer answer : answers) {
-            if (answer.getAnswerText() != null && !answer.getAnswerText().isEmpty()) {
-                int marksForQuestion = answer.getQuestion().getMarks();
-                answer.setMarksAwarded(marksForQuestion);
-                totalScore += marksForQuestion;
-            } else {
-                answer.setMarksAwarded(0);
+            Question question = answer.getQuestion();
+            int marksForQuestion = question != null && question.getMarks() != null ? question.getMarks() : 0;
+            String answerText = answer.getAnswerText();
+            boolean hasAnswer = answerText != null && !answerText.trim().isEmpty();
+            int awarded = 0;
+            if (hasAnswer && question != null) {
+                String type = question.getQuestionType() != null ? question.getQuestionType().trim().toUpperCase() : "";
+                if (type.equals("MCQ") || type.equals("MULTIPLE_CHOICE")) {
+                    String correct = question.getCorrectAnswer();
+                    if (correct != null && correct.trim().equalsIgnoreCase(answerText.trim())) {
+                        awarded = marksForQuestion;
+                    } else {
+                        awarded = 0;
+                    }
+                } else {
+                    // SHORT_ANSWER / ESSAY / other free-text types: no reliable auto-grading,
+                    // so any non-empty answer earns full marks.
+                    awarded = marksForQuestion;
+                }
             }
+            answer.setMarksAwarded(awarded);
+            totalScore += awarded;
             studentAnswerRepository.save(answer);
         }
         attempt.setScore(totalScore);

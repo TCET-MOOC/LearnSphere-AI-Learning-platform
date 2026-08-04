@@ -1,0 +1,42 @@
+<div class="assessments-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Student view</p>
+      <h1>Assessments</h1>
+    </div>
+  </header>
+
+  <p class="hint" *ngIf="loading">Loading assessments…</p>
+
+  <ng-container *ngIf="!loading">
+    <section class="card">
+      <h2 class="section-title">Course tests</h2>
+      <div class="assessment-list" *ngIf="standardAssessments.length > 0; else emptyStandard">
+        <article class="assessment-row" *ngFor="let a of standardAssessments">
+          <div class="assessment-main">
+            <strong>{{ a.title }}</strong>
+            <small>{{ a.courseTitle }} · {{ a.questionCount }} question{{ a.questionCount === 1 ? '' : 's' }} · {{ a.durationMinutes }} min</small>
+          </div>
+          <a class="btn btn--primary" [routerLink]="['/student/assessments', a.id]">Start</a>
+        </article>
+      </div>
+      <ng-template #emptyStandard>
+        <p class="hint">No tests available yet for your enrolled courses.</p>
+      </ng-template>
+    </section>
+
+    <section class="card mt-16" *ngIf="remedialAssessments.length > 0">
+      <h2 class="section-title">Remedial tests</h2>
+      <p class="hint">Passing one of these (40%+) unlocks a remedial certificate for that course.</p>
+      <div class="assessment-list">
+        <article class="assessment-row assessment-row--remedial" *ngFor="let a of remedialAssessments">
+          <div class="assessment-main">
+            <strong>{{ a.title }}</strong>
+            <small>{{ a.courseTitle }} · {{ a.questionCount }} question{{ a.questionCount === 1 ? '' : 's' }} · {{ a.durationMinutes }} min</small>
+          </div>
+          <a class="btn btn--amber" [routerLink]="['/student/assessments', a.id]">Start</a>
+        </article>
+      </div>
+    </section>
+  </ng-container>
+</div>

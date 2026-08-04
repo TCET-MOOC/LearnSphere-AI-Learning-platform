@@ -18,6 +18,10 @@
     <app-lecture-list [courseId]="courseId"></app-lecture-list>
   </section>
 
+  <section class="card" *ngIf="!loading && isEditMode && courseId">
+    <app-quiz-builder></app-quiz-builder>
+  </section>
+
   <section class="card" *ngIf="!loading && !isEditMode">
     <p class="hint">Save the course first, then you'll be able to add lectures.</p>
   </section>
