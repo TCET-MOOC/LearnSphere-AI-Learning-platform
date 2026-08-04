@@ -44,11 +44,12 @@ import { AnnouncementsComponent as AdminAnnouncements } from './features/admin/a
 import { NotificationsComponent as AdminNotifications } from './features/admin/notifications/notifications.component';
 import { ProfileComponent as AdminProfile } from './features/admin/profile/profile.component';
 import { CollegesComponent as AdminColleges } from './features/admin/colleges/colleges.component';
+import { ReportsComponent as AdminReports } from './features/admin/reports/reports.component';
+import { RevenueComponent as AdminRevenue } from './features/admin/revenue/revenue.component';
 import { CheckoutComponent } from './features/payment/checkout.component';
 import { PaymentSuccessComponent } from './features/payment/payment-success.component';
 import { authGuard } from './core/auth/auth.guard';
-// Note: admin/courses, admin/revenue, admin/reports components are still empty scaffolding
-// (no exported component class yet) — their routes will be added once those are implemented.
+// Note: admin/courses is still empty scaffolding (no exported component class yet).
 import { roleGuard } from './core/auth/role.guard';
 import { UserRole } from './core/models/user.model';
 
@@ -112,4 +113,6 @@ export const routes: Routes = [
   { path: 'admin/notifications', component: AdminNotifications, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
   { path: 'admin/profile', component: AdminProfile, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
   { path: 'admin/colleges', component: AdminColleges, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/reports', component: AdminReports, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/revenue', component: AdminRevenue, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
 ];

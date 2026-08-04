@@ -1,5 +1,34 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { AdminService } from '../services/admin.service';
+import { ReportsService } from '../services/reports.service';
+import { RevenueService } from '../services/revenue.service';
+import { PayoutService, PendingPayout } from '../services/payout.service';
+import { LeaderboardService } from '../../student/services/leaderboard.service';
+import { ApiService } from '@core/services/api.service';
+import { NotificationService } from '@core/services/notification.service';
+import { Course } from '@core/models/course.model';
+import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
+
+interface KpiCard {
+  label: string;
+  value: string;
+  sub: string;
+  subColor: string;
+}
+
+interface RankedPerson {
+  rank: string;
+  initials: string;
+  name: string;
+  stats?: string;
+  pts?: string;
+  earnings?: string;
+  bg: string;
+  color: string;
+}
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -8,29 +37,120 @@ import { CommonModule } from '@angular/common';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent {
-  kpiCards = [
-    { label: 'Total revenue', value: '₹4.2L', sub: '+18% this month', subColor: '#0F6E56' },
-    { label: 'Registered users', value: '3,840', sub: '+48 today', subColor: '#534AB7' },
-    { label: 'Active courses', value: '62', sub: '7 pending review', subColor: '#D08C1A' },
-    { label: 'Flagged items', value: '14', sub: 'Needs action', subColor: '#E5453A' }
-  ];
+export class DashboardComponent implements OnInit {
+  loading = false;
+  kpiCards: KpiCard[] = [];
+  topTeachers: RankedPerson[] = [];
+  topStudents: RankedPerson[] = [];
+  courseApprovals: (Course & { icon: string })[] = [];
+  pendingPayouts: PendingPayout[] = [];
+  positiveSentiment = 0;
+  openFlags = 0;
 
-  topTeachers = [
-    { rank: '🥇', initials: 'AS', name: 'Prof. A. Sharma', stats: '486 students · ★4.9', earnings: '₹18.4k', bg: '#EEEDFE', color: '#534AB7' },
-    { rank: '🥈', initials: 'SM', name: 'Prof. S. Mehta', stats: '410 students · ★4.8', earnings: '₹14.2k', bg: '#EAF3DE', color: '#27500A' },
-    { rank: '🥉', initials: 'RP', name: 'Prof. R. Patil', stats: '298 students · ★4.7', earnings: '₹9.8k', bg: '#E1F5EE', color: '#085041' }
-  ];
+  private readonly medals = ['🥇', '🥈', '🥉'];
 
-  topStudents = [
-    { rank: '🥇', initials: 'PK', name: 'Priya Kulkarni', pts: '2,840 pts', bg: '#FAEEDA', color: '#633806' },
-    { rank: '🥈', initials: 'AM', name: 'Arjun Mishra', pts: '2,710 pts', bg: '#EAF3DE', color: '#27500A' },
-    { rank: '🥉', initials: 'NJ', name: 'Nisha Joshi', pts: '1,940 pts', bg: '#E1F5EE', color: '#085041' }
-  ];
+  constructor(
+    private adminService: AdminService,
+    private reportsService: ReportsService,
+    private revenueService: RevenueService,
+    private payoutService: PayoutService,
+    private leaderboardService: LeaderboardService,
+    private apiService: ApiService,
+    private notificationService: NotificationService,
+    private router: Router
+  ) {}
 
-  courseApprovals = [
-    { title: 'Statistics for Engineers', meta: 'Prof. Sharma · 8 lectures', icon: '📐' },
-    { title: 'Fluid Mechanics', meta: 'Prof. Nair · 12 lectures', icon: '⚗️' },
-    { title: 'Machine Learning Basics', meta: 'Prof. Gupta · 18 lectures', icon: '🤖' }
-  ];
+  ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.loading = true;
+    forkJoin({
+      reports: this.reportsService.getSummary(),
+      revenue: this.revenueService.getRevenue(),
+      teachers: this.adminService.getTopTeachers(3),
+      students: this.leaderboardService.getLeaderboard('global'),
+      pendingCourses: this.apiService.get<Course[]>('/courses', { params: { status: 'PENDING' } }),
+      payouts: this.payoutService.getPendingPayouts()
+    }).subscribe({
+      next: ({ reports, revenue, teachers, students, pendingCourses, payouts }) => {
+        this.kpiCards = [
+          { label: 'Total revenue', value: `₹${revenue.totalRevenue.toLocaleString()}`, sub: `${revenue.platformCutPercent}% platform cut`, subColor: '#0F6E56' },
+          { label: 'Registered users', value: reports.totalUsers.toLocaleString(), sub: `${reports.usersByRole['STUDENT'] ?? 0} students`, subColor: '#534AB7' },
+          { label: 'Total courses', value: reports.totalCourses.toLocaleString(), sub: `${pendingCourses.length} pending review`, subColor: '#D08C1A' },
+          { label: 'Flagged items', value: reports.flaggedContentPending.toLocaleString(), sub: 'Needs action', subColor: '#E5453A' }
+        ];
+
+        this.topTeachers = teachers.map((t, i) => ({
+          rank: this.medals[i] ?? `#${i + 1}`,
+          initials: getInitials(t.name),
+          name: t.name,
+          stats: `${t.students} students`,
+          earnings: `₹${t.earnings.toLocaleString()}`,
+          bg: getAvatarBg(t.name),
+          color: getAvatarColor(t.name)
+        }));
+
+        this.topStudents = students.slice(0, 3).map((s, i) => ({
+          rank: this.medals[i] ?? `#${i + 1}`,
+          initials: getInitials(s.name),
+          name: s.name,
+          pts: `${s.points.toLocaleString()} pts`,
+          bg: getAvatarBg(s.name),
+          color: getAvatarColor(s.name)
+        }));
+
+        this.courseApprovals = pendingCourses.slice(0, 5).map((c) => ({ ...c, icon: '📘' }));
+        this.pendingPayouts = payouts;
+        this.openFlags = reports.flaggedContentPending;
+
+        this.loading = false;
+      },
+      error: () => {
+        this.notificationService.error('Failed to load dashboard data.');
+        this.loading = false;
+      }
+    });
+  }
+
+  get pendingPayoutTotal(): number {
+    return this.pendingPayouts.reduce((sum, p) => sum + p.pendingAmount, 0);
+  }
+
+  approveCourse(course: Course): void {
+    this.apiService.put(`/admin/courses/${course.id}/status`, { status: 'LIVE' }).subscribe({
+      next: () => {
+        this.notificationService.success(`"${course.title}" approved and is now live.`);
+        this.load();
+      },
+      error: () => this.notificationService.error('Failed to approve course.')
+    });
+  }
+
+  rejectCourse(course: Course): void {
+    this.apiService.put(`/admin/courses/${course.id}/status`, { status: 'DRAFT' }).subscribe({
+      next: () => {
+        this.notificationService.success(`"${course.title}" sent back to draft.`);
+        this.load();
+      },
+      error: () => this.notificationService.error('Failed to reject course.')
+    });
+  }
+
+  goToCourses(): void {
+    document.getElementById('course-approvals')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  goToUsers(): void {
+    this.router.navigateByUrl('/admin/users');
+  }
+
+  goToPayouts(): void {
+    this.router.navigateByUrl('/admin/payouts');
+  }
+
+  goToFlags(): void {
+    this.router.navigateByUrl('/admin/flagged');
+  }
 }

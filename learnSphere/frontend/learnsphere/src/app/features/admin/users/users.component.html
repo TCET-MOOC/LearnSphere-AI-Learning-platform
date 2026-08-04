@@ -4,7 +4,7 @@
       <p class="eyebrow">Admin view</p>
       <h1>User Management</h1>
     </div>
-    <button class="btn btn--primary" type="button">Add user</button>
+    <button class="btn btn--primary" type="button" (click)="addUser()">Add user</button>
   </header>
 
   <nav class="tabs" aria-label="User filters">
@@ -59,9 +59,10 @@
           <span>{{ user.role }}</span>
           <span class="pill" [ngClass]="getStatusClass(user.status)">{{ user.status }}</span>
           <div class="action-set">
-            <button class="btn btn--ghost" type="button">View</button>
-            <button class="btn btn--ghost" type="button">{{ user.status === 'Teacher' ? 'Suspend' : 'Warn' }}</button>
-            <button class="btn" [class.btn--danger]="user.status !== 'Blacklisted'" [class.btn--success]="user.status === 'Blacklisted'" type="button">
+            <button class="btn btn--ghost" type="button" (click)="viewUser(user)">View</button>
+            <button class="btn btn--ghost" type="button" [disabled]="updatingId === user.id" (click)="warnOrSuspend(user)">Warn</button>
+            <button class="btn" [class.btn--danger]="user.status !== 'Blacklisted'" [class.btn--success]="user.status === 'Blacklisted'" type="button"
+              [disabled]="updatingId === user.id" (click)="toggleBlacklist(user)">
               {{ user.status === 'Blacklisted' ? 'Restore' : 'Blacklist' }}
             </button>
           </div>
@@ -86,19 +87,11 @@
       <section class="card">
         <div class="card-head">
           <h2>Moderation queue</h2>
-          <span class="pill pill--red">22 flagged</span>
+          <span class="pill pill--red">{{ flaggedCount }} flagged</span>
         </div>
         <div class="queue-item">
-          <strong>3 repeated warning cases</strong>
-          <small>Review before next automated action.</small>
-        </div>
-        <div class="queue-item">
-          <strong>6 blacklist appeals</strong>
-          <small>Oldest appeal pending for 2 days.</small>
-        </div>
-        <div class="queue-item">
-          <strong>13 AI sentiment flags</strong>
-          <small>Prioritize student discussion reports.</small>
+          <strong>{{ flaggedCount }} item{{ flaggedCount === 1 ? '' : 's' }} pending review</strong>
+          <small><a routerLink="/admin/flagged">Open the moderation queue</a> to resolve or dismiss.</small>
         </div>
       </section>
     </aside>
