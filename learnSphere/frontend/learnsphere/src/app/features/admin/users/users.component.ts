@@ -129,14 +129,6 @@ export class UsersComponent implements OnInit {
     this.activeTab = this.tabs[0];
   }
 
-  get filteredUsers(): AdminUser[] {
-    if (this.activeTab.startsWith('Students')) return this.users.filter(u => u.role === 'Student');
-    if (this.activeTab.startsWith('Teachers')) return this.users.filter(u => u.role === 'Teacher');
-    if (this.activeTab.startsWith('Flagged')) return this.users.filter(u => u.status === 'Flagged');
-    if (this.activeTab.startsWith('Blacklisted')) return this.users.filter(u => u.status === 'Blacklisted');
-    return this.users;
-  }
-
   setTab(tab: string): void {
     this.activeTab = tab;
     this.applyTab();

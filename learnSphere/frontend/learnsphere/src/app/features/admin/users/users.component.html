@@ -47,7 +47,7 @@
           <span>Actions</span>
         </div>
 
-        <div class="user-row" role="row" *ngFor="let user of filteredUsers" [class.user-row--flagged]="user.status === 'Flagged'" (click)="handleUserAction(user, 'View Details')" style="cursor: pointer;">
+        <div class="user-row" role="row" *ngFor="let user of users" [class.user-row--flagged]="user.status === 'Flagged'">
           <div class="user-profile">
             <div class="avatar" [class]="'avatar avatar--' + user.tone">{{ user.initials }}</div>
             <div>
