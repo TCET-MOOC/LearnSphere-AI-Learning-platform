@@ -46,10 +46,12 @@ import { ProfileComponent as AdminProfile } from './features/admin/profile/profi
 import { CollegesComponent as AdminColleges } from './features/admin/colleges/colleges.component';
 import { ReportsComponent as AdminReports } from './features/admin/reports/reports.component';
 import { RevenueComponent as AdminRevenue } from './features/admin/revenue/revenue.component';
+import { CoursesComponent as AdminCourses } from './features/admin/courses/courses.component';
 import { CheckoutComponent } from './features/payment/checkout.component';
 import { PaymentSuccessComponent } from './features/payment/payment-success.component';
+import { NotFoundComponent } from './features/not-found/not-found.component';
+import { StudentsComponent as TeacherStudents } from './features/teacher/students/students.component';
 import { authGuard } from './core/auth/auth.guard';
-// Note: admin/courses is still empty scaffolding (no exported component class yet).
 import { roleGuard } from './core/auth/role.guard';
 import { UserRole } from './core/models/user.model';
 
@@ -88,6 +90,7 @@ export const routes: Routes = [
   // Teacher portal
   { path: 'teacher/dashboard', component: TeacherDashboard, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/courses', component: TeacherCourses, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/students', component: TeacherStudents, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/courses/new', component: TeacherCourseManagement, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/courses/:id/manage', component: TeacherCourseManagement, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/upload', component: TeacherUpload, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
@@ -115,4 +118,7 @@ export const routes: Routes = [
   { path: 'admin/colleges', component: AdminColleges, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
   { path: 'admin/reports', component: AdminReports, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
   { path: 'admin/revenue', component: AdminRevenue, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/courses', component: AdminCourses, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+
+  { path: '**', component: NotFoundComponent },
 ];
