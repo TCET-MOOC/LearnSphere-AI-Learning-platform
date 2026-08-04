@@ -26,6 +26,7 @@ import { QuizComponent as StudentQuiz } from './features/student/assessments/qui
 import { UsersComponent as AdminUsers } from './features/admin/users/users.component';
 import { LeaderboardComponent as StudentLeaderboard } from './features/student/leaderboard/leaderboard.component';
 import { DiscussionComponent as StudentDiscussion } from './features/student/discussion/discussion.component';
+import { DiscussionComponent as TeacherDiscussion } from './features/teacher/discussion/discussion.component';
 import { LiveComponent as TeacherLive } from './features/teacher/live/live.component';
 import { TrendingComponent as TeacherTrending } from './features/teacher/trending/trending.component';
 import { PayoutsComponent as AdminPayouts } from './features/admin/payouts/payouts.component';
@@ -85,6 +86,7 @@ export const routes: Routes = [
   { path: 'teacher/courses/new', component: TeacherCourseManagement, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/courses/:id/manage', component: TeacherCourseManagement, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/upload', component: TeacherUpload, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/discussion', component: TeacherDiscussion, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/messages', component: TeacherMessages, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/live', component: TeacherLive, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'teacher/trending', component: TeacherTrending, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },

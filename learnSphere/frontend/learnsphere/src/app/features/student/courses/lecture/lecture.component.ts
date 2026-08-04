@@ -7,12 +7,13 @@ import { Course, Lecture, LectureProgress } from '@core/models/course.model';
 import { VideoPlayerComponent, VideoTimeUpdate } from '@shared/components/video-player/video-player.component';
 import { LectureGridComponent } from './components/lecture-grid.component';
 import { NotesDrawerComponent } from './components/notes-drawer.component';
+import { LectureDiscussionComponent } from './components/lecture-discussion.component';
 import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-student-lecture',
   standalone: true,
-  imports: [CommonModule, RouterModule, VideoPlayerComponent, LectureGridComponent, NotesDrawerComponent],
+  imports: [CommonModule, RouterModule, VideoPlayerComponent, LectureGridComponent, NotesDrawerComponent, LectureDiscussionComponent],
   templateUrl: './lecture.component.html',
   styleUrls: ['./lecture.component.scss']
 })

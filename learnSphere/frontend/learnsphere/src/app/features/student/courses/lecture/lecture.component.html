@@ -57,6 +57,13 @@
           [lectureLabel]="currentLecture ? ('Lec ' + currentLecture.number + ': ' + currentLecture.title) : ''"
           [timestampSeconds]="playbackPosition">
         </app-notes-drawer>
+
+        <app-lecture-discussion
+          *ngIf="courseId && currentLecture"
+          [courseId]="courseId"
+          [lectureId]="currentLecture.id"
+          [lectureLabel]="'Lec ' + currentLecture.number + ': ' + currentLecture.title">
+        </app-lecture-discussion>
       </aside>
     </div>
   </ng-container>

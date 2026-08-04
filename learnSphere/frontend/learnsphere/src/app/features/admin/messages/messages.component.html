@@ -25,7 +25,7 @@
       <div class="conv-list">
         <div class="conv-item"
              *ngFor="let conv of filteredConversations"
-             [class.conv-item--active]="selectedConversation.id === conv.id"
+             [class.conv-item--active]="selectedConversation?.id === conv.id"
              [class.conv-item--unread]="conv.unread > 0"
              (click)="selectConversation(conv)">
           <div class="conv-ava" [style.background]="conv.bg" [style.color]="conv.color">{{ conv.initials }}</div>

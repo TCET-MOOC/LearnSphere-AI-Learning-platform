@@ -7,88 +7,74 @@
       <p class="page-header__sub">Connect, ask, and learn together</p>
     </div>
     <div class="tabs">
-      <button class="tabs__item tabs__item--active">All courses</button>
-      <button class="tabs__item">Math III</button>
-      <button class="tabs__item">DSA</button>
-      <button class="tabs__item">My posts</button>
+      <button class="tabs__item" *ngFor="let course of courses"
+              [class.tabs__item--active]="!mineOnly && activeCourseId === course.id"
+              (click)="selectCourse(course.id)">{{ course.title }}</button>
+      <button class="tabs__item" [class.tabs__item--active]="mineOnly" (click)="toggleMine()">My posts</button>
     </div>
   </div>
 
-  <!-- Search & Actions -->
+  <!-- Search -->
   <div class="search-actions">
     <div class="search-box">
       <i class="ti ti-search" aria-hidden="true"></i>
-      <input type="text" placeholder="Search discussions…" class="search-input" />
+      <input type="text" placeholder="Search discussions…" class="search-input" [(ngModel)]="searchText" />
     </div>
-    <button class="new-post-btn">
-      <i class="ti ti-plus" aria-hidden="true"></i> New post
-    </button>
   </div>
 
   <!-- New Post Input Area -->
-  <div class="new-post-input">
-    <div class="ava rs">RS</div>
-    <div class="input-box">Start a new discussion or ask a doubt…</div>
+  <div class="new-post-input" *ngIf="activeCourseId">
+    <div class="ava" [style.background]="myBg" [style.color]="myColor">{{ myInitials }}</div>
+    <input type="text" class="input-box" placeholder="Start a new discussion or ask a doubt…"
+           [(ngModel)]="newPostText" (keydown.enter)="submitPost()" />
+    <button class="new-post-btn" type="button" [disabled]="!newPostText.trim()" (click)="submitPost()">
+      <i class="ti ti-plus" aria-hidden="true"></i> Post
+    </button>
   </div>
 
   <!-- Main Content Area -->
   <div class="discussions-list">
 
-    <!-- Post 1 -->
-    <div class="disc-post">
+    <p class="empty-state" *ngIf="loading">Loading discussion…</p>
+
+    <div class="disc-post" *ngFor="let post of filteredPosts">
       <div class="post-layout">
-        <div class="ava pk">PK</div>
+        <div class="ava" [style.background]="getBg(post.authorName)" [style.color]="getColor(post.authorName)">{{ getInitials(post.authorName) }}</div>
         <div class="post-content">
           <div class="post-header">
             <div>
-              <div class="post-author">Priya Kulkarni</div>
-              <div class="post-meta">Math III · Lec 8 · 1h ago</div>
+              <div class="post-author">{{ post.authorName }} <span class="you-badge" *ngIf="isMine(post)">(You)</span></div>
+              <div class="post-meta">{{ activeCourseName }} · {{ timeAgo(post.createdAt) }}</div>
             </div>
-            <span class="pill p-pu">Unanswered</span>
+            <span class="pill" [class.p-gr]="post.replies.length > 0" [class.p-pu]="post.replies.length === 0">
+              {{ post.replies.length > 0 ? 'Answered' : 'Unanswered' }}
+            </span>
           </div>
-          <div class="post-text">
-            Can someone explain the inverse Laplace at 22:14? I'm confused about the partial fractions decomposition
-            step.
+          <div class="post-text">{{ post.body }}</div>
+
+          <div class="teacher-reply" *ngFor="let reply of post.replies">
+            <div class="reply-author">{{ reply.authorName }} replied:</div>
+            <div class="reply-text">{{ reply.body }}</div>
           </div>
+
           <div class="post-actions">
-            <button class="action-btn reply-btn">↩ Reply</button>
-            <button class="action-btn">👍 12 likes</button>
-            <button class="action-btn">0 replies</button>
+            <button class="action-btn reply-btn" (click)="toggleReply(post.id)">
+              ↩ {{ replyingTo === post.id ? 'Cancel' : 'Reply' }}
+            </button>
+            <button class="action-btn" *ngIf="canDelete(post)" (click)="remove(post)">🗑 Delete</button>
+            <span class="action-btn">{{ post.replies.length }} {{ post.replies.length === 1 ? 'reply' : 'replies' }}</span>
+          </div>
+
+          <div class="reply-input-row" *ngIf="replyingTo === post.id">
+            <input type="text" placeholder="Write a reply…" [(ngModel)]="replyText" (keydown.enter)="submitReply(post)" />
+            <button type="button" [disabled]="!replyText.trim()" (click)="submitReply(post)">Send</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Post 2 -->
-    <div class="disc-post">
-      <div class="post-layout">
-        <div class="ava rs">RS</div>
-        <div class="post-content">
-          <div class="post-header">
-            <div>
-              <div class="post-author">Raj Shah <span class="you-badge">(You)</span></div>
-              <div class="post-meta">DSA · Lec 12 · 2 days ago</div>
-            </div>
-            <span class="pill p-gr">Answered</span>
-          </div>
-          <div class="post-text">
-            What's the difference between DFS using recursion vs an explicit stack? Is one preferred in practice?
-          </div>
-          <div class="teacher-reply">
-            <div class="reply-author">Prof. Mehta replied:</div>
-            <div class="reply-text">
-              Both are equivalent. Recursive DFS uses the call stack implicitly. Explicit stack is better for large
-              graphs to avoid stack overflow.
-            </div>
-          </div>
-          <div class="post-actions">
-            <button class="action-btn reply-btn">↩ Reply</button>
-            <button class="action-btn">👍 8</button>
-            <button class="action-btn">1 reply</button>
-          </div>
-        </div>
-      </div>
+    <div class="empty-state" *ngIf="!loading && filteredPosts.length === 0">
+      No discussion posts yet{{ activeCourseId ? ' for this course' : '' }}. Be the first to ask something.
     </div>
-
   </div>
 </div>
