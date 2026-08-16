@@ -26,6 +26,15 @@ export class NotificationStateService {
     this.update(role, 0);
   }
 
+  /**
+   * Feeds a real, server-fetched unread count into the badge state.
+   * Called by NotificationApiService consumers once they've loaded the
+   * authoritative count from the backend.
+   */
+  setCount(role: AppRole, count: number): void {
+    this.update(role, count);
+  }
+
   private update(role: AppRole, count: number): void {
     this.counts.next({ ...this.counts.value, [role]: count });
   }

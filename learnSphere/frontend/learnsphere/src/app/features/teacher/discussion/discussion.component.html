@@ -1,0 +1,80 @@
+<div class="discussion-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-header__title">💬 Discussion</h1>
+      <p class="page-header__sub">Answer student questions across your courses</p>
+    </div>
+    <div class="tabs">
+      <button class="tabs__item" *ngFor="let course of courses"
+              [class.tabs__item--active]="!mineOnly && activeCourseId === course.id"
+              (click)="selectCourse(course.id)">{{ course.title }}</button>
+      <button class="tabs__item" [class.tabs__item--active]="mineOnly" (click)="toggleMine()">My posts</button>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-actions">
+    <div class="search-box">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <input type="text" placeholder="Search discussions…" class="search-input" [(ngModel)]="searchText" />
+    </div>
+  </div>
+
+  <!-- New Post Input Area -->
+  <div class="new-post-input" *ngIf="activeCourseId">
+    <div class="ava" [style.background]="myBg" [style.color]="myColor">{{ myInitials }}</div>
+    <input type="text" class="input-box" placeholder="Post an announcement or answer a doubt…"
+           [(ngModel)]="newPostText" (keydown.enter)="submitPost()" />
+    <button class="new-post-btn" type="button" [disabled]="!newPostText.trim()" (click)="submitPost()">
+      <i class="ti ti-plus" aria-hidden="true"></i> Post
+    </button>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="discussions-list">
+
+    <p class="empty-state" *ngIf="loading">Loading discussion…</p>
+
+    <div class="disc-post" *ngFor="let post of filteredPosts">
+      <div class="post-layout">
+        <div class="ava" [style.background]="getBg(post.authorName)" [style.color]="getColor(post.authorName)">{{ getInitials(post.authorName) }}</div>
+        <div class="post-content">
+          <div class="post-header">
+            <div>
+              <div class="post-author">{{ post.authorName }} <span class="you-badge" *ngIf="isMine(post)">(You)</span></div>
+              <div class="post-meta">{{ activeCourseName }} · {{ timeAgo(post.createdAt) }}</div>
+            </div>
+            <span class="pill" [class.p-gr]="post.replies.length > 0" [class.p-pu]="post.replies.length === 0">
+              {{ post.replies.length > 0 ? 'Answered' : 'Unanswered' }}
+            </span>
+          </div>
+          <div class="post-text">{{ post.body }}</div>
+
+          <div class="teacher-reply" *ngFor="let reply of post.replies">
+            <div class="reply-author">{{ reply.authorName }} replied:</div>
+            <div class="reply-text">{{ reply.body }}</div>
+          </div>
+
+          <div class="post-actions">
+            <button class="action-btn reply-btn" (click)="toggleReply(post.id)">
+              ↩ {{ replyingTo === post.id ? 'Cancel' : 'Reply' }}
+            </button>
+            <button class="action-btn" *ngIf="canDelete(post)" (click)="remove(post)">🗑 Delete</button>
+            <span class="action-btn">{{ post.replies.length }} {{ post.replies.length === 1 ? 'reply' : 'replies' }}</span>
+          </div>
+
+          <div class="reply-input-row" *ngIf="replyingTo === post.id">
+            <input type="text" placeholder="Write a reply…" [(ngModel)]="replyText" (keydown.enter)="submitReply(post)" />
+            <button type="button" [disabled]="!replyText.trim()" (click)="submitReply(post)">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && filteredPosts.length === 0">
+      No discussion posts yet{{ activeCourseId ? ' for this course' : '' }}.
+    </div>
+  </div>
+</div>

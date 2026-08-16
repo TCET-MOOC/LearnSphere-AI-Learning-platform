@@ -1,0 +1,136 @@
+$brand-purple: #534AB7;
+$bg-color: #F5F5F8;
+$border: #E8E7EF;
+$text-primary: #1A1830;
+$text-secondary: #6B6880;
+
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $bg-color;
+  font-family: 'Inter', sans-serif;
+  padding: 20px;
+}
+
+.auth-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  border: 1px solid $border;
+}
+
+.error-banner {
+  background: #FDECEC;
+  color: #B3261E;
+  border: 1px solid #F5C2C2;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 32px;
+
+  .logo-box {
+    width: 48px;
+    height: 48px;
+    background: $brand-purple;
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin: 0 auto 16px;
+  }
+
+  h2 {
+    color: $text-primary;
+    margin: 0 0 4px;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  input, .custom-select {
+    padding: 10px 12px;
+    border: 1px solid $border;
+    border-radius: 8px;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: $brand-purple;
+    }
+  }
+}
+
+.btn-submit {
+  background: $brand-purple;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  color: $text-secondary;
+  border: none;
+  padding: 12px;
+  font-size: 13px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.submitted-state {
+  text-align: center;
+
+  p {
+    color: $text-secondary;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+}

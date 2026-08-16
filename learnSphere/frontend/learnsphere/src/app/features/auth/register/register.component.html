@@ -7,15 +7,17 @@
     </div>
 
     <div class="role-selector">
-      <button 
+      <button
         *ngFor="let role of roles"
-        type="button" 
-        class="role-btn" 
-        [class.active]="selectedRole === role.value" 
+        type="button"
+        class="role-btn"
+        [class.active]="selectedRole === role.value"
         (click)="setRole(role.value)">
         {{ role.label }}
       </button>
     </div>
+
+    <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
@@ -33,7 +35,9 @@
         <input type="password" id="password" formControlName="password" placeholder="Min. 6 characters" />
       </div>
 
-      <button type="submit" class="btn-submit" [disabled]="registerForm.invalid">Create Account</button>
+      <button type="submit" class="btn-submit" [disabled]="registerForm.invalid || submitting">
+        {{ submitting ? 'Creating account…' : 'Create Account' }}
+      </button>
     </form>
 
     <div class="auth-footer">

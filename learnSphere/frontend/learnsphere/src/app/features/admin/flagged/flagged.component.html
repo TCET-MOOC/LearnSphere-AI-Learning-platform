@@ -4,27 +4,27 @@
   <div class="page-header">
     <div class="page-header__left">
       <h1 class="page-title">🚩 Flagged Content</h1>
-      <p class="page-subtitle">AI-powered moderation queue · Review and take action</p>
+      <p class="page-subtitle">Keyword-based moderation queue · Review and take action</p>
     </div>
-    <span class="badge-red">14 open</span>
+    <span class="badge-red">{{ openCount }} open</span>
   </div>
 
   <!-- KPI Cards -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-card__label">Open flags</div>
-      <div class="stat-card__value">14</div>
-      <div class="stat-card__sub stat-card__sub--red">4 high risk</div>
+      <div class="stat-card__value">{{ openCount }}</div>
+      <div class="stat-card__sub stat-card__sub--red">{{ highRiskCount }} high risk</div>
     </div>
     <div class="stat-card">
-      <div class="stat-card__label">Resolved this month</div>
-      <div class="stat-card__value">38</div>
-      <div class="stat-card__sub stat-card__sub--green">Avg. 4h response</div>
+      <div class="stat-card__label">Bullying</div>
+      <div class="stat-card__value">{{ bullyingCount }}</div>
+      <div class="stat-card__sub">Auto-flagged by keyword match</div>
     </div>
     <div class="stat-card">
-      <div class="stat-card__label">AI detection rate</div>
-      <div class="stat-card__value">94%</div>
-      <div class="stat-card__sub stat-card__sub--purple">Accuracy score</div>
+      <div class="stat-card__label">Spam</div>
+      <div class="stat-card__value">{{ spamCount }}</div>
+      <div class="stat-card__sub">Auto-flagged by keyword match</div>
     </div>
   </div>
 
@@ -40,81 +40,30 @@
   </div>
 
   <!-- Flagged Posts -->
-  <div class="flagged-list">
+  <p class="hint" *ngIf="loading">Loading…</p>
+  <p class="hint" *ngIf="!loading && items.length === 0">Nothing flagged right now.</p>
 
-    <!-- High Risk Post 1 -->
-    <div class="flag-card flag-card--high">
+  <div class="flagged-list" *ngIf="!loading">
+    <div class="flag-card" [class.flag-card--high]="item.severity === 'high'" *ngFor="let item of items">
       <div class="flag-card__header">
         <div class="flag-card__user">
-          <div class="ava ava--red">VD</div>
+          <div class="ava" [ngClass]="item.severity === 'high' ? 'ava--red' : 'ava--amber'">{{ item.authorInitials }}</div>
           <div>
-            <div class="ava__name">Vikram Desai</div>
-            <div class="ava__meta">Comment · DSA discussion · 2h ago</div>
+            <div class="ava__name">{{ item.authorName }}</div>
+            <div class="ava__meta">{{ item.contentTypeLabel }} · {{ item.courseTitle || 'General' }} · {{ timeAgo(item.createdAt) }}</div>
           </div>
         </div>
-        <span class="pill pill--red">🚨 High risk — bullying</span>
+        <span class="pill" [ngClass]="item.severity === 'high' ? 'pill--red' : 'pill--amber'">
+          {{ item.severity === 'high' ? '🚨 ' : '' }}{{ item.reason.replace('_', ' ') | titlecase }}
+        </span>
       </div>
-      <div class="flag-card__content flag-card__content--danger">
-        Content hidden — AI flagged as targeted harassment toward another student.
-      </div>
-      <div class="flag-card__ai-info">
-        AI confidence: <strong>96%</strong> · User has 1 prior warning
-      </div>
-      <div class="flag-card__actions">
-        <button class="btn btn--danger">Blacklist user</button>
-        <button class="btn btn--warn">Issue warning</button>
-        <button class="btn btn--ghost">View full post</button>
-        <button class="btn btn--ghost">Dismiss</button>
-      </div>
-    </div>
-
-    <!-- Medium Risk Post -->
-    <div class="flag-card">
-      <div class="flag-card__header">
-        <div class="flag-card__user">
-          <div class="ava ava--amber">AK</div>
-          <div>
-            <div class="ava__name">Anil Kumar</div>
-            <div class="ava__meta">Review · Math III · 5h ago</div>
-          </div>
-        </div>
-        <span class="pill pill--amber">Spam / off-topic</span>
-      </div>
-      <div class="flag-card__content flag-card__content--neutral">
-        AI confidence: <strong>88%</strong> · First offence
+      <div class="flag-card__content" [ngClass]="item.severity === 'high' ? 'flag-card__content--danger' : 'flag-card__content--neutral'">
+        {{ item.snippet }}
       </div>
       <div class="flag-card__actions">
-        <button class="btn btn--danger">Remove post</button>
-        <button class="btn btn--ghost">View post</button>
-        <button class="btn btn--ghost">Dismiss</button>
+        <button class="btn btn--ghost" [disabled]="actingId === item.id" (click)="resolve(item)">Mark resolved</button>
+        <button class="btn btn--ghost" [disabled]="actingId === item.id" (click)="dismiss(item)">Dismiss</button>
       </div>
     </div>
-
-    <!-- High Risk Post 2 -->
-    <div class="flag-card flag-card--high">
-      <div class="flag-card__header">
-        <div class="flag-card__user">
-          <div class="ava ava--purple">RM</div>
-          <div>
-            <div class="ava__name">Rehan Malik</div>
-            <div class="ava__meta">Direct message · Sent to student · 1d ago</div>
-          </div>
-        </div>
-        <span class="pill pill--red">🚨 Suspicious contact</span>
-      </div>
-      <div class="flag-card__content flag-card__content--danger">
-        DM content hidden — flagged for inappropriate contact with minor-age student.
-      </div>
-      <div class="flag-card__ai-info">
-        AI confidence: <strong>91%</strong> · No prior warnings
-      </div>
-      <div class="flag-card__actions">
-        <button class="btn btn--danger">Blacklist user</button>
-        <button class="btn btn--warn">Issue warning</button>
-        <button class="btn btn--ghost">View message</button>
-        <button class="btn btn--ghost">Dismiss</button>
-      </div>
-    </div>
-
   </div>
 </div>

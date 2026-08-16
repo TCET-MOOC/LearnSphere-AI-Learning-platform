@@ -10,38 +10,41 @@
     </button>
   </div>
 
-  <div class="stats-grid">
+  <p class="hint" *ngIf="loading">Loading…</p>
+
+  <div class="stats-grid" *ngIf="!loading">
     <div class="stat-box">
       <span class="stat-label">Comments analysed</span>
-      <span class="stat-value">4,820</span>
-      <span class="stat-subtext">This month</span>
+      <span class="stat-value">{{ totalAnalyzed | number }}</span>
+      <span class="stat-subtext">Discussion posts + messages</span>
     </div>
     <div class="stat-box">
-      <span class="stat-label">AI confidence</span>
-      <span class="stat-value">94%</span>
-      <span class="stat-subtext text-success">Accuracy score</span>
+      <span class="stat-label">Positive rate</span>
+      <span class="stat-value">{{ positivePercent }}%</span>
+      <span class="stat-subtext text-success">Keyword-based heuristic</span>
     </div>
     <div class="stat-box">
-      <span class="stat-label">Negative trend</span>
-      <span class="stat-value">-2%</span>
-      <span class="stat-subtext text-success">Improving vs May</span>
+      <span class="stat-label">Flagged keywords</span>
+      <span class="stat-value">{{ negativeKeywords.length }}</span>
+      <span class="stat-subtext">Distinct negative terms found</span>
     </div>
   </div>
 
-  <div class="section-card">
+  <div class="section-card" *ngIf="!loading">
     <h2 class="section-title">Overall platform sentiment</h2>
-    
+    <p class="hint">Computed with a simple keyword-matching heuristic, not real NLP/ML.</p>
+
     <div class="sentiment-blocks">
       <div class="block positive">
-        <span class="block-value">72%</span>
+        <span class="block-value">{{ positivePercent }}%</span>
         <span class="block-label">Positive</span>
       </div>
       <div class="block neutral">
-        <span class="block-value">19%</span>
+        <span class="block-value">{{ neutralPercent }}%</span>
         <span class="block-label">Neutral</span>
       </div>
       <div class="block negative">
-        <span class="block-value">9%</span>
+        <span class="block-value">{{ negativePercent }}%</span>
         <span class="block-label">Negative</span>
       </div>
     </div>
@@ -58,7 +61,7 @@
     </div>
   </div>
 
-  <div class="section-card">
+  <div class="section-card" *ngIf="!loading">
     <h2 class="section-title">Top negative keywords (flagged themes)</h2>
     <div class="keyword-pills">
       <span class="keyword-pill" *ngFor="let kw of negativeKeywords" [ngClass]="'severity-' + kw.severity">
@@ -78,7 +81,7 @@
     </div>
   </div>
 
-  <div class="section-card">
+  <div class="section-card" *ngIf="!loading">
     <h2 class="section-title">Teacher sentiment scores</h2>
     <div class="teacher-list">
       <div class="teacher-item" *ngFor="let teacher of teacherScores">
@@ -91,9 +94,7 @@
         </div>
         <span class="score-pill" [ngClass]="teacher.status">{{ teacher.score }}</span>
       </div>
-    </div>
-    <div class="footer-note">
-      <p>Prof. Patil's score dropped 12% — audio quality complaints in Lec 4–6 are the main driver.</p>
+      <p class="hint" *ngIf="teacherScores.length === 0">No teacher discussion activity yet.</p>
     </div>
   </div>
 </div>

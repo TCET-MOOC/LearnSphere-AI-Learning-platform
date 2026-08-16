@@ -1,0 +1,46 @@
+<div class="admin-courses">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Admin view</p>
+      <h1>Course approvals</h1>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Course status filters">
+    <button
+      class="tab"
+      *ngFor="let f of filters"
+      [class.tab--active]="f.id === activeFilter"
+      (click)="setFilter(f.id)"
+      type="button">
+      {{ f.label }} ({{ count(f.id) }})
+    </button>
+  </nav>
+
+  <p class="hint" *ngIf="loading">Loading…</p>
+  <p class="hint" *ngIf="!loading && courses.length === 0">No courses in this category.</p>
+
+  <div class="course-table" *ngIf="!loading && courses.length > 0">
+    <div class="course-row course-row--head">
+      <span>Course</span>
+      <span>Teacher</span>
+      <span>Lectures</span>
+      <span>Status</span>
+      <span>Actions</span>
+    </div>
+    <div class="course-row" *ngFor="let course of courses">
+      <span class="course-title">{{ course.title }}</span>
+      <span>{{ course.teacherName || '—' }}</span>
+      <span>{{ course.lectureCount ?? 0 }}</span>
+      <span class="pill" [ngClass]="statusClass(course.status)">{{ course.status }}</span>
+      <div class="action-set">
+        <ng-container *ngIf="course.status === 'PENDING'">
+          <button class="btn btn--success" [disabled]="actingId === course.id" (click)="approve(course)">Approve</button>
+          <button class="btn btn--danger" [disabled]="actingId === course.id" (click)="reject(course)">Reject</button>
+        </ng-container>
+        <button class="btn btn--ghost" *ngIf="course.status === 'LIVE'" [disabled]="actingId === course.id" (click)="archive(course)">Archive</button>
+        <button class="btn btn--ghost" *ngIf="course.status === 'ARCHIVED'" [disabled]="actingId === course.id" (click)="reactivate(course)">Reactivate</button>
+      </div>
+    </div>
+  </div>
+</div>

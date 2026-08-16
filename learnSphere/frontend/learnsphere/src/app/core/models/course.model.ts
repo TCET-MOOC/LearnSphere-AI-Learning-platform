@@ -8,14 +8,17 @@ export type CourseStatus = 'DRAFT' | 'PENDING' | 'LIVE' | 'ARCHIVED';
  * Used to type course information across student and teacher panels.
  */
 export interface Course {
-  id: string;
+  id: number;
   title: string;
   description: string;
-  teacherId: string;
+  teacherId: number;
+  teacherName?: string;
   department: string;
   thumbnail: string;
   status: CourseStatus;
   price: number;
+  createdAt?: string;
+  lectureCount?: number;
 }
 
 /**
@@ -23,8 +26,8 @@ export interface Course {
  * Contains metadata and the HLS stream URL for playback.
  */
 export interface Lecture {
-  id: string;
-  courseId: string;
+  id: number;
+  courseId: number;
   title: string;
   number: number;
   videoUrl: string;
@@ -35,17 +38,43 @@ export interface Lecture {
 
 /**
  * Interface representing a student's personal Note on a lecture moment.
- * Tied to a course and lecture at a specific playback position.
+ * Tied to a course and lecture at a specific playback position (optional —
+ * a note can also be a freestanding note not linked to any lecture).
  */
 export interface Note {
-  id: string;
-  courseId: string;
-  courseName: string;
-  lectureId: string;
-  lectureLabel: string;     // e.g. "Lec 8"
+  id: number;
+  courseId?: number;
+  courseName?: string;
+  lectureId?: number;
+  lectureLabel?: string;     // e.g. "Lec 8"
   timestampSeconds: number; // playback position in seconds
   title: string;
   content: string;
   tags: string[];
   createdAt: string;        // ISO date string
+}
+
+/**
+ * A student's progress on a single lecture.
+ */
+export interface LectureProgress {
+  id?: number;
+  lectureId: number;
+  progressPercent: number;
+  secondsWatched: number;
+  completedAt?: string | null;
+}
+
+/**
+ * A bookmark placed at a specific timestamp within a lecture.
+ */
+export interface Bookmark {
+  id: number;
+  lectureId: number;
+  lectureTitle?: string;
+  courseId?: number;
+  courseName?: string;
+  timestampSeconds: number;
+  label: string;
+  createdAt: string;
 }

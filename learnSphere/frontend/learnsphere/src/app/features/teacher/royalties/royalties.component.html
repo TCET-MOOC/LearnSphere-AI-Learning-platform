@@ -4,22 +4,22 @@
   <div class="stats-grid">
     <div class="stat-box">
       <span class="stat-label">This month</span>
-      <span class="stat-value">₹18,400</span>
-      <span class="stat-subtext text-success">+22% vs last month</span>
+      <span class="stat-value">{{ thisMonthTotal }}</span>
+      <span class="stat-subtext">Earned so far this period</span>
     </div>
     <div class="stat-box">
       <span class="stat-label">Total earned</span>
-      <span class="stat-value">₹1.2L</span>
+      <span class="stat-value">{{ totalEarned }}</span>
       <span class="stat-subtext">Since joining</span>
     </div>
     <div class="stat-box">
       <span class="stat-label">Next payout</span>
-      <span class="stat-value">30 Jun</span>
-      <span class="stat-subtext text-purple">₹18,400 pending</span>
+      <span class="stat-value">{{ pendingPayoutAmount }}</span>
+      <span class="stat-subtext text-purple">Pending balance</span>
     </div>
     <div class="stat-box">
       <span class="stat-label">External enrollments</span>
-      <span class="stat-value">48</span>
+      <span class="stat-value">{{ externalEnrollments }}</span>
       <span class="stat-subtext text-success">Paid students</span>
     </div>
   </div>
@@ -80,7 +80,7 @@
       </div>
     </div>
     <p class="disclaimer-text">
-      Platform takes 20% of all sales. Remaining 80% is your royalty. Paid to linked bank account monthly.
+      Platform takes 30% of all sales. Remaining 70% is your royalty. Paid to linked bank account monthly.
     </p>
   </div>
 </div>

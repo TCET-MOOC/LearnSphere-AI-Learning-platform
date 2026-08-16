@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SentimentService } from '../services/sentiment.service';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-sentiment',
@@ -9,54 +11,51 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./sentiment.component.scss']
 })
 export class SentimentComponent implements OnInit {
-  
-  // Tab State
+
+  // Tab is display-only: the backend currently returns one platform-wide
+  // snapshot, so switching tabs doesn't refetch a different slice yet.
   activeTab = 'Platform-wide';
   tabs = ['Platform-wide', 'By course', 'By teacher', 'By college'];
 
-  // Mock Data matching the UI
-  courseTypeSentiment = [
-    { type: 'Math / Science', positive: 76, color: '#0f9d58' },
-    { type: 'Engineering', positive: 71, color: '#534AB7' },
-    { type: 'CS / IT', positive: 80, color: '#0d47a1' },
-    { type: 'Remedial', positive: 52, color: '#b06000' }
-  ];
+  loading = false;
+  totalAnalyzed = 0;
+  positivePercent = 0;
+  neutralPercent = 0;
+  negativePercent = 0;
+  courseTypeSentiment: { type: string; positive: number; color: string }[] = [];
+  negativeKeywords: { word: string; count: number; severity: string }[] = [];
+  recommendations: { title: string; description: string; action: string; actionClass: string }[] = [];
+  teacherScores: { initials: string; name: string; comments: number; score: string; status: string }[] = [];
 
-  negativeKeywords = [
-    { word: 'difficult', count: 214, severity: 'high' },
-    { word: 'confusing', count: 188, severity: 'high' },
-    { word: 'slow pace', count: 144, severity: 'medium' },
-    { word: 'audio issue', count: 112, severity: 'medium' },
-    { word: 'incomplete', count: 98, severity: 'medium' },
-    { word: 'boring', count: 76, severity: 'low' },
-    { word: 'too fast', count: 64, severity: 'low' },
-    { word: 'rude', count: 22, severity: 'high' }
-  ];
+  constructor(
+    private sentimentService: SentimentService,
+    private notificationService: NotificationService
+  ) {}
 
-  recommendations = [
-    {
-      title: '"audio issue" spike in Thermodynamics',
-      description: '14 comments mention low audio in Lec 4–6',
-      action: 'Notify teacher',
-      actionClass: 'btn-outline-amber'
-    },
-    {
-      title: '"rude" keyword in DSA discussion',
-      description: 'Possible conflict between students — 3 posts',
-      action: 'Review posts',
-      actionClass: 'btn-outline-grey'
-    }
-  ];
+  ngOnInit(): void {
+    this.load();
+  }
 
-  teacherScores = [
-    { initials: 'AS', name: 'Prof. A. Sharma', comments: 142, score: '97% positive', status: 'positive' },
-    { initials: 'SM', name: 'Prof. S. Mehta', comments: 118, score: '91% positive', status: 'positive' },
-    { initials: 'RP', name: 'Prof. R. Patil', comments: 88, score: '68% positive', status: 'warning' }
-  ];
-
-  constructor() { }
-
-  ngOnInit(): void { }
+  load(): void {
+    this.loading = true;
+    this.sentimentService.getSentiment().subscribe({
+      next: (summary) => {
+        this.totalAnalyzed = summary.totalAnalyzed;
+        this.positivePercent = summary.positivePercent;
+        this.neutralPercent = summary.neutralPercent;
+        this.negativePercent = summary.negativePercent;
+        this.courseTypeSentiment = summary.courseTypeSentiment;
+        this.negativeKeywords = summary.negativeKeywords;
+        this.recommendations = summary.recommendations;
+        this.teacherScores = summary.teacherScores;
+        this.loading = false;
+      },
+      error: () => {
+        this.notificationService.error('Failed to load sentiment data.');
+        this.loading = false;
+      }
+    });
+  }
 
   setTab(tab: string) {
     this.activeTab = tab;
