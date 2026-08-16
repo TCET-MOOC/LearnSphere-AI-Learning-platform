@@ -4,6 +4,8 @@ import { CertificatesComponent } from './features/student/certificates/certifica
 import { RoyaltiesComponent as TeacherRoyalties } from './features/teacher/royalties/royalties.component';
 import { SentimentComponent as AdminSentiment } from './features/admin/sentiment/sentiment.component';
 import { RegisterComponent } from './features/auth/register/register.component';
+import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
+import { VerifyCollegeComponent } from './features/auth/verify-college/verify-college.component';
 import { LandingComponent } from './features/landing/landing.component';
 import { DashboardComponent as StudentDashboard } from './features/student/dashboard/dashboard.component';
 import { DashboardComponent as TeacherDashboard } from './features/teacher/dashboard/dashboard.component';
@@ -13,10 +15,18 @@ import { MessagesComponent as StudentMessages } from './features/student/message
 import { MessagesComponent as AdminMessages } from './features/admin/messages/messages.component';
 import { CoursesComponent as StudentCourses } from './features/student/courses/courses.component';
 import { LectureComponent as StudentLectures } from './features/student/courses/lecture/lecture.component';
+import { CourseDetailComponent as StudentCourseDetail } from './features/student/courses/course-details/course-detail.component';
+import { NotesComponent as StudentNotes } from './features/student/notes/notes.component';
+import { BookmarksComponent as StudentBookmarks } from './features/student/bookmarks/bookmarks.component';
 import { CoursesComponent as TeacherCourses } from './features/teacher/courses/courses.component';
+import { CourseManagementComponent as TeacherCourseManagement } from './features/teacher/courses/course-management/course-management.component';
+import { UploadComponent as TeacherUpload } from './features/teacher/upload/upload.component';
+import { AssessmentsComponent as StudentAssessments } from './features/student/assessments/assessments.component';
+import { QuizComponent as StudentQuiz } from './features/student/assessments/quiz/quiz.component';
 import { UsersComponent as AdminUsers } from './features/admin/users/users.component';
 import { LeaderboardComponent as StudentLeaderboard } from './features/student/leaderboard/leaderboard.component';
 import { DiscussionComponent as StudentDiscussion } from './features/student/discussion/discussion.component';
+import { DiscussionComponent as TeacherDiscussion } from './features/teacher/discussion/discussion.component';
 import { LiveComponent as TeacherLive } from './features/teacher/live/live.component';
 import { TrendingComponent as TeacherTrending } from './features/teacher/trending/trending.component';
 import { PayoutsComponent as AdminPayouts } from './features/admin/payouts/payouts.component';
@@ -33,49 +43,82 @@ import { SettingsComponent as AdminSettings } from './features/admin/settings/se
 import { AnnouncementsComponent as AdminAnnouncements } from './features/admin/announcements/announcements.component';
 import { NotificationsComponent as AdminNotifications } from './features/admin/notifications/notifications.component';
 import { ProfileComponent as AdminProfile } from './features/admin/profile/profile.component';
+import { CollegesComponent as AdminColleges } from './features/admin/colleges/colleges.component';
+import { ReportsComponent as AdminReports } from './features/admin/reports/reports.component';
+import { RevenueComponent as AdminRevenue } from './features/admin/revenue/revenue.component';
+import { CoursesComponent as AdminCourses } from './features/admin/courses/courses.component';
+import { CheckoutComponent } from './features/payment/checkout.component';
+import { PaymentSuccessComponent } from './features/payment/payment-success.component';
+import { NotFoundComponent } from './features/not-found/not-found.component';
+import { StudentsComponent as TeacherStudents } from './features/teacher/students/students.component';
+import { authGuard } from './core/auth/auth.guard';
+import { roleGuard } from './core/auth/role.guard';
+import { UserRole } from './core/models/user.model';
+
+const STUDENT = [UserRole.STUDENT];
+const TEACHER = [UserRole.TEACHER];
+const ADMIN = [UserRole.ADMIN];
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'student/dashboard', component: StudentDashboard },
-  { path: 'student/courses', component: StudentCourses },
-  { path: 'student/lectures', component: StudentLectures },
-  { path: 'student/messages', component: StudentMessages },
-  { path: 'student/leaderboard', component: StudentLeaderboard },
-  { path: 'student/discussion', component: StudentDiscussion },
-  { path: 'student/certificates', component: CertificatesComponent },
-  { path: 'teacher/royalties', component: TeacherRoyalties },
-  { path: 'admin/sentiment', component: AdminSentiment },
-  
-  { path: 'teacher/dashboard', component: TeacherDashboard },
-  { path: 'teacher/courses', component: TeacherCourses },
-  { path: 'teacher/messages', component: TeacherMessages },
-  { path: 'teacher/live', component: TeacherLive },
-  { path: 'teacher/trending', component: TeacherTrending },
-  { path: 'admin/dashboard', component: AdminDashboard },
-  { path: 'admin/users', component: AdminUsers },
-  { path: 'admin/messages', component: AdminMessages },
-  { path: 'admin/payouts', component: AdminPayouts },
-  { path: 'admin/flagged', component: AdminFlagged },
-  { path: 'student/settings', component: StudentSettings },
-  { path: 'student/announcements', component: StudentAnnouncements },
-  { path: 'student/notifications', component: StudentNotifications },
-  { path: 'student/profile', component: StudentProfile },
-  { path: 'teacher/dashboard', component: TeacherDashboard },
-  { path: 'teacher/courses', component: TeacherCourses },
-  { path: 'teacher/messages', component: TeacherMessages },
-  { path: 'teacher/settings', component: TeacherSettings },
-  { path: 'teacher/announcements', component: TeacherAnnouncements },
-  { path: 'teacher/notifications', component: TeacherNotifications },
-  { path: 'teacher/profile', component: TeacherProfile },
-  { path: 'admin/dashboard', component: AdminDashboard },
-  { path: 'admin/users', component: AdminUsers },
-  { path: 'admin/messages', component: AdminMessages },
-  { path: 'admin/settings', component: AdminSettings },
-  { path: 'admin/announcements', component: AdminAnnouncements },
-  { path: 'admin/notifications', component: AdminNotifications },
-  { path: 'admin/profile', component: AdminProfile },
-  { path: 'admin/payouts', component: AdminPayouts }
-  
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'verify-college', component: VerifyCollegeComponent, canActivate: [authGuard] },
+  { path: 'payment/checkout/:courseId', component: CheckoutComponent, canActivate: [authGuard] },
+  { path: 'payment/success', component: PaymentSuccessComponent, canActivate: [authGuard] },
+
+  // Student portal
+  { path: 'student/dashboard', component: StudentDashboard, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/courses', component: StudentCourses, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/courses/:id', component: StudentCourseDetail, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/courses/:courseId/lecture/:lectureId', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/lectures', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/notes', component: StudentNotes, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/bookmarks', component: StudentBookmarks, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/messages', component: StudentMessages, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/leaderboard', component: StudentLeaderboard, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/discussion', component: StudentDiscussion, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/certificates', component: CertificatesComponent, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/assessments', component: StudentAssessments, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/assessments/:id', component: StudentQuiz, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/settings', component: StudentSettings, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/announcements', component: StudentAnnouncements, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/notifications', component: StudentNotifications, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/profile', component: StudentProfile, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+
+  // Teacher portal
+  { path: 'teacher/dashboard', component: TeacherDashboard, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/courses', component: TeacherCourses, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/students', component: TeacherStudents, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/courses/new', component: TeacherCourseManagement, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/courses/:id/manage', component: TeacherCourseManagement, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/upload', component: TeacherUpload, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/discussion', component: TeacherDiscussion, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/messages', component: TeacherMessages, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/live', component: TeacherLive, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/trending', component: TeacherTrending, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/royalties', component: TeacherRoyalties, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/settings', component: TeacherSettings, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/announcements', component: TeacherAnnouncements, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/notifications', component: TeacherNotifications, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'teacher/profile', component: TeacherProfile, canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+
+  // Admin portal
+  { path: 'admin/dashboard', component: AdminDashboard, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/users', component: AdminUsers, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/messages', component: AdminMessages, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/payouts', component: AdminPayouts, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/flagged', component: AdminFlagged, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/sentiment', component: AdminSentiment, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/settings', component: AdminSettings, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/announcements', component: AdminAnnouncements, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/notifications', component: AdminNotifications, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/profile', component: AdminProfile, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/colleges', component: AdminColleges, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/reports', component: AdminReports, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/revenue', component: AdminRevenue, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+  { path: 'admin/courses', component: AdminCourses, canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
+
+  { path: '**', component: NotFoundComponent },
 ];

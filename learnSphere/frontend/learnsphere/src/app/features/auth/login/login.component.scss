@@ -24,6 +24,16 @@ $text-secondary: #6B6880;
   border: 1px solid $border;
 }
 
+.error-banner {
+  background: #FDECEC;
+  color: #B3261E;
+  border: 1px solid #F5C2C2;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
 .brand {
   text-align: center;
   margin-bottom: 32px;

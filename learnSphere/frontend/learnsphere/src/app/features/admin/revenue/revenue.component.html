@@ -1,0 +1,62 @@
+<div class="page-container">
+  <h1 class="page-title">Revenue</h1>
+
+  <p class="hint" *ngIf="loading">Loading…</p>
+
+  <ng-container *ngIf="!loading && summary">
+    <div class="stats-grid">
+      <div class="stat-box">
+        <span class="stat-label">Total revenue</span>
+        <span class="stat-value">₹{{ summary.totalRevenue | number }}</span>
+        <span class="stat-subtext">All-time, successful payments</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Platform earnings</span>
+        <span class="stat-value">₹{{ summary.platformEarnings | number }}</span>
+        <span class="stat-subtext">{{ summary.platformCutPercent }}% platform cut</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Teacher royalties</span>
+        <span class="stat-value">₹{{ summary.teacherRoyalties | number }}</span>
+        <span class="stat-subtext">{{ summary.teacherRoyaltyPercent }}% teacher share</span>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2 class="section-title">Revenue by month</h2>
+      <div class="month-bars" *ngIf="summary.byMonth.length > 0; else noMonths">
+        <div class="month-row" *ngFor="let m of summary.byMonth">
+          <span class="month-label">{{ m.month }}</span>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="(m.amount / maxMonthlyAmount()) * 100"></div>
+          </div>
+          <span class="month-amount">₹{{ m.amount | number }}</span>
+        </div>
+      </div>
+      <ng-template #noMonths>
+        <p class="hint">No successful payments yet.</p>
+      </ng-template>
+    </div>
+
+    <div class="section-card">
+      <h2 class="section-title">Revenue by course</h2>
+      <div class="course-table" *ngIf="summary.byCourse.length > 0; else noCourses">
+        <div class="course-row course-row--head">
+          <span>Course</span>
+          <span>Teacher</span>
+          <span>Purchases</span>
+          <span>Revenue</span>
+        </div>
+        <div class="course-row" *ngFor="let c of summary.byCourse">
+          <span>{{ c.courseTitle }}</span>
+          <span>{{ c.teacherName }}</span>
+          <span>{{ c.purchases }}</span>
+          <span>₹{{ c.amount | number }}</span>
+        </div>
+      </div>
+      <ng-template #noCourses>
+        <p class="hint">No course revenue yet.</p>
+      </ng-template>
+    </div>
+  </ng-container>
+</div>

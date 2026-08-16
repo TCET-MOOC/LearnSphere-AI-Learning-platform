@@ -70,6 +70,22 @@ $blue: #0c447c;
     background: $brand;
     color: #fff;
   }
+
+  &--soft {
+    background: $brand-soft;
+    color: $brand;
+  }
+}
+
+.player-head__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hint {
+  color: $muted;
+  font-size: 12px;
 }
 
 .link-btn {

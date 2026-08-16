@@ -62,7 +62,7 @@ export class StudentsComponent implements OnInit {
   /**
    * Tracking set of student IDs currently receiving nudges to handle button disable states.
    */
-  nudgingIds = new Set<string>();
+  nudgingIds = new Set<number>();
 
   /**
    * Column configuration metadata for the data-table component.
@@ -156,7 +156,7 @@ export class StudentsComponent implements OnInit {
   /**
    * Sends a warning nudge notification. Prevents double clicks using the nudgingIds Set.
    */
-  sendNudge(studentId: string): void {
+  sendNudge(studentId: number): void {
     this.nudgingIds.add(studentId);
     const courseId = this.selectedTab === 'Discrete Math' ? 'discrete-math' : 'math-iii';
     
@@ -175,7 +175,7 @@ export class StudentsComponent implements OnInit {
   /**
    * Helper check determining if a nudge API request is currently in flight.
    */
-  isNudging(studentId: string): boolean {
+  isNudging(studentId: number): boolean {
     return this.nudgingIds.has(studentId);
   }
 

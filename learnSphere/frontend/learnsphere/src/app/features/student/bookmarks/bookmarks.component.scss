@@ -1,0 +1,100 @@
+$brand: #534ab7;
+$brand-soft: #eeedfe;
+$text: #1a1830;
+$muted: #6b6880;
+$border: #e8e7ef;
+$bg: #f5f5f8;
+
+:host {
+  display: block;
+}
+
+.bookmarks-page {
+  min-height: 100%;
+  padding: 24px 32px;
+  background: $bg;
+  color: $text;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.page-head {
+  margin-bottom: 16px;
+
+  h1 { margin: 2px 0 0; font-size: 24px; }
+}
+
+.eyebrow {
+  margin: 0;
+  color: #a09db8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.hint {
+  color: $muted;
+  font-size: 12px;
+}
+
+.bookmark-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.bookmark-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 4px;
+  border-bottom: 1px solid $bg;
+
+  &:last-child { border-bottom: none; }
+}
+
+.bookmark-time {
+  width: 52px;
+  padding: 4px 0;
+  border-radius: 8px;
+  background: $brand-soft;
+  color: $brand;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.bookmark-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong { font-size: 13px; }
+  small { color: $muted; font-size: 11px; }
+}
+
+.bookmark-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 11px;
+  font: 600 11.5px Inter, Arial;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+}
+.btn--soft { background: $brand-soft; color: $brand; }
+.btn--ghost { background: transparent; color: $muted; border: 1px solid $border; }

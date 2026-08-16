@@ -1,0 +1,50 @@
+<div class="page-container">
+  <header class="page-head">
+    <h1 class="page-title">Reports</h1>
+    <button class="btn btn--primary" type="button" [disabled]="!summary" (click)="exportCsv()">Export CSV</button>
+  </header>
+
+  <p class="hint" *ngIf="loading">Loading…</p>
+  <p class="hint" *ngIf="exportedAt">Last exported {{ exportedAt | date:'short' }}.</p>
+
+  <ng-container *ngIf="!loading && summary">
+    <div class="stats-grid">
+      <div class="stat-box">
+        <span class="stat-label">Total users</span>
+        <span class="stat-value">{{ summary.totalUsers | number }}</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Total courses</span>
+        <span class="stat-value">{{ summary.totalCourses | number }}</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Total revenue</span>
+        <span class="stat-value">₹{{ summary.totalRevenue | number }}</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Certificates issued</span>
+        <span class="stat-value">{{ summary.totalCertificatesIssued | number }}</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Flagged content pending</span>
+        <span class="stat-value">{{ summary.flaggedContentPending | number }}</span>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2 class="section-title">Users by role</h2>
+      <div class="row" *ngFor="let entry of roleEntries()">
+        <span>{{ entry[0] }}</span>
+        <strong>{{ entry[1] }}</strong>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2 class="section-title">Courses by status</h2>
+      <div class="row" *ngFor="let entry of statusEntries()">
+        <span>{{ entry[0] }}</span>
+        <strong>{{ entry[1] }}</strong>
+      </div>
+    </div>
+  </ng-container>
+</div>

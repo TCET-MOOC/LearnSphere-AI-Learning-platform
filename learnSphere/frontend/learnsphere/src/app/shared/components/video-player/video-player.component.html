@@ -1,0 +1,46 @@
+<div class="video-player">
+  <div class="video-player__shell" *ngIf="resolvedSrc; else noSrc">
+    <video
+      #videoEl
+      [src]="resolvedSrc"
+      [poster]="poster || undefined"
+      (play)="onPlay()"
+      (pause)="onPause()"
+      (ended)="onEnded()"
+      (loadedmetadata)="onLoadedMetadata()"
+      (timeupdate)="onTimeUpdate()"
+      (click)="togglePlay()"
+      playsinline>
+    </video>
+
+    <button
+      class="video-player__big-play"
+      *ngIf="!isPlaying"
+      type="button"
+      (click)="togglePlay()"
+      aria-label="Play video">
+      ▶
+    </button>
+
+    <div class="video-player__controls">
+      <button class="video-player__btn" type="button" (click)="togglePlay()" [attr.aria-label]="isPlaying ? 'Pause' : 'Play'">
+        {{ isPlaying ? '⏸' : '▶' }}
+      </button>
+      <span class="video-player__time">{{ formatTime(currentTime) }}</span>
+      <input
+        class="video-player__seek"
+        type="range"
+        min="0"
+        [max]="duration || 0"
+        step="1"
+        [value]="currentTime"
+        (input)="onSeek($event)"
+        aria-label="Seek" />
+      <span class="video-player__time">{{ formatTime(duration) }}</span>
+    </div>
+  </div>
+
+  <ng-template #noSrc>
+    <div class="video-player__empty">Video is not available yet.</div>
+  </ng-template>
+</div>

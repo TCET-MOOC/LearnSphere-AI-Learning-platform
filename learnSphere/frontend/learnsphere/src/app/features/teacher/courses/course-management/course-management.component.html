@@ -1,0 +1,28 @@
+<div class="course-management">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Teacher view</p>
+      <h1>{{ isEditMode ? (course?.title || 'Edit course') : 'New course' }}</h1>
+    </div>
+    <a class="btn btn--ghost" routerLink="/teacher/courses">Back to courses</a>
+  </header>
+
+  <p class="hint" *ngIf="loading">Loading course…</p>
+
+  <section class="card" *ngIf="!loading">
+    <h2>Course details</h2>
+    <app-course-editor [course]="course" [saving]="saving" (save)="onSave($event)"></app-course-editor>
+  </section>
+
+  <section class="card" *ngIf="!loading && isEditMode && courseId">
+    <app-lecture-list [courseId]="courseId"></app-lecture-list>
+  </section>
+
+  <section class="card" *ngIf="!loading && isEditMode && courseId">
+    <app-quiz-builder></app-quiz-builder>
+  </section>
+
+  <section class="card" *ngIf="!loading && !isEditMode">
+    <p class="hint">Save the course first, then you'll be able to add lectures.</p>
+  </section>
+</div>

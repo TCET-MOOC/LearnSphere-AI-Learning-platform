@@ -1,0 +1,72 @@
+<div class="lecture-list-wrap">
+  <div class="lecture-list-head">
+    <h3>Lectures</h3>
+    <button class="btn btn--soft" type="button" (click)="openAddForm()">+ Add lecture</button>
+  </div>
+
+  <p class="hint" *ngIf="loading">Loading lectures…</p>
+
+  <div class="lecture-rows" *ngIf="!loading">
+    <div class="lecture-row" *ngFor="let lecture of lectures">
+      <span class="lecture-num">{{ lecture.number }}</span>
+      <div class="lecture-info">
+        <strong>{{ lecture.title }}</strong>
+        <small>{{ lecture.duration | duration }} · {{ lecture.status }}</small>
+      </div>
+      <div class="lecture-row-actions">
+        <button class="link-btn" type="button" (click)="openEditForm(lecture)">Edit</button>
+        <button class="link-btn link-btn--danger" type="button" (click)="remove(lecture)">Delete</button>
+      </div>
+    </div>
+    <p class="hint" *ngIf="lectures.length === 0">No lectures yet. Add your first one.</p>
+  </div>
+
+  <div class="lecture-form-overlay" *ngIf="showForm">
+    <form class="lecture-form" [formGroup]="form" (ngSubmit)="submit()">
+      <h4>{{ editingLecture ? 'Edit lecture' : 'Add lecture' }}</h4>
+
+      <label>
+        Title
+        <input type="text" formControlName="title" placeholder="Lecture title" />
+      </label>
+
+      <label>
+        Number
+        <input type="number" min="1" formControlName="number" />
+      </label>
+
+      <label class="full">
+        Video
+        <input type="file" accept="video/*" (change)="onVideoSelected($event)" />
+        <span class="upload-hint" *ngIf="uploadingVideo">Uploading… {{ uploadPercent }}%</span>
+        <span class="upload-hint" *ngIf="form.value.videoUrl && !uploadingVideo">Current: {{ form.value.videoUrl }}</span>
+      </label>
+
+      <label>
+        Duration (seconds)
+        <input type="number" min="0" formControlName="duration" />
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" formControlName="isDownloadable" />
+        Allow download
+      </label>
+
+      <label>
+        Status
+        <select formControlName="status">
+          <option value="DRAFT">Draft</option>
+          <option value="PROCESSING">Processing</option>
+          <option value="PUBLISHED">Published</option>
+        </select>
+      </label>
+
+      <div class="form-actions full">
+        <button type="button" class="btn btn--ghost" (click)="cancelForm()">Cancel</button>
+        <button type="submit" class="btn btn--primary" [disabled]="form.invalid || saving">
+          {{ saving ? 'Saving…' : 'Save lecture' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

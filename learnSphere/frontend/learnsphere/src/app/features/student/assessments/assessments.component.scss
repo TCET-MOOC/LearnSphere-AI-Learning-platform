@@ -1,0 +1,98 @@
+$brand: #534ab7;
+$amber: #b06000;
+$amber-soft: #fdf3eb;
+$text: #1a1830;
+$muted: #6b6880;
+$border: #e8e7ef;
+$bg: #f5f5f8;
+
+:host {
+  display: block;
+}
+
+.assessments-page {
+  min-height: 100%;
+  padding: 24px 32px;
+  background: $bg;
+  color: $text;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.page-head {
+  margin-bottom: 16px;
+
+  h1 { margin: 2px 0 0; font-size: 24px; }
+}
+
+.eyebrow {
+  margin: 0;
+  color: #a09db8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.mt-16 { margin-top: 16px; }
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.hint {
+  color: $muted;
+  font-size: 12px;
+}
+
+.assessment-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.assessment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 4px;
+  border-bottom: 1px solid $bg;
+
+  &:last-child { border-bottom: none; }
+}
+
+.assessment-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  strong { font-size: 13px; }
+  small { color: $muted; font-size: 11px; }
+}
+
+.btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font: 600 12px 'Inter', Arial;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn--primary {
+  background: $brand;
+  color: #fff;
+}
+
+.btn--amber {
+  background: $amber-soft;
+  color: $amber;
+}

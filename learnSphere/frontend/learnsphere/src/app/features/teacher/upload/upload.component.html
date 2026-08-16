@@ -1,0 +1,30 @@
+<div class="upload-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Teacher view</p>
+      <h1>Upload content</h1>
+    </div>
+    <a class="btn btn--ghost" routerLink="/teacher/courses">Back to courses</a>
+  </header>
+
+  <div class="upload-grid">
+    <app-video-upload (uploaded)="onVideoUploaded($event)"></app-video-upload>
+    <app-resource-upload (uploaded)="onResourceUploaded($event)"></app-resource-upload>
+  </div>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Recent uploads (this session)</h2>
+    </div>
+    <div class="recent-list" *ngIf="recentUploads.length > 0; else empty">
+      <div class="recent-row" *ngFor="let file of recentUploads">
+        <span class="pill" [ngClass]="file.kind === 'video' ? 'pill--purple' : 'pill--blue'">{{ file.kind }}</span>
+        <span class="recent-url">{{ file.url }}</span>
+        <button class="link-btn" type="button" (click)="copy(file.url)">Copy</button>
+      </div>
+    </div>
+    <ng-template #empty>
+      <p class="hint">Nothing uploaded yet this session.</p>
+    </ng-template>
+  </section>
+</div>

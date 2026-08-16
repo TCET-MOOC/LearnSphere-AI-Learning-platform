@@ -78,7 +78,7 @@ export class NotesComponent implements OnInit {
         this.notes = data;
         
         // Extract distinct course names dynamically from the loaded notes data
-        const distinctCourses = new Set(data.map(n => n.courseName));
+        const distinctCourses = new Set(data.map(n => n.courseName).filter((c): c is string => !!c));
         this.courses = Array.from(distinctCourses);
         
         this.applyFilters();
@@ -166,7 +166,7 @@ export class NotesComponent implements OnInit {
     
     if (this.selectedCourse === 'all') {
       // Group and export all notes sorted by course name
-      const grouped = [...this.notes].sort((a, b) => a.courseName.localeCompare(b.courseName));
+      const grouped = [...this.notes].sort((a, b) => (a.courseName || '').localeCompare(b.courseName || ''));
       this.generatePDF(grouped, 'Study Notes Grouped by Course');
     } else {
       // Export only selected course
