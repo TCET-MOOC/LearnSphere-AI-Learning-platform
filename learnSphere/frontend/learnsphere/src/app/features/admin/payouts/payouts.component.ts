@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { LucideAngularModule } from 'lucide-angular';
@@ -27,7 +27,8 @@ export class PayoutsComponent implements OnInit {
   constructor(
     private payoutService: PayoutService,
     private notificationService: NotificationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -36,14 +37,17 @@ export class PayoutsComponent implements OnInit {
 
   loadPending(): void {
     this.loading = true;
+    this.cdr.markForCheck();
     this.payoutService.getPendingPayouts().subscribe({
       next: (rows) => {
         this.pendingPayouts = rows;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loading = false;
         this.notificationService.error('Failed to load pending payouts.');
+        this.cdr.markForCheck();
       }
     });
   }

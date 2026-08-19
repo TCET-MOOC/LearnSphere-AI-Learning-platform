@@ -1,71 +1,122 @@
 <div class="flagged-page">
-
   <!-- Header -->
-  <div class="page-header">
+  <header class="page-header">
     <div class="page-header__left">
-      <p class="eyebrow">Moderation & Compliance Queue</p>
-      <h1 class="page-title"><lucide-icon name="flag" class="title-icon"></lucide-icon> Flagged Content</h1>
-      <p class="page-subtitle">Keyword-based automated moderation queue · Review, audit, and resolve reported discussions.</p>
+      <div class="eyebrow-pill">
+        <lucide-icon name="shield-alert" [size]="12"></lucide-icon>
+        <span>Content Compliance & Integrity</span>
+      </div>
+      <h1 class="page-title">Moderation Queue</h1>
+      <p class="page-subtitle">Automated keyword scanning & student incident reports across discussion forums and direct messaging.</p>
     </div>
-    <span class="badge-red">{{ openCount }} open</span>
+    <div class="header-status">
+      <span class="badge" [ngClass]="openCount > 0 ? 'badge--amber' : 'badge--green'">
+        <span class="status-dot"></span>
+        {{ openCount > 0 ? openCount + ' Open Flags' : 'Queue Clear' }}
+      </span>
+    </div>
+  </header>
+
+  <!-- Skeleton Loading -->
+  <div class="skeleton-container" *ngIf="loading">
+    <div class="stats-grid">
+      <div class="skeleton-card skeleton-pulse" *ngFor="let i of [1,2,3]"></div>
+    </div>
+    <div class="skeleton-card-lg skeleton-pulse" *ngFor="let i of [1,2]"></div>
   </div>
 
-  <!-- KPI Cards -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-card__label">Open flags</div>
-      <div class="stat-card__value">{{ openCount }}</div>
-      <div class="stat-card__sub stat-card__sub--red">{{ highRiskCount }} high risk</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-card__label">Bullying</div>
-      <div class="stat-card__value">{{ bullyingCount }}</div>
-      <div class="stat-card__sub">Auto-flagged by keyword match</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-card__label">Spam</div>
-      <div class="stat-card__value">{{ spamCount }}</div>
-      <div class="stat-card__sub">Auto-flagged by keyword match</div>
-    </div>
-  </div>
-
-  <!-- Filter Tabs -->
-  <div class="tabs">
-    <button
-      *ngFor="let tab of tabs"
-      class="tab-btn"
-      [class.tab-btn--active]="activeTab === tab.id"
-      (click)="setTab(tab.id)">
-      {{ tab.label }}
-    </button>
-  </div>
-
-  <!-- Flagged Posts -->
-  <p class="hint" *ngIf="loading">Loading…</p>
-  <p class="hint" *ngIf="!loading && items.length === 0">Nothing flagged right now.</p>
-
-  <div class="flagged-list" *ngIf="!loading">
-    <div class="flag-card" [class.flag-card--high]="item.severity === 'high'" *ngFor="let item of items">
-      <div class="flag-card__header">
-        <div class="flag-card__user">
-          <div class="ava" [ngClass]="item.severity === 'high' ? 'ava--red' : 'ava--amber'">{{ item.authorInitials }}</div>
-          <div>
-            <div class="ava__name">{{ item.authorName }}</div>
-            <div class="ava__meta">{{ item.contentTypeLabel }} · {{ item.courseTitle || 'General' }} · {{ timeAgo(item.createdAt) }}</div>
-          </div>
+  <ng-container *ngIf="!loading">
+    <!-- KPI Cards -->
+    <div class="stats-grid">
+      <div class="stat-card stat-card--primary">
+        <div class="stat-top">
+          <span class="stat-card__label">Total Open Flags</span>
+          <lucide-icon name="flag" [size]="16" class="stat-icon"></lucide-icon>
         </div>
-        <span class="pill" [ngClass]="item.severity === 'high' ? 'pill--red' : 'pill--amber'">
-          <lucide-icon *ngIf="item.severity === 'high'" name="siren" class="pill-icon"></lucide-icon>
-          {{ item.reason.replace('_', ' ') | titlecase }}
-        </span>
+        <div class="stat-card__value tnum">{{ openCount }}</div>
+        <div class="stat-card__sub" [ngClass]="highRiskCount > 0 ? 'text-danger font-semibold' : 'text-muted'">
+          {{ highRiskCount }} High Severity Incidents
+        </div>
       </div>
-      <div class="flag-card__content" [ngClass]="item.severity === 'high' ? 'flag-card__content--danger' : 'flag-card__content--neutral'">
-        {{ item.snippet }}
+
+      <div class="stat-card stat-card--amber">
+        <div class="stat-top">
+          <span class="stat-card__label">Harassment / Bullying</span>
+          <lucide-icon name="alert-triangle" [size]="16" class="stat-icon"></lucide-icon>
+        </div>
+        <div class="stat-card__value tnum">{{ bullyingCount }}</div>
+        <div class="stat-card__sub">Auto-flagged via keyword lexicon</div>
       </div>
-      <div class="flag-card__actions">
-        <button class="btn btn--ghost" [disabled]="actingId === item.id" (click)="resolve(item)">Mark resolved</button>
-        <button class="btn btn--ghost" [disabled]="actingId === item.id" (click)="dismiss(item)">Dismiss</button>
+
+      <div class="stat-card stat-card--blue">
+        <div class="stat-top">
+          <span class="stat-card__label">Promotional / Spam</span>
+          <lucide-icon name="ban" [size]="16" class="stat-icon"></lucide-icon>
+        </div>
+        <div class="stat-card__value tnum">{{ spamCount }}</div>
+        <div class="stat-card__sub">Automated solicitation filters</div>
       </div>
     </div>
-  </div>
+
+    <!-- Filter Tabs -->
+    <nav class="tabs" aria-label="Moderation filters">
+      <button
+        *ngFor="let tab of tabs"
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab === tab.id"
+        (click)="setTab(tab.id)">
+        {{ tab.label }}
+      </button>
+    </nav>
+
+    <!-- Flagged Posts List -->
+    <div class="flagged-list" *ngIf="items.length > 0; else emptyQueue">
+      <article class="flag-card" [class.flag-card--high]="item.severity === 'high'" *ngFor="let item of items">
+        <div class="flag-card__header">
+          <div class="flag-card__user">
+            <div class="ava" [ngClass]="item.severity === 'high' ? 'ava--red' : 'ava--amber'">
+              {{ item.authorInitials }}
+            </div>
+            <div>
+              <div class="ava__name">{{ item.authorName }}</div>
+              <div class="ava__meta">
+                <span>{{ item.contentTypeLabel }}</span> &middot;
+                <span>{{ item.courseTitle || 'General Discussion' }}</span> &middot;
+                <span>{{ timeAgo(item.createdAt) }}</span>
+              </div>
+            </div>
+          </div>
+          <span class="pill" [ngClass]="item.severity === 'high' ? 'pill--red' : 'pill--amber'">
+            <lucide-icon *ngIf="item.severity === 'high'" name="alert-octagon" [size]="12"></lucide-icon>
+            {{ item.reason.replace('_', ' ') | titlecase }}
+          </span>
+        </div>
+
+        <div class="flag-card__content" [ngClass]="item.severity === 'high' ? 'flag-card__content--danger' : 'flag-card__content--neutral'">
+          <span class="quote-mark">“</span>
+          <p>{{ item.snippet }}</p>
+        </div>
+
+        <div class="flag-card__actions">
+          <button class="btn btn--soft" [disabled]="actingId === item.id" (click)="dismiss(item)">
+            <lucide-icon name="x" [size]="14"></lucide-icon> Dismiss False Flag
+          </button>
+          <button class="btn btn--danger" [disabled]="actingId === item.id" (click)="resolve(item)">
+            <lucide-icon name="check" [size]="14"></lucide-icon> Mark Resolved & Hide
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <!-- Empty Reassuring State -->
+    <ng-template #emptyQueue>
+      <div class="empty-card">
+        <div class="empty-icon-shield">
+          <lucide-icon name="shield-check" [size]="40"></lucide-icon>
+        </div>
+        <h2>Moderation Queue Clear</h2>
+        <p>No content currently requires administrator intervention. Automated keyword heuristics are actively scanning student discussions and direct messages.</p>
+      </div>
+    </ng-template>
+  </ng-container>
 </div>

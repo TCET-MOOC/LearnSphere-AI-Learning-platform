@@ -1,96 +1,114 @@
 <div class="payouts-page">
-
   <!-- Header -->
-  <div class="page-header">
+  <header class="page-header">
     <div>
-      <p class="page-header__eyebrow">Faculty Disbursements & Settlements</p>
-      <h1 class="page-header__title">Payouts Management</h1>
-      <p class="page-header__sub">Audit accrued teacher royalties, verify linked bank accounts, and process monthly disbursements.</p>
+      <div class="eyebrow-pill">
+        <lucide-icon name="banknote" [size]="12"></lucide-icon>
+        <span>Faculty Disbursements & Settlements</span>
+      </div>
+      <h1 class="page-title">Payouts Management</h1>
+      <p class="subtitle">Audit accrued teacher royalties, verify linked bank accounts, and process monthly disbursements.</p>
     </div>
     <button class="btn btn--primary" [disabled]="processingAll || pendingPayouts.length === 0" (click)="processAll()">
-      <lucide-icon *ngIf="!processingAll" name="zap" class="btn-icon"></lucide-icon>
-      {{ processingAll ? 'Processing…' : 'Process All Pending' }}
+      <lucide-icon *ngIf="!processingAll" name="zap" [size]="14"></lucide-icon>
+      <span>{{ processingAll ? 'Processing…' : 'Process All Pending' }}</span>
     </button>
-  </div>
+  </header>
 
-  <!-- KPI Cards -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-card__icon kpi-card__icon--warning">
-        <lucide-icon name="hourglass"></lucide-icon>
-      </div>
-      <div class="kpi-card__body">
-        <div class="kpi-card__value">₹{{ totalPending | number:'1.0-0' }}</div>
-        <div class="kpi-card__label">Pending Payouts</div>
-        <div class="kpi-card__sub kpi-card__sub--warning">To {{ pendingPayouts.length }} teacher(s)</div>
-      </div>
+  <!-- Skeleton Loading -->
+  <div class="skeleton-container" *ngIf="loading">
+    <div class="kpi-grid">
+      <div class="skeleton-card skeleton-pulse"></div>
+    </div>
+    <div class="content-grid">
+      <div class="skeleton-panel skeleton-pulse"></div>
+      <div class="skeleton-panel skeleton-pulse"></div>
     </div>
   </div>
 
-  <div class="content-grid">
-
-    <!-- Left: Pending payouts list -->
-    <div class="left-col">
-      <div class="panel">
-        <div class="panel__header">
-          <span class="panel__title">Pending Faculty Disbursements</span>
-          <span class="pill pill--amber">{{ pendingPayouts.length }} teacher(s)</span>
+  <ng-container *ngIf="!loading">
+    <!-- KPI Row -->
+    <div class="kpi-grid">
+      <div class="stat-card stat-card--amber">
+        <div class="stat-top">
+          <span class="stat-label">Pending Faculty Disbursements</span>
+          <lucide-icon name="hourglass" [size]="16" class="stat-icon"></lucide-icon>
         </div>
+        <div class="stat-value tnum">₹{{ totalPending | number:'1.0-0' }}</div>
+        <div class="stat-subtext">Accrued to {{ pendingPayouts.length }} eligible faculty member(s)</div>
+      </div>
+    </div>
 
-        <div class="payout-list" *ngIf="!loading && pendingPayouts.length > 0">
-          <div class="payout-item" *ngFor="let p of pendingPayouts">
-            <div class="payout-item__avatar">{{ initials(p.teacherName) }}</div>
-            <div class="payout-item__info">
-              <div class="payout-item__name">{{ p.teacherName }}</div>
-              <div class="payout-item__meta">{{ p.courseCount }} active course(s)</div>
+    <div class="content-grid">
+      <!-- Left: Pending payouts list -->
+      <div class="left-col">
+        <div class="panel">
+          <div class="panel__header">
+            <div>
+              <h2 class="panel__title">Pending Faculty Disbursements</h2>
+              <p class="panel__sub">Accrued course sales royalties awaiting bank settlement.</p>
             </div>
-            <div class="payout-item__amount">₹{{ p.pendingAmount | number:'1.0-0' }}</div>
-            <button class="btn btn--pay" [disabled]="isPaying(p.teacherId)" (click)="payTeacher(p)">
-              {{ isPaying(p.teacherId) ? 'Paying…' : 'Disburse' }}
-            </button>
+            <span class="badge badge--amber">{{ pendingPayouts.length }} Teacher(s)</span>
           </div>
-        </div>
 
-        <div class="empty-state" *ngIf="loading">
-          <lucide-icon name="hourglass" class="empty-icon"></lucide-icon>
-          <p>Loading pending payouts...</p>
-        </div>
+          <div class="payout-list" *ngIf="pendingPayouts.length > 0; else emptyState">
+            <div class="payout-item" *ngFor="let p of pendingPayouts">
+              <div class="payout-item__avatar">{{ initials(p.teacherName) }}</div>
+              <div class="payout-item__info">
+                <div class="payout-item__name">{{ p.teacherName }}</div>
+                <div class="payout-item__meta">{{ p.courseCount }} active course(s) on platform</div>
+              </div>
+              <div class="payout-item__amount tnum">₹{{ p.pendingAmount | number:'1.0-0' }}</div>
+              <button class="btn btn--primary btn--pay" [disabled]="isPaying(p.teacherId)" (click)="payTeacher(p)">
+                <lucide-icon name="send" [size]="13" *ngIf="!isPaying(p.teacherId)"></lucide-icon>
+                <span>{{ isPaying(p.teacherId) ? 'Paying…' : 'Disburse' }}</span>
+              </button>
+            </div>
+          </div>
 
-        <div class="empty-state" *ngIf="!loading && pendingPayouts.length === 0">
-          <lucide-icon name="banknote" class="empty-icon"></lucide-icon>
-          <h3>All Royalties Settled</h3>
-          <p>No pending payouts right now — every teacher's royalty balance is fully cleared.</p>
+          <ng-template #emptyState>
+            <div class="empty-state">
+              <div class="empty-icon-box">
+                <lucide-icon name="check-circle-2" [size]="36"></lucide-icon>
+              </div>
+              <h3>All Royalties Settled</h3>
+              <p>No pending payouts right now — every teacher's royalty balance is fully cleared.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Right: Summary Sidebar -->
+      <div class="right-col">
+        <div class="panel">
+          <div class="panel__header">
+            <h2 class="panel__title">Settlement Summary</h2>
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-box__row">
+              <span>Eligible Faculty</span>
+              <strong class="tnum">{{ pendingPayouts.length }}</strong>
+            </div>
+            <div class="summary-box__row">
+              <span>Royalty Split</span>
+              <strong class="text-success">70% Faculty / 30% Platform</strong>
+            </div>
+            <div class="summary-box__row summary-box__row--total">
+              <span>Total Outstanding</span>
+              <span class="total-amount tnum">₹{{ totalPending | number:'1.0-0' }}</span>
+            </div>
+          </div>
+
+          <button 
+            class="btn btn--primary full-width"
+            [disabled]="processingAll || pendingPayouts.length === 0" 
+            (click)="processAll()">
+            <lucide-icon *ngIf="!processingAll" name="zap" [size]="14"></lucide-icon> 
+            <span>{{ processingAll ? 'Processing…' : 'Disburse All Pending' }}</span>
+          </button>
         </div>
       </div>
     </div>
-
-    <!-- Right: Summary Sidebar -->
-    <div class="right-col">
-      <div class="panel">
-        <div class="panel__header">
-          <span class="panel__title">Settlement Summary</span>
-        </div>
-
-        <div class="summary-box">
-          <div class="summary-box__row">
-            <span>Eligible Teachers</span>
-            <strong>{{ pendingPayouts.length }}</strong>
-          </div>
-          <div class="summary-box__row summary-box__row--total">
-            <span>Total Outstanding</span>
-            <span class="total-amount">₹{{ totalPending | number:'1.0-0' }}</span>
-          </div>
-        </div>
-
-        <button 
-          class="btn btn--primary full-width"
-          [disabled]="processingAll || pendingPayouts.length === 0" 
-          (click)="processAll()">
-          <lucide-icon *ngIf="!processingAll" name="zap" class="btn-icon"></lucide-icon> 
-          {{ processingAll ? 'Processing…' : 'Process All Pending' }}
-        </button>
-      </div>
-    </div>
-  </div>
-
+  </ng-container>
 </div>

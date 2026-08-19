@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -58,7 +58,8 @@ export class UsersComponent implements OnInit {
     private adminService: AdminService,
     private moderationService: ModerationService,
     private notificationService: NotificationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -67,16 +68,19 @@ export class UsersComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.cdr.markForCheck();
     this.adminService.getUsers().subscribe({
       next: (records) => {
         this.allUsers = records.map((r) => this.toRow(r));
         this.buildTabs();
         this.applyFilters();
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.notificationService.error('Failed to load users.');
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
 
@@ -93,6 +97,7 @@ export class UsersComponent implements OnInit {
           { label: 'Weekly active', value: String(summary.weeklyActive), sub: 'Signed in this week', tone: 'purple' },
           { label: 'Inactive 30d+', value: String(summary.inactive30Days), sub: 'No recent activity', tone: 'blue' }
         ];
+        this.cdr.markForCheck();
       },
       error: () => {}
     });
@@ -151,15 +156,18 @@ export class UsersComponent implements OnInit {
   setTab(tab: string): void {
     this.activeTab = tab;
     this.applyFilters();
+    this.cdr.markForCheck();
   }
 
   onSearchChange(): void {
     this.applyFilters();
+    this.cdr.markForCheck();
   }
 
   clearSearch(): void {
     this.searchQuery = '';
     this.applyFilters();
+    this.cdr.markForCheck();
   }
 
   private applyFilters(): void {
@@ -262,9 +270,11 @@ export class UsersComponent implements OnInit {
 
   viewUser(user: AdminUserRow): void {
     this.selectedUserForInspect = user;
+    this.cdr.markForCheck();
   }
 
   closeUserInspect(): void {
     this.selectedUserForInspect = null;
+    this.cdr.markForCheck();
   }
 }

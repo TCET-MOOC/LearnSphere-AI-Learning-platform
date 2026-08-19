@@ -1,104 +1,201 @@
 <div class="dashboard-container">
-  <div class="page-header">
+  <!-- Institutional Telemetry Header -->
+  <header class="page-header">
     <div>
-      <p class="eyebrow">Institutional Administration</p>
+      <div class="eyebrow-pill">
+        <lucide-icon name="target" [size]="12"></lucide-icon>
+        <span>Institutional Command Desk</span>
+      </div>
       <h1 class="page-title">Platform Overview</h1>
       <p class="subtitle">Real-time telemetry across affiliated colleges, faculty payouts, user growth, and active courses.</p>
     </div>
-  </div>
+    <div class="header-badge">
+      <span class="pulse-indicator"></span>
+      <span>Autonomous Cluster Active</span>
+    </div>
+  </header>
 
-  <div class="kpi-row">
-    <div class="kpi-card" *ngFor="let card of kpiCards">
-      <div class="kpi-lbl">{{ card.label }}</div>
-      <div class="kpi-val">{{ card.value }}</div>
-      <div class="kpi-sub" [style.color]="card.subColor">{{ card.sub }}</div>
+  <!-- Skeleton Loading -->
+  <div class="skeleton-container" *ngIf="loading">
+    <div class="kpi-row">
+      <div class="skeleton-kpi skeleton-pulse" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+    <div class="main-split">
+      <div class="skeleton-col skeleton-pulse" *ngFor="let i of [1,2,3]"></div>
     </div>
   </div>
 
-  <div class="main-split">
-    
-    <div class="col">
-      <div class="card">
-        <div class="card-hd">
-          <span>Top teachers this month</span>
-          <span class="card-link" (click)="goToUsers()">All teachers</span>
-        </div>
-        <div class="list-row" *ngFor="let t of topTeachers">
-          <span class="rank-icon">{{ t.rank }}</span>
-          <div class="ava" [style.background]="t.bg" [style.color]="t.color">{{ t.initials }}</div>
-          <div class="info">
-            <div class="title">{{ t.name }}</div>
-            <div class="meta">{{ t.stats }}</div>
+  <ng-container *ngIf="!loading">
+    <!-- KPI Row -->
+    <div class="kpi-row">
+      <div class="kpi-card" *ngFor="let card of kpiCards" [class]="'kpi-card--' + card.tone">
+        <div class="kpi-top">
+          <span class="kpi-lbl">{{ card.label }}</span>
+          <div class="kpi-icon-badge">
+            <lucide-icon [name]="card.icon" [size]="16"></lucide-icon>
           </div>
-          <span class="pill" [style.color]="t.color" [style.background]="t.bg">{{ t.earnings }}</span>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-hd">
-          <span>Top students this month</span>
-          <span class="card-link" (click)="goToUsers()">All students</span>
-        </div>
-        <div class="list-row" *ngFor="let s of topStudents">
-          <span class="rank-icon">{{ s.rank }}</span>
-          <div class="ava" [style.background]="s.bg" [style.color]="s.color">{{ s.initials }}</div>
-          <div class="info"><div class="title">{{ s.name }}</div></div>
-          <span class="pill" [style.color]="s.color" [style.background]="s.bg">{{ s.pts }}</span>
-        </div>
+        <div class="kpi-val tnum">{{ card.value }}</div>
+        <div class="kpi-sub" [style.color]="card.subColor">{{ card.sub }}</div>
       </div>
     </div>
 
-    <div class="col">
-      <div class="card">
-        <div class="card-hd">Revenue split</div>
-        <div class="rev-row">
-          <div class="dot"></div>
-          <div class="rev-lbl">Teacher royalties</div>
-          <div class="rev-val">{{ kpiCards.length ? kpiCards[0].sub : '' }}</div>
+    <!-- Main 3-Column Split -->
+    <div class="main-split">
+      
+      <!-- Column 1: Leaderboards -->
+      <div class="col">
+        <div class="card">
+          <div class="card-hd">
+            <div class="hd-left">
+              <lucide-icon name="graduation-cap" [size]="16" class="hd-icon"></lucide-icon>
+              <span>Top Faculty This Month</span>
+            </div>
+            <span class="card-link" (click)="goToUsers()">All teachers →</span>
+          </div>
+          <div class="list-row" *ngFor="let t of topTeachers">
+            <div class="rank-badge-wrap">
+              <lucide-icon *ngIf="t.rank === 1" name="medal" class="rank-badge rank-badge--gold" [size]="20" title="Gold Medal · 1st Place"></lucide-icon>
+              <lucide-icon *ngIf="t.rank === 2" name="medal" class="rank-badge rank-badge--silver" [size]="19" title="Silver Medal · 2nd Place"></lucide-icon>
+              <lucide-icon *ngIf="t.rank === 3" name="medal" class="rank-badge rank-badge--bronze" [size]="18" title="Bronze Medal · 3rd Place"></lucide-icon>
+              <span *ngIf="t.rank > 3" class="rank-num">#{{ t.rank }}</span>
+            </div>
+            <div class="ava" [style.background]="t.bg" [style.color]="t.color">{{ t.initials }}</div>
+            <div class="info">
+              <div class="title">{{ t.name }}</div>
+              <div class="meta">{{ t.stats }}</div>
+            </div>
+            <span class="pill pill--amber tnum">{{ t.earnings }}</span>
+          </div>
+          <div class="empty-list-hint" *ngIf="topTeachers.length === 0">
+            No faculty royalty activity recorded yet.
+          </div>
         </div>
 
-        <div class="divider"></div>
-        <div class="payout-lbl">Pending payouts</div>
-        <div class="payout-val">₹{{ pendingPayoutTotal | number }} <span class="payout-sub">to {{ pendingPayouts.length }} teachers</span></div>
+        <div class="card">
+          <div class="card-hd">
+            <div class="hd-left">
+              <lucide-icon name="award" [size]="16" class="hd-icon"></lucide-icon>
+              <span>Top Academic Learners</span>
+            </div>
+            <span class="card-link" (click)="goToUsers()">All students →</span>
+          </div>
+          <div class="list-row" *ngFor="let s of topStudents">
+            <div class="rank-badge-wrap">
+              <lucide-icon *ngIf="s.rank === 1" name="medal" class="rank-badge rank-badge--gold" [size]="20" title="Gold Medal · 1st Place"></lucide-icon>
+              <lucide-icon *ngIf="s.rank === 2" name="medal" class="rank-badge rank-badge--silver" [size]="19" title="Silver Medal · 2nd Place"></lucide-icon>
+              <lucide-icon *ngIf="s.rank === 3" name="medal" class="rank-badge rank-badge--bronze" [size]="18" title="Bronze Medal · 3rd Place"></lucide-icon>
+              <span *ngIf="s.rank > 3" class="rank-num">#{{ s.rank }}</span>
+            </div>
+            <div class="ava" [style.background]="s.bg" [style.color]="s.color">{{ s.initials }}</div>
+            <div class="info">
+              <div class="title">{{ s.name }}</div>
+            </div>
+            <span class="pill pill--green tnum">{{ s.pts }}</span>
+          </div>
+          <div class="empty-list-hint" *ngIf="topStudents.length === 0">
+            No student learning points earned this term.
+          </div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-hd">Quick actions</div>
-        <div class="action-grid">
-          <button class="action-btn prim" (click)="goToCourses()">Review courses</button>
-          <button class="action-btn" (click)="goToUsers()">Manage users</button>
-          <button class="action-btn" (click)="goToPayouts()">Process payouts</button>
-          <button class="action-btn danger" (click)="goToFlags()">Review flags ({{ openFlags }})</button>
-        </div>
-      </div>
-    </div>
+      <!-- Column 2: Fiscal Telemetry & Quick Actions -->
+      <div class="col">
+        <div class="card">
+          <div class="card-hd">
+            <div class="hd-left">
+              <lucide-icon name="percent" [size]="16" class="hd-icon"></lucide-icon>
+              <span>Settlement Architecture</span>
+            </div>
+            <span class="badge badge--green">Active Split</span>
+          </div>
 
-    <div class="col">
-      <div class="card" id="course-approvals">
-        <div class="card-hd">
-          <span>Course approvals</span>
-          <span class="card-link" (click)="goToCourses()">Review all</span>
+          <div class="split-visual">
+            <div class="split-track">
+              <div class="split-seg split-seg--faculty" [style.width.%]="platformSplit.teacherPercent" [title]="platformSplit.teacherPercent + '% Faculty'"></div>
+              <div class="split-seg split-seg--platform" [style.width.%]="platformSplit.platformPercent" [title]="platformSplit.platformPercent + '% Platform'"></div>
+            </div>
+            <div class="split-legend">
+              <div class="legend-item">
+                <span class="legend-dot legend-dot--amber"></span>
+                <span>Faculty: <strong>{{ platformSplit.teacherPercent }}%</strong></span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot legend-dot--green"></span>
+                <span>Platform: <strong>{{ platformSplit.platformPercent }}%</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="payout-box">
+            <div class="payout-lbl">Outstanding Faculty Royalties</div>
+            <div class="payout-val tnum">₹{{ pendingPayoutTotal | number:'1.0-0' }}</div>
+            <div class="payout-sub">Pending disbursement to {{ pendingPayouts.length }} eligible teacher(s)</div>
+          </div>
         </div>
-        <div class="list-row" *ngFor="let app of courseApprovals">
-          <div class="ava course-ava">
-            <lucide-icon name="book-open" [size]="16"></lucide-icon>
+
+        <div class="card">
+          <div class="card-hd">
+            <div class="hd-left">
+              <lucide-icon name="zap" [size]="16" class="hd-icon"></lucide-icon>
+              <span>Administrative Actions</span>
+            </div>
           </div>
-          <div class="info">
-            <div class="title">{{ app.title }}</div>
-            <div class="meta">by {{ app.teacherName || 'Faculty' }}</div>
-          </div>
-          <div class="btn-group">
-            <button class="btn-icon check" (click)="approveCourse(app)" title="Approve course">
-              <lucide-icon name="check" [size]="14"></lucide-icon>
+          <div class="action-grid">
+            <button class="action-btn prim" (click)="goToCourses()">
+              <lucide-icon name="book-open" [size]="14"></lucide-icon> Review Courses
             </button>
-            <button class="btn-icon cross" (click)="rejectCourse(app)" title="Reject to draft">
-              <lucide-icon name="x" [size]="14"></lucide-icon>
+            <button class="action-btn" (click)="goToUsers()">
+              <lucide-icon name="users" [size]="14"></lucide-icon> Manage Users
+            </button>
+            <button class="action-btn" (click)="goToPayouts()">
+              <lucide-icon name="banknote" [size]="14"></lucide-icon> Process Payouts
+            </button>
+            <button class="action-btn danger" (click)="goToFlags()">
+              <lucide-icon name="flag" [size]="14"></lucide-icon> Open Flags ({{ openFlags }})
             </button>
           </div>
         </div>
-        <p class="hint" *ngIf="!loading && courseApprovals.length === 0">No courses awaiting review.</p>
       </div>
-    </div>
 
-  </div>
+      <!-- Column 3: Course Approvals Queue -->
+      <div class="col">
+        <div class="card" id="course-approvals">
+          <div class="card-hd">
+            <div class="hd-left">
+              <lucide-icon name="check-square" [size]="16" class="hd-icon"></lucide-icon>
+              <span>Curriculum Verification</span>
+            </div>
+            <span class="card-link" (click)="goToCourses()">All ({{ courseApprovals.length }}) →</span>
+          </div>
+
+          <div class="list-row" *ngFor="let app of courseApprovals">
+            <div class="ava course-ava">
+              <lucide-icon name="book-open" [size]="16"></lucide-icon>
+            </div>
+            <div class="info">
+              <div class="title">{{ app.title }}</div>
+              <div class="meta">By {{ app.teacherName || 'Faculty' }} · {{ app.lectureCount || 0 }} lectures</div>
+            </div>
+            <div class="btn-group">
+              <button class="btn-icon check" (click)="approveCourse(app)" title="Approve and publish live">
+                <lucide-icon name="check" [size]="14"></lucide-icon>
+              </button>
+              <button class="btn-icon cross" (click)="rejectCourse(app)" title="Reject back to draft">
+                <lucide-icon name="x" [size]="14"></lucide-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="empty-list-hint" *ngIf="courseApprovals.length === 0">
+            <lucide-icon name="check-circle-2" [size]="20" class="hint-icon text-success"></lucide-icon>
+            <span>All curriculum submissions audited. Queue clean!</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
 </div>

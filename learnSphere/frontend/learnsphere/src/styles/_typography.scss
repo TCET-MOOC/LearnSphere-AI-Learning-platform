@@ -22,6 +22,19 @@ body, p, span, input, select, textarea, button,
   -moz-osx-font-smoothing: grayscale;
 }
 
+// ── Tabular Numerals & Metric Display ────────────────────
+.tnum,
+.font-tnum,
+.stat-value,
+.metric-value,
+.kpi-val,
+.payout-val,
+.total-amount {
+  font-feature-settings: "tnum" 1, "cv01" 1, "cv02" 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
 // ── 3-Tier Header Utilities ──────────────────────────────
 .text-eyebrow,
 .eyebrow {

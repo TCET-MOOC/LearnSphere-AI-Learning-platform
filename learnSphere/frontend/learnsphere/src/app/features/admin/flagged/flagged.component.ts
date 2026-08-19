@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModerationService, FlaggedContentItem } from '../services/moderation.service';
 import { NotificationService } from '@core/services/notification.service';
 import { timeAgo } from '@core/utils/time.util';
-
-import { LucideAngularModule, Flag, Siren } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-flagged',
@@ -33,7 +32,8 @@ export class FlaggedComponent implements OnInit {
 
   constructor(
     private moderationService: ModerationService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -42,16 +42,19 @@ export class FlaggedComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.cdr.markForCheck();
     this.moderationService.getFlagged().subscribe({
       next: (items) => {
         this.allItems = items;
         this.buildTabCounts();
         this.applyTab();
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.notificationService.error('Failed to load flagged content.');
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -70,6 +73,7 @@ export class FlaggedComponent implements OnInit {
   setTab(id: string): void {
     this.activeTab = id;
     this.applyTab();
+    this.cdr.markForCheck();
   }
 
   private applyTab(): void {
@@ -101,6 +105,7 @@ export class FlaggedComponent implements OnInit {
 
   resolve(item: FlaggedContentItem): void {
     this.actingId = item.id;
+    this.cdr.markForCheck();
     this.moderationService.resolve(item.id).subscribe({
       next: () => {
         this.actingId = null;
@@ -110,21 +115,24 @@ export class FlaggedComponent implements OnInit {
       error: () => {
         this.actingId = null;
         this.notificationService.error('Failed to resolve item.');
+        this.cdr.markForCheck();
       }
     });
   }
 
   dismiss(item: FlaggedContentItem): void {
     this.actingId = item.id;
+    this.cdr.markForCheck();
     this.moderationService.dismiss(item.id).subscribe({
       next: () => {
         this.actingId = null;
-        this.notificationService.success('Dismissed.');
+        this.notificationService.success('Dismissed false flag.');
         this.load();
       },
       error: () => {
         this.actingId = null;
         this.notificationService.error('Failed to dismiss item.');
+        this.cdr.markForCheck();
       }
     });
   }

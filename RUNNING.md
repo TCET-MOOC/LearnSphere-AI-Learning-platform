@@ -54,10 +54,17 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 
 ### Start it
 
-From the repo root:
+From the `learnsphere-backend/` directory:
 
 ```bash
-./mvnw spring-boot:run
+cd learnsphere-backend
+./mvnw spring-boot:run   # on Linux/macOS
+.\mvnw.cmd spring-boot:run  # on Windows
+```
+
+Or from the repository root:
+```powershell
+.\learnsphere-backend\mvnw.cmd -f learnsphere-backend/pom.xml spring-boot:run
 ```
 
 The API comes up on **http://localhost:8080**, base path `/api`. First boot will log

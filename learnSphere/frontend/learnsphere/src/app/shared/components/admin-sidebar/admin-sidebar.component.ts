@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { SidebarService } from '../../../core/services/sidebar.service';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-admin-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule],
   templateUrl: './admin-sidebar.component.html',
   styleUrls: ['./admin-sidebar.component.scss'] // Using a custom dark SCSS file
 })

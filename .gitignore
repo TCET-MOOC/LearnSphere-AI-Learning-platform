@@ -1,5 +1,6 @@
 HELP.md
 target/
+**/target/
 .DS_Store
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -37,9 +38,10 @@ build/
 .env
 *.env
 .env.local
+**/.env
 
 ### Logs & Uploads ###
 *.log
 *.err
 uploads/
-
+**/uploads/

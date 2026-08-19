@@ -181,37 +181,112 @@ input, select, textarea {
   }
 }
 
-/* Universal Pills & Badges */
+/* Universal Pills & Badges with Status Glow */
 .pill, .badge {
   font-size: 11px;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 3px 9px;
   border-radius: 20px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   transition: all 0.2s ease;
+  letter-spacing: 0.02em;
 
   &--purple, &-p {
     background: var(--brand-surface) !important;
     color: var(--brand-primary) !important;
+    border: 1px solid rgba(99, 102, 241, 0.2);
   }
 
   &--green, &-g {
     background: var(--status-green-bg) !important;
     color: var(--status-green-text) !important;
+    border: 1px solid rgba(34, 197, 94, 0.2);
   }
 
   &--amber, &-a {
     background: var(--status-amber-bg) !important;
     color: var(--status-amber-text) !important;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  &--red, &-r {
+    background: var(--status-red-bg) !important;
+    color: var(--status-red-text) !important;
+    border: 1px solid rgba(239, 68, 68, 0.2);
   }
 
   &--grey {
     background: var(--bg-hover) !important;
     color: var(--text-muted) !important;
+    border: 1px solid var(--border-color);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+    display: inline-block;
   }
 }
+
+/* Metallic Podium Badges for Leaderboards */
+.podium-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+
+  &--gold {
+    background: linear-gradient(135deg, #fef08a 0%, #eab308 100%);
+    color: #713f12;
+    box-shadow: 0 2px 4px rgba(234, 179, 8, 0.3);
+  }
+
+  &--silver {
+    background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+    color: #334155;
+    box-shadow: 0 2px 4px rgba(148, 163, 184, 0.3);
+  }
+
+  &--bronze {
+    background: linear-gradient(135deg, #ffedd5 0%, #ea580c 100%);
+    color: #7c2d12;
+    box-shadow: 0 2px 4px rgba(234, 88, 12, 0.3);
+  }
+
+  &--plain {
+    background: var(--bg-hover);
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+}
+
+/* Glassmorphic Pulse Skeleton Loaders */
+.skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface-elevated) 25%,
+    var(--bg-hover) 50%,
+    var(--bg-surface-elevated) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.5s infinite ease-in-out;
+  border-radius: 8px;
+}
+
+@keyframes skeletonPulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 
 /* Universal Table Styles */
 table {

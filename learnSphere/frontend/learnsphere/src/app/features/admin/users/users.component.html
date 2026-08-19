@@ -1,12 +1,15 @@
 <div class="admin-users">
   <header class="page-head">
     <div>
-      <p class="eyebrow">User & Role Governance</p>
-      <h1>User Management</h1>
+      <div class="eyebrow-pill">
+        <lucide-icon name="users" [size]="12"></lucide-icon>
+        <span>User & Role Governance</span>
+      </div>
+      <h1 class="page-title">User Management</h1>
       <p class="subtitle">Search, inspect, update status, and manage role permissions for students, faculty, and admins.</p>
     </div>
     <button class="btn btn--primary" type="button" (click)="addUser()">
-      <lucide-icon name="user" class="btn-icon"></lucide-icon> Add User
+      <lucide-icon name="plus" [size]="14"></lucide-icon> Add Account
     </button>
   </header>
 
@@ -23,19 +26,24 @@
 
   <section class="summary-grid" aria-label="User summary">
     <article class="summary-card" *ngFor="let card of summaryCards" [class]="'summary-card summary-card--' + card.tone">
-      <span>{{ card.label }}</span>
-      <strong>{{ card.value }}</strong>
-      <small>{{ card.sub }}</small>
+      <span class="card-label">{{ card.label }}</span>
+      <strong class="card-value tnum">{{ card.value }}</strong>
+      <small class="card-sub">{{ card.sub }}</small>
     </article>
   </section>
 
-  <div class="admin-layout">
+  <!-- Skeleton Loading -->
+  <div class="skeleton-container" *ngIf="loading">
+    <div class="skeleton-row skeleton-pulse" *ngFor="let i of [1,2,3,4,5]"></div>
+  </div>
+
+  <div class="admin-layout" *ngIf="!loading">
     <section class="card user-card">
       <div class="card-head">
-        <h2>All users</h2>
+        <h2>Registered Accounts</h2>
         <div class="toolbar">
           <div class="search-box">
-            <lucide-icon name="search" class="search-icon"></lucide-icon>
+            <lucide-icon name="search" class="search-icon" [size]="16"></lucide-icon>
             <input 
               type="text" 
               [(ngModel)]="searchQuery" 
@@ -52,34 +60,43 @@
 
       <div class="user-table" role="table" aria-label="Users">
         <div class="user-row user-row--head" role="row">
-          <span>User</span>
+          <span>User Profile</span>
           <span>Role</span>
           <span>Status</span>
-          <span>Actions</span>
+          <span class="text-right">Actions</span>
         </div>
 
         <div class="user-row" role="row" *ngFor="let user of users" [class.user-row--flagged]="user.status === 'Flagged'">
           <div class="user-profile">
-            <div class="avatar" [class]="'avatar avatar--' + user.tone">{{ user.initials }}</div>
+            <div class="avatar" [class]="'avatar avatar--' + user.tone">{{ user.initials || 'U' }}</div>
             <div>
-              <strong>{{ user.name }}</strong>
-              <small>{{ user.email }} · {{ user.department }}</small>
-              <em>{{ user.meta }}</em>
+              <strong class="user-name">{{ user.name || 'Account #' + user.id }}</strong>
+              <small class="user-meta">{{ user.email || '—' }} · {{ user.department || 'TCET Member' }}</small>
+              <em class="user-activity">{{ user.meta || 'Active learner' }}</em>
             </div>
           </div>
-          <span>{{ user.role }}</span>
-          <span class="pill" [ngClass]="getStatusClass(user.status)">{{ user.status }}</span>
+          <span class="user-role-text">{{ user.role }}</span>
+          <span>
+            <span class="pill" [ngClass]="getStatusClass(user.status)">
+              <span class="status-dot"></span>
+              {{ user.status || 'Active' }}
+            </span>
+          </span>
           <div class="action-set">
-            <button class="btn btn--ghost" type="button" (click)="viewUser(user)">Inspect</button>
-            <button class="btn btn--ghost" type="button" [disabled]="updatingId === user.id" (click)="warnOrSuspend(user)">Flag</button>
+            <button class="btn btn--ghost" type="button" (click)="viewUser(user)">
+              <lucide-icon name="eye" [size]="13"></lucide-icon> Inspect
+            </button>
+            <button class="btn btn--ghost" type="button" [disabled]="updatingId === user.id" (click)="warnOrSuspend(user)">
+              Flag
+            </button>
             <button class="btn" [class.btn--danger]="user.status !== 'Blacklisted'" [class.btn--success]="user.status === 'Blacklisted'" type="button"
               [disabled]="updatingId === user.id" (click)="toggleBlacklist(user)">
-              {{ user.status === 'Blacklisted' ? 'Restore' : 'Blacklist' }}
+              {{ user.status === 'Blacklisted' ? 'Restore Access' : 'Blacklist' }}
             </button>
           </div>
         </div>
 
-        <div class="empty-users-state" *ngIf="!loading && users.length === 0">
+        <div class="empty-users-state" *ngIf="users.length === 0">
           <lucide-icon name="search" class="empty-icon"></lucide-icon>
           <h3>No matching users found</h3>
           <p *ngIf="searchQuery">No accounts match "{{ searchQuery }}". Try clearing your search or filter.</p>
@@ -91,20 +108,20 @@
     <aside class="side-stack">
       <section class="card">
         <div class="card-head">
-          <h2>User activity breakdown</h2>
+          <h2>User Activity Distribution</h2>
         </div>
         <div class="activity-row" *ngFor="let item of activity">
-          <span>{{ item.label }}</span>
+          <span class="act-label">{{ item.label }}</span>
           <div class="bar-track" aria-hidden="true">
             <i [class]="'bar-fill bar-fill--' + item.tone" [style.width.%]="item.value"></i>
           </div>
-          <strong>{{ item.value }}%</strong>
+          <strong class="act-val tnum">{{ item.value }}%</strong>
         </div>
       </section>
 
       <section class="card">
         <div class="card-head">
-          <h2>Moderation queue</h2>
+          <h2>Moderation Queue</h2>
           <span class="pill pill--red">{{ flaggedCount }} flagged</span>
         </div>
         <div class="queue-item">

@@ -1,65 +1,148 @@
 <div class="page-container">
-  <div class="page-header">
-    <p class="eyebrow">Platform Financial Analytics</p>
-    <h1 class="page-title">Revenue Management</h1>
-    <p class="subtitle">Platform earnings, commission split telemetry, and aggregate gross transaction volume.</p>
+  <!-- Institutional Header -->
+  <header class="page-header">
+    <div class="header-left">
+      <div class="eyebrow-pill">
+        <lucide-icon name="dollar-sign" [size]="12"></lucide-icon>
+        <span>Fiscal Governance & Royalties</span>
+      </div>
+      <h1 class="page-title">Revenue Management</h1>
+      <p class="subtitle">Platform earnings, commission split telemetry, and aggregate gross transaction volume.</p>
+    </div>
+    <div class="header-badge">
+      <span class="pulse-indicator"></span>
+      <span>Ledger Synced Live</span>
+    </div>
+  </header>
+
+  <!-- Skeleton Loading State -->
+  <div class="skeleton-container" *ngIf="loading">
+    <div class="stats-grid">
+      <div class="skeleton-card skeleton-pulse" *ngFor="let i of [1,2,3]"></div>
+    </div>
+    <div class="skeleton-section skeleton-pulse"></div>
+    <div class="skeleton-section skeleton-pulse"></div>
   </div>
 
-  <p class="hint" *ngIf="loading">Loading…</p>
-
-  <ng-container *ngIf="!loading && summary">
+  <!-- Loaded Content -->
+  <ng-container *ngIf="!loading">
+    <!-- Financial Command KPI Matrix -->
     <div class="stats-grid">
-      <div class="stat-box">
-        <span class="stat-label">Total revenue</span>
-        <span class="stat-value">₹{{ summary.totalRevenue | number }}</span>
-        <span class="stat-subtext">All-time, successful payments</span>
+      <div class="stat-box stat-box--primary">
+        <div class="stat-top">
+          <span class="stat-label">Total Gross Volume</span>
+          <div class="stat-icon-badge">
+            <lucide-icon name="banknote" [size]="16"></lucide-icon>
+          </div>
+        </div>
+        <span class="stat-value tnum">₹{{ (summary?.totalRevenue || 0) | number:'1.2-2' }}</span>
+        <span class="stat-subtext">All-time settled course purchases</span>
       </div>
-      <div class="stat-box">
-        <span class="stat-label">Platform earnings</span>
-        <span class="stat-value">₹{{ summary.platformEarnings | number }}</span>
-        <span class="stat-subtext">{{ summary.platformCutPercent }}% platform cut</span>
+
+      <div class="stat-box stat-box--emerald">
+        <div class="stat-top">
+          <span class="stat-label">Platform Retention</span>
+          <span class="split-chip split-chip--platform">{{ summary?.platformCutPercent || 30 }}% Cut</span>
+        </div>
+        <span class="stat-value tnum">₹{{ (summary?.platformEarnings || 0) | number:'1.2-2' }}</span>
+        <span class="stat-subtext">Institutional infrastructure & operations</span>
       </div>
-      <div class="stat-box">
-        <span class="stat-label">Teacher royalties</span>
-        <span class="stat-value">₹{{ summary.teacherRoyalties | number }}</span>
-        <span class="stat-subtext">{{ summary.teacherRoyaltyPercent }}% teacher share</span>
+
+      <div class="stat-box stat-box--amber">
+        <div class="stat-top">
+          <span class="stat-label">Faculty Royalties</span>
+          <span class="split-chip split-chip--faculty">{{ summary?.teacherRoyaltyPercent || 70 }}% Share</span>
+        </div>
+        <span class="stat-value tnum">₹{{ (summary?.teacherRoyalties || 0) | number:'1.2-2' }}</span>
+        <span class="stat-subtext">Direct instructor disbursements</span>
       </div>
     </div>
 
+    <!-- Monthly Trajectory Telemetry -->
     <div class="section-card">
-      <h2 class="section-title">Revenue by month</h2>
-      <div class="month-bars" *ngIf="summary.byMonth.length > 0; else noMonths">
-        <div class="month-row" *ngFor="let m of summary.byMonth">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Monthly Trajectory</h2>
+          <p class="section-desc">Month-over-month course enrollment revenue progression.</p>
+        </div>
+        <span class="badge badge--purple" *ngIf="summary?.byMonth?.length">
+          {{ summary?.byMonth?.length }} Active Periods
+        </span>
+      </div>
+
+      <div class="month-bars" *ngIf="summary?.byMonth && summary!.byMonth.length > 0; else noMonths">
+        <div class="month-row" *ngFor="let m of summary!.byMonth">
           <span class="month-label">{{ m.month }}</span>
           <div class="bar-track">
-            <div class="bar-fill" [style.width.%]="(m.amount / maxMonthlyAmount()) * 100"></div>
+            <div 
+              class="bar-fill" 
+              [style.width.%]="(m.amount / maxMonthlyAmount()) * 100"
+              [title]="'₹' + (m.amount | number) + ' (' + ((m.amount / maxMonthlyAmount()) * 100 | number:'1.0-0') + '%)'">
+            </div>
           </div>
-          <span class="month-amount">₹{{ m.amount | number }}</span>
+          <span class="month-amount tnum">₹{{ m.amount | number:'1.0-0' }}</span>
         </div>
       </div>
+
       <ng-template #noMonths>
-        <p class="hint">No successful payments yet.</p>
+        <div class="empty-state">
+          <lucide-icon name="dollar-sign" class="empty-icon"></lucide-icon>
+          <h3>No monthly transaction history</h3>
+          <p>Revenue distributions will populate automatically as student course purchases settle.</p>
+        </div>
       </ng-template>
     </div>
 
+    <!-- Course Monetization Ledger -->
     <div class="section-card">
-      <h2 class="section-title">Revenue by course</h2>
-      <div class="course-table" *ngIf="summary.byCourse.length > 0; else noCourses">
-        <div class="course-row course-row--head">
-          <span>Course</span>
-          <span>Teacher</span>
-          <span>Purchases</span>
-          <span>Revenue</span>
-        </div>
-        <div class="course-row" *ngFor="let c of summary.byCourse">
-          <span>{{ c.courseTitle }}</span>
-          <span>{{ c.teacherName }}</span>
-          <span>{{ c.purchases }}</span>
-          <span>₹{{ c.amount | number }}</span>
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Course Monetization Ledger</h2>
+          <p class="section-desc">Top-performing curriculum modules ranked by aggregate student checkout revenue.</p>
         </div>
       </div>
+
+      <div class="course-table-wrapper" *ngIf="summary?.byCourse && summary!.byCourse.length > 0; else noCourses">
+        <table class="course-table">
+          <thead>
+            <tr>
+              <th>Curriculum Title</th>
+              <th>Faculty Member</th>
+              <th>Purchases</th>
+              <th>Gross Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of summary!.byCourse">
+              <td class="course-cell">
+                <div class="course-icon">
+                  <lucide-icon name="book-open" [size]="14"></lucide-icon>
+                </div>
+                <span class="course-name">{{ c.courseTitle }}</span>
+              </td>
+              <td>
+                <span class="teacher-chip">{{ c.teacherName || 'Faculty' }}</span>
+              </td>
+              <td>
+                <div class="purchase-metric">
+                  <span class="purchase-count tnum">{{ c.purchases }}</span>
+                  <small class="purchase-label">students</small>
+                </div>
+              </td>
+              <td>
+                <span class="amount-pill tnum">₹{{ c.amount | number:'1.0-0' }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <ng-template #noCourses>
-        <p class="hint">No course revenue yet.</p>
+        <div class="empty-state">
+          <lucide-icon name="book-open" class="empty-icon"></lucide-icon>
+          <h3>No course revenue recorded</h3>
+          <p>Paid courses with confirmed student enrollments will appear in this ledger.</p>
+        </div>
       </ng-template>
     </div>
   </ng-container>

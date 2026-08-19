@@ -1,106 +1,172 @@
 <div class="page-container">
-  <div class="page-header">
-    <p class="eyebrow">AI Sentiment & Course Quality</p>
-    <h1 class="page-title">Sentiment Analysis</h1>
-    <p class="subtitle">Natural language analysis across student discussion forums, messages, and course feedback.</p>
-  </div>
+  <!-- Header -->
+  <header class="page-header">
+    <div>
+      <div class="eyebrow-pill">
+        <lucide-icon name="sparkles" [size]="12"></lucide-icon>
+        <span>NLP Sentiment & Course Quality Telemetry</span>
+      </div>
+      <h1 class="page-title">Sentiment Analysis</h1>
+      <p class="subtitle">Natural language analysis across student discussion forums, messages, and course feedback.</p>
+    </div>
+    <div class="header-badge">
+      <span class="pulse-indicator"></span>
+      <span>NLP Inference Active</span>
+    </div>
+  </header>
 
-  <div class="tabs-container">
+  <!-- Navigation Tabs -->
+  <nav class="tabs-container" aria-label="Sentiment view filters">
     <button *ngFor="let tab of tabs" 
             class="tab-btn" 
             [class.active]="tab === activeTab"
             (click)="setTab(tab)">
       {{ tab }}
     </button>
+  </nav>
+
+  <!-- Skeleton Loading -->
+  <div class="skeleton-container" *ngIf="loading">
+    <div class="stats-grid">
+      <div class="skeleton-card skeleton-pulse" *ngFor="let i of [1,2,3]"></div>
+    </div>
+    <div class="skeleton-card-lg skeleton-pulse" *ngFor="let i of [1,2]"></div>
   </div>
 
-  <p class="hint" *ngIf="loading">Loading…</p>
-
-  <div class="stats-grid" *ngIf="!loading">
-    <div class="stat-box">
-      <span class="stat-label">Comments analysed</span>
-      <span class="stat-value">{{ totalAnalyzed | number }}</span>
-      <span class="stat-subtext">Discussion posts + messages</span>
-    </div>
-    <div class="stat-box">
-      <span class="stat-label">Positive rate</span>
-      <span class="stat-value">{{ positivePercent }}%</span>
-      <span class="stat-subtext text-success">Keyword-based heuristic</span>
-    </div>
-    <div class="stat-box">
-      <span class="stat-label">Flagged keywords</span>
-      <span class="stat-value">{{ negativeKeywords.length }}</span>
-      <span class="stat-subtext">Distinct negative terms found</span>
-    </div>
-  </div>
-
-  <div class="section-card" *ngIf="!loading">
-    <h2 class="section-title">Overall platform sentiment</h2>
-    <p class="hint">Computed with a simple keyword-matching heuristic across platform content.</p>
-
-    <div class="sentiment-blocks">
-      <div class="block positive">
-        <span class="block-value">{{ positivePercent }}%</span>
-        <span class="block-label">Positive</span>
-      </div>
-      <div class="block neutral">
-        <span class="block-value">{{ neutralPercent }}%</span>
-        <span class="block-label">Neutral</span>
-      </div>
-      <div class="block negative">
-        <span class="block-value">{{ negativePercent }}%</span>
-        <span class="block-label">Negative</span>
-      </div>
-    </div>
-
-    <h2 class="section-title mt-24">Sentiment by course type</h2>
-    <div class="course-type-bars">
-      <div class="bar-row" *ngFor="let course of courseTypeSentiment">
-        <span class="bar-label">{{ course.type }}</span>
-        <div class="bar-track">
-          <div class="bar-fill" [style.width.%]="course.positive" [style.backgroundColor]="course.color"></div>
+  <ng-container *ngIf="!loading">
+    <!-- KPI Grid -->
+    <div class="stats-grid">
+      <div class="stat-box stat-box--indigo">
+        <div class="stat-top">
+          <span class="stat-label">Comments Analysed</span>
+          <lucide-icon name="message-square" [size]="16" class="stat-icon"></lucide-icon>
         </div>
-        <span class="bar-percent">{{ course.positive }}% +</span>
+        <span class="stat-value tnum">{{ totalAnalyzed | number }}</span>
+        <span class="stat-subtext">Discussion posts + direct chats</span>
       </div>
-    </div>
-  </div>
 
-  <div class="section-card" *ngIf="!loading">
-    <h2 class="section-title">Top negative keywords (flagged themes)</h2>
-    <div class="keyword-pills">
-      <span class="keyword-pill" *ngFor="let kw of negativeKeywords" [ngClass]="'severity-' + kw.severity">
-        {{ kw.word }} ({{ kw.count }})
-      </span>
-    </div>
-
-    <h2 class="section-title mt-24">Action recommendations</h2>
-    <div class="action-list">
-      <div class="action-item" *ngFor="let rec of recommendations">
-        <div class="action-text">
-          <h3 class="action-title">{{ rec.title }}</h3>
-          <p class="action-desc">{{ rec.description }}</p>
+      <div class="stat-box stat-box--emerald">
+        <div class="stat-top">
+          <span class="stat-label">Positive Sentiment Rate</span>
+          <lucide-icon name="smile" [size]="16" class="stat-icon"></lucide-icon>
         </div>
-        <button class="action-btn" [ngClass]="rec.actionClass" (click)="onRecommendationAction(rec)">
-          {{ rec.action }}
-        </button>
+        <span class="stat-value tnum">{{ positivePercent }}%</span>
+        <span class="stat-subtext text-success">Autonomous sentiment score</span>
+      </div>
+
+      <div class="stat-box stat-box--amber">
+        <div class="stat-top">
+          <span class="stat-label">Negative Keywords Found</span>
+          <lucide-icon name="flag" [size]="16" class="stat-icon"></lucide-icon>
+        </div>
+        <span class="stat-value tnum">{{ negativeKeywords.length }}</span>
+        <span class="stat-subtext">Flagged lexicon matches</span>
       </div>
     </div>
-  </div>
 
-  <div class="section-card" *ngIf="!loading">
-    <h2 class="section-title">Teacher sentiment scores</h2>
-    <div class="teacher-list">
-      <div class="teacher-item" *ngFor="let teacher of teacherScores">
-        <div class="teacher-info">
-          <div class="avatar" [ngClass]="teacher.status">{{ teacher.initials }}</div>
+    <!-- Platform Sentiment Gauge -->
+    <section class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Overall Platform Sentiment Distribution</h2>
+          <p class="section-desc">Computed with natural language heuristics across all academic forum discussions.</p>
+        </div>
+      </div>
+
+      <div class="sentiment-blocks">
+        <div class="block positive">
+          <div class="block-top">
+            <lucide-icon name="smile" [size]="18"></lucide-icon>
+            <span class="block-label">Positive Tone</span>
+          </div>
+          <span class="block-value tnum">{{ positivePercent }}%</span>
+          <div class="block-bar"><div class="block-fill" [style.width.%]="positivePercent"></div></div>
+        </div>
+
+        <div class="block neutral">
+          <div class="block-top">
+            <lucide-icon name="minus-circle" [size]="18"></lucide-icon>
+            <span class="block-label">Neutral / Inquiries</span>
+          </div>
+          <span class="block-value tnum">{{ neutralPercent }}%</span>
+          <div class="block-bar"><div class="block-fill" [style.width.%]="neutralPercent"></div></div>
+        </div>
+
+        <div class="block negative">
+          <div class="block-top">
+            <lucide-icon name="frown" [size]="18"></lucide-icon>
+            <span class="block-label">Critical / Issues</span>
+          </div>
+          <span class="block-value tnum">{{ negativePercent }}%</span>
+          <div class="block-bar"><div class="block-fill" [style.width.%]="negativePercent"></div></div>
+        </div>
+      </div>
+
+      <!-- Department Distribution Breakdown -->
+      <h2 class="section-title mt-28">Sentiment by Academic Department</h2>
+      <div class="course-type-bars">
+        <div class="bar-row" *ngFor="let course of courseTypeSentiment">
+          <span class="bar-label">{{ course.type }}</span>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="course.positive" [style.backgroundColor]="course.color"></div>
+          </div>
+          <span class="bar-percent tnum">{{ course.positive }}% Positive</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Flagged Keywords & Action Recommendations -->
+    <div class="split-grid">
+      <section class="section-card">
+        <div class="section-header">
           <div>
-            <h3 class="teacher-name">{{ teacher.name }}</h3>
-            <p class="teacher-desc">{{ teacher.comments }} comments analysed</p>
+            <h2 class="section-title">Flagged Lexicon Themes</h2>
+            <p class="section-desc">Top negative terms triggering content moderation warnings.</p>
           </div>
         </div>
-        <span class="score-pill" [ngClass]="teacher.status">{{ teacher.score }}</span>
-      </div>
-      <p class="hint" *ngIf="teacherScores.length === 0">No teacher discussion activity yet.</p>
+
+        <div class="keyword-pills" *ngIf="negativeKeywords.length > 0; else noKeywords">
+          <span class="keyword-pill" *ngFor="let kw of negativeKeywords" [ngClass]="'severity-' + kw.severity">
+            <lucide-icon name="alert-circle" [size]="12"></lucide-icon>
+            {{ kw.word }} ({{ kw.count }})
+          </span>
+        </div>
+
+        <ng-template #noKeywords>
+          <div class="empty-list-hint">
+            <lucide-icon name="check-circle-2" [size]="18" class="text-success"></lucide-icon>
+            <span>No negative keywords flagged in current window.</span>
+          </div>
+        </ng-template>
+      </section>
+
+      <section class="section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Action Recommendations</h2>
+            <p class="section-desc">Prescriptive operational interventions derived from student telemetry.</p>
+          </div>
+        </div>
+
+        <div class="action-list" *ngIf="recommendations.length > 0; else noRecs">
+          <div class="action-item" *ngFor="let rec of recommendations">
+            <div class="action-text">
+              <h3 class="action-title">{{ rec.title }}</h3>
+              <p class="action-desc">{{ rec.description }}</p>
+            </div>
+            <button class="btn btn--primary action-btn" (click)="onRecommendationAction(rec)">
+              {{ rec.action }} →
+            </button>
+          </div>
+        </div>
+
+        <ng-template #noRecs>
+          <div class="empty-list-hint">
+            <lucide-icon name="check-circle-2" [size]="18" class="text-success"></lucide-icon>
+            <span>All sentiment metrics healthy. No actions required.</span>
+          </div>
+        </ng-template>
+      </section>
     </div>
-  </div>
+  </ng-container>
 </div>

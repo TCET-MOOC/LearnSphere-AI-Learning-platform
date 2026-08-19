@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -44,7 +44,8 @@ export class CoursesComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private notificationService: NotificationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -53,6 +54,7 @@ export class CoursesComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.cdr.markForCheck();
     // GET /api/courses lists all courses. Status changes go through PUT /api/admin/courses/:id/status.
     this.apiService.get<Course[]>('/courses').pipe(
       catchError(() => {
@@ -63,6 +65,7 @@ export class CoursesComponent implements OnInit {
       this.allCourses = courses;
       this.applyFilter();
       this.loading = false;
+      this.cdr.markForCheck();
     });
   }
 
@@ -166,14 +169,17 @@ export class CoursesComponent implements OnInit {
   inspectCourse(course: Course): void {
     this.selectedCourseForInspect = course;
     this.loadingLectures = true;
+    this.cdr.markForCheck();
     this.apiService.get<any[]>(`/courses/${course.id}/lectures`).subscribe({
       next: (lectures) => {
         this.inspectLectures = lectures || [];
         this.loadingLectures = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.inspectLectures = [];
         this.loadingLectures = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -181,5 +187,6 @@ export class CoursesComponent implements OnInit {
   closeInspect(): void {
     this.selectedCourseForInspect = null;
     this.inspectLectures = [];
+    this.cdr.markForCheck();
   }
 }

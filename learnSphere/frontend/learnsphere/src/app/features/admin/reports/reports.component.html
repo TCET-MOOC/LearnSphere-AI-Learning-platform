@@ -1,54 +1,163 @@
 <div class="page-container">
+  <!-- Header -->
   <header class="page-head">
     <div>
-      <p class="eyebrow">Institutional Metrics & Exports</p>
+      <div class="eyebrow-pill">
+        <lucide-icon name="bar-chart" [size]="12"></lucide-icon>
+        <span>Institutional Metrics & Exports</span>
+      </div>
       <h1 class="page-title">Executive Reports</h1>
       <p class="subtitle">Aggregate statistical overview of platform utilization, user registrations, course catalog, and enrollment density.</p>
     </div>
-    <button class="btn btn--primary" type="button" [disabled]="!summary" (click)="exportCsv()">Export CSV</button>
+    <div class="header-actions">
+      <span class="export-time" *ngIf="exportedAt">
+        <lucide-icon name="check-circle-2" [size]="14"></lucide-icon>
+        <span>Exported {{ exportedAt | date:'shortTime' }}</span>
+      </span>
+      <button class="btn btn--primary" type="button" [disabled]="loading || !summary" (click)="exportCsv()">
+        <lucide-icon name="download" [size]="14"></lucide-icon>
+        <span>Export CSV Ledger</span>
+      </button>
+    </div>
   </header>
 
-  <p class="hint" *ngIf="loading">Loading…</p>
-  <p class="hint" *ngIf="exportedAt">Last exported {{ exportedAt | date:'short' }}.</p>
-
-  <ng-container *ngIf="!loading && summary">
+  <!-- Skeleton Loading State -->
+  <div class="skeleton-container" *ngIf="loading">
     <div class="stats-grid">
-      <div class="stat-box">
-        <span class="stat-label">Total users</span>
-        <span class="stat-value">{{ summary.totalUsers | number }}</span>
+      <div class="skeleton-card skeleton-pulse" *ngFor="let i of [1,2,3,4,5]"></div>
+    </div>
+    <div class="split-grid">
+      <div class="skeleton-box skeleton-pulse"></div>
+      <div class="skeleton-box skeleton-pulse"></div>
+    </div>
+  </div>
+
+  <!-- Loaded Content -->
+  <ng-container *ngIf="!loading">
+    <!-- Executive KPI Grid -->
+    <div class="stats-grid">
+      <div class="stat-box stat-box--indigo">
+        <div class="stat-top">
+          <span class="stat-label">Total Users</span>
+          <lucide-icon name="users" [size]="16" class="stat-icon"></lucide-icon>
+        </div>
+        <span class="stat-value tnum">{{ (summary?.totalUsers || 0) | number }}</span>
+        <span class="stat-subtext">Registered across all campuses</span>
       </div>
-      <div class="stat-box">
-        <span class="stat-label">Total courses</span>
-        <span class="stat-value">{{ summary.totalCourses | number }}</span>
+
+      <div class="stat-box stat-box--blue">
+        <div class="stat-top">
+          <span class="stat-label">Active Courses</span>
+          <lucide-icon name="book-open" [size]="16" class="stat-icon"></lucide-icon>
+        </div>
+        <span class="stat-value tnum">{{ (summary?.totalCourses || 0) | number }}</span>
+        <span class="stat-subtext">Curriculum modules hosted</span>
       </div>
-      <div class="stat-box">
-        <span class="stat-label">Total revenue</span>
-        <span class="stat-value">₹{{ summary.totalRevenue | number }}</span>
+
+      <div class="stat-box stat-box--emerald">
+        <div class="stat-top">
+          <span class="stat-label">Gross Revenue</span>
+          <lucide-icon name="banknote" [size]="16" class="stat-icon"></lucide-icon>
+        </div>
+        <span class="stat-value tnum">₹{{ (summary?.totalRevenue || 0) | number:'1.0-0' }}</span>
+        <span class="stat-subtext">All-time settled checkout volume</span>
       </div>
-      <div class="stat-box">
-        <span class="stat-label">Certificates issued</span>
-        <span class="stat-value">{{ summary.totalCertificatesIssued | number }}</span>
+
+      <div class="stat-box stat-box--purple">
+        <div class="stat-top">
+          <span class="stat-label">Certificates Issued</span>
+          <lucide-icon name="award" [size]="16" class="stat-icon"></lucide-icon>
+        </div>
+        <span class="stat-value tnum">{{ (summary?.totalCertificatesIssued || 0) | number }}</span>
+        <span class="stat-subtext">Verified academic credentials</span>
       </div>
-      <div class="stat-box">
-        <span class="stat-label">Flagged content pending</span>
-        <span class="stat-value">{{ summary.flaggedContentPending | number }}</span>
+
+      <div class="stat-box stat-box--amber">
+        <div class="stat-top">
+          <span class="stat-label">Moderation Pending</span>
+          <lucide-icon name="flag" [size]="16" class="stat-icon"></lucide-icon>
+        </div>
+        <span class="stat-value tnum">{{ (summary?.flaggedContentPending || 0) | number }}</span>
+        <span class="stat-subtext">Discussions awaiting review</span>
       </div>
     </div>
 
-    <div class="section-card">
-      <h2 class="section-title">Users by role</h2>
-      <div class="row" *ngFor="let entry of roleEntries()">
-        <span>{{ entry[0] }}</span>
-        <strong>{{ entry[1] }}</strong>
-      </div>
-    </div>
+    <div class="split-grid">
+      <!-- User Role Distribution Card -->
+      <section class="section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Institutional Role Distribution</h2>
+            <p class="section-desc">Active account allocation across academic demographics.</p>
+          </div>
+          <span class="badge badge--purple">{{ summary?.totalUsers || 0 }} Accounts</span>
+        </div>
 
-    <div class="section-card">
-      <h2 class="section-title">Courses by status</h2>
-      <div class="row" *ngFor="let entry of statusEntries()">
-        <span>{{ entry[0] }}</span>
-        <strong>{{ entry[1] }}</strong>
-      </div>
+        <div class="distribution-list" *ngIf="roleEntries().length > 0; else noRoles">
+          <div class="dist-item" *ngFor="let entry of roleEntries()">
+            <div class="dist-info">
+              <div class="dist-name">
+                <span class="pill" [ngClass]="getRoleClass(entry[0])">
+                  <span class="status-dot"></span>
+                  {{ entry[0] }}
+                </span>
+              </div>
+              <div class="dist-meta">
+                <strong class="dist-count tnum">{{ entry[1] | number }}</strong>
+                <span class="dist-percent">({{ getRolePercentage(entry[1]) }}%)</span>
+              </div>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" [style.width.%]="getRolePercentage(entry[1])"></div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noRoles>
+          <div class="empty-state">
+            <lucide-icon name="users" class="empty-icon"></lucide-icon>
+            <p>No user role telemetry available.</p>
+          </div>
+        </ng-template>
+      </section>
+
+      <!-- Course Catalog Health Matrix -->
+      <section class="section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Course Catalog Health Matrix</h2>
+            <p class="section-desc">Lifecycle stages of institutional curriculum offerings.</p>
+          </div>
+          <span class="badge badge--green">{{ summary?.totalCourses || 0 }} Total</span>
+        </div>
+
+        <div class="distribution-list" *ngIf="statusEntries().length > 0; else noStatus">
+          <div class="dist-item" *ngFor="let entry of statusEntries()">
+            <div class="dist-info">
+              <div class="dist-name">
+                <span class="pill" [ngClass]="getStatusClass(entry[0])">
+                  <span class="status-dot"></span>
+                  {{ entry[0] }}
+                </span>
+              </div>
+              <div class="dist-meta">
+                <strong class="dist-count tnum">{{ entry[1] | number }}</strong>
+                <span class="dist-percent">({{ getStatusPercentage(entry[1]) }}%)</span>
+              </div>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill bar-fill--status" [style.width.%]="getStatusPercentage(entry[1])"></div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noStatus>
+          <div class="empty-state">
+            <lucide-icon name="book-open" class="empty-icon"></lucide-icon>
+            <p>No course lifecycle telemetry available.</p>
+          </div>
+        </ng-template>
+      </section>
     </div>
   </ng-container>
 </div>

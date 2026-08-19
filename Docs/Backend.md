@@ -2,31 +2,36 @@
 
 ## Overview
 
-The backend is a **Java Spring Boot** application serving RESTful APIs to the Angular frontend. It manages business logic, data persistence, and security.
+The backend comprises two decoupled **Java Spring Boot 3.3.5** services serving REST APIs and WebSockets to the Angular client.
 
-## Core Stack
+---
 
-- **Framework**: Spring Boot 3.x
-- **Language**: Java
-- **Database Access**: Spring Data JPA / Hibernate
-- **Security**: Spring Security with JSON Web Tokens (JWT)
-- **Database**: Relational Database (MySQL/PostgreSQL configuration)
+## Services & Directories
 
-## Package Structure
+### 1. Main Backend Service (`learnsphere-backend/`)
+- **Port**: `8080` (Base URL: `http://localhost:8080/api`)
+- **Core Responsibilities**:
+  - **Authentication & Security**: Custom JWT filter (`JwtAuthFilter`), BCrypt password encoder, and role-based security filters (`STUDENT`, `TEACHER`, `ADMIN`).
+  - **Curriculum & Ingestion**: YouTube Data API v3 playlist and video ingestion (`YouTubeController`, `CourseController`).
+  - **Student Engagement**: Progress tracking, lecture bookmarks, note-taking, and assessment submissions (`StudentController`, `AssessmentController`).
+  - **AI Tutoring & Quizzes**: NVIDIA NIM LLM API client (`NvidiaNimService`, `AiController`).
+  - **Institutional Administration**: 14 admin management endpoints for revenue analytics, user governance, content moderation, and college affiliations (`UserAdminController`, `RevenueController`, `ReportsController`, `ModerationController`).
+  - **Real-Time Communication**: WebSocket STOMP messaging and announcements (`WebSocketConfig`, `MessagingController`, `AnnouncementController`).
 
-Located in `src/main/java/com/MOOC/OnlineLearningPlatfrom/`:
+### 2. Payments Microservice (`learnsphere-payments-service/`)
+- **Port**: `8081` (Base URL: `http://localhost:8081/api`)
+- **Core Responsibilities**:
+  - Course checkout session creation and transaction processing.
+  - Automated 70% Faculty / 30% Platform royalty split calculation.
+  - Faculty pending payout ledger and disbursement processing (`PayoutAdminController`).
 
-- `Controller/`: REST API endpoints exposed to the frontend.
-- `Service/`: Business logic implementations.
-- `Entity/`: JPA entities mapping to database tables.
-- `Dto/`: Data Transfer Objects for API requests and responses.
-- `Repository/`: Spring Data JPA interfaces for database interaction.
-- `Security/`: JWT generation, validation, and security filters.
-- `Exception/`: Global exception handling (`@RestControllerAdvice`).
+---
 
-## Key Functionalities
+## Tech Stack
 
-- **Authentication**: Custom JWT implementation. `JwtAuthFilter` intercepts requests to extract the `userId` and `role`.
-- **File Upload**: The `UploadController` handles multipart file uploads for videos and documents, currently storing them locally.
-- **Entity Relationships**: Highly relational data model linking `Users`, `Courses`, `Lectures`, `Enrollments`, `Assessments`, `Payments`, and `Royalties`.
-- **Roles**: Enforced strictly via `UserRole` mapping to `STUDENT`, `TEACHER`, and `ADMIN`.
+- **Language & Runtime**: Java 17 / 21
+- **Framework**: Spring Boot 3.3.5
+- **ORM / Persistence**: Spring Data JPA / Hibernate 6.5
+- **Database**: PostgreSQL
+- **Security**: Spring Security + JJWT (0.11.5)
+- **External APIs**: YouTube Data API v3, NVIDIA NIM (LLaMA 3.1 70B Instruct)
