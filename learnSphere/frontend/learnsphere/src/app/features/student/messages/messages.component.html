@@ -1,13 +1,20 @@
 <div class="messages-page">
-
   <!-- Header -->
   <div class="page-header">
-    <h1 class="page-title">Messages</h1>
+    <div>
+      <p class="eyebrow">Direct Communications</p>
+      <h1 class="page-title">Messages & Inquiries</h1>
+      <p class="subtitle">Direct correspondence with course instructors, teaching assistants, and mentors.</p>
+    </div>
     <div class="header-actions">
       <div class="search-box">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <lucide-icon name="search" style="width: 16px; height: 16px; color: #8F93A1; margin-right: 6px;"></lucide-icon>
         <input type="text" placeholder="Search conversations..." [(ngModel)]="searchText" class="search-input" />
       </div>
+      <button class="new-msg-btn" (click)="openCompose()">
+        <lucide-icon name="plus" style="width: 16px; height: 16px;"></lucide-icon>
+        <span>New message</span>
+      </button>
     </div>
   </div>
 
@@ -47,8 +54,8 @@
       </div>
     </div>
 
-    <!-- Right: Chat View -->
-    <div class="chat-panel" *ngIf="selectedConversation">
+    <!-- Right: Chat View or Empty State -->
+    <div class="chat-panel" *ngIf="selectedConversation; else noConvSelected">
 
       <div class="chat-header">
         <div class="chat-ava" [style.background]="selectedConversation.bg" [style.color]="selectedConversation.color">
@@ -79,11 +86,74 @@
                class="chat-input"
                (keydown.enter)="sendMessage()" />
         <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <lucide-icon name="send" style="width: 16px; height: 16px;"></lucide-icon>
         </button>
       </div>
 
     </div>
 
+    <ng-template #noConvSelected>
+      <div class="chat-panel">
+        <div class="empty-chat-panel">
+          <div class="empty-icon">
+            <lucide-icon name="message-square" style="width: 28px; height: 28px;"></lucide-icon>
+          </div>
+          <h3>Your Direct Messages</h3>
+          <p *ngIf="enrolledCourses.length > 0">
+            Have a question about a lecture or assignment? Start a private conversation with your course instructor.
+          </p>
+          <p *ngIf="enrolledCourses.length === 0">
+            Enroll in a course to message instructors directly.
+          </p>
+          <button class="new-msg-btn" (click)="openCompose()" *ngIf="enrolledCourses.length > 0">
+            <lucide-icon name="plus" style="width: 16px; height: 16px;"></lucide-icon>
+            <span>Start a conversation</span>
+          </button>
+          <a [routerLink]="['/student/courses']" class="new-msg-btn" *ngIf="enrolledCourses.length === 0" style="text-decoration: none;">
+            <lucide-icon name="book-open" style="width: 16px; height: 16px;"></lucide-icon>
+            <span>Explore courses</span>
+          </a>
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
+</div>
+
+<!-- Compose New Message Modal -->
+<div class="compose-backdrop" *ngIf="isComposeOpen" (click)="closeCompose()">
+  <div class="compose-card" (click)="$event.stopPropagation()">
+    <div class="compose-header">
+      <h2>New Message to Instructor</h2>
+      <button class="close-btn" (click)="closeCompose()" aria-label="Close modal">
+        <lucide-icon name="x" style="width: 18px; height: 18px;"></lucide-icon>
+      </button>
+    </div>
+    
+    <div class="compose-body">
+      <div class="form-group">
+        <label>Course & Instructor</label>
+        <select class="select-input" [(ngModel)]="selectedCourseId">
+          <option *ngFor="let course of enrolledCourses" [value]="course.id">
+            {{ course.title }} (Prof. {{ course.teacherName || 'Instructor' }})
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Message</label>
+        <textarea class="textarea-input"
+                  placeholder="Type your message or question to the instructor..."
+                  [(ngModel)]="composeText"></textarea>
+      </div>
+    </div>
+
+    <div class="compose-footer">
+      <button class="btn-ghost" (click)="closeCompose()" type="button">Cancel</button>
+      <button class="btn-primary" (click)="sendCompose()" [disabled]="!composeText.trim() || sendingCompose || !selectedCourseId">
+        <lucide-icon name="send"></lucide-icon>
+        <span>{{ sendingCompose ? 'Sending...' : 'Send Message' }}</span>
+      </button>
+    </div>
   </div>
 </div>

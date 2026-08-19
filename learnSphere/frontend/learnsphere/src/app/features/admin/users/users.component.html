@@ -1,10 +1,13 @@
 <div class="admin-users">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Admin view</p>
+      <p class="eyebrow">User & Role Governance</p>
       <h1>User Management</h1>
+      <p class="subtitle">Search, inspect, update status, and manage role permissions for students, faculty, and admins.</p>
     </div>
-    <button class="btn btn--primary" type="button" (click)="addUser()">Add user</button>
+    <button class="btn btn--primary" type="button" (click)="addUser()">
+      <lucide-icon name="user" class="btn-icon"></lucide-icon> Add User
+    </button>
   </header>
 
   <nav class="tabs" aria-label="User filters">
@@ -31,11 +34,19 @@
       <div class="card-head">
         <h2>All users</h2>
         <div class="toolbar">
-          <label class="search-box">
-            <span>Search</span>
-            <input type="search" value="name / email" aria-label="Search users">
-          </label>
-          <button class="btn btn--ghost" type="button">Filter</button>
+          <div class="search-box">
+            <lucide-icon name="search" class="search-icon"></lucide-icon>
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery" 
+              (ngModelChange)="onSearchChange()" 
+              placeholder="Search name, email, department..." 
+              aria-label="Search users"
+            />
+            <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()" title="Clear search">
+              <lucide-icon name="x" [size]="14"></lucide-icon>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -59,13 +70,20 @@
           <span>{{ user.role }}</span>
           <span class="pill" [ngClass]="getStatusClass(user.status)">{{ user.status }}</span>
           <div class="action-set">
-            <button class="btn btn--ghost" type="button" (click)="viewUser(user)">View</button>
-            <button class="btn btn--ghost" type="button" [disabled]="updatingId === user.id" (click)="warnOrSuspend(user)">Warn</button>
+            <button class="btn btn--ghost" type="button" (click)="viewUser(user)">Inspect</button>
+            <button class="btn btn--ghost" type="button" [disabled]="updatingId === user.id" (click)="warnOrSuspend(user)">Flag</button>
             <button class="btn" [class.btn--danger]="user.status !== 'Blacklisted'" [class.btn--success]="user.status === 'Blacklisted'" type="button"
               [disabled]="updatingId === user.id" (click)="toggleBlacklist(user)">
               {{ user.status === 'Blacklisted' ? 'Restore' : 'Blacklist' }}
             </button>
           </div>
+        </div>
+
+        <div class="empty-users-state" *ngIf="!loading && users.length === 0">
+          <lucide-icon name="search" class="empty-icon"></lucide-icon>
+          <h3>No matching users found</h3>
+          <p *ngIf="searchQuery">No accounts match "{{ searchQuery }}". Try clearing your search or filter.</p>
+          <p *ngIf="!searchQuery">No accounts registered under this tab category.</p>
         </div>
       </div>
     </section>
@@ -95,5 +113,61 @@
         </div>
       </section>
     </aside>
+  </div>
+</div>
+
+<!-- User Detail / Inspection Modal Drawer -->
+<div class="modal-backdrop" *ngIf="selectedUserForInspect" (click)="closeUserInspect()">
+  <div class="modal-container user-inspect-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="header-left">
+        <div class="user-large-avatar" [class]="'avatar avatar--' + selectedUserForInspect.tone">
+          {{ selectedUserForInspect.initials }}
+        </div>
+        <div>
+          <div class="inspect-tag">Account Telemetry</div>
+          <h2 class="inspect-name">{{ selectedUserForInspect.name }}</h2>
+          <p class="inspect-sub">{{ selectedUserForInspect.email }} · {{ selectedUserForInspect.role }}</p>
+        </div>
+      </div>
+      <button class="close-btn" (click)="closeUserInspect()">
+        <lucide-icon name="x" [size]="18"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="user-kpi-grid">
+        <div class="kpi-box">
+          <span class="label">Account Status</span>
+          <span class="val"><span class="pill" [ngClass]="getStatusClass(selectedUserForInspect.status)">{{ selectedUserForInspect.status }}</span></span>
+        </div>
+        <div class="kpi-box">
+          <span class="label">Institution / Dept</span>
+          <span class="val-text">{{ selectedUserForInspect.department }}</span>
+        </div>
+        <div class="kpi-box">
+          <span class="label">Last Activity</span>
+          <span class="val-text">{{ selectedUserForInspect.meta }}</span>
+        </div>
+        <div class="kpi-box">
+          <span class="label">Registered</span>
+          <span class="val-text">{{ selectedUserForInspect.createdAt ? (selectedUserForInspect.createdAt | date:'mediumDate') : '—' }}</span>
+        </div>
+      </div>
+
+      <div class="inspect-actions-bar">
+        <button class="btn btn--ghost" (click)="closeUserInspect()">Close</button>
+        <button class="btn btn--ghost" (click)="warnOrSuspend(selectedUserForInspect)">
+          Flag for Moderation
+        </button>
+        <button 
+          class="btn" 
+          [class.btn--danger]="selectedUserForInspect.status !== 'Blacklisted'" 
+          [class.btn--success]="selectedUserForInspect.status === 'Blacklisted'"
+          (click)="toggleBlacklist(selectedUserForInspect)">
+          {{ selectedUserForInspect.status === 'Blacklisted' ? 'Restore User Access' : 'Blacklist User Access' }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>

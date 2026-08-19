@@ -1,8 +1,9 @@
 <div class="assessments-page">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Student view</p>
+      <p class="eyebrow">Academic Evaluations & Remedial Tests</p>
       <h1>Assessments</h1>
+      <p class="subtitle">Complete chapter quizzes, midterms, and attendance recovery examinations.</p>
     </div>
   </header>
 
@@ -21,7 +22,19 @@
         </article>
       </div>
       <ng-template #emptyStandard>
-        <p class="hint">No tests available yet for your enrolled courses.</p>
+        <div class="empty-state-wrap">
+          <div class="empty-state-icon">
+            <lucide-icon name="file-text" [size]="22"></lucide-icon>
+          </div>
+          <h3 class="empty-state-title">No Tests Available</h3>
+          <p class="empty-state-sub">
+            You do not have any active course assessments or quizzes pending. Enroll in courses to access assessments.
+          </p>
+          <a [routerLink]="['/student/courses']" class="btn btn--primary empty-btn">
+            <lucide-icon name="book-open" [size]="15"></lucide-icon>
+            <span>Explore Courses</span>
+          </a>
+        </div>
       </ng-template>
     </section>
 

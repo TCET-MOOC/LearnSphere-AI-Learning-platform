@@ -28,13 +28,26 @@ public class StudentController {
     private final CourseService courseService;
     private final EnrollmentRepository enrollmentRepository;
     private final UserProgressRepository userProgressRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService liveSessionService;
 
     public StudentController(CourseService courseService,
                               EnrollmentRepository enrollmentRepository,
-                              UserProgressRepository userProgressRepository) {
+                              UserProgressRepository userProgressRepository,
+                              com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService liveSessionService) {
         this.courseService = courseService;
         this.enrollmentRepository = enrollmentRepository;
         this.userProgressRepository = userProgressRepository;
+        this.liveSessionService = liveSessionService;
+    }
+
+    @GetMapping("/live-sessions")
+    public ResponseEntity<List<com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto>> getLiveSessions(@AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(liveSessionService.getStudentSessions(principal));
+    }
+
+    @GetMapping("/live-sessions/{id}")
+    public ResponseEntity<com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto> getLiveSession(@PathVariable Long id) {
+        return ResponseEntity.ok(liveSessionService.getSessionById(id));
     }
 
     @GetMapping("/courses")
@@ -43,7 +56,13 @@ public class StudentController {
         List<CourseResponseDto> courses = enrollmentRepository.findByUserId(userId).stream()
                 .map(Enrollment::getCourse)
                 .filter(c -> c != null)
-                .map(c -> courseService.getCourseById(c.getId()))
+                .map(c -> {
+                    long lectureCount = courseService.getLectures(c.getId()).size();
+                    long completedCount = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, c.getId()).stream()
+                            .filter(p -> p.getProgressPercent() != null && p.getProgressPercent() >= 100)
+                            .count();
+                    return CourseResponseDto.from(c, lectureCount, completedCount);
+                })
                 .toList();
         return ResponseEntity.ok(courses);
     }
@@ -51,8 +70,25 @@ public class StudentController {
     @GetMapping("/courses/{id}")
     public ResponseEntity<CourseResponseDto> getEnrolledCourseDetail(@PathVariable Long id,
                                                                        @AuthenticationPrincipal CustomUserDetails principal) {
-        assertEnrolled(principal.getUser().getUserId(), id);
-        return ResponseEntity.ok(courseService.getCourseById(id));
+        Long userId = principal.getUser().getUserId();
+        assertEnrolled(userId, id);
+        Course c = courseService.getCourseEntity(id);
+        long lectureCount = courseService.getLectures(id).size();
+        long completedCount = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, id).stream()
+                .filter(p -> p.getProgressPercent() != null && p.getProgressPercent() >= 100)
+                .count();
+        return ResponseEntity.ok(CourseResponseDto.from(c, lectureCount, completedCount));
+    }
+
+    @GetMapping("/courses/{courseId}/progress")
+    public ResponseEntity<List<UserProgressResponseDto>> getCourseProgress(@PathVariable Long courseId,
+                                                                            @AuthenticationPrincipal CustomUserDetails principal) {
+        Long userId = principal.getUser().getUserId();
+        assertEnrolled(userId, courseId);
+        List<UserProgressResponseDto> progressList = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, courseId).stream()
+                .map(UserProgressResponseDto::from)
+                .toList();
+        return ResponseEntity.ok(progressList);
     }
 
     @GetMapping("/courses/{courseId}/lectures/{lectureId}")
@@ -84,6 +120,25 @@ public class StudentController {
         if (lecture.getDuration() != null) {
             progress.setSecondsWatched(lecture.getDuration());
         }
+        UserProgress saved = userProgressRepository.save(progress);
+        return ResponseEntity.ok(UserProgressResponseDto.from(saved));
+    }
+
+    @PostMapping("/lectures/{id}/uncomplete")
+    public ResponseEntity<UserProgressResponseDto> unmarkLectureComplete(@PathVariable Long id,
+                                                                             @AuthenticationPrincipal CustomUserDetails principal) {
+        Long userId = principal.getUser().getUserId();
+        UserProgress progress = userProgressRepository.findByUserIdAndLecture_Id(userId, id)
+                .orElseGet(() -> {
+                    Lecture lecture = courseService.getLectureEntity(id);
+                    UserProgress p = new UserProgress();
+                    p.setUserId(userId);
+                    p.setLecture(lecture);
+                    return p;
+                });
+        progress.setProgressPercent(0);
+        progress.setCompletedAt(null);
+        progress.setSecondsWatched(0);
         UserProgress saved = userProgressRepository.save(progress);
         return ResponseEntity.ok(UserProgressResponseDto.from(saved));
     }

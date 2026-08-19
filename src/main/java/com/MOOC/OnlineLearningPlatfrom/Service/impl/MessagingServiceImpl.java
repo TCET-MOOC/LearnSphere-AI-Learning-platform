@@ -32,17 +32,20 @@ public class MessagingServiceImpl implements MessagingService {
     private final UserAccountRepository userAccountRepository;
     private final CourseRepository courseRepository;
     private final UserRoleRepository userRoleRepository;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     public MessagingServiceImpl(ConversationRepository conversationRepository,
                                  MessageRepository messageRepository,
                                  UserAccountRepository userAccountRepository,
                                  CourseRepository courseRepository,
-                                 UserRoleRepository userRoleRepository) {
+                                 UserRoleRepository userRoleRepository,
+                                 org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate) {
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.userAccountRepository = userAccountRepository;
         this.courseRepository = courseRepository;
         this.userRoleRepository = userRoleRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Override
@@ -107,7 +110,21 @@ public class MessagingServiceImpl implements MessagingService {
         conversation.setLastMessageAt(saved.getSentAt());
         conversationRepository.save(conversation);
 
-        return MessageResponseDto.from(saved);
+        MessageResponseDto dto = MessageResponseDto.from(saved);
+
+        // Broadcast to conversation topic
+        messagingTemplate.convertAndSend("/topic/conversations/" + conversationId, dto);
+
+        // Also broadcast to recipient's private messages queue
+        Long currentUserId = principal.getUser().getUserId();
+        Long recipientId = (conversation.getParticipantA() != null && conversation.getParticipantA().getUserId().equals(currentUserId))
+                ? (conversation.getParticipantB() != null ? conversation.getParticipantB().getUserId() : null)
+                : (conversation.getParticipantA() != null ? conversation.getParticipantA().getUserId() : null);
+        if (recipientId != null) {
+            messagingTemplate.convertAndSend("/topic/user/" + recipientId + "/messages", dto);
+        }
+
+        return dto;
     }
 
     @Override

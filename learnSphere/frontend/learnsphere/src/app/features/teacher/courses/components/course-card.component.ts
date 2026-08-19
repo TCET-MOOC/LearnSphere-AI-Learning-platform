@@ -30,31 +30,39 @@ import { Course } from '@core/models/course.model';
   `,
   styles: [`
     .course-card {
-      background: #fff;
-      border: 1px solid #e8e7ef;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 16px;
       margin-bottom: 12px;
+      box-shadow: var(--card-shadow);
+      transition: all 0.2s ease;
+    }
+    .course-card:hover {
+      border-color: var(--brand-primary);
+      transform: translateY(-1px);
     }
     .course-card__head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .course-id {
       width: 40px; height: 40px; border-radius: 10px;
-      background: #eeedfe; color: #534ab7;
+      background: var(--brand-surface); color: var(--brand-primary);
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 12px; flex: 0 0 auto;
     }
     .course-title { flex: 1; min-width: 0; }
-    .course-title h2 { margin: 0; font-size: 14px; }
-    .course-title p { margin: 4px 0 0; font-size: 11.5px; color: #6b6880; }
+    .course-title h2 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .course-title p { margin: 4px 0 0; font-size: 11.5px; color: var(--text-muted); }
     .course-actions { display: flex; gap: 8px; }
-    .btn { border: none; border-radius: 8px; padding: 8px 12px; font: 600 11.5px Inter, Arial; cursor: pointer; text-decoration: none; }
-    .btn--soft { background: #eeedfe; color: #534ab7; }
-    .btn--danger { background: #fff0ee; color: #a32d2d; }
-    .pill { font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; text-transform: capitalize; }
-    .pill--live { background: #eaf3de; color: #1d9e75; }
-    .pill--draft { background: #faeeda; color: #ba7517; }
-    .pill--pending { background: #fcebeb; color: #a32d2d; }
-    .pill--archived { background: #f1efe8; color: #6b6880; }
+    .btn { border: 1px solid transparent; border-radius: 8px; padding: 8px 14px; font: 600 12px 'Inter', sans-serif; cursor: pointer; text-decoration: none; transition: all 0.15s ease; }
+    .btn--soft { background: var(--brand-surface); color: var(--brand-primary); border-color: var(--border-color); }
+    .btn--soft:hover { background: var(--brand-primary); color: #fff; }
+    .btn--danger { background: var(--status-red-bg); color: var(--status-red-text); }
+    .btn--danger:hover { background: var(--status-red-text); color: #fff; }
+    .pill { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; text-transform: capitalize; }
+    .pill--live { background: var(--status-green-bg); color: var(--status-green-text); }
+    .pill--draft { background: var(--status-amber-bg); color: var(--status-amber-text); }
+    .pill--pending { background: var(--status-red-bg); color: var(--status-red-text); }
+    .pill--archived { background: var(--bg-hover); color: var(--text-muted); }
   `]
 })
 export class CourseCardComponent {

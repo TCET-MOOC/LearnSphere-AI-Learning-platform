@@ -1,19 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { SentimentService } from '../services/sentiment.service';
 import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-sentiment',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './sentiment.component.html',
   styleUrls: ['./sentiment.component.scss']
 })
 export class SentimentComponent implements OnInit {
 
-  // Tab is display-only: the backend currently returns one platform-wide
-  // snapshot, so switching tabs doesn't refetch a different slice yet.
   activeTab = 'Platform-wide';
   tabs = ['Platform-wide', 'By course', 'By teacher', 'By college'];
 
@@ -29,7 +29,9 @@ export class SentimentComponent implements OnInit {
 
   constructor(
     private sentimentService: SentimentService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -38,6 +40,7 @@ export class SentimentComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.cdr.markForCheck();
     this.sentimentService.getSentiment().subscribe({
       next: (summary) => {
         this.totalAnalyzed = summary.totalAnalyzed;
@@ -49,15 +52,32 @@ export class SentimentComponent implements OnInit {
         this.recommendations = summary.recommendations;
         this.teacherScores = summary.teacherScores;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.notificationService.error('Failed to load sentiment data.');
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
-  setTab(tab: string) {
+  setTab(tab: string): void {
     this.activeTab = tab;
+  }
+
+  onRecommendationAction(rec: { title: string; action: string }): void {
+    const act = (rec.action + ' ' + rec.title).toLowerCase();
+    if (act.includes('teacher') || act.includes('faculty') || act.includes('user')) {
+      this.router.navigate(['/admin/users']);
+    } else if (act.includes('course') || act.includes('curriculum')) {
+      this.router.navigate(['/admin/courses']);
+    } else if (act.includes('flag') || act.includes('moderat') || act.includes('spam') || act.includes('bull')) {
+      this.router.navigate(['/admin/flagged']);
+    } else if (act.includes('college') || act.includes('campus')) {
+      this.router.navigate(['/admin/colleges']);
+    } else {
+      this.notificationService.info(`Action '${rec.action}' initiated.`);
+    }
   }
 }

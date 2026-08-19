@@ -3,8 +3,9 @@
   <!-- Header -->
   <div class="page-header">
     <div>
-      <h1 class="page-header__title">🏆 Leaderboard</h1>
-      <p class="page-header__sub">See how you rank against your peers</p>
+      <p class="page-header__eyebrow">College & Department Rankings</p>
+      <h1 class="page-header__title"><lucide-icon name="trophy" class="title-icon"></lucide-icon> Leaderboard</h1>
+      <p class="page-header__sub">See how you rank against your batchmates, course peers, and college cohort.</p>
     </div>
     <div class="tabs">
       <button class="tabs__item" [class.tabs__item--active]="activeTab === 'batch'" (click)="setTab('batch')">My Batch</button>
@@ -17,26 +18,33 @@
   <!-- KPI Cards -->
   <div class="kpi-grid" *ngIf="myEntry">
     <div class="kpi-card">
-      <div class="kpi-card__icon" style="background:#EEEDFE">🏅</div>
+      <div class="kpi-card__icon kpi-card__icon--brand">
+        <lucide-icon name="medal"></lucide-icon>
+      </div>
       <div class="kpi-card__body">
         <div class="kpi-card__value">#{{ myEntry.rank }}</div>
         <div class="kpi-card__label">Your Rank</div>
-        <div class="kpi-card__sub" style="color:#534AB7">of {{ totalStudents }} students</div>
+        <div class="kpi-card__sub text-brand">of {{ totalStudents }} students</div>
       </div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-card__icon" style="background:#E3F6F0">⭐</div>
+      <div class="kpi-card__icon kpi-card__icon--success">
+        <lucide-icon name="star"></lucide-icon>
+      </div>
       <div class="kpi-card__body">
         <div class="kpi-card__value">{{ myEntry.points | number }}</div>
         <div class="kpi-card__label">Your Points</div>
+        <div class="kpi-card__sub text-success">Academic XP</div>
       </div>
     </div>
     <div class="kpi-card" *ngIf="pointsToNext !== null && aboveMeEntry">
-      <div class="kpi-card__icon" style="background:#FEF6E4">🚀</div>
+      <div class="kpi-card__icon kpi-card__icon--warning">
+        <lucide-icon name="rocket"></lucide-icon>
+      </div>
       <div class="kpi-card__body">
         <div class="kpi-card__value">−{{ pointsToNext }} pts</div>
         <div class="kpi-card__label">To Next Rank</div>
-        <div class="kpi-card__sub" style="color:#D08C1A">Beat {{ aboveMeEntry.name }} (#{{ aboveMeEntry.rank }})</div>
+        <div class="kpi-card__sub text-warning">Beat {{ aboveMeEntry.name }} (#{{ aboveMeEntry.rank }})</div>
       </div>
     </div>
   </div>
@@ -44,42 +52,47 @@
   <!-- Main Content -->
   <div class="panel">
     <div class="panel__header">
-      <span class="panel__title">Leaderboard</span>
+      <span class="panel__title">Leaderboard Rankings</span>
+      <button class="btn-refresh" (click)="load()" [disabled]="loading" title="Refresh Leaderboard">
+        <lucide-icon name="rotate-ccw" [class.spin-icon]="loading" [size]="14"></lucide-icon>
+        <span>Refresh</span>
+      </button>
     </div>
 
-    <p class="lb-empty" *ngIf="loading">Loading leaderboard…</p>
+    <!-- Loading State -->
+    <div class="state-message" *ngIf="loading">
+      <lucide-icon name="loader-2" class="spin-icon" [size]="20"></lucide-icon>
+      <span>Loading leaderboard rankings…</span>
+    </div>
 
-    <div class="lb-list" *ngIf="!loading">
-      <div class="lb-item" *ngFor="let entry of topThree" [class.lb-item--me]="entry.studentId === myEntry?.studentId">
-        <div class="lb-item__rank">{{ medal(entry.rank) }}</div>
+    <!-- Error State -->
+    <div class="state-message is-error" *ngIf="!loading && hasError">
+      <lucide-icon name="trophy" [size]="24"></lucide-icon>
+      <span>Could not load the leaderboard.</span>
+      <button class="btn btn--primary btn--sm" (click)="load()">Try Again</button>
+    </div>
+
+    <!-- Rankings List -->
+    <div class="lb-list" *ngIf="!loading && !hasError">
+      <div class="lb-item" *ngFor="let entry of entries" [class.lb-item--me]="entry.studentId === myEntry?.studentId">
+        <div class="lb-item__rank">
+          <lucide-icon *ngIf="entry.rank <= 3" name="medal" class="lb-medal lb-medal--{{entry.rank}}"></lucide-icon>
+          <span *ngIf="entry.rank > 3">#{{ entry.rank }}</span>
+        </div>
         <div class="lb-item__avatar" [style.background]="getBg(entry.name)" [style.color]="getColor(entry.name)">{{ getInitials(entry.name) }}</div>
         <div class="lb-item__info">
-          <div class="lb-item__name">{{ entry.name }}</div>
+          <div class="lb-item__name">
+            {{ entry.name }}
+            <span class="pill pill--purple" *ngIf="entry.studentId === myEntry?.studentId" style="margin-left: 8px; font-size: 10px; padding: 2px 8px;">You</span>
+          </div>
         </div>
         <div class="lb-item__points">{{ entry.points | number }} pts</div>
       </div>
 
-      <div class="lb-divider" *ngIf="showDivider">{{ dividerLabel }}</div>
-
-      <div class="lb-item lb-item--me" *ngIf="showMeInMainList && myEntry">
-        <div class="lb-item__rank">#{{ myEntry.rank }}</div>
-        <div class="lb-item__avatar" [style.background]="getBg(myEntry.name)" [style.color]="getColor(myEntry.name)">{{ getInitials(myEntry.name) }}</div>
-        <div class="lb-item__info">
-          <div class="lb-item__name">You — {{ myEntry.name }}</div>
-        </div>
-        <div class="lb-item__points">{{ myEntry.points | number }} pts</div>
+      <div class="state-message" *ngIf="entries.length === 0">
+        <lucide-icon name="trophy" [size]="24"></lucide-icon>
+        <span>No student rankings recorded yet for this view.</span>
       </div>
-
-      <div class="lb-item" *ngIf="showMeInMainList && afterMeEntry">
-        <div class="lb-item__rank">#{{ afterMeEntry.rank }}</div>
-        <div class="lb-item__avatar" [style.background]="getBg(afterMeEntry.name)" [style.color]="getColor(afterMeEntry.name)">{{ getInitials(afterMeEntry.name) }}</div>
-        <div class="lb-item__info">
-          <div class="lb-item__name">{{ afterMeEntry.name }}</div>
-        </div>
-        <div class="lb-item__points">{{ afterMeEntry.points | number }} pts</div>
-      </div>
-
-      <div class="lb-empty" *ngIf="entries.length === 0">No leaderboard data available yet.</div>
     </div>
   </div>
 
@@ -90,22 +103,22 @@
     </div>
     <div class="points-grid">
       <div class="points-item">
-        <span class="points-item__icon">✅</span>
+        <span class="points-item__icon"><lucide-icon name="check-circle" class="guide-icon guide-icon--green"></lucide-icon></span>
         Complete a lecture
         <span class="points-item__value">+10 pts</span>
       </div>
       <div class="points-item">
-        <span class="points-item__icon">📝</span>
+        <span class="points-item__icon"><lucide-icon name="file-text" class="guide-icon guide-icon--blue"></lucide-icon></span>
         Submit an assessment
         <span class="points-item__value">+25 pts</span>
       </div>
       <div class="points-item">
-        <span class="points-item__icon">🏆</span>
+        <span class="points-item__icon"><lucide-icon name="trophy" class="guide-icon guide-icon--amber"></lucide-icon></span>
         Score above 90%
         <span class="points-item__value">+50 pts</span>
       </div>
       <div class="points-item">
-        <span class="points-item__icon">💬</span>
+        <span class="points-item__icon"><lucide-icon name="message-circle" class="guide-icon guide-icon--purple"></lucide-icon></span>
         Helpful discussion post
         <span class="points-item__value">+5 pts</span>
       </div>

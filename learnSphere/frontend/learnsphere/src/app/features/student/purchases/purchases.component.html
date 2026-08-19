@@ -1,0 +1,224 @@
+<div class="purchases-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Student workspace</p>
+      <h1>Order History & Purchases</h1>
+      <p class="sub-head">Track your course enrollments, Razorpay payment receipts, and billing history.</p>
+    </div>
+    <button class="btn btn--secondary" type="button" (click)="loadOrders()">
+      <lucide-icon name="refresh-cw" [size]="15"></lucide-icon>
+      <span>Refresh</span>
+    </button>
+  </header>
+
+  <!-- Summary Stats -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <span class="stat-label">Total Invested</span>
+      <span class="stat-value">₹{{ totalSpent.toLocaleString('en-IN') }}</span>
+      <span class="stat-subtext text-success">Lifetime learning spend</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Paid Courses</span>
+      <span class="stat-value">{{ successfulPurchasesCount }}</span>
+      <span class="stat-subtext text-purple">Active lifetime access</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Pending / Processing</span>
+      <span class="stat-value">{{ activeOrdersCount }}</span>
+      <span class="stat-subtext text-amber">Awaiting webhook / payment</span>
+    </div>
+  </div>
+
+  <!-- Main Section -->
+  <section class="section-card">
+    <div class="card-head">
+      <div class="filter-tabs">
+        <button 
+          type="button" 
+          class="tab-btn" 
+          [class.active]="selectedFilter === 'ALL'" 
+          (click)="setFilter('ALL')">
+          All Orders ({{ allCount }})
+        </button>
+        <button 
+          type="button" 
+          class="tab-btn" 
+          [class.active]="selectedFilter === 'PAID'" 
+          (click)="setFilter('PAID')">
+          Successful ({{ paidCount }})
+        </button>
+        <button 
+          type="button" 
+          class="tab-btn" 
+          [class.active]="selectedFilter === 'PENDING'" 
+          (click)="setFilter('PENDING')">
+          Pending ({{ pendingCount }})
+        </button>
+        <button 
+          type="button" 
+          class="tab-btn" 
+          [class.active]="selectedFilter === 'FAILED'" 
+          (click)="setFilter('FAILED')">
+          Failed ({{ failedCount }})
+        </button>
+      </div>
+    </div>
+
+    <p class="hint" *ngIf="loading">Loading your order history…</p>
+
+    <!-- Orders Table / List -->
+    <ng-container *ngIf="!loading">
+      <div class="orders-list" *ngIf="filteredOrders.length > 0; else emptyState">
+        <div class="order-card" *ngFor="let order of filteredOrders">
+          <div class="order-main">
+            <div class="course-badge-icon">
+              <lucide-icon name="shopping-bag" [size]="22"></lucide-icon>
+            </div>
+            <div class="order-details">
+              <div class="order-title-row">
+                <h3 class="course-title">{{ order.courseTitle || 'Course #' + order.courseId }}</h3>
+                <span class="order-pill" [ngClass]="getStatusClass(order.status)">
+                  {{ getStatusLabel(order.status) }}
+                </span>
+              </div>
+              <p class="order-meta">
+                <span *ngIf="order.courseDepartment" class="dept-tag">{{ order.courseDepartment }} · </span>
+                <span class="order-id">Order Ref: <code>{{ order.razorpayOrderId }}</code></span>
+                <span *ngIf="order.createdAt" class="order-date"> · {{ order.createdAt | date:'mediumDate' }}</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="order-financials">
+            <div class="price-box">
+              <span class="price-val">{{ formatAmount(order.amount) }}</span>
+              <span class="currency-label">{{ order.currency }}</span>
+            </div>
+
+            <div class="actions-box">
+              <button 
+                *ngIf="order.status === 'PAID'" 
+                type="button"
+                class="btn btn--sm btn--outline mr-8"
+                title="View & Download Payment Receipt"
+                (click)="openReceipt(order)">
+                <lucide-icon name="file-text" [size]="14"></lucide-icon>
+                <span>Receipt</span>
+              </button>
+
+              <a 
+                *ngIf="order.status === 'PAID'" 
+                [routerLink]="['/student/courses', order.courseId]" 
+                class="btn btn--sm btn--primary">
+                <span>Go to Course</span>
+                <lucide-icon name="arrow-up-right" [size]="14"></lucide-icon>
+              </a>
+              <a 
+                *ngIf="order.status !== 'PAID'" 
+                [routerLink]="['/student/courses', order.courseId]" 
+                class="btn btn--sm btn--outline">
+                <span>View Details</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <div class="empty-icon-wrap">
+            <lucide-icon name="credit-card" [size]="36"></lucide-icon>
+          </div>
+          <h3>No transactions found</h3>
+          <p class="empty-desc">
+            <span *ngIf="selectedFilter === 'ALL'">You haven't initiated or completed any course transactions yet.</span>
+            <span *ngIf="selectedFilter === 'PAID'">You haven't completed any course purchases yet.</span>
+            <span *ngIf="selectedFilter === 'PENDING'">You have no pending or awaiting checkout transactions.</span>
+            <span *ngIf="selectedFilter === 'FAILED'">No failed payment attempts recorded.</span>
+          </p>
+          <a routerLink="/student/courses" class="btn btn--primary mt-16">
+            Explore Courses
+          </a>
+        </div>
+      </ng-template>
+    </ng-container>
+  </section>
+
+  <!-- Official Printable Payment Receipt Modal -->
+  <div class="receipt-modal-backdrop" *ngIf="selectedReceipt" (click)="closeReceipt()">
+    <div class="receipt-modal-card" (click)="$event.stopPropagation()">
+      <div class="receipt-header">
+        <div class="receipt-brand">
+          <span class="brand-badge">Official Tax Receipt</span>
+          <h2>LearnSphere Learning Platform</h2>
+        </div>
+        <button class="btn-close-icon" type="button" (click)="closeReceipt()">
+          <lucide-icon name="x" [size]="20"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="receipt-body" id="printable-receipt">
+        <div class="receipt-top-row">
+          <div class="meta-block">
+            <span class="meta-label">Receipt Number</span>
+            <span class="meta-val font-mono">INV-{{ selectedReceipt.id ? (selectedReceipt.id + 1000) : '2026' }}</span>
+          </div>
+          <div class="meta-block text-right">
+            <span class="meta-label">Payment Date</span>
+            <span class="meta-val">{{ (selectedReceipt.createdAt | date:'medium') || 'Completed' }}</span>
+          </div>
+        </div>
+
+        <div class="receipt-status-banner">
+          <lucide-icon name="check-circle" [size]="18" class="text-success"></lucide-icon>
+          <span>Payment Verified & Course Enrolled</span>
+        </div>
+
+        <div class="receipt-grid">
+          <div class="grid-item">
+            <span class="item-label">Billed To</span>
+            <strong class="item-val">{{ currentUser?.fullName || 'Student' }}</strong>
+            <span class="item-sub">{{ currentUser?.email }}</span>
+          </div>
+          <div class="grid-item">
+            <span class="item-label">Gateway Reference</span>
+            <strong class="item-val font-mono">{{ selectedReceipt.razorpayOrderId }}</strong>
+            <span class="item-sub">Razorpay Standard Checkout</span>
+          </div>
+        </div>
+
+        <div class="receipt-item-table">
+          <div class="item-row header-row">
+            <span>Item Description</span>
+            <span class="text-right">Amount</span>
+          </div>
+          <div class="item-row">
+            <div>
+              <strong>{{ selectedReceipt.courseTitle || 'Course Access (Lifetime)' }}</strong>
+              <p class="table-sub">{{ selectedReceipt.courseDepartment || 'Online Learning Program' }} · Lifetime Access</p>
+            </div>
+            <strong class="text-right">{{ formatAmount(selectedReceipt.amount) }}</strong>
+          </div>
+          <div class="item-row total-row">
+            <span>Total Paid (incl. Taxes)</span>
+            <span class="total-amount">{{ formatAmount(selectedReceipt.amount) }} {{ selectedReceipt.currency }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="receipt-footer">
+        <button class="btn btn--outline" type="button" (click)="closeReceipt()">Close</button>
+        <button class="btn btn--secondary" type="button" (click)="printReceipt()">
+          <lucide-icon name="printer" [size]="15"></lucide-icon>
+          <span>Print</span>
+        </button>
+        <button class="btn btn--primary" type="button" (click)="downloadPdfReceipt()">
+          <lucide-icon name="download" [size]="15"></lucide-icon>
+          <span>Download PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

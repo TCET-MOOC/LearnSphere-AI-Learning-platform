@@ -3,9 +3,9 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 import { TopbarComponent } from './shared/components/topbar/topbar.component';
-import { FooterComponent } from './shared/components/footer/footer.component';
 import { TeacherSidebarComponent } from './shared/components/teacher-sidebar/teacher-sidebar.component';
 import { AdminSidebarComponent } from './shared/components/admin-sidebar/admin-sidebar.component';
+import { AiChatbotComponent } from './shared/components/ai-chatbot/ai-chatbot.component';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +17,7 @@ import { AdminSidebarComponent } from './shared/components/admin-sidebar/admin-s
     TeacherSidebarComponent, 
     AdminSidebarComponent, 
     TopbarComponent, 
-    FooterComponent
+    AiChatbotComponent
   ],
   templateUrl: './app.html', 
   styleUrls: ['./app.scss'] 

@@ -1,2 +1,113 @@
 @use '../../../../styles/portal-pages';
-.settings-nav button{display:block;width:100%;padding:10px 11px;border:0;border-radius:7px;color:#6b6880;background:transparent;text-align:left;font:500 11.5px Inter,Arial;cursor:pointer}.settings-nav button.active{background:#eeedfe;color:#534ab7;font-weight:600}
+
+.settings-nav button {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: var(--border-radius-md);
+  color: var(--text-secondary);
+  background: transparent;
+  text-align: left;
+  font: 500 12.5px inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(.active) {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  &.active {
+    background: var(--brand-surface);
+    color: var(--brand-primary);
+    font-weight: 600;
+  }
+}
+
+.settings-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color);
+
+  .user-avatar-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--brand-surface);
+    color: var(--brand-primary);
+    font-weight: 700;
+    font-size: 11.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    b {
+      font-size: 12px;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    small {
+      font-size: 11px;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+.toggle {
+  width: 40px;
+  height: 22px;
+  border-radius: 99px;
+  background: var(--border-color);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+  padding: 2px;
+
+  span {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: transform 0.2s ease;
+  }
+
+  &.on {
+    background: var(--brand-primary);
+
+    span {
+      transform: translateX(18px);
+    }
+  }
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: var(--brand-primary);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

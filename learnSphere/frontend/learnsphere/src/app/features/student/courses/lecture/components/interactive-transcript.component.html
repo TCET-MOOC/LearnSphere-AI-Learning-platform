@@ -1,0 +1,342 @@
+<div class="transcript-panel">
+  
+  <!-- ========================================== -->
+  <!-- 1. TRANSCRIPT VIEW                         -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="activeView === 'transcript'">
+    <!-- Transcript Header -->
+    <div class="transcript-head">
+      <div class="head-left">
+        <lucide-icon name="file-text" [size]="16" class="head-icon"></lucide-icon>
+        <h3>Transcript</h3>
+      </div>
+
+      <div class="head-actions">
+        <!-- Multi-Language Selector Dropdown -->
+        <div class="language-dropdown-wrapper" (click)="$event.stopPropagation()">
+          <button 
+            class="lang-pill" 
+            [class.is-active]="showLanguageMenu"
+            type="button" 
+            (click)="toggleLanguageMenu($event)"
+            title="Select Transcript Language">
+            <lucide-icon name="globe" [size]="13"></lucide-icon>
+            <span>{{ currentLanguageLabel }}</span>
+          </button>
+
+          <!-- Language Dropdown Menu -->
+          <div class="lang-menu" *ngIf="showLanguageMenu">
+            <div class="lang-menu-title">Transcript Language</div>
+            
+            <button 
+              *ngFor="let lang of availableLanguages" 
+              class="lang-menu-item" 
+              [class.is-selected]="selectedLanguage === lang.code"
+              type="button" 
+              (click)="setLanguage(lang.code)">
+              <lucide-icon name="check" [size]="13" *ngIf="selectedLanguage === lang.code"></lucide-icon>
+              <div [style.margin-left]="selectedLanguage === lang.code ? '0' : '20px'">
+                <div class="item-name">{{ lang.label }}</div>
+                <div class="item-native">{{ lang.nativeLabel }}</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Auto-scroll toggle -->
+        <button 
+          class="action-pill" 
+          [class.is-active]="autoScroll" 
+          type="button" 
+          (click)="toggleAutoScroll()"
+          title="Toggle Auto-Scroll during playback">
+          <span class="dot"></span>
+          Auto-scroll
+        </button>
+
+        <!-- Vertical Ellipsis (⋮) AI Dropdown -->
+        <div class="ai-dropdown-wrapper" (click)="$event.stopPropagation()">
+          <button 
+            class="icon-btn" 
+            [class.is-active]="showAiMenu"
+            type="button" 
+            (click)="toggleAiMenu($event)" 
+            title="AI Transcript Tools">
+            <lucide-icon name="more-vertical" [size]="16"></lucide-icon>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div class="ai-menu" *ngIf="showAiMenu">
+            <div class="ai-menu-title">AI Study Engine (NVIDIA NIM)</div>
+            
+            <button class="ai-menu-item" type="button" (click)="summarizeTranscript()">
+              <lucide-icon name="sparkles" [size]="15" class="item-icon-purple"></lucide-icon>
+              <div>
+                <div class="item-title">Summarize Transcript</div>
+                <div class="item-desc">3 core takeaway concepts</div>
+              </div>
+            </button>
+
+            <button class="ai-menu-item" type="button" (click)="generateNotes()">
+              <lucide-icon name="file-text" [size]="15" class="item-icon-indigo"></lucide-icon>
+              <div>
+                <div class="item-title">Make Notes from Transcript</div>
+                <div class="item-desc">Formulas, code & definitions</div>
+              </div>
+            </button>
+
+            <div class="menu-divider"></div>
+
+            <button class="ai-menu-item" type="button" (click)="downloadTranscript('txt')">
+              <lucide-icon name="download" [size]="15"></lucide-icon>
+              <div class="item-title">Download as Text (.txt)</div>
+            </button>
+
+            <button class="ai-menu-item" type="button" (click)="downloadTranscript('vtt')">
+              <lucide-icon name="subtitles" [size]="15"></lucide-icon>
+              <div class="item-title">Download as WebVTT (.vtt)</div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Filter Bar -->
+    <div class="transcript-search">
+      <lucide-icon name="search" [size]="14" class="search-icon"></lucide-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        [placeholder]="'Search in ' + currentLanguageLabel + ' transcript...'" 
+        aria-label="Search transcript" />
+      <button *ngIf="searchQuery" class="clear-btn" (click)="searchQuery = ''" aria-label="Clear search">
+        <lucide-icon name="x" [size]="12"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Scrollable Lines Container -->
+    <div class="transcript-list" #scrollContainer>
+      <div 
+        *ngFor="let line of filteredLines"
+        [id]="'transcript-line-' + line.id"
+        class="transcript-row"
+        [class.is-active]="line.id === activeLineId"
+        (click)="onLineClick(line.time)">
+        
+        <div class="row-timestamp">
+          <lucide-icon name="clock" [size]="11" *ngIf="line.id === activeLineId"></lucide-icon>
+          <span class="mono-time">{{ line.formattedTime }}</span>
+        </div>
+
+        <div class="row-content">
+          <span class="speaker-tag" *ngIf="line.speaker">{{ line.speaker }}</span>
+          <p class="cue-text">{{ line.text }}</p>
+        </div>
+      </div>
+
+      <div class="empty-results" *ngIf="filteredLines.length === 0">
+        <p>No matching transcript phrases found for "{{ searchQuery }}".</p>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- 2. IN-SIDEBAR AI SUMMARY VIEW              -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="activeView === 'summary'">
+    <div class="transcript-head ai-nav-head">
+      <button class="back-link-btn" type="button" (click)="switchView('transcript')">
+        <lucide-icon name="arrow-left" [size]="15"></lucide-icon>
+        <span>Back to Transcript</span>
+      </button>
+
+      <div class="head-actions">
+        <button class="icon-action-btn" type="button" (click)="showSummaryModal = true" title="Expand to Full Modal">
+          <lucide-icon name="maximize-2" [size]="14"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-ai-pane">
+      <div class="pane-title-badge">
+        <lucide-icon name="sparkles" [size]="14" class="text-purple"></lucide-icon>
+        <span>AI Key Takeaways ({{ currentLanguageLabel }})</span>
+      </div>
+
+      <div class="summary-list">
+        <div class="takeaway-card" *ngFor="let pt of summaryPoints; let i = index">
+          <div class="point-badge">Point {{ i + 1 }}</div>
+          <p class="point-text">{{ pt }}</p>
+        </div>
+      </div>
+
+      <div class="pane-footer">
+        <button class="btn btn--soft" type="button" (click)="switchView('transcript')">
+          Back to Transcript
+        </button>
+        <button class="btn btn--primary" type="button" (click)="generateNotes()">
+          <lucide-icon name="file-text" [size]="13"></lucide-icon>
+          View Study Notes
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- 3. IN-SIDEBAR AI STUDY NOTES VIEW          -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="activeView === 'notes'">
+    <div class="transcript-head ai-nav-head">
+      <button class="back-link-btn" type="button" (click)="switchView('transcript')">
+        <lucide-icon name="arrow-left" [size]="15"></lucide-icon>
+        <span>Back to Transcript</span>
+      </button>
+
+      <div class="head-actions">
+        <button class="icon-action-btn" type="button" (click)="showNotesDrawer = true" title="Expand to Full Modal">
+          <lucide-icon name="maximize-2" [size]="14"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-ai-pane">
+      <!-- Formulas Section -->
+      <div class="notes-section" *ngIf="extractedNotes.formulas.length > 0">
+        <div class="section-title">
+          <lucide-icon name="code" [size]="13"></lucide-icon>
+          <span>Mathematical Formulations</span>
+        </div>
+        <div class="formula-box" *ngFor="let form of extractedNotes.formulas">
+          <code>{{ form }}</code>
+        </div>
+      </div>
+
+      <!-- Code Implementation Section -->
+      <div class="notes-section" *ngIf="extractedNotes.codeSnippets.length > 0">
+        <div class="section-title">
+          <lucide-icon name="code" [size]="13"></lucide-icon>
+          <span>PyTorch Reference Implementation</span>
+        </div>
+        <pre class="code-box" *ngFor="let code of extractedNotes.codeSnippets"><code>{{ code }}</code></pre>
+      </div>
+
+      <!-- Key Definitions Section -->
+      <div class="notes-section" *ngIf="extractedNotes.keyDefinitions.length > 0">
+        <div class="section-title">
+          <lucide-icon name="book-open" [size]="13"></lucide-icon>
+          <span>Core Definitions</span>
+        </div>
+        <ul class="definitions-list">
+          <li *ngFor="let def of extractedNotes.keyDefinitions">{{ def }}</li>
+        </ul>
+      </div>
+
+      <div class="pane-footer">
+        <button class="btn btn--soft" type="button" (click)="copyNotes()">
+          <lucide-icon [name]="copied ? 'check' : 'copy'" [size]="13"></lucide-icon>
+          {{ copied ? 'Copied' : 'Copy All Notes' }}
+        </button>
+        <button class="btn btn--primary" type="button" (click)="switchView('transcript')">
+          Back to Transcript
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- 4. FULL-SCREEN MODALS (OVERLAY Z-INDEX 999999) -->
+  <!-- ========================================== -->
+
+  <!-- Full Takeaway Modal -->
+  <div class="modal-backdrop" *ngIf="showSummaryModal" (click)="showSummaryModal = false">
+    <div class="ai-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="head-title">
+          <div class="icon-wrap-purple">
+            <lucide-icon name="sparkles" [size]="18"></lucide-icon>
+          </div>
+          <div>
+            <h4>AI Transcript Summary</h4>
+            <p>3 Core Takeaways ({{ currentLanguageLabel }})</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" (click)="showSummaryModal = false" aria-label="Close">
+          <lucide-icon name="x" [size]="16"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="takeaway-card" *ngFor="let pt of summaryPoints; let i = index">
+          <div class="point-badge">Point {{ i + 1 }}</div>
+          <p class="point-text">{{ pt }}</p>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn--primary" type="button" (click)="showSummaryModal = false">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Notes Modal -->
+  <div class="modal-backdrop" *ngIf="showNotesDrawer" (click)="showNotesDrawer = false">
+    <div class="ai-modal-card notes-modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="head-title">
+          <div class="icon-wrap-indigo">
+            <lucide-icon name="file-text" [size]="18"></lucide-icon>
+          </div>
+          <div>
+            <h4>Extracted Study Notes</h4>
+            <p>{{ extractedNotes.title }}</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" (click)="showNotesDrawer = false" aria-label="Close">
+          <lucide-icon name="x" [size]="16"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Formulas Section -->
+        <div class="notes-section">
+          <div class="section-title">
+            <lucide-icon name="code" [size]="14"></lucide-icon>
+            <span>Mathematical Formulations</span>
+          </div>
+          <div class="formula-box" *ngFor="let form of extractedNotes.formulas">
+            <code>{{ form }}</code>
+          </div>
+        </div>
+
+        <!-- Code Implementation Section -->
+        <div class="notes-section" *ngIf="extractedNotes.codeSnippets.length > 0">
+          <div class="section-title">
+            <lucide-icon name="code" [size]="14"></lucide-icon>
+            <span>PyTorch Reference Implementation</span>
+          </div>
+          <pre class="code-box" *ngFor="let code of extractedNotes.codeSnippets"><code>{{ code }}</code></pre>
+        </div>
+
+        <!-- Key Definitions Section -->
+        <div class="notes-section">
+          <div class="section-title">
+            <lucide-icon name="book-open" [size]="14"></lucide-icon>
+            <span>Core Definitions</span>
+          </div>
+          <ul class="definitions-list">
+            <li *ngFor="let def of extractedNotes.keyDefinitions">{{ def }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn--soft" type="button" (click)="copyNotes()">
+          <lucide-icon [name]="copied ? 'check' : 'copy'" [size]="14"></lucide-icon>
+          {{ copied ? 'Copied to Clipboard' : 'Copy All Notes' }}
+        </button>
+        <button class="btn btn--primary" type="button" (click)="showNotesDrawer = false">Close</button>
+      </div>
+    </div>
+  </div>
+
+</div>

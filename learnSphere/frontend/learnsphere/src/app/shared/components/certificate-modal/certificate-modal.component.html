@@ -1,0 +1,104 @@
+<!-- Certificate Diploma Preview Modal Backdrop -->
+<div class="modal-backdrop" *ngIf="certificate" (click)="onBackdropClick()">
+  <div class="modal-container cert-modal" (click)="$event.stopPropagation()">
+    
+    <!-- Modal Header Actions -->
+    <div class="modal-top">
+      <div class="top-title">
+        <lucide-icon name="award" [size]="18" class="award-head-icon"></lucide-icon>
+        <span>Official Course Certificate</span>
+      </div>
+      <div class="top-actions">
+        <button class="action-btn share-top-btn" (click)="showShareSubmodal = true" type="button">
+          <lucide-icon name="share-2" [size]="15"></lucide-icon>
+          <span>Share</span>
+        </button>
+        <button class="action-btn print-btn" (click)="printCertificate()" type="button">
+          <lucide-icon name="download" [size]="15"></lucide-icon>
+          <span>Download / Print PDF</span>
+        </button>
+        <button class="close-btn" (click)="close.emit()" type="button" aria-label="Close">
+          <lucide-icon name="x" [size]="18"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- The Diploma Document (Printable High-Fidelity Design) -->
+    <div class="diploma-wrapper" id="printable-certificate">
+      <div class="diploma-border">
+        <div class="diploma-inner">
+          <div class="diploma-seal">
+            <div class="seal-icon">🎓</div>
+            <div class="seal-text">LEARNSPHERE ACADEMY</div>
+          </div>
+
+          <p class="diploma-eyebrow">CERTIFICATE OF {{ certificate.type === 'REMEDIAL' ? 'ATTENDANCE FULFILLMENT' : 'ACADEMIC ACHIEVEMENT' }}</p>
+          <p class="presented-to">This is to certify that</p>
+          <h1 class="student-name">{{ certificate.studentName }}</h1>
+          <p class="college-affiliation">of {{ certificate.collegeName }}</p>
+
+          <p class="cert-body-text">
+            has successfully completed all required coursework, lecture modules, and verified academic assessments for
+          </p>
+
+          <h2 class="course-title">{{ certificate.courseName }}</h2>
+
+          <div class="diploma-signatures">
+            <div class="sig-block">
+              <div class="sig-line cursive-font">{{ certificate.teacher }}</div>
+              <div class="sig-title">Course Instructor</div>
+            </div>
+
+            <div class="sig-qr-block">
+              <div class="qr-box">
+                <img [src]="getQrCodeUrl(certificate)" alt="Verification QR Code" class="qr-img" />
+              </div>
+              <div class="cred-id">ID: {{ certificate.certId }}</div>
+              <div class="cred-date">Issued: {{ certificate.date }}</div>
+            </div>
+
+            <div class="sig-block">
+              <div class="sig-line cursive-font">Academic Dean</div>
+              <div class="sig-title">Director of Accreditation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Share Modal Sub-dialog -->
+<div class="modal-backdrop" *ngIf="showShareSubmodal && certificate" (click)="showShareSubmodal = false">
+  <div class="modal-container share-modal" (click)="$event.stopPropagation()">
+    <div class="modal-top">
+      <div class="top-title">Share Certificate</div>
+      <button class="close-btn" (click)="showShareSubmodal = false" type="button">
+        <lucide-icon name="x" [size]="18"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="share-body">
+      <p class="share-desc">Showcase your achievement in <strong>{{ certificate.courseName }}</strong> on your professional profile.</p>
+
+      <div class="share-actions-list">
+        <button class="linkedin-share-btn" (click)="shareOnLinkedIn(certificate)" type="button">
+          <span class="li-icon">in</span>
+          <span>Add Certificate to LinkedIn Profile</span>
+          <lucide-icon name="external-link" [size]="16"></lucide-icon>
+        </button>
+
+        <div class="copy-link-section">
+          <label>Public Verification Link</label>
+          <div class="copy-row">
+            <input type="text" readonly [value]="getShareUrl(certificate)">
+            <button class="copy-btn" (click)="copyShareLink(certificate)" type="button">
+              <lucide-icon [name]="linkCopied ? 'check' : 'copy'" [size]="16"></lucide-icon>
+              <span>{{ linkCopied ? 'Copied!' : 'Copy' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

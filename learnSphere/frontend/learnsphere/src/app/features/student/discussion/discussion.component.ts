@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { DiscussionService } from '@core/services/discussion.service';
 import { StudentService } from '../services/student.service';
 import { AuthService } from '@core/auth/auth.service';
@@ -9,11 +10,17 @@ import { DiscussionPostDto } from '@core/models/social.model';
 import { Course } from '@core/models/course.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { timeAgo } from '@core/utils/time.util';
+import { LucideAngularModule, MessageCircle, CornerDownLeft, Trash2, Plus, Search, BookOpen } from 'lucide-angular';
 
 @Component({
   selector: 'app-discussion',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    RouterModule,
+    LucideAngularModule
+  ],
   templateUrl: './discussion.component.html',
   styleUrls: ['./discussion.component.scss']
 })

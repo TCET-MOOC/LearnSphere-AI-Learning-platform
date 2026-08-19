@@ -6,9 +6,9 @@ export type AppRole = 'student' | 'teacher' | 'admin';
 @Injectable({ providedIn: 'root' })
 export class NotificationStateService {
   private readonly counts = new BehaviorSubject<Record<AppRole, number>>({
-    student: 4,
-    teacher: 4,
-    admin: 4
+    student: 0,
+    teacher: 0,
+    admin: 0
   });
 
   readonly counts$ = this.counts.asObservable();

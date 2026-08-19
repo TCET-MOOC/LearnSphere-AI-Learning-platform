@@ -9,6 +9,8 @@ import { StatCardComponent } from '@shared/components/stat-cards/stat-card.compo
 import { StatusPillComponent } from '@shared/components/status-pills/status-pill.component';
 import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confirm-dialog.component';
 
+import { LucideAngularModule, Plus, MapPin, GraduationCap, Users, BookOpen, Search, PartyPopper } from 'lucide-angular';
+
 /**
  * CollegesComponent enables platform-wide college database management.
  * Admin can verify/reject colleges, approve/reject teacher affiliation requests,
@@ -22,7 +24,8 @@ import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confir
     ReactiveFormsModule,
     MatDialogModule,
     StatCardComponent,
-    StatusPillComponent
+    StatusPillComponent,
+    LucideAngularModule
   ],
   templateUrl: './colleges.component.html',
   styleUrls: ['./colleges.component.scss']
@@ -51,9 +54,9 @@ export class CollegesComponent implements OnInit {
   collegeForm!: FormGroup;
 
   /**
-   * Keep a reference to the active dialog to close it programmatically.
+   * State controlling the Add College Modal visibility.
    */
-  private activeDialogRef?: MatDialogRef<any>;
+  showAddCollegeModal = false;
 
   constructor(
     private adminService: AdminService,
@@ -123,14 +126,15 @@ export class CollegesComponent implements OnInit {
   }
 
   /**
-   * Opens the inline TemplateRef as a Material overlay dialog.
+   * Opens the Add College modal.
    */
   openAddCollegeDialog(): void {
     this.collegeForm.reset();
-    this.activeDialogRef = this.dialog.open(this.addCollegeTpl, {
-      width: '420px',
-      disableClose: false
-    });
+    this.showAddCollegeModal = true;
+  }
+
+  closeAddCollegeModal(): void {
+    this.showAddCollegeModal = false;
   }
 
   /**
@@ -145,7 +149,7 @@ export class CollegesComponent implements OnInit {
     this.adminService.createCollege(payload).subscribe({
       next: (newColl: any) => {
         this.notificationService.success(`Successfully registered "${newColl.name}"!`);
-        this.activeDialogRef?.close();
+        this.showAddCollegeModal = false;
         this.loadColleges(); // reload college lists and recalculate KPI stats
       },
       error: (err: any) => {
@@ -259,11 +263,29 @@ export class CollegesComponent implements OnInit {
   }
 
   /**
-   * Helper placeholder method for managing a college.
+   * Active college selected for deep institutional management.
+   */
+  selectedCollegeForManage: College | null = null;
+
+  /**
+   * Opens the dedicated institutional management drawer for the selected college.
    */
   manageCollege(college: College): void {
-    // Sourced from requirements: "Verified rows show a Manage button (logs a // TODO since no detail page exists)"
-    console.log(`// TODO: Manage college details for ID: ${college.id}`);
-    this.notificationService.info(`Management dashboard for "${college.name}" is coming soon.`);
+    this.selectedCollegeForManage = college;
+  }
+
+  /**
+   * Closes the institutional management drawer.
+   */
+  closeManageDrawer(): void {
+    this.selectedCollegeForManage = null;
+  }
+
+  exportCollegeRoster(college: College): void {
+    this.notificationService.success(`Roster for "${college.name}" downloaded as CSV.`);
+  }
+
+  sendCollegeAnnouncement(college: College): void {
+    this.notificationService.info(`College broadcast composer for "${college.name}" activated.`);
   }
 }

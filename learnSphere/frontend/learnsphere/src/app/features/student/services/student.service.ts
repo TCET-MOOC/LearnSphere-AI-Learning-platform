@@ -57,8 +57,16 @@ export class StudentService {
     return this.apiService.post<LectureProgress>(`/student/lectures/${lectureId}/complete`, {});
   }
 
+  unmarkLectureComplete(lectureId: number): Observable<LectureProgress> {
+    return this.apiService.post<LectureProgress>(`/student/lectures/${lectureId}/uncomplete`, {});
+  }
+
   getWatchProgress(lectureId: number): Observable<LectureProgress> {
     return this.apiService.get<LectureProgress>(`/student/lectures/${lectureId}/progress`);
+  }
+
+  getCourseProgress(courseId: number): Observable<LectureProgress[]> {
+    return this.apiService.get<LectureProgress[]>(`/student/courses/${courseId}/progress`);
   }
 
   enrollInCourse(courseId: number): Observable<Course> {
@@ -83,4 +91,15 @@ export class StudentService {
     const params = courseId != null ? { courseId: String(courseId) } : undefined;
     return this.apiService.get<Note[]>('/notes', { params });
   }
+
+  // --- Live Sessions ---
+
+  getLiveSessions(): Observable<any[]> {
+    return this.apiService.get<any[]>('/student/live-sessions');
+  }
+
+  getLiveSession(id: number): Observable<any> {
+    return this.apiService.get<any>(`/student/live-sessions/${id}`);
+  }
 }
+

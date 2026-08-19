@@ -22,6 +22,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         authService.logout();
         router.navigate(['/login']);
+      } else if (error.status === 403) {
+        const msg = error.error?.message || errorHandler.extractMessage(error) || 'Access Denied: You do not have permission for this action.';
+        notificationService.error(msg);
       } else if (error.status === 0 || error.status >= 500) {
         notificationService.error(errorHandler.extractMessage(error));
       }

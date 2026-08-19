@@ -1,28 +1,26 @@
-@use "sass:color";
-
-// ── Design tokens ──────────────────
-$brand-purple: #534AB7;
-$brand-purple-lt: #EEEDFE;
-$status-red: #E5453A;
-$status-amber: #D08C1A;
-$status-green: #1D9E75;
-$surface: #FFFFFF;
-$bg: #F5F5F8;
-$border: #E8E7EF;
-$text-primary: #1A1830;
-$text-secondary: #6B6880;
+$brand-purple: var(--brand-primary);
+$brand-purple-lt: var(--brand-surface);
+$status-red: var(--status-red-text);
+$status-amber: var(--status-amber-text);
+$status-green: var(--status-green-text);
+$surface: var(--bg-surface);
+$bg: var(--bg-app);
+$border: var(--border-color);
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
 $radius-sm: 6px;
 $radius-md: 10px;
 $radius-lg: 14px;
 
-// ── Page wrapper ────────────────────────────────────────
 .discussion-page {
-  padding: 28px 32px;
+  padding: 28px 32px 40px;
+  max-width: 1360px;
+  margin: 0 auto;
   background: $bg;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: inherit;
   min-height: 100%;
 
   @media (max-width: 768px) {
@@ -39,20 +37,28 @@ $radius-lg: 14px;
   flex-wrap: wrap;
   gap: 12px;
 
+  &__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-primary);
+    margin: 0 0 6px 0;
+  }
+
   &__title {
     font-size: 26px;
     font-weight: 700;
     color: $text-primary;
     letter-spacing: -0.02em;
     line-height: 1.2;
-    margin: 0;
+    margin: 0 0 6px 0;
   }
 
   &__sub {
-    font-size: 13px;
+    font-size: 13.5px;
     color: $text-secondary;
-    margin-top: 3px;
-    margin-bottom: 0;
+    margin: 0;
   }
 }
 
@@ -80,14 +86,14 @@ $radius-lg: 14px;
     font-family: inherit;
 
     &:hover:not(.tabs__item--active) {
-      background: $bg;
+      background: var(--bg-hover);
       color: $text-primary;
     }
 
     &--active {
       background: $brand-purple;
       color: #fff;
-      box-shadow: 0 2px 8px rgba($brand-purple, 0.3);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
     }
   }
 }
@@ -103,7 +109,7 @@ $radius-lg: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
-    background: $surface;
+    background: var(--bg-input);
     border: 1px solid $border;
     border-radius: $radius-md;
     padding: 0 14px;
@@ -112,12 +118,12 @@ $radius-lg: 14px;
 
     &:focus-within {
       border-color: $brand-purple;
-      box-shadow: 0 0 0 3px rgba($brand-purple, 0.1);
+      box-shadow: 0 0 0 3px var(--brand-surface);
     }
 
     i {
       font-size: 16px;
-      color: $text-secondary;
+      color: var(--text-muted);
     }
 
     .search-input {
@@ -131,7 +137,7 @@ $radius-lg: 14px;
       width: 100%;
 
       &::placeholder {
-        color: $text-secondary;
+        color: var(--text-muted);
       }
     }
   }
@@ -149,12 +155,13 @@ $radius-lg: 14px;
   border: 1px solid $border;
   border-radius: $radius-lg;
   padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--card-shadow);
   transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--card-shadow);
     transform: translateY(-2px);
+    border-color: $brand-purple;
   }
 
   .post-layout {
@@ -165,7 +172,7 @@ $radius-lg: 14px;
 
   .post-content {
     flex: 1;
-    min-width: 0; // prevent overflow
+    min-width: 0;
   }
 
   .post-header {
@@ -187,14 +194,14 @@ $radius-lg: 14px;
       font-size: 12px;
       font-weight: 500;
       color: $text-secondary;
-      background: $bg;
+      background: var(--bg-hover);
       padding: 2px 6px;
       border-radius: 4px;
     }
 
     .post-meta {
       font-size: 13px;
-      color: $text-secondary;
+      color: var(--text-muted);
       margin-top: 4px;
     }
   }
@@ -208,7 +215,7 @@ $radius-lg: 14px;
 
   .teacher-reply {
     margin-top: 12px;
-    background: #F8F7FF;
+    background: var(--bg-hover);
     border-radius: $radius-md;
     padding: 12px 16px;
     border-left: 3px solid $brand-purple;
@@ -269,6 +276,8 @@ $radius-lg: 14px;
   font-size: 14px;
   font-weight: 600;
   flex-shrink: 0;
+  background: var(--brand-surface);
+  color: var(--brand-primary);
 }
 
 .pill {
@@ -286,8 +295,8 @@ $radius-lg: 14px;
   }
 
   &.p-gr {
-    background: #EAF3DE;
-    color: #27500A;
+    background: var(--status-green-bg);
+    color: var(--status-green-text);
   }
 }
 
@@ -300,18 +309,19 @@ $radius-lg: 14px;
   padding: 16px 20px;
   border-radius: $radius-lg;
   border: 1px solid $border;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--card-shadow);
   margin-bottom: 24px;
   transition: box-shadow 0.2s;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--card-shadow);
+    border-color: $brand-purple;
   }
 
   .input-box {
     flex: 1;
-    background: $bg;
-    border: 1px solid transparent;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 30px;
     padding: 10px 20px;
     font-size: 14px;
@@ -322,12 +332,12 @@ $radius-lg: 14px;
 
     &:focus {
       outline: none;
-      background: $surface;
+      background: var(--bg-surface);
       border-color: $brand-purple;
     }
 
     &:hover {
-      background: $border;
+      background: var(--bg-hover);
     }
   }
 
@@ -367,6 +377,8 @@ $radius-lg: 14px;
     padding: 8px 12px;
     font-size: 13px;
     font-family: inherit;
+    background: var(--bg-input);
+    color: var(--text-primary);
 
     &:focus {
       outline: none;
@@ -375,25 +387,43 @@ $radius-lg: 14px;
   }
 
   button {
-    background: $brand-purple;
+    background: var(--brand-primary);
     color: #fff;
     border: none;
-    border-radius: $radius-sm;
     padding: 0 16px;
-    font-size: 12px;
-    font-weight: 600;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    &:hover:not(:disabled) { background: var(--brand-primary-hover); }
   }
 }
 
 .empty-state {
   text-align: center;
-  color: $text-secondary;
+  color: var(--text-muted);
   font-size: 13px;
   padding: 24px;
+}
+
+// Icon Styles
+.title-icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: bottom;
+  margin-right: 8px;
+  color: var(--brand-primary);
+}
+
+.action-icon {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 4px;
+  color: var(--text-secondary);
+}
+
+.action-icon--danger {
+  color: var(--status-red-text);
 }

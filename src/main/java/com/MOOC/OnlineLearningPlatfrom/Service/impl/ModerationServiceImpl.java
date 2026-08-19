@@ -11,6 +11,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.MessageRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.ModerationService;
 import com.MOOC.OnlineLearningPlatfrom.Service.support.KeywordLists;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -30,9 +31,12 @@ public class ModerationServiceImpl implements ModerationService {
         this.flaggedContentRepository = flaggedContentRepository;
     }
 
-    /** Simple keyword-based auto-flagger: scans content that hasn't been flagged yet. */
-    @Transactional
-    protected void scanAndFlag() {
+    /**
+     * Scans for new content to auto-flag. Runs in its own REQUIRES_NEW transaction
+     * so that write locks are released before the read phase in getFlagged().
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void scanAndFlag() {
         for (DiscussionPost post : discussionPostRepository.findAll()) {
             if (post.getBody() == null) continue;
             if (flaggedContentRepository.existsByContentTypeAndContentId(FlaggedContent.ContentType.DISCUSSION_POST, post.getId())) continue;
@@ -78,8 +82,9 @@ public class ModerationServiceImpl implements ModerationService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<FlaggedContentDto> getFlagged(String category) {
+        // scanAndFlag() runs in its own REQUIRES_NEW transaction; write locks released before we read.
         scanAndFlag();
 
         List<FlaggedContent> flags;

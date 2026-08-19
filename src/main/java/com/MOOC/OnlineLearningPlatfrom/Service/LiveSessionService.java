@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface LiveSessionService {
     List<LiveSessionResponseDto> getMySessions(CustomUserDetails principal);
+    List<LiveSessionResponseDto> getStudentSessions(CustomUserDetails principal);
+    LiveSessionResponseDto getSessionById(Long id);
     LiveSessionResponseDto create(LiveSessionRequestDto request, CustomUserDetails principal);
     LiveSessionResponseDto start(Long id, CustomUserDetails principal);
     LiveSessionResponseDto end(Long id, CustomUserDetails principal);

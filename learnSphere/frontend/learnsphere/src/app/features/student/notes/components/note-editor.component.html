@@ -18,11 +18,11 @@
           <label class="form-label">LINKED LECTURE</label>
           <div class="readonly-value">
             <span class="course-badge">{{ courseName }}</span>
-            <span class="lecture-badge">
-              <span class="icon">🎥</span> {{ lectureLabel }}
+            <span class="lecture-badge" style="display:inline-flex; align-items:center; gap:4px;">
+              <span class="icon"><lucide-icon name="video" style="width:14px; height:14px;"></lucide-icon></span> {{ lectureLabel }}
             </span>
-            <span class="timestamp-badge">
-              <span class="icon">⏱</span> {{ timestampSeconds * 1000 | date:'mm:ss':'UTC' }}
+            <span class="timestamp-badge" style="display:inline-flex; align-items:center; gap:4px;">
+              <span class="icon"><lucide-icon name="clock" style="width:14px; height:14px;"></lucide-icon></span> {{ timestampSeconds * 1000 | date:'mm:ss':'UTC' }}
             </span>
           </div>
         </div>

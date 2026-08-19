@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
-import { Certificate, CertificateType } from '@core/models/assessment.model';
+import { Certificate, CertificateType, CertificateVerificationResult } from '@core/models/assessment.model';
 
 /**
- * CertificateService owns the certificate-issuance API integrations:
- * listing certificates already earned by the current student, and
- * requesting a new one (standard or remedial) once they're eligible.
+ * CertificateService owns the certificate-issuance & public verification API integrations:
+ * listing certificates already earned by the current student,
+ * requesting a new one once eligible, and public verification.
  */
 @Injectable({
   providedIn: 'root'
@@ -27,5 +27,10 @@ export class CertificateService {
    */
   issueCertificate(courseId: number, type: CertificateType): Observable<Certificate> {
     return this.apiService.post<Certificate>('/certificates/issue', { courseId, type });
+  }
+
+  /** Public verification of a certificate by verification code. */
+  verifyCertificate(code: string): Observable<CertificateVerificationResult> {
+    return this.apiService.get<CertificateVerificationResult>(`/certificates/verify/${encodeURIComponent(code)}`);
   }
 }

@@ -1,15 +1,21 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../core/auth/auth.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-teacher-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
-  teacherName = 'Prof. Sharma';
+  constructor(private authService: AuthService) {}
+
+  get teacherName(): string {
+    return this.authService.currentUser?.fullName || 'Teacher';
+  }
 
   kpiCards = [
     { label: 'Total students', value: '486', sub: '+12 this week', subColor: '#0F6E56' },
@@ -19,10 +25,10 @@ export class DashboardComponent {
   ];
 
   myCourses = [
-    { title: 'Engineering Mathematics III', stats: '312 students · ★★★★★ 4.9', status: 'Live', pillClass: 'p-gr', bg: '#EEEDFE', icon: '📐' },
-    { title: 'Discrete Mathematics', stats: '174 students · ★★★★ 4.5', status: 'Live', pillClass: 'p-gr', bg: '#E6F1FB', icon: '🔢' },
-    { title: 'Statistics for Engineers', stats: '0 students · 8 lectures added', status: 'Draft', pillClass: 'p-am', bg: '#FAEEDA', icon: '📊' },
-    { title: 'Numerical Methods', stats: 'Submitted · Admin review', status: 'Pending', pillClass: 'p-re', bg: '#FCEBEB', icon: '🧮' }
+    { title: 'Engineering Mathematics III', stats: '312 students · ★★★★★ 4.9', status: 'Live', pillClass: 'p-gr', bg: '#EEEDFE', icon: 'draw' },
+    { title: 'Discrete Mathematics', stats: '174 students · ★★★★ 4.5', status: 'Live', pillClass: 'p-gr', bg: '#E6F1FB', icon: 'calculate' },
+    { title: 'Statistics for Engineers', stats: '0 students · 8 lectures added', status: 'Draft', pillClass: 'p-am', bg: '#FAEEDA', icon: 'bar_chart' },
+    { title: 'Numerical Methods', stats: 'Submitted · Admin review', status: 'Pending', pillClass: 'p-re', bg: '#FCEBEB', icon: 'menu_book' }
   ];
 
   recentMessages = [

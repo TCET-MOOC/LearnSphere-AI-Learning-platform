@@ -96,5 +96,24 @@ export interface Certificate {
   courseTitle?: string;
   type: CertificateType;
   title: string;
+  verificationCode?: string;
+  studentName?: string;
+  instructorName?: string;
+  grade?: string;
+  score?: number;
   issuedAt: string;
+}
+
+export interface CertificateVerificationResult {
+  valid: boolean;
+  verificationCode: string;
+  title?: string;
+  courseTitle?: string;
+  studentName?: string;
+  instructorName?: string;
+  type?: CertificateType | string;
+  grade?: string;
+  score?: number;
+  issuedAt?: string;
+  message?: string;
 }

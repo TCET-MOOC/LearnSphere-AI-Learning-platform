@@ -1,6 +1,23 @@
-<div class="video-player">
-  <div class="video-player__shell" *ngIf="resolvedSrc; else noSrc">
+<div class="video-player-root" #playerContainer (mousemove)="onMouseMove()" (mouseleave)="isPlaying && (isControlsVisible = false)">
+
+  <!-- Video Shell (Wraps both Headless YouTube Iframe target and Native HTML5 Video) -->
+  <div class="video-player__shell" *ngIf="src; else noSrc">
+
+    <!-- 1. Headless YouTube Iframe Engine (Zero YouTube Branding) -->
+    <div class="yt-wrapper" *ngIf="isYouTube">
+      <div id="yt-player-target" class="yt-frame"></div>
+      <div 
+        class="yt-poster-cover" 
+        *ngIf="!hasStartedPlaying && effectivePoster" 
+        [style.background-image]="'url(' + effectivePoster + ')'"
+        (click)="togglePlay()">
+      </div>
+      <div class="yt-click-catcher" *ngIf="hasStartedPlaying" (click)="togglePlay()"></div>
+    </div>
+
+    <!-- 2. Native HTML5 Video Engine -->
     <video
+      *ngIf="!isYouTube && resolvedSrc"
       #videoEl
       [src]="resolvedSrc"
       [poster]="poster || undefined"
@@ -13,34 +30,244 @@
       playsinline>
     </video>
 
+    <!-- Subtitle Overlay (Yellow Text) -->
+    <div class="subtitles-overlay" *ngIf="isCaptionsActive && currentSubtitleText">
+      <span class="subtitles-text">{{ currentSubtitleText }}</span>
+    </div>
+
+    <!-- Floating Auto-Resume Pill (Clean, No Emojis) -->
+    <div class="resume-banner" *ngIf="showResumeBanner">
+      <div class="resume-info">
+        <lucide-icon name="clock" [size]="14" class="resume-icon"></lucide-icon>
+        <span>Resumed from <strong>{{ formatTime(resumedTime) }}</strong></span>
+      </div>
+      <button class="resume-btn" type="button" (click)="restartFromBeginning()">Start over</button>
+      <button class="resume-close" type="button" (click)="dismissResumeBanner()" aria-label="Dismiss">
+        <lucide-icon name="x" [size]="12"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Center Big Pulse Play/Pause Trigger -->
     <button
-      class="video-player__big-play"
+      class="video-player__center-btn"
       *ngIf="!isPlaying"
       type="button"
       (click)="togglePlay()"
       aria-label="Play video">
-      ▶
+      <lucide-icon name="play" [size]="36"></lucide-icon>
     </button>
 
-    <div class="video-player__controls">
-      <button class="video-player__btn" type="button" (click)="togglePlay()" [attr.aria-label]="isPlaying ? 'Pause' : 'Play'">
-        {{ isPlaying ? '⏸' : '▶' }}
-      </button>
-      <span class="video-player__time">{{ formatTime(currentTime) }}</span>
-      <input
-        class="video-player__seek"
-        type="range"
-        min="0"
-        [max]="duration || 0"
-        step="1"
-        [value]="currentTime"
-        (input)="onSeek($event)"
-        aria-label="Seek" />
-      <span class="video-player__time">{{ formatTime(duration) }}</span>
+    <!-- Top Title & LearnSphere Brand Bar -->
+    <div class="video-player__top-bar" [class.is-hidden]="!isControlsVisible && isPlaying" *ngIf="videoTitle">
+      <span class="video-title">{{ videoTitle }}</span>
+      <span class="brand-pill">LearnSphere Player</span>
+    </div>
+
+    <!-- Glassmorphic Controls Bar -->
+    <div class="video-player__controls" [class.is-hidden]="!isControlsVisible && isPlaying">
+      
+      <!-- Scrubber Bar with Buffer & Hover Tooltip -->
+      <div 
+        class="scrubber-container" 
+        (mousemove)="onScrubberMouseMove($event)" 
+        (mouseleave)="onScrubberMouseLeave()">
+        
+        <div class="scrubber-hover-tooltip" *ngIf="hoverTime !== null" [style.left.%]="hoverPosition">
+          {{ formatTime(hoverTime) }}
+        </div>
+
+        <div class="scrubber-track">
+          <div class="scrubber-buffer" [style.width.%]="bufferedPercent"></div>
+          <div class="scrubber-progress" [style.width.%]="duration ? (currentTime / duration) * 100 : 0"></div>
+        </div>
+
+        <input
+          class="scrubber-input"
+          type="range"
+          min="0"
+          [max]="duration || 0"
+          step="0.1"
+          [value]="currentTime"
+          (input)="onSeek($event)"
+          aria-label="Seek Video" />
+      </div>
+
+      <!-- Controls Bottom Bar -->
+      <div class="controls-bottom">
+        <!-- Left Controls: Play/Pause, Rewind, Forward, Volume, Time -->
+        <div class="controls-left">
+          <button class="ctrl-btn" type="button" (click)="togglePlay()" [title]="isPlaying ? 'Pause (Space/K)' : 'Play (Space/K)'">
+            <lucide-icon [name]="isPlaying ? 'pause' : 'play'" [size]="18"></lucide-icon>
+          </button>
+
+          <button class="ctrl-btn" type="button" (click)="seekRelative(-10)" title="Rewind 10s (Left Arrow/J)">
+            <lucide-icon name="rotate-ccw" [size]="18"></lucide-icon>
+          </button>
+
+          <button class="ctrl-btn" type="button" (click)="seekRelative(10)" title="Forward 10s (Right Arrow/L)">
+            <lucide-icon name="rotate-cw" [size]="18"></lucide-icon>
+          </button>
+
+          <!-- Volume Slider & Mute -->
+          <div class="volume-box">
+            <button class="ctrl-btn" type="button" (click)="toggleMute()" [title]="isMuted ? 'Unmute (M)' : 'Mute (M)'">
+              <lucide-icon [name]="isMuted || volume === 0 ? 'volume-x' : 'volume-2'" [size]="18"></lucide-icon>
+            </button>
+            <input
+              class="volume-slider"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              [value]="isMuted ? 0 : volume"
+              (input)="setVolume($event)"
+              aria-label="Volume" />
+          </div>
+
+          <!-- Time Display -->
+          <div class="time-display">
+            <span class="curr-time">{{ formatTime(currentTime) }}</span>
+            <span class="divider">/</span>
+            <span class="total-time">{{ formatTime(duration) }}</span>
+          </div>
+        </div>
+
+        <!-- Right Controls: CC, Settings, PiP, Fullscreen -->
+        <div class="controls-right">
+          
+          <!-- Captions [CC] Button -->
+          <button 
+            class="ctrl-btn cc-btn" 
+            [class.is-active]="isCaptionsActive"
+            type="button" 
+            (click)="toggleCaptions()" 
+            title="Subtitles / Closed Captions (C)">
+            <lucide-icon name="subtitles" [size]="18"></lucide-icon>
+            <span class="cc-dot" *ngIf="isCaptionsActive"></span>
+          </button>
+
+          <!-- Settings (⚙️) Popover Button -->
+          <div class="settings-wrapper" (click)="$event.stopPropagation()">
+            <button 
+              class="ctrl-btn" 
+              [class.is-active]="showSettingsMenu"
+              type="button" 
+              (click)="toggleSettings($event)" 
+              title="Settings">
+              <lucide-icon name="settings" [size]="18"></lucide-icon>
+            </button>
+
+            <!-- Multi-level Settings Flyout Menu -->
+            <div class="settings-menu" *ngIf="showSettingsMenu">
+              
+              <!-- Main Settings Menu -->
+              <ng-container *ngIf="activeSettingsSubmenu === 'main'">
+                <div class="settings-header">Settings</div>
+                
+                <button class="settings-row" type="button" (click)="setSettingsSubmenu('quality', $event)">
+                  <span class="row-label">Quality</span>
+                  <span class="row-val">
+                    {{ currentQuality }}
+                    <lucide-icon name="chevron-right" [size]="14"></lucide-icon>
+                  </span>
+                </button>
+
+                <button class="settings-row" type="button" (click)="setSettingsSubmenu('speed', $event)">
+                  <span class="row-label">Playback speed</span>
+                  <span class="row-val">
+                    {{ playbackSpeed === 1 ? 'Normal' : playbackSpeed + 'x' }}
+                    <lucide-icon name="chevron-right" [size]="14"></lucide-icon>
+                  </span>
+                </button>
+
+                <button class="settings-row" type="button" (click)="setSettingsSubmenu('subtitles', $event)">
+                  <span class="row-label">Subtitles</span>
+                  <span class="row-val">
+                    {{ isCaptionsActive ? currentSubtitleTrack : 'Off' }}
+                    <lucide-icon name="chevron-right" [size]="14"></lucide-icon>
+                  </span>
+                </button>
+              </ng-container>
+
+              <!-- Quality Submenu -->
+              <ng-container *ngIf="activeSettingsSubmenu === 'quality'">
+                <div class="settings-header-back" (click)="setSettingsSubmenu('main', $event)">
+                  <lucide-icon name="chevron-right" [size]="14" style="transform: rotate(180deg);"></lucide-icon>
+                  <span>Quality</span>
+                </div>
+                <button 
+                  *ngFor="let q of availableQualities" 
+                  class="settings-option" 
+                  [class.is-active]="currentQuality === q"
+                  (click)="setQuality(q, $event)">
+                  <lucide-icon name="check" [size]="14" *ngIf="currentQuality === q"></lucide-icon>
+                  <span [style.margin-left]="currentQuality === q ? '0' : '22px'">{{ q }}</span>
+                </button>
+              </ng-container>
+
+              <!-- Speed Submenu -->
+              <ng-container *ngIf="activeSettingsSubmenu === 'speed'">
+                <div class="settings-header-back" (click)="setSettingsSubmenu('main', $event)">
+                  <lucide-icon name="chevron-right" [size]="14" style="transform: rotate(180deg);"></lucide-icon>
+                  <span>Playback speed</span>
+                </div>
+                <button 
+                  *ngFor="let speed of availableSpeeds" 
+                  class="settings-option" 
+                  [class.is-active]="playbackSpeed === speed"
+                  (click)="setPlaybackSpeed(speed, $event)">
+                  <lucide-icon name="check" [size]="14" *ngIf="playbackSpeed === speed"></lucide-icon>
+                  <span [style.margin-left]="playbackSpeed === speed ? '0' : '22px'">
+                    {{ speed === 1 ? 'Normal' : speed + 'x' }}
+                  </span>
+                </button>
+              </ng-container>
+
+              <!-- Subtitles Submenu -->
+              <ng-container *ngIf="activeSettingsSubmenu === 'subtitles'">
+                <div class="settings-header-back" (click)="setSettingsSubmenu('main', $event)">
+                  <lucide-icon name="chevron-right" [size]="14" style="transform: rotate(180deg);"></lucide-icon>
+                  <span>Subtitles</span>
+                </div>
+                <button 
+                  *ngFor="let track of subtitleTracks" 
+                  class="settings-option" 
+                  [class.is-active]="(isCaptionsActive && currentSubtitleTrack === track) || (!isCaptionsActive && track === 'Off')"
+                  (click)="setSubtitleTrack(track, $event)">
+                  <lucide-icon name="check" [size]="14" *ngIf="(isCaptionsActive && currentSubtitleTrack === track) || (!isCaptionsActive && track === 'Off')"></lucide-icon>
+                  <span [style.margin-left]="((isCaptionsActive && currentSubtitleTrack === track) || (!isCaptionsActive && track === 'Off')) ? '0' : '22px'">
+                    {{ track }}
+                  </span>
+                </button>
+              </ng-container>
+
+            </div>
+          </div>
+
+          <!-- Picture-in-Picture (PiP) -->
+          <button class="ctrl-btn" type="button" (click)="togglePiP()" title="Picture in Picture">
+            <lucide-icon name="picture-in-picture-2" [size]="18"></lucide-icon>
+          </button>
+
+          <!-- Fullscreen Toggle -->
+          <button class="ctrl-btn" type="button" (click)="toggleFullscreen()" [title]="isFullscreen ? 'Exit Fullscreen (F)' : 'Fullscreen (F)'">
+            <lucide-icon [name]="isFullscreen ? 'minimize' : 'maximize'" [size]="18"></lucide-icon>
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
+  <!-- Empty State Fallback -->
   <ng-template #noSrc>
-    <div class="video-player__empty">Video is not available yet.</div>
+    <div class="video-player__empty">
+      <div class="empty-icon-wrap">
+        <lucide-icon name="sparkles" [size]="28"></lucide-icon>
+      </div>
+      <h4>Video Streaming Ready</h4>
+      <p>No video content has been linked to this lecture yet.</p>
+    </div>
   </ng-template>
+
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { StudentService } from '../services/student.service';
@@ -7,7 +7,7 @@ import { CourseCardComponent } from './components/course-card.component';
 import { ExploreSectionComponent } from './components/explore-section.component';
 import { NotificationService } from '@core/services/notification.service';
 
-type StatusFilter = 'ALL' | 'LIVE' | 'DRAFT' | 'PENDING' | 'ARCHIVED';
+type CourseFilterKey = 'ALL' | 'IN_PROGRESS' | 'COMPLETED' | 'LIVE' | 'ARCHIVED';
 
 @Component({
   selector: 'app-student-courses',
@@ -22,18 +22,20 @@ export class CoursesComponent implements OnInit {
   exploreCourses: Course[] = [];
   enrollingId: number | null = null;
 
-  activeFilter: StatusFilter = 'ALL';
-  filters: { key: StatusFilter; label: string }[] = [
+  activeFilter: CourseFilterKey = 'ALL';
+  filters: { key: CourseFilterKey; label: string }[] = [
     { key: 'ALL', label: 'All' },
+    { key: 'IN_PROGRESS', label: 'In Progress' },
+    { key: 'COMPLETED', label: 'Completed' },
     { key: 'LIVE', label: 'Live' },
-    { key: 'DRAFT', label: 'Draft' },
     { key: 'ARCHIVED', label: 'Archived' }
   ];
 
   constructor(
     private studentService: StudentService,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -46,10 +48,12 @@ export class CoursesComponent implements OnInit {
       next: (courses) => {
         this.enrolledCourses = courses;
         this.loading = false;
+        this.cdr.markForCheck();
         this.loadExplore();
       },
       error: () => {
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -59,19 +63,27 @@ export class CoursesComponent implements OnInit {
       next: (courses) => {
         const enrolledIds = new Set(this.enrolledCourses.map(c => c.id));
         this.exploreCourses = courses.filter(c => !enrolledIds.has(c.id));
+        this.cdr.markForCheck();
       },
       error: () => {
         this.exploreCourses = [];
+        this.cdr.markForCheck();
       }
     });
   }
 
   get filteredCourses(): Course[] {
     if (this.activeFilter === 'ALL') return this.enrolledCourses;
+    if (this.activeFilter === 'IN_PROGRESS') {
+      return this.enrolledCourses.filter(c => !c.completed && (c.progressPercent == null || c.progressPercent < 100));
+    }
+    if (this.activeFilter === 'COMPLETED') {
+      return this.enrolledCourses.filter(c => c.completed || (c.progressPercent != null && c.progressPercent >= 100));
+    }
     return this.enrolledCourses.filter(c => c.status === this.activeFilter);
   }
 
-  setFilter(filter: StatusFilter): void {
+  setFilter(filter: CourseFilterKey): void {
     this.activeFilter = filter;
   }
 

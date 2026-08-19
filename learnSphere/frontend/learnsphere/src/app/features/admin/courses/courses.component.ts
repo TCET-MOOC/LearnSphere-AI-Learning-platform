@@ -1,13 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { LucideAngularModule } from 'lucide-angular';
+import { catchError, of } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
 import { NotificationService } from '@core/services/notification.service';
+import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confirm-dialog.component';
 import { Course, CourseStatus } from '@core/models/course.model';
 
 @Component({
   selector: 'app-admin-courses',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    LucideAngularModule
+  ],
   templateUrl: './courses.component.html',
   styleUrls: ['./courses.component.scss']
 })
@@ -17,6 +27,7 @@ export class CoursesComponent implements OnInit {
   courses: Course[] = [];
   activeFilter: 'ALL' | CourseStatus = 'ALL';
   actingId: number | null = null;
+  searchQuery = '';
 
   filters: { id: 'ALL' | CourseStatus; label: string }[] = [
     { id: 'ALL', label: 'All' },
@@ -26,9 +37,14 @@ export class CoursesComponent implements OnInit {
     { id: 'ARCHIVED', label: 'Archived' }
   ];
 
+  selectedCourseForInspect: Course | null = null;
+  inspectLectures: any[] = [];
+  loadingLectures = false;
+
   constructor(
     private apiService: ApiService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -37,16 +53,16 @@ export class CoursesComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.apiService.get<Course[]>('/courses').subscribe({
-      next: (courses) => {
-        this.allCourses = courses;
-        this.applyFilter();
-        this.loading = false;
-      },
-      error: () => {
+    // GET /api/courses lists all courses. Status changes go through PUT /api/admin/courses/:id/status.
+    this.apiService.get<Course[]>('/courses').pipe(
+      catchError(() => {
         this.notificationService.error('Failed to load courses.');
-        this.loading = false;
-      }
+        return of([]);
+      })
+    ).subscribe((courses) => {
+      this.allCourses = courses;
+      this.applyFilter();
+      this.loading = false;
     });
   }
 
@@ -55,8 +71,26 @@ export class CoursesComponent implements OnInit {
     this.applyFilter();
   }
 
+  onSearchChange(): void {
+    this.applyFilter();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.applyFilter();
+  }
+
   private applyFilter(): void {
-    this.courses = this.activeFilter === 'ALL' ? this.allCourses : this.allCourses.filter((c) => c.status === this.activeFilter);
+    let result = this.activeFilter === 'ALL' ? this.allCourses : this.allCourses.filter((c) => c.status === this.activeFilter);
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase().trim();
+      result = result.filter(c =>
+        c.title.toLowerCase().includes(q) ||
+        (c.teacherName && c.teacherName.toLowerCase().includes(q)) ||
+        (c.department && c.department.toLowerCase().includes(q))
+      );
+    }
+    this.courses = result;
   }
 
   count(filter: 'ALL' | CourseStatus): number {
@@ -88,18 +122,64 @@ export class CoursesComponent implements OnInit {
   }
 
   approve(course: Course): void {
-    this.setStatus(course, 'LIVE', `"${course.title}" approved and is now live.`);
+    this.setStatus(course, 'LIVE', `"${course.title}" approved and published live.`);
   }
 
   reject(course: Course): void {
-    this.setStatus(course, 'DRAFT', `"${course.title}" sent back to draft.`);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Reject Course Submission',
+        message: `Are you sure you want to send "${course.title}" back to draft status? The teacher will need to revise and resubmit.`,
+        confirmLabel: 'Reject to Draft',
+        cancelLabel: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.setStatus(course, 'DRAFT', `"${course.title}" sent back to draft.`);
+      }
+    });
   }
 
   archive(course: Course): void {
-    this.setStatus(course, 'ARCHIVED', `"${course.title}" archived.`);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Archive Course',
+        message: `Are you sure you want to archive "${course.title}"? It will no longer be visible to new students in catalog.`,
+        confirmLabel: 'Archive Course',
+        cancelLabel: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.setStatus(course, 'ARCHIVED', `"${course.title}" has been archived.`);
+      }
+    });
   }
 
   reactivate(course: Course): void {
     this.setStatus(course, 'LIVE', `"${course.title}" is live again.`);
+  }
+
+  inspectCourse(course: Course): void {
+    this.selectedCourseForInspect = course;
+    this.loadingLectures = true;
+    this.apiService.get<any[]>(`/courses/${course.id}/lectures`).subscribe({
+      next: (lectures) => {
+        this.inspectLectures = lectures || [];
+        this.loadingLectures = false;
+      },
+      error: () => {
+        this.inspectLectures = [];
+        this.loadingLectures = false;
+      }
+    });
+  }
+
+  closeInspect(): void {
+    this.selectedCourseForInspect = null;
+    this.inspectLectures = [];
   }
 }

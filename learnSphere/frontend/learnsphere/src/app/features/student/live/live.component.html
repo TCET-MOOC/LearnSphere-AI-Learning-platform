@@ -1,0 +1,146 @@
+<div class="live-hub-container">
+  <!-- Page Header -->
+  <div class="header-section">
+    <div>
+      <div class="eyebrow">
+        <span class="live-dot-indicator" *ngIf="liveNowSessions.length > 0"></span>
+        <span *ngIf="liveNowSessions.length > 0">Live Now: {{ liveNowSessions.length }} Session(s)</span>
+        <span *ngIf="liveNowSessions.length === 0">Real-time Virtual Classrooms</span>
+      </div>
+      <h1 class="page-title">Live Sessions & Masterclasses</h1>
+      <p class="page-subtitle">Join interactive live lectures, revision marathons, and Q&A sessions with your faculty.</p>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-grid">
+    <app-stat-card 
+      label="Live Right Now" 
+      [value]="liveNowSessions.length" 
+      icon="radio"
+      [trend]="liveNowSessions.length > 0 ? 'up' : undefined"
+      [trendValue]="liveNowSessions.length > 0 ? 'Broadcasting now' : 'No active stream'">
+    </app-stat-card>
+
+    <app-stat-card 
+      label="Upcoming Scheduled" 
+      [value]="upcomingSessions.length" 
+      icon="clock"
+      trend="up"
+      trendValue="This week">
+    </app-stat-card>
+
+    <app-stat-card 
+      label="Past Recordings" 
+      [value]="pastSessions.length" 
+      icon="book-open"
+      trendValue="Available on-demand">
+    </app-stat-card>
+  </div>
+
+  <!-- Active Live Broadcast Banner if any -->
+  <div class="live-banner" *ngIf="liveNowSessions.length > 0">
+    <div class="live-banner-content">
+      <div class="live-tag">
+        <span class="pulse-dot"></span> LIVE BROADCASTING
+      </div>
+      <h2>{{ liveNowSessions[0].title }}</h2>
+      <p class="course-name">{{ liveNowSessions[0].courseTitle }}</p>
+      <div class="banner-meta">
+        <span>⏱ Started {{ formatDate(liveNowSessions[0].scheduledAt) }}</span>
+      </div>
+    </div>
+    <button class="join-live-btn" (click)="joinSession(liveNowSessions[0])">
+      <span>Join Live Classroom</span>
+      <lucide-icon name="arrow-right" [size]="18"></lucide-icon>
+    </button>
+  </div>
+
+  <!-- Filter Navigation Tabs -->
+  <div class="tabs-container">
+    <div class="filter-tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'ALL'" 
+        (click)="activeFilter = 'ALL'">
+        All Sessions ({{ sessions.length }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'LIVE'" 
+        (click)="activeFilter = 'LIVE'">
+        🔴 Live Now ({{ liveNowSessions.length }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'UPCOMING'" 
+        (click)="activeFilter = 'UPCOMING'">
+        Upcoming ({{ upcomingSessions.length }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'PAST'" 
+        (click)="activeFilter = 'PAST'">
+        Past & Recordings ({{ pastSessions.length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Sessions List / Grid -->
+  <div class="sessions-grid" *ngIf="!loading && filteredSessions.length > 0">
+    <div class="session-card" *ngFor="let session of filteredSessions" [class.is-live]="session.status === 'LIVE'">
+      <div class="card-top">
+        <span class="course-badge">{{ session.courseTitle }}</span>
+        <app-status-pill [status]="session.status"></app-status-pill>
+      </div>
+
+      <h3 class="session-title">{{ session.title }}</h3>
+
+      <div class="session-info">
+        <div class="info-row">
+          <lucide-icon name="calendar" [size]="16"></lucide-icon>
+          <span>{{ formatDate(session.scheduledAt) }}</span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button 
+          *ngIf="session.status === 'LIVE'" 
+          class="action-btn live-btn" 
+          (click)="joinSession(session)">
+          <lucide-icon name="play" [size]="16"></lucide-icon>
+          <span>Join Now</span>
+        </button>
+
+        <button 
+          *ngIf="session.status === 'SCHEDULED'" 
+          class="action-btn upcoming-btn" 
+          (click)="joinSession(session)">
+          <lucide-icon name="clock" [size]="16"></lucide-icon>
+          <span>Scheduled</span>
+        </button>
+
+        <button 
+          *ngIf="session.status === 'ENDED'" 
+          class="action-btn past-btn" 
+          (click)="joinSession(session)">
+          <lucide-icon name="video" [size]="16"></lucide-icon>
+          <span>View Session</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && filteredSessions.length === 0">
+    <lucide-icon name="radio" [size]="48" class="empty-icon"></lucide-icon>
+    <h3>No live sessions found</h3>
+    <p>There are no {{ activeFilter !== 'ALL' ? activeFilter.toLowerCase() : '' }} sessions scheduled for your enrolled courses right now.</p>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading live classrooms...</p>
+  </div>
+</div>

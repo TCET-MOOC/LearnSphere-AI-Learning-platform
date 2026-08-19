@@ -17,6 +17,9 @@ public class CourseResponseDto {
     private BigDecimal price;
     private LocalDateTime createdAt;
     private long lectureCount;
+    private long completedLecturesCount;
+    private double progressPercent;
+    private boolean completed;
 
     public static CourseResponseDto from(Course course, long lectureCount) {
         CourseResponseDto dto = new CourseResponseDto();
@@ -36,6 +39,14 @@ public class CourseResponseDto {
         return dto;
     }
 
+    public static CourseResponseDto from(Course course, long lectureCount, long completedLecturesCount) {
+        CourseResponseDto dto = from(course, lectureCount);
+        dto.completedLecturesCount = completedLecturesCount;
+        dto.progressPercent = lectureCount > 0 ? Math.min(100.0, Math.round(((double) completedLecturesCount / lectureCount) * 100.0)) : 0.0;
+        dto.completed = lectureCount > 0 && completedLecturesCount >= lectureCount;
+        return dto;
+    }
+
     public static CourseResponseDto from(Course course) {
         return from(course, 0);
     }
@@ -51,4 +62,11 @@ public class CourseResponseDto {
     public BigDecimal getPrice() { return price; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public long getLectureCount() { return lectureCount; }
+    public long getCompletedLecturesCount() { return completedLecturesCount; }
+    public double getProgressPercent() { return progressPercent; }
+    public boolean isCompleted() { return completed; }
+
+    public void setCompletedLecturesCount(long completedLecturesCount) { this.completedLecturesCount = completedLecturesCount; }
+    public void setProgressPercent(double progressPercent) { this.progressPercent = progressPercent; }
+    public void setCompleted(boolean completed) { this.completed = completed; }
 }

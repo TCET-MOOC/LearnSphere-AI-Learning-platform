@@ -8,6 +8,7 @@ import { NoteCardComponent } from './components/note-card.component';
 import { NoteEditorComponent } from './components/note-editor.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { NotificationService } from '@core/services/notification.service';
+import { LucideAngularModule, Search, Plus } from 'lucide-angular';
 
 /**
  * NotesComponent is the parent page component for managing student notes.
@@ -22,7 +23,8 @@ import { NotificationService } from '@core/services/notification.service';
     FormsModule,
     MatDialogModule,
     NoteCardComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    LucideAngularModule
   ],
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.scss']
@@ -129,7 +131,8 @@ export class NotesComponent implements OnInit {
    */
   openNewNoteDialog(): void {
     const dialogRef = this.dialog.open(NoteEditorComponent, {
-      width: '500px',
+      width: '560px',
+      maxWidth: '95vw',
       data: { note: null } // opened in creation mode
     });
 

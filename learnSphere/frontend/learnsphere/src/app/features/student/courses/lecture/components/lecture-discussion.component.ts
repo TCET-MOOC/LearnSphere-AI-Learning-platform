@@ -45,7 +45,7 @@ import { timeAgo } from '@core/utils/time.util';
             </div>
             <p class="post-text">{{ post.body }}</p>
 
-            <div class="replies" *ngIf="post.replies?.length">
+            <div class="replies" *ngIf="post.replies.length">
               <div class="reply" *ngFor="let reply of post.replies">
                 <div class="post-ava post-ava--sm" [style.background]="getBg(reply.authorName)" [style.color]="getColor(reply.authorName)">{{ getInitials(reply.authorName) }}</div>
                 <div>
@@ -73,29 +73,32 @@ import { timeAgo } from '@core/utils/time.util';
     </section>
   `,
   styles: [`
-    .card { background: #fff; border: 1px solid #e8e7ef; border-radius: 12px; padding: 16px; }
-    .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .card-head h2 { margin: 0; font-size: 14px; }
-    .hint { font-size: 12px; color: #6b6880; }
+    .card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; color: var(--text-primary); }
+    .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .card-head h2 { margin: 0; font-size: 14px; color: var(--text-primary); font-weight: 600; }
+    .hint { font-size: 12px; color: var(--text-muted); }
     .new-post { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-    .new-post textarea { border: 1px solid #e8e7ef; border-radius: 8px; padding: 8px 10px; font: 400 12.5px Inter, Arial; resize: vertical; }
-    .post-btn { align-self: flex-end; border: none; background: #534ab7; color: #fff; font: 600 11.5px Inter, Arial; padding: 6px 14px; border-radius: 8px; cursor: pointer; }
+    .new-post textarea { border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); border-radius: 8px; padding: 8px 10px; font: 400 12.5px inherit; resize: vertical; outline: none; }
+    .new-post textarea:focus { border-color: var(--brand-primary); }
+    .post-btn { align-self: flex-end; border: none; background: var(--brand-primary); color: #fff; font: 600 11.5px inherit; padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: background 0.15s ease; }
+    .post-btn:hover:not(:disabled) { background: var(--brand-primary-hover); }
     .post-btn:disabled { opacity: .5; cursor: not-allowed; }
     .posts { display: flex; flex-direction: column; gap: 14px; }
     .post { display: flex; gap: 10px; }
-    .post-ava { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 700 11px Inter, Arial; flex-shrink: 0; }
+    .post-ava { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 700 11px inherit; flex-shrink: 0; }
     .post-ava--sm { width: 24px; height: 24px; font-size: 10px; }
     .post-body { flex: 1; }
     .post-head { display: flex; align-items: center; gap: 8px; }
-    .post-author { font: 600 12.5px Inter, Arial; color: #2a2740; }
-    .post-time { font-size: 11px; color: #918dab; }
-    .del-btn { margin-left: auto; border: none; background: transparent; color: #b3435a; font-size: 11px; cursor: pointer; }
-    .post-text { margin: 4px 0 6px; font: 400 12.5px Inter, Arial; color: #4a4763; }
-    .link-btn { border: none; background: transparent; color: #534ab7; font: 600 11px Inter, Arial; cursor: pointer; padding: 0; }
-    .replies { margin: 8px 0 8px 10px; padding-left: 10px; border-left: 2px solid #efeef6; display: flex; flex-direction: column; gap: 10px; }
+    .post-author { font: 600 12.5px inherit; color: var(--text-primary); }
+    .post-time { font-size: 11px; color: var(--text-muted); }
+    .del-btn { margin-left: auto; border: none; background: transparent; color: var(--status-red-text); font-size: 11px; cursor: pointer; }
+    .post-text { margin: 4px 0 6px; font: 400 12.5px inherit; color: var(--text-secondary); line-height: 1.45; }
+    .link-btn { border: none; background: transparent; color: var(--brand-primary); font: 600 11px inherit; cursor: pointer; padding: 0; }
+    .replies { margin: 8px 0 8px 10px; padding-left: 10px; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
     .reply { display: flex; gap: 8px; }
     .reply-input { display: flex; gap: 8px; margin-top: 8px; }
-    .reply-input input { flex: 1; border: 1px solid #e8e7ef; border-radius: 8px; padding: 6px 10px; font: 400 12px Inter, Arial; }
+    .reply-input input { flex: 1; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); border-radius: 8px; padding: 6px 10px; font: 400 12px inherit; outline: none; }
+    .reply-input input:focus { border-color: var(--brand-primary); }
   `]
 })
 export class LectureDiscussionComponent implements OnChanges {

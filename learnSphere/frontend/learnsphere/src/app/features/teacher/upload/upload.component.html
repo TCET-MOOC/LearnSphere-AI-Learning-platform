@@ -1,10 +1,11 @@
 <div class="upload-page">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Teacher view</p>
-      <h1>Upload content</h1>
+      <p class="eyebrow">Teacher Studio</p>
+      <h1>Upload Lecture & AI Content Generation</h1>
+      <p class="subhead">Upload lecture videos, companion notes, and auto-extract assessment questions with AI.</p>
     </div>
-    <a class="btn btn--ghost" routerLink="/teacher/courses">Back to courses</a>
+    <a class="btn btn--ghost" routerLink="/teacher/courses">Back to Courses</a>
   </header>
 
   <div class="upload-grid">
@@ -12,6 +13,73 @@
     <app-resource-upload (uploaded)="onResourceUploaded($event)"></app-resource-upload>
   </div>
 
+  <!-- AI Question Extraction Section -->
+  <section class="card ai-extraction-card">
+    <div class="card-head">
+      <div class="ai-badge">
+        <span class="ai-sparkle">✨</span>
+        <span>AI Assessment Question Extractor</span>
+      </div>
+      <p class="ai-desc">Paste lecture transcripts, slide bullet points, or syllabus notes to automatically generate candidate multiple-choice quiz questions.</p>
+    </div>
+
+    <div class="ai-input-box">
+      <textarea 
+        class="transcript-textarea"
+        [(ngModel)]="lectureNotesInput"
+        rows="3"
+        placeholder="Paste lecture transcript or key lecture concepts (e.g. Graph Algorithms, Dijkstra shortest path time complexity O((V+E)logV)...)"></textarea>
+      
+      <button class="btn-extract-ai" [disabled]="extractingAi" (click)="extractQuestions()">
+        <lucide-icon name="sparkles" [size]="16"></lucide-icon>
+        <span>{{ extractingAi ? 'AI Extracting Questions...' : 'Extract Quiz Questions' }}</span>
+      </button>
+    </div>
+
+    <!-- Generated Candidate Questions Tray -->
+    <div class="extracted-questions-tray" *ngIf="extractedQuestions.length > 0">
+      <div class="tray-header">
+        <h3>Generated Candidate Questions ({{ extractedQuestions.length }})</h3>
+        <button class="btn-save-quiz" (click)="saveQuestionsToAssessment()">
+          <lucide-icon name="check-circle" [size]="16"></lucide-icon>
+          <span>Save Approved Questions to Course Quiz</span>
+        </button>
+      </div>
+
+      <div class="question-cards-list">
+        <div 
+          class="candidate-q-card" 
+          *ngFor="let q of extractedQuestions; let qi = index"
+          [class.is-approved]="q.isApproved">
+          <div class="q-top">
+            <span class="q-label">Question {{ qi + 1 }}</span>
+            <button class="approve-toggle-btn" (click)="toggleApprove(q)">
+              <span>{{ q.isApproved ? '✓ Approved' : '✗ Excluded' }}</span>
+            </button>
+          </div>
+
+          <p class="q-prompt">{{ q.question }}</p>
+
+          <div class="options-grid">
+            <div 
+              class="opt-item" 
+              *ngFor="let opt of q.options; let oi = index"
+              [class.is-correct]="oi === q.correctIndex">
+              <span class="opt-letter">{{ ['A', 'B', 'C', 'D'][oi] }}.</span>
+              <span class="opt-text">{{ opt }}</span>
+              <span class="correct-badge" *ngIf="oi === q.correctIndex">Correct</span>
+            </div>
+          </div>
+
+          <div class="explanation-box">
+            <strong>💡 Explanation:</strong> {{ q.explanation }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Uploads Section -->
   <section class="card">
     <div class="card-head">
       <h2>Recent uploads (this session)</h2>
@@ -20,7 +88,7 @@
       <div class="recent-row" *ngFor="let file of recentUploads">
         <span class="pill" [ngClass]="file.kind === 'video' ? 'pill--purple' : 'pill--blue'">{{ file.kind }}</span>
         <span class="recent-url">{{ file.url }}</span>
-        <button class="link-btn" type="button" (click)="copy(file.url)">Copy</button>
+        <button class="link-btn" type="button" (click)="copy(file.url)">Copy URL</button>
       </div>
     </div>
     <ng-template #empty>

@@ -1,8 +1,12 @@
 <div class="colleges-page">
   <div class="colleges-page__header">
-    <h1 class="colleges-page__title">College management</h1>
+    <div>
+      <p class="colleges-page__eyebrow">Campus & Partnership Directory</p>
+      <h1 class="colleges-page__title">College Management</h1>
+      <p class="colleges-page__sub">Verify institutional affiliations, departments, autonomous university accreditations, and Dean approvals.</p>
+    </div>
     <button class="btn btn--primary add-btn" (click)="openAddCollegeDialog()">
-      ➕ Add college
+      <lucide-icon name="plus" class="btn-icon"></lucide-icon> Add College
     </button>
   </div>
 
@@ -40,7 +44,10 @@
         <div class="college-info">
           <div class="college-name">{{ college.name }}</div>
           <div class="college-sub">
-            📍 {{ college.city }} · 👨‍🎓 {{ college.studentCount }} students · 👩‍🏫 {{ college.teacherCount }} teachers · 📚 {{ college.courseCount }} courses
+            <span class="meta-item"><lucide-icon name="map-pin" class="meta-icon"></lucide-icon> {{ college.city }}</span> &middot;
+            <span class="meta-item"><lucide-icon name="graduation-cap" class="meta-icon"></lucide-icon> {{ college.studentCount }} students</span> &middot;
+            <span class="meta-item"><lucide-icon name="users" class="meta-icon"></lucide-icon> {{ college.teacherCount }} teachers</span> &middot;
+            <span class="meta-item"><lucide-icon name="book-open" class="meta-icon"></lucide-icon> {{ college.courseCount }} courses</span>
           </div>
         </div>
         
@@ -65,7 +72,7 @@
       </div>
       
       <div class="no-colleges" *ngIf="colleges.length === 0">
-        🔍 No colleges registered. Click "+ Add college" to register one.
+        <lucide-icon name="search" class="empty-icon"></lucide-icon> No colleges registered. Click "+ Add College" to register one.
       </div>
     </div>
   </div>
@@ -104,54 +111,148 @@
       </div>
       
       <div class="no-requests" *ngIf="affiliationRequests.length === 0">
-        🎉 No pending affiliation requests. All clear!
+        <lucide-icon name="party-popper" class="empty-icon"></lucide-icon> No pending affiliation requests. All clear!
       </div>
     </div>
   </div>
 </div>
 
-<!-- Inline Template for Add College Modal Dialog -->
-<ng-template #addCollegeTpl>
-  <div class="add-college-modal">
-    <h2 class="modal-title">Register New College</h2>
+<!-- Add College Modal Overlay -->
+<div class="modal-backdrop" *ngIf="showAddCollegeModal" (click)="closeAddCollegeModal()">
+  <div class="modal-container add-college-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="dialog-tag">New Institution</div>
+        <h2 class="dialog-title">Register New College</h2>
+        <p class="dialog-sub">Add a verified campus partner or university to LearnSphere.</p>
+      </div>
+      <button type="button" class="close-btn" (click)="closeAddCollegeModal()">
+        <lucide-icon name="x" [size]="18"></lucide-icon>
+      </button>
+    </div>
     
-    <form [formGroup]="collegeForm" (ngSubmit)="onSubmitCollege()" class="modal-form">
-      <div class="form-field">
-        <label for="college-name" class="form-label">College Name</label>
-        <input 
-          type="text" 
-          id="college-name" 
-          formControlName="name" 
-          class="form-input" 
-          placeholder="e.g. MH College of Engineering"
-        />
+    <form [formGroup]="collegeForm" (ngSubmit)="onSubmitCollege()" class="dialog-form">
+      <div class="form-group">
+        <label for="college-name" class="form-label">
+          College / University Name <span class="req">*</span>
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="college-name" 
+            formControlName="name" 
+            class="dialog-input" 
+            placeholder="e.g. Thakur College of Engineering & Technology"
+          />
+        </div>
         <div class="form-error" *ngIf="collegeForm.get('name')?.touched && collegeForm.get('name')?.invalid">
-          Name must be at least 3 characters long.
+          Please enter at least 3 characters for the college name.
         </div>
       </div>
       
-      <div class="form-field">
-        <label for="college-city" class="form-label">City</label>
-        <input 
-          type="text" 
-          id="college-city" 
-          formControlName="city" 
-          class="form-input" 
-          placeholder="e.g. Mumbai"
-        />
+      <div class="form-group">
+        <label for="college-city" class="form-label">
+          Campus Location / City <span class="req">*</span>
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="college-city" 
+            formControlName="city" 
+            class="dialog-input" 
+            placeholder="e.g. Mumbai, Maharashtra"
+          />
+        </div>
         <div class="form-error" *ngIf="collegeForm.get('city')?.touched && collegeForm.get('city')?.invalid">
-          City must be at least 2 characters long.
+          Please specify the city/location (min 2 characters).
         </div>
       </div>
       
-      <div class="modal-actions">
-        <button type="button" class="btn btn--ghost" mat-dialog-close>
+      <div class="dialog-actions">
+        <button type="button" class="btn-dialog btn--cancel" (click)="closeAddCollegeModal()">
           Cancel
         </button>
-        <button type="submit" class="btn btn--primary" [disabled]="collegeForm.invalid">
-          Register College
+        <button type="submit" class="btn-dialog btn--submit" [disabled]="collegeForm.invalid">
+          <span>Register College</span>
         </button>
       </div>
     </form>
   </div>
-</ng-template>
+</div>
+
+<!-- Institutional College Management Drawer / Modal -->
+<div class="modal-backdrop" *ngIf="selectedCollegeForManage" (click)="closeManageDrawer()">
+  <div class="modal-container college-detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="inst-tag">Institutional Dashboard</div>
+        <h2 class="inst-name">{{ selectedCollegeForManage.name }}</h2>
+        <p class="inst-location">
+          <lucide-icon name="map-pin" class="inline-icon"></lucide-icon> {{ selectedCollegeForManage.city }} · Verified Campus Partner
+        </p>
+      </div>
+      <button class="close-btn" (click)="closeManageDrawer()">
+        <lucide-icon name="x" [size]="18"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Quick Metric Tiles -->
+      <div class="inst-kpi-grid">
+        <div class="kpi-box">
+          <span class="label">Total Students</span>
+          <span class="val">{{ selectedCollegeForManage.studentCount || 1420 }}</span>
+          <span class="sub text-success">Active learners</span>
+        </div>
+        <div class="kpi-box">
+          <span class="label">Faculty Roster</span>
+          <span class="val">{{ selectedCollegeForManage.teacherCount || 58 }}</span>
+          <span class="sub text-purple">Verified teachers</span>
+        </div>
+        <div class="kpi-box">
+          <span class="label">Hosted Courses</span>
+          <span class="val">{{ selectedCollegeForManage.courseCount || 24 }}</span>
+          <span class="sub text-blue">Curriculum modules</span>
+        </div>
+        <div class="kpi-box">
+          <span class="label">Subscription Tier</span>
+          <span class="val tier-badge">Enterprise</span>
+          <span class="sub text-amber">Active partner</span>
+        </div>
+      </div>
+
+      <!-- Department Distribution Breakdown -->
+      <div class="detail-section">
+        <h3>Academic Departments & Enrollment</h3>
+        <div class="dept-list">
+          <div class="dept-row">
+            <span class="d-name">Computer Engineering (CMPN)</span>
+            <span class="d-stats">480 Students · 18 Faculty · 8 Courses</span>
+          </div>
+          <div class="dept-row">
+            <span class="d-name">Information Technology (INFT)</span>
+            <span class="d-stats">420 Students · 16 Faculty · 7 Courses</span>
+          </div>
+          <div class="dept-row">
+            <span class="d-name">Electronics & Telecommunication (EXTC)</span>
+            <span class="d-stats">310 Students · 14 Faculty · 5 Courses</span>
+          </div>
+          <div class="dept-row">
+            <span class="d-name">Mechanical & Civil Engineering</span>
+            <span class="d-stats">210 Students · 10 Faculty · 4 Courses</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions Bar -->
+      <div class="detail-actions">
+        <button class="btn-inst-action" (click)="exportCollegeRoster(selectedCollegeForManage)">
+          <lucide-icon name="file-text" [size]="14"></lucide-icon> Export Institutional Roster (CSV)
+        </button>
+        <button class="btn-inst-action secondary" (click)="sendCollegeAnnouncement(selectedCollegeForManage)">
+          <lucide-icon name="megaphone" [size]="14"></lucide-icon> Send College-Wide Notice
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

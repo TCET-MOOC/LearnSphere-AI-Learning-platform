@@ -1,16 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { LucideAngularModule, CheckCircle2 } from 'lucide-angular';
 
 /** Simple confirmation page shown after a successful (simulated) course payment. */
 @Component({
   selector: 'app-payment-success',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LucideAngularModule],
   template: `
     <div class="success-page">
       <div class="success-card">
-        <div class="success-icon">✅</div>
+        <div class="success-icon" style="display:flex; justify-content:center;">
+          <lucide-icon name="check-circle-2" style="width:40px; height:40px; color:#1D9E75;"></lucide-icon>
+        </div>
         <h1 class="success-title">Payment successful</h1>
         <p class="success-sub">
           You're all set — you now have full access to this course. Happy learning!

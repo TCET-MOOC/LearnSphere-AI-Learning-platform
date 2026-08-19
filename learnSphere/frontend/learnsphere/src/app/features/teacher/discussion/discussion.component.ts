@@ -10,6 +10,8 @@ import { Course } from '@core/models/course.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { timeAgo } from '@core/utils/time.util';
 
+import { LucideAngularModule, MessageCircle, CornerDownLeft, Trash2 } from 'lucide-angular';
+
 /**
  * Teacher discussion page — lets a teacher browse and answer questions posted
  * on the discussion boards of the courses they teach. Mirrors the student
@@ -19,7 +21,11 @@ import { timeAgo } from '@core/utils/time.util';
 @Component({
   selector: 'app-teacher-discussion',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    LucideAngularModule
+  ],
   templateUrl: './discussion.component.html',
   styleUrls: ['./discussion.component.scss']
 })

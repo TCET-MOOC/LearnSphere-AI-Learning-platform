@@ -20,6 +20,7 @@ public interface CourseService {
     LectureResponseDto getLectureById(Long lectureId);
     Lecture getLectureEntity(Long lectureId);
     LectureResponseDto addLecture(Long courseId, Lecture lecture, CustomUserDetails principal);
+    List<LectureResponseDto> addLecturesBulk(Long courseId, List<Lecture> lectures, CustomUserDetails principal);
     LectureResponseDto updateLecture(Long lectureId, Lecture updates, CustomUserDetails principal);
     void deleteLecture(Long lectureId, CustomUserDetails principal);
 }

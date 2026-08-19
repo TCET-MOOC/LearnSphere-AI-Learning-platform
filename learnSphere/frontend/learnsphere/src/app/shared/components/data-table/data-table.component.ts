@@ -89,28 +89,30 @@ export interface TableColumn {
     .data-table-container {
       width: 100%;
       overflow-x: auto;
+      background: var(--bg-surface);
+      border-radius: var(--border-radius-lg);
     }
 
     .data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
+      font-size: 12.5px;
       text-align: left;
       
       thead {
-        background-color: var(--color-background-secondary);
-        border-bottom: 0.5px solid var(--color-border-tertiary);
+        background-color: var(--bg-surface-elevated);
+        border-bottom: 1px solid var(--border-color);
         
         th {
-          padding: 10px;
-          font-weight: 500;
-          color: var(--color-text-secondary);
+          padding: 12px 14px;
+          font-weight: 600;
+          color: var(--text-muted);
           user-select: none;
           
           &.sortable {
             cursor: pointer;
             &:hover {
-              color: var(--color-text-primary);
+              color: var(--text-primary);
             }
           }
         }
@@ -118,14 +120,18 @@ export interface TableColumn {
       
       tbody {
         tr {
-          border-bottom: 0.5px solid var(--color-border-tertiary);
+          border-bottom: 1px solid var(--border-color);
+          transition: background-color 0.15s ease;
           &:last-child {
             border-bottom: none;
           }
+          &:hover {
+            background-color: var(--bg-hover);
+          }
           
           td {
-            padding: 10px;
-            color: var(--color-text-primary);
+            padding: 12px 14px;
+            color: var(--text-primary);
             vertical-align: middle;
           }
         }
@@ -133,41 +139,41 @@ export interface TableColumn {
     }
 
     .avatar-cell {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      background: #EEEDFE;
-      color: #3C3489;
+      background: var(--brand-surface);
+      color: var(--brand-primary);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
-      font-weight: 500;
+      font-size: 11px;
+      font-weight: 600;
     }
 
     .progress-cell {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      width: 100px;
+      width: 120px;
       
       .progress-text {
-        font-size: 10px;
-        color: var(--color-text-secondary);
+        font-size: 10.5px;
+        color: var(--text-muted);
       }
       
       .pbar {
-        height: 4px;
-        background-color: var(--color-border-tertiary);
-        border-radius: 2px;
+        height: 5px;
+        background-color: var(--border-color);
+        border-radius: 3px;
         width: 100%;
         overflow: hidden;
       }
       
       .pfill {
         height: 100%;
-        background-color: $brand-purple;
-        border-radius: 2px;
+        background-color: var(--brand-primary);
+        border-radius: 3px;
       }
     }
 
@@ -175,12 +181,13 @@ export interface TableColumn {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px;
-      border-top: 0.5px solid var(--color-border-tertiary);
+      padding: 12px 16px;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-surface-elevated);
       
       &-info {
-        font-size: 11px;
-        color: var(--color-text-secondary);
+        font-size: 11.5px;
+        color: var(--text-muted);
       }
     }
   `]

@@ -1,20 +1,20 @@
-$brand: #534ab7;
-$brand-soft: #eeedfe;
-$text: #1a1830;
-$muted: #6b6880;
-$faint: #a09db8;
-$border: #e8e7ef;
-$bg: #f5f5f8;
-$surface: #ffffff;
-$green: #1d9e75;
-$green-soft: #eaf3de;
-$amber: #ba7517;
-$amber-soft: #faeeda;
-$red: #a32d2d;
-$red-soft: #fcebeb;
-$blue: #0c447c;
-$blue-soft: #e6f1fb;
-$grey-soft: #f1efe8;
+$brand: var(--brand-primary);
+$brand-soft: var(--brand-surface);
+$text: var(--text-primary);
+$muted: var(--text-secondary);
+$faint: var(--text-muted);
+$border: var(--border-color);
+$bg: var(--bg-app);
+$surface: var(--bg-surface);
+$green: var(--status-green-text);
+$green-soft: var(--status-green-bg);
+$amber: var(--status-amber-text);
+$amber-soft: var(--status-amber-bg);
+$red: var(--status-red-text);
+$red-soft: var(--status-red-bg);
+$blue: var(--status-blue-text);
+$blue-soft: var(--status-blue-bg);
+$grey-soft: var(--bg-hover);
 
 :host {
   display: block;
@@ -22,10 +22,12 @@ $grey-soft: #f1efe8;
 
 .student-courses {
   min-height: 100%;
-  padding: 24px 32px;
+  padding: 28px 32px 40px;
+  max-width: 1360px;
+  margin: 0 auto;
   background: $bg;
   color: $text;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: inherit;
 }
 
 .page-head,
@@ -39,20 +41,31 @@ $grey-soft: #f1efe8;
 }
 
 .page-head {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+
+  .eyebrow {
+    margin: 0 0 6px 0;
+    color: var(--brand-primary);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
 
   h1 {
-    margin: 2px 0 0;
-    font-size: 24px;
+    margin: 0 0 6px 0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
     line-height: 1.2;
+    color: $text;
   }
-}
 
-.eyebrow {
-  margin: 0;
-  color: $faint;
-  font-size: 12px;
-  font-weight: 600;
+  .subtitle {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
 }
 
 .btn,

@@ -1,19 +1,17 @@
-@import '../../../../styles/variables';
-
 .stat-card {
-  background: var(--color-background-primary);
-  border: 1px solid var(--color-border-secondary);
-  border-radius: $border-radius-lg;
-  padding: $spacing-md $spacing-lg;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 8px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.25s ease;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border-color: var(--brand-primary);
   }
 
   &__header {
@@ -23,18 +21,20 @@
   }
 
   &__icon-wrapper {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background-color: var(--color-background-secondary);
+    background-color: var(--brand-surface);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--color-border-tertiary);
+    border: 1px solid var(--border-color);
   }
 
   &__icon {
-    font-size: 16px;
+    width: 18px;
+    height: 18px;
+    color: var(--brand-primary);
   }
 
   &__trend {
@@ -44,16 +44,16 @@
     font-size: 11px;
     font-weight: 600;
     padding: 2px 8px;
-    border-radius: $border-radius-round;
+    border-radius: 20px;
 
     &--up {
-      background-color: $status-green-bg;
-      color: $status-green-text;
+      background-color: var(--status-green-bg);
+      color: var(--status-green-text);
     }
 
     &--down {
-      background-color: $status-red-bg;
-      color: $status-red-text;
+      background-color: var(--status-red-bg);
+      color: var(--status-red-text);
     }
 
     .trend-arrow {
@@ -68,15 +68,15 @@
   }
 
   &__value {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     letter-spacing: -0.5px;
   }
 
   &__label {
     font-size: 12px;
-    color: var(--color-text-secondary);
+    color: var(--text-muted);
     font-weight: 500;
   }
 }

@@ -1,70 +1,80 @@
 <div class="live-page">
-
   <!-- Header -->
   <div class="page-header">
-    <div>
-      <h1 class="page-header__title">📡 Live Sessions</h1>
-      <p class="page-header__sub">Schedule, manage and track your live teaching sessions</p>
-    </div>
+    <p class="eyebrow">Virtual Classroom & Broadcasts</p>
+    <h1 class="page-title"><lucide-icon name="radio" class="title-icon" [size]="24"></lucide-icon> Live Teaching Sessions</h1>
+    <p class="subtitle">Schedule, host, and monitor interactive live lectures and student attendance.</p>
   </div>
 
   <!-- KPI Cards -->
   <div class="kpi-grid">
     <div class="kpi-card">
-      <div class="kpi-card__icon" style="background:#EEEDFE">📅</div>
+      <div class="kpi-card__icon">
+        <lucide-icon name="calendar" [size]="20"></lucide-icon>
+      </div>
       <div class="kpi-card__body">
-        <div class="kpi-card__value">{{ sessions.length }}</div>
         <div class="kpi-card__label">Total Sessions</div>
-        <div class="kpi-card__sub" style="color:#6B6880">All time</div>
+        <div class="kpi-card__val">{{ sessions.length }}</div>
+        <div class="kpi-card__sub text-muted">All-time broadcast history</div>
       </div>
     </div>
+
     <div class="kpi-card">
-      <div class="kpi-card__icon" style="background:#E3F6F0">🎯</div>
+      <div class="kpi-card__icon is-active">
+        <lucide-icon name="radio" [size]="20"></lucide-icon>
+      </div>
       <div class="kpi-card__body">
-        <div class="kpi-card__value">{{ upcomingSessions.length }}</div>
-        <div class="kpi-card__label">Upcoming Sessions</div>
-        <div class="kpi-card__sub" style="color:#534AB7">Scheduled or live</div>
+        <div class="kpi-card__label">Upcoming & Active</div>
+        <div class="kpi-card__val">{{ upcomingSessions.length }}</div>
+        <div class="kpi-card__sub text-brand">Scheduled or currently live</div>
       </div>
     </div>
+
     <div class="kpi-card">
-      <div class="kpi-card__icon" style="background:#FEF6E4">🎬</div>
+      <div class="kpi-card__icon is-completed">
+        <lucide-icon name="clapperboard" [size]="20"></lucide-icon>
+      </div>
       <div class="kpi-card__body">
-        <div class="kpi-card__value">{{ pastSessions.length }}</div>
         <div class="kpi-card__label">Past Sessions</div>
-        <div class="kpi-card__sub" style="color:#1D9E75">Ended</div>
+        <div class="kpi-card__val">{{ pastSessions.length }}</div>
+        <div class="kpi-card__sub text-success">Completed recordings</div>
       </div>
     </div>
   </div>
 
+  <!-- Main Content Layout -->
   <div class="content-grid">
-    <!-- Left col: Schedule form + upcoming -->
-    <div style="display:flex;flex-direction:column;gap:20px">
+    <!-- Left Column: Schedule Form + Upcoming Sessions -->
+    <div class="left-stack">
 
-      <!-- Schedule form -->
+      <!-- Schedule Form Card -->
       <div class="panel">
         <div class="panel__header">
           <div>
-            <div class="panel__title">Schedule a New Session</div>
-            <div class="panel__sub">Students will be notified immediately on schedule</div>
+            <h2 class="panel__title">Schedule a New Session</h2>
+            <p class="panel__sub">Enrolled students will receive instant notification and calendar invitations.</p>
           </div>
         </div>
 
         <div class="form-grid">
-          <div class="form-field">
+          <div class="form-field form-field--full">
             <label class="form-field__label">Course</label>
             <select class="form-field__select" [(ngModel)]="selectedCourseId" name="courseId">
               <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
             </select>
           </div>
-          <div class="form-field">
+
+          <div class="form-field form-field--full">
             <label class="form-field__label">Session Title</label>
-            <input class="form-field__input" placeholder="e.g. Doubt clearing — Unit 2"
+            <input class="form-field__input" placeholder="e.g. Unit 2 Deep-Dive & Midterm Q&A"
                    [(ngModel)]="sessionTitle" name="sessionTitle" />
           </div>
+
           <div class="form-field">
             <label class="form-field__label">Date</label>
             <input class="form-field__input" type="date" [(ngModel)]="sessionDate" name="sessionDate" />
           </div>
+
           <div class="form-field">
             <label class="form-field__label">Time</label>
             <input class="form-field__input" type="time" [(ngModel)]="sessionTime" name="sessionTime" />
@@ -73,81 +83,115 @@
 
         <div class="btn-row">
           <button class="btn btn--primary" [disabled]="scheduling" (click)="scheduleSession()">
-            {{ scheduling ? 'Scheduling…' : '📢 Schedule & Notify Students' }}
+            <lucide-icon name="megaphone" [size]="16"></lucide-icon>
+            <span>{{ scheduling ? 'Scheduling…' : 'Schedule & Notify Students' }}</span>
           </button>
           <button class="btn btn--ghost" (click)="saveDraft()">Save Draft</button>
         </div>
       </div>
 
-      <!-- Upcoming sessions -->
+      <!-- Upcoming Sessions Card -->
       <div class="panel">
         <div class="panel__header">
-          <span class="panel__title">Upcoming Sessions</span>
-          <span class="pill pill--purple">{{ upcomingSessions.length }} scheduled</span>
+          <div>
+            <h2 class="panel__title">Upcoming Sessions</h2>
+            <p class="panel__sub">Scheduled broadcasts ready for launch</p>
+          </div>
+          <span class="badge badge--purple">{{ upcomingSessions.length }} scheduled</span>
         </div>
 
+        <!-- Loading State -->
+        <div class="state-message" *ngIf="loading">
+          <lucide-icon name="loader-2" class="spin-icon" [size]="20"></lucide-icon>
+          <span>Loading live sessions…</span>
+        </div>
+
+        <!-- Empty State -->
+        <div class="state-message" *ngIf="!loading && upcomingSessions.length === 0">
+          <lucide-icon name="calendar" [size]="24"></lucide-icon>
+          <span>No upcoming sessions scheduled. Create one using the form above.</span>
+        </div>
+
+        <!-- Session List -->
         <div class="session-list" *ngIf="!loading && upcomingSessions.length > 0">
-          <div class="session-item" *ngFor="let s of upcomingSessions">
-            <div class="session-item__date">
-              <div class="session-item__date-day">{{ s.scheduledAt | date:'d' }}</div>
-              <div class="session-item__date-mon">{{ s.scheduledAt | date:'MMM' }}</div>
+          <div class="session-item" *ngFor="let s of upcomingSessions" [class.is-live-now]="s.status === 'LIVE'">
+            <div class="session-date-chip" [class.is-live]="s.status === 'LIVE'">
+              <span class="session-date-chip__day">{{ s.scheduledAt | date:'d' }}</span>
+              <span class="session-date-chip__mon">{{ s.scheduledAt | date:'MMM' }}</span>
             </div>
+
             <div class="session-item__info">
-              <div class="session-item__title">{{ s.title }}</div>
-              <div class="session-item__meta">{{ s.courseTitle }} · {{ s.scheduledAt | date:'shortTime' }}</div>
+              <div class="session-item__title-row">
+                <span class="session-item__title">{{ s.title }}</span>
+                <span class="live-pulse-badge" *ngIf="s.status === 'LIVE'">
+                  <span class="pulse-dot"></span> LIVE NOW
+                </span>
+              </div>
+              <div class="session-item__meta">
+                <span class="course-name">{{ s.courseTitle }}</span>
+                <span class="time-meta">· {{ s.scheduledAt | date:'shortTime' }}</span>
+              </div>
             </div>
+
             <div class="session-item__actions">
-              <span class="pill" [ngClass]="s.status === 'LIVE' ? 'pill--green' : 'pill--purple'">
-                {{ s.status === 'LIVE' ? 'Live now' : 'Scheduled' }}
-              </span>
-              <button *ngIf="s.status === 'SCHEDULED'" class="btn btn--primary"
-                      style="font-size:12px;padding:7px 14px" [disabled]="isStarting(s.id)"
+              <button *ngIf="s.status === 'SCHEDULED'" class="btn btn--primary btn--sm"
+                      [disabled]="isStarting(s.id)"
                       (click)="startSession(s.id)">
-                {{ isStarting(s.id) ? 'Starting…' : '▶ Start Now' }}
+                <lucide-icon name="play" [size]="14"></lucide-icon>
+                <span>{{ isStarting(s.id) ? 'Starting…' : 'Start Now' }}</span>
               </button>
-              <button *ngIf="s.status === 'LIVE'" class="btn btn--ghost"
-                      style="font-size:12px;padding:7px 14px" [disabled]="isEnding(s.id)"
+
+              <button *ngIf="s.status === 'LIVE'" class="btn btn--danger btn--sm"
+                      [disabled]="isEnding(s.id)"
                       (click)="endSession(s.id)">
-                {{ isEnding(s.id) ? 'Ending…' : '⏹ End Session' }}
+                <lucide-icon name="square" [size]="14"></lucide-icon>
+                <span>{{ isEnding(s.id) ? 'Ending…' : 'End Session' }}</span>
               </button>
             </div>
           </div>
-        </div>
-
-        <div *ngIf="loading" style="padding:12px;color:#888780;font-size:13px">Loading sessions…</div>
-        <div *ngIf="!loading && upcomingSessions.length === 0" style="padding:12px;color:#888780;font-size:13px">
-          No upcoming sessions — schedule one above.
         </div>
       </div>
 
     </div>
 
-    <!-- Right col: Past sessions -->
-    <div class="panel">
+    <!-- Right Column: Past Sessions Panel -->
+    <div class="panel past-panel">
       <div class="panel__header">
-        <span class="panel__title">Past Sessions</span>
+        <div>
+          <h2 class="panel__title">Past Sessions</h2>
+          <p class="panel__sub">Archive of completed live broadcasts</p>
+        </div>
+        <span class="badge badge--grey">{{ pastSessions.length }} completed</span>
       </div>
 
+      <!-- Empty State -->
+      <div class="state-message" *ngIf="pastSessions.length === 0">
+        <lucide-icon name="clapperboard" [size]="24"></lucide-icon>
+        <span>No past session archives found yet.</span>
+      </div>
+
+      <!-- Past Session List -->
       <div class="session-list" *ngIf="pastSessions.length > 0">
-        <div class="session-item" style="flex-wrap:wrap;gap:10px" *ngFor="let s of pastSessions">
-          <div class="session-item__date" style="background:#E3F6F0">
-            <div class="session-item__date-day" style="color:#1D9E75">{{ s.scheduledAt | date:'d' }}</div>
-            <div class="session-item__date-mon" style="color:#1D9E75">{{ s.scheduledAt | date:'MMM' }}</div>
+        <div class="session-item session-item--past" *ngFor="let s of pastSessions">
+          <div class="session-date-chip session-date-chip--past">
+            <span class="session-date-chip__day">{{ s.scheduledAt | date:'d' }}</span>
+            <span class="session-date-chip__mon">{{ s.scheduledAt | date:'MMM' }}</span>
           </div>
+
           <div class="session-item__info">
-            <div class="session-item__title">{{ s.title }}</div>
-            <div class="session-item__meta">{{ s.courseTitle }}</div>
+            <span class="session-item__title">{{ s.title }}</span>
+            <div class="session-item__meta">
+              <span class="course-name">{{ s.courseTitle }}</span>
+              <span class="time-meta">· {{ s.scheduledAt | date:'mediumDate' }}</span>
+            </div>
           </div>
-          <div class="session-item__actions" style="width:100%;justify-content:flex-end">
-            <span class="pill pill--grey">Ended</span>
+
+          <div class="session-item__actions">
+            <span class="badge badge--grey">Completed</span>
           </div>
         </div>
-      </div>
-
-      <div *ngIf="pastSessions.length === 0" style="padding:12px;color:#888780;font-size:13px">
-        No past sessions yet.
       </div>
     </div>
   </div>
-
 </div>
+

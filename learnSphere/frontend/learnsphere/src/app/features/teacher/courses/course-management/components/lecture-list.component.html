@@ -14,11 +14,191 @@
         <small>{{ lecture.duration | duration }} · {{ lecture.status }}</small>
       </div>
       <div class="lecture-row-actions">
+        <button class="link-btn link-btn--quiz" type="button" (click)="openQuizModal(lecture)">Quiz</button>
         <button class="link-btn" type="button" (click)="openEditForm(lecture)">Edit</button>
         <button class="link-btn link-btn--danger" type="button" (click)="remove(lecture)">Delete</button>
       </div>
     </div>
     <p class="hint" *ngIf="lectures.length === 0">No lectures yet. Add your first one.</p>
+  </div>
+
+  <!-- Quiz Management Modal -->
+  <div class="quiz-mgmt-overlay" *ngIf="showQuizModal && quizLecture">
+    <div class="quiz-mgmt-modal">
+      <div class="modal-head">
+        <div class="head-title">
+          <div class="badge-icon">
+            <lucide-icon name="help-circle" [size]="18"></lucide-icon>
+          </div>
+          <div>
+            <h4>Post-Video Quiz: {{ quizLecture.title }}</h4>
+            <p>Attach a check-in quiz directly to this video lecture</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="closeQuizModal()" aria-label="Close">
+          <lucide-icon name="x" [size]="16"></lucide-icon>
+        </button>
+      </div>
+
+      <!-- Loading Quiz Info -->
+      <div class="modal-loading" *ngIf="loadingQuiz">
+        <div class="spinner"></div>
+        <p>Checking lecture quiz status…</p>
+      </div>
+
+      <div class="modal-body" *ngIf="!loadingQuiz">
+        
+        <!-- Existing Quiz Banner -->
+        <div class="existing-quiz-banner" *ngIf="existingQuiz">
+          <div class="banner-left">
+            <lucide-icon name="check" [size]="16" class="check-icon"></lucide-icon>
+            <div>
+              <strong>Quiz Active: {{ existingQuiz.title }}</strong>
+              <small>{{ existingQuiz.durationMinutes }} mins · {{ existingQuiz.questions?.length || 0 }} Questions</small>
+            </div>
+          </div>
+          <button class="btn btn--danger-outline" type="button" (click)="deleteQuiz(existingQuiz.testId)">
+            <lucide-icon name="trash-2" [size]="13"></lucide-icon>
+            Delete Quiz
+          </button>
+        </div>
+
+        <!-- Create/Replace Quiz Form -->
+        <div class="create-quiz-box" *ngIf="!existingQuiz">
+          <!-- Creation Mode Tabs -->
+          <div class="tab-switcher">
+            <button 
+              class="tab-btn" 
+              [class.is-active]="activeQuizTab === 'ai'" 
+              type="button" 
+              (click)="activeQuizTab = 'ai'">
+              <lucide-icon name="sparkles" [size]="14"></lucide-icon>
+              <span>1-Click AI Generation (NVIDIA NIM)</span>
+            </button>
+            <button 
+              class="tab-btn" 
+              [class.is-active]="activeQuizTab === 'manual'" 
+              type="button" 
+              (click)="activeQuizTab = 'manual'">
+              <lucide-icon name="plus" [size]="14"></lucide-icon>
+              <span>Manual Entry</span>
+            </button>
+          </div>
+
+          <!-- AI Generation Tab -->
+          <div class="tab-pane" *ngIf="activeQuizTab === 'ai'">
+            <div class="ai-input-grid">
+              <label>
+                Topic or Lecture Transcript
+                <textarea [(ngModel)]="aiPrompt" rows="3" placeholder="Enter lecture transcript, key concepts, or topic summary..."></textarea>
+              </label>
+
+              <div class="row-2">
+                <label>
+                  Number of Questions
+                  <select [(ngModel)]="aiCount">
+                    <option [ngValue]="3">3 Questions (Standard)</option>
+                    <option [ngValue]="5">5 Questions (Comprehensive)</option>
+                  </select>
+                </label>
+
+                <div class="ai-action-cell">
+                  <button class="btn btn--ai" type="button" (click)="generateAiQuestions()" [disabled]="generatingAi">
+                    <lucide-icon name="sparkles" [size]="15" *ngIf="!generatingAi"></lucide-icon>
+                    <span>{{ generatingAi ? 'Generating via AI…' : 'Generate Questions' }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI Questions Preview -->
+            <div class="ai-questions-preview" *ngIf="aiGeneratedQuestions.length > 0">
+              <h5>Generated Questions Preview ({{ aiGeneratedQuestions.length }})</h5>
+
+              <div class="q-preview-card" *ngFor="let q of aiGeneratedQuestions; let i = index">
+                <div class="q-head">
+                  <span class="q-badge">Question {{ i + 1 }}</span>
+                </div>
+                <input type="text" [(ngModel)]="q.question" class="q-input" />
+
+                <div class="options-grid">
+                  <div class="opt-row" *ngFor="let opt of q.options; let optIdx = index">
+                    <span class="opt-tag" [class.is-correct]="optIdx === q.correctIndex">
+                      {{ ['A', 'B', 'C', 'D'][optIdx] }}
+                    </span>
+                    <input type="text" [(ngModel)]="q.options[optIdx]" class="opt-input" />
+                  </div>
+                </div>
+                <small class="exp-note">Explanation: {{ q.explanation }}</small>
+              </div>
+
+              <div class="modal-actions">
+                <button class="btn btn--primary" type="button" (click)="saveAiQuiz()" [disabled]="savingQuiz">
+                  <lucide-icon name="check" [size]="14"></lucide-icon>
+                  {{ savingQuiz ? 'Saving Quiz…' : 'Save Quiz to Lecture' }}
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Manual Entry Tab -->
+          <div class="tab-pane" *ngIf="activeQuizTab === 'manual'">
+            <div class="manual-form">
+              <div class="row-2">
+                <label>
+                  Quiz Title
+                  <input type="text" [(ngModel)]="manualQuizTitle" placeholder="e.g., Check-in Quiz: Lecture 1" />
+                </label>
+                <label>
+                  Duration (Minutes)
+                  <input type="number" min="1" [(ngModel)]="manualDuration" />
+                </label>
+              </div>
+
+              <div class="manual-questions-list">
+                <div class="manual-q-card" *ngFor="let mq of manualQuestions; let i = index">
+                  <div class="mq-head">
+                    <h6>Question {{ i + 1 }}</h6>
+                    <button class="icon-del-btn" *ngIf="manualQuestions.length > 1" (click)="removeManualQuestionField(i)" aria-label="Remove Question">
+                      <lucide-icon name="trash-2" [size]="14"></lucide-icon>
+                    </button>
+                  </div>
+
+                  <input type="text" [(ngModel)]="mq.body" placeholder="Question prompt..." class="mq-input" />
+
+                  <div class="options-inputs">
+                    <div class="opt-field" *ngFor="let opt of mq.options; let optIdx = index">
+                      <label class="radio-lbl">
+                        <input type="radio" [name]="'correct_' + i" [checked]="mq.correctIndex === optIdx" (change)="mq.correctIndex = optIdx" />
+                        Option {{ ['A', 'B', 'C', 'D'][optIdx] }}:
+                      </label>
+                      <input type="text" [(ngModel)]="mq.options[optIdx]" placeholder="Option text..." class="opt-text-input" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="manual-controls">
+                <button class="btn btn--soft" type="button" (click)="addManualQuestionField()">
+                  <lucide-icon name="plus" [size]="13"></lucide-icon>
+                  Add Another Question
+                </button>
+
+                <button class="btn btn--primary" type="button" (click)="saveManualQuiz()" [disabled]="savingQuiz">
+                  <lucide-icon name="check" [size]="14"></lucide-icon>
+                  {{ savingQuiz ? 'Saving…' : 'Save Quiz' }}
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
   </div>
 
   <div class="lecture-form-overlay" *ngIf="showForm">
@@ -36,10 +216,17 @@
       </label>
 
       <label class="full">
-        Video
-        <input type="file" accept="video/*" (change)="onVideoSelected($event)" />
-        <span class="upload-hint" *ngIf="uploadingVideo">Uploading… {{ uploadPercent }}%</span>
-        <span class="upload-hint" *ngIf="form.value.videoUrl && !uploadingVideo">Current: {{ form.value.videoUrl }}</span>
+        Video URL or File Upload
+        <input 
+          type="text" 
+          formControlName="videoUrl" 
+          placeholder="Paste YouTube video link (e.g. https://youtu.be/...) or direct video URL" 
+          style="margin-bottom: 8px;"
+        />
+        <div class="file-upload-row" style="display: flex; align-items: center; gap: 8px;">
+          <input type="file" accept="video/*" (change)="onVideoSelected($event)" />
+          <span class="upload-hint" *ngIf="uploadingVideo">Uploading… {{ uploadPercent }}%</span>
+        </div>
       </label>
 
       <label>

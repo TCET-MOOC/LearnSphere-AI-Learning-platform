@@ -1,19 +1,39 @@
-@import 'variables';
-
 .students-page {
-  padding: $spacing-xs;
+  padding: 28px 32px 40px;
+  max-width: 1360px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: 24px;
+  color: var(--text-primary);
+  font-family: inherit;
 
   &__header {
-    margin-bottom: $spacing-sm;
+    margin-bottom: 4px;
+  }
+
+  &__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-primary);
+    margin: 0 0 6px 0;
   }
 
   &__title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--color-text-primary);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0 0 6px 0;
+  }
+
+  &__subtitle {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin: 0;
   }
 }
 
@@ -21,8 +41,8 @@
 .srow3 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: $spacing-md;
-  margin-bottom: $spacing-sm;
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
 // Tab headers styling
@@ -31,15 +51,15 @@
   gap: 6px;
   overflow-x: auto;
   padding-bottom: 4px;
-  border-bottom: 1px solid var(--color-border-secondary);
+  border-bottom: 1px solid var(--border-color);
 
   .stab {
     padding: 8px 16px;
-    border-radius: $border-radius-md $border-radius-md 0 0;
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     border: 1px solid transparent;
     border-bottom: none;
     margin-bottom: -1px;
@@ -47,29 +67,29 @@
     white-space: nowrap;
 
     &.on {
-      background: var(--color-background-primary);
-      color: $brand-purple;
-      border-color: var(--color-border-secondary);
-      border-bottom: 2px solid $brand-purple;
+      background: var(--bg-surface);
+      color: var(--brand-primary);
+      border-color: var(--border-color);
+      border-bottom: 2px solid var(--brand-primary);
     }
 
     &:hover:not(.on) {
-      color: var(--color-text-primary);
-      background: var(--color-background-secondary);
+      color: var(--text-primary);
+      background: var(--bg-hover);
     }
   }
 }
 
 // Reusable card container styles
 .card {
-  background: var(--color-background-primary);
-  border: 1px solid var(--color-border-secondary);
-  border-radius: $border-radius-lg;
-  padding: $spacing-lg;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 16px;
 
   .card-hd {
     display: flex;
@@ -77,20 +97,20 @@
     align-items: center;
     font-size: 15px;
     font-weight: 600;
-    color: var(--color-text-primary);
-    border-bottom: 1px solid var(--color-border-secondary);
-    padding-bottom: $spacing-sm;
-    margin-bottom: $spacing-xs;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-bottom: 4px;
 
     .cl {
       font-size: 12px;
-      color: $brand-purple;
+      color: var(--brand-primary);
       text-decoration: none;
       font-weight: 500;
       transition: color 0.15s ease;
 
       &:hover {
-        color: $brand-purple-dark;
+        color: var(--brand-primary-hover);
         text-decoration: underline;
       }
     }
@@ -101,28 +121,29 @@
 .top-performers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: $spacing-md;
-  margin-bottom: $spacing-md;
+  gap: 16px;
+  margin-bottom: 16px;
 
   .student-card {
-    background: var(--color-background-secondary);
-    border: 1px solid var(--color-border-tertiary);
-    border-radius: $border-radius-md;
-    padding: $spacing-md;
+    background: var(--bg-hover);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: $spacing-sm;
+    gap: 8px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      box-shadow: var(--card-shadow);
+      border-color: var(--brand-primary);
     }
 
     &__header {
       display: flex;
       align-items: center;
-      gap: $spacing-sm;
+      gap: 12px;
     }
 
     &__info {
@@ -133,17 +154,17 @@
     &__name {
       font-size: 13px;
       font-weight: 600;
-      color: var(--color-text-primary);
+      color: var(--text-primary);
     }
 
     &__rank {
       font-size: 11px;
-      color: var(--color-text-secondary);
+      color: var(--text-muted);
     }
 
     &__details {
       font-size: 11px;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary);
     }
 
     &__progress {
@@ -181,38 +202,38 @@
 
 // Standings Table Styling
 .standings-table-header {
-  margin-top: $spacing-sm;
+  margin-top: 8px;
 }
 
 .standings-table-container {
   overflow-x: auto;
-  border-radius: $border-radius-md;
-  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
 }
 
 // At-risk panel & rows
 .at-risk-panel {
-  margin-top: $spacing-xs;
+  margin-top: 4px;
 }
 
 .at-risk-list {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
+  gap: 8px;
 
   .row {
     display: flex;
     align-items: center;
-    gap: $spacing-md;
-    padding: $spacing-sm $spacing-md;
-    border-radius: $border-radius-md;
-    background: var(--color-background-secondary);
+    gap: 16px;
+    padding: 10px 14px;
+    border-radius: var(--border-radius-md);
+    background: var(--bg-hover);
     border: 1px solid transparent;
     transition: all 0.2s ease;
 
     &:hover {
-      border-color: var(--color-border-tertiary);
-      background: var(--color-background-primary);
+      border-color: var(--border-color);
+      background: var(--bg-surface);
     }
 
     .ava.risk-avatar {
@@ -222,11 +243,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: $status-red-bg;
-      color: $status-red-text;
+      background: var(--status-red-bg);
+      color: var(--status-red-text);
       font-size: 12px;
       font-weight: 600;
-      border: 1px solid lighten($status-red-text, 50%);
+      border: 1px solid var(--status-red-text);
     }
 
     .at-risk-info {
@@ -237,12 +258,12 @@
       .at-risk-name {
         font-size: 13px;
         font-weight: 500;
-        color: var(--color-text-primary);
+        color: var(--text-primary);
       }
 
       .at-risk-sub {
         font-size: 11px;
-        color: var(--color-text-secondary);
+        color: var(--text-muted);
       }
     }
 
@@ -250,33 +271,33 @@
       padding: 6px 12px;
       font-size: 11px;
       font-weight: 500;
-      border-radius: $border-radius-md;
-      border: 1px solid $brand-purple;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--brand-primary);
       background: transparent;
-      color: $brand-purple;
+      color: var(--brand-primary);
       cursor: pointer;
       transition: all 0.15s ease;
 
       &:hover:not(:disabled) {
-        background: $brand-purple;
+        background: var(--brand-primary);
         color: #fff;
       }
 
       &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
-        border-color: var(--color-border-secondary);
-        color: var(--color-text-secondary);
+        border-color: var(--border-color);
+        color: var(--text-muted);
       }
     }
   }
 
   .no-risk-students {
     text-align: center;
-    padding: $spacing-lg;
-    color: $status-green-text;
-    background-color: $status-green-bg;
-    border-radius: $border-radius-md;
+    padding: 24px;
+    color: var(--status-green-text);
+    background-color: var(--status-green-bg);
+    border-radius: var(--border-radius-md);
     font-size: 13px;
     font-weight: 500;
   }

@@ -3,8 +3,9 @@
   <!-- Header -->
   <div class="page-header">
     <div>
-      <h1 class="page-header__title">💬 Discussion</h1>
-      <p class="page-header__sub">Answer student questions across your courses</p>
+      <p class="page-header__eyebrow">Q&A & Community Forum</p>
+      <h1 class="page-header__title"><lucide-icon name="message-circle" class="title-icon"></lucide-icon> Course Discussions</h1>
+      <p class="page-header__sub">Answer student questions and participate in academic course discussions.</p>
     </div>
     <div class="tabs">
       <button class="tabs__item" *ngFor="let course of courses"
@@ -59,9 +60,11 @@
 
           <div class="post-actions">
             <button class="action-btn reply-btn" (click)="toggleReply(post.id)">
-              ↩ {{ replyingTo === post.id ? 'Cancel' : 'Reply' }}
+              <lucide-icon name="corner-down-left" class="action-icon"></lucide-icon> {{ replyingTo === post.id ? 'Cancel' : 'Reply' }}
             </button>
-            <button class="action-btn" *ngIf="canDelete(post)" (click)="remove(post)">🗑 Delete</button>
+            <button class="action-btn" *ngIf="canDelete(post)" (click)="remove(post)">
+              <lucide-icon name="trash-2" class="action-icon action-icon--danger"></lucide-icon> Delete
+            </button>
             <span class="action-btn">{{ post.replies.length }} {{ post.replies.length === 1 ? 'reply' : 'replies' }}</span>
           </div>
 

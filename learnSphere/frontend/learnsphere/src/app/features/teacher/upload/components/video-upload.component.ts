@@ -25,14 +25,20 @@ import { NotificationService } from '@core/services/notification.service';
     </div>
   `,
   styles: [`
-    .upload-box { background: #fff; border: 1px solid #e8e7ef; border-radius: 12px; padding: 16px; }
-    h3 { margin: 0 0 4px; font-size: 13px; }
-    .hint { margin: 0 0 10px; font-size: 11px; color: #6b6880; }
-    input[type=file] { font-size: 12px; }
-    .progress-track { height: 5px; border-radius: 4px; background: #eeedf3; overflow: hidden; margin-top: 10px; }
-    .progress-track span { display: block; height: 100%; background: #534ab7; }
-    .status { margin: 8px 0 0; font-size: 11px; color: #6b6880; word-break: break-all; }
-    .status--done { color: #1d9e75; }
+    .upload-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: var(--card-shadow);
+    }
+    h3 { margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .hint { margin: 0 0 10px; font-size: 12px; color: var(--text-muted); }
+    input[type=file] { font-size: 12px; color: var(--text-primary); }
+    .progress-track { height: 6px; border-radius: 4px; background: var(--bg-hover); overflow: hidden; margin-top: 10px; }
+    .progress-track span { display: block; height: 100%; background: var(--brand-primary); }
+    .status { margin: 8px 0 0; font-size: 12px; color: var(--text-secondary); word-break: break-all; }
+    .status--done { color: var(--status-green-text); font-weight: 600; }
   `]
 })
 export class VideoUploadComponent {

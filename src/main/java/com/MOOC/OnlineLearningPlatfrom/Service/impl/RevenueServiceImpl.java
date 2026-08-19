@@ -8,6 +8,7 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Payment;
 import com.MOOC.OnlineLearningPlatfrom.Repository.PaymentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.RevenueService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,10 +35,12 @@ public class RevenueServiceImpl implements RevenueService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public RevenueSummaryDto getRevenueSummary() {
-        List<Payment> successfulPayments = paymentRepository.findAll().stream()
-                .filter(p -> p.getStatus() == Payment.Status.SUCCESS && p.getAmount() != null)
-                .toList();
+        // Use a targeted query that fetches only SUCCESS payments with eagerly-loaded
+        // course/teacher associations — avoids full table scan locks that conflict with
+        // the separate payments-microservice database connection.
+        List<Payment> successfulPayments = paymentRepository.findByStatusWithRelations(Payment.Status.SUCCESS);
 
         BigDecimal totalRevenue = successfulPayments.stream()
                 .map(Payment::getAmount)

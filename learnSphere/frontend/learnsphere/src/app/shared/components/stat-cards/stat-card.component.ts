@@ -1,14 +1,18 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LucideAngularModule, Users, BookOpen, ShieldAlert, GraduationCap, Award, DollarSign, Clock, Folder, BarChart } from 'lucide-angular';
 
 /**
  * StatCardComponent is a reusable KPI component used across student, teacher, and admin dashboards.
- * It displays an icon (emoji mapping), a prominent numeric value, a label, and trend arrows/texts.
+ * It displays an icon, a prominent numeric value, a label, and trend arrows/texts.
  */
 @Component({
   selector: 'app-stat-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    LucideAngularModule
+  ],
   templateUrl: './stat-card.component.html',
   styleUrls: ['./stat-card.component.scss']
 })
@@ -39,19 +43,12 @@ export class StatCardComponent {
   @Input() trendValue?: string;
 
   /**
-   * Maps an icon string name to a corresponding visual emoji symbol.
+   * Returns a valid lucide-angular icon name.
    */
-  getEmoji(): string {
+  getIconName(): string {
     switch (this.icon) {
-      case 'users': return '👥';
-      case 'book-open': return '📖';
-      case 'shield-exclamation': return '⚠️';
-      case 'graduation-cap': return '🎓';
-      case 'award': return '🏆';
-      case 'dollar-sign': return '💸';
-      case 'clock': return '⏱️';
-      case 'folder': return '📁';
-      default: return '📊';
+      case 'shield-exclamation': return 'shield-alert';
+      default: return this.icon || 'bar-chart';
     }
   }
 }

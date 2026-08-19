@@ -1,70 +1,322 @@
-<div class="lecture-page">
-  <header class="page-head">
-    <div>
-      <p class="eyebrow">Student view</p>
-      <h1>Video Lectures</h1>
-    </div>
-  </header>
+<div class="workspace-page">
 
-  <p class="hint" *ngIf="loading">Loading…</p>
+  <!-- Loading State -->
+  <div class="workspace-loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading your lecture workspace…</p>
+  </div>
 
   <ng-container *ngIf="!loading">
-    <section class="player-card" *ngIf="currentLecture; else noLecture">
-      <div class="player-head">
-        <div>
-          <h2>Now playing — {{ course?.title || 'Course' }}</h2>
-          <p>Lec {{ currentLecture.number }} · {{ currentLecture.title }}</p>
-        </div>
-        <div class="player-head__actions">
-          <span class="pill pill--purple">{{ watchedPercent }}% watched</span>
-          <button class="btn btn--soft" type="button" (click)="addBookmark()">Bookmark moment</button>
-          <button class="btn btn--soft" type="button" (click)="markComplete()">Mark complete</button>
-        </div>
+    
+    <!-- When No Course or Lectures are Available -->
+    <section class="empty-workspace-card" *ngIf="!currentLecture">
+      <div class="empty-icon-box">
+        <lucide-icon name="video" [size]="28"></lucide-icon>
       </div>
-
-      <app-video-player
-        [src]="currentLecture.videoUrl"
-        (timeUpdate)="onTimeUpdate($event)">
-      </app-video-player>
+      <h3>No Lecture Selected</h3>
+      <p>You haven't enrolled in any courses with active video lectures yet.</p>
+      <a [routerLink]="['/student/courses']" class="btn btn--primary">
+        <lucide-icon name="book-open" [size]="16"></lucide-icon>
+        Explore Courses
+      </a>
     </section>
 
-    <ng-template #noLecture>
-      <section class="card">
-        <p class="hint">No lecture selected yet. Enroll in a course to start watching.</p>
-      </section>
-    </ng-template>
+    <!-- 2-Column Asymmetric Workspace Grid -->
+    <div class="workspace-grid" *ngIf="currentLecture">
 
-    <div class="lecture-layout">
-      <section class="card">
-        <div class="card-head">
-          <h2>Lecture library</h2>
-          <span class="pill pill--grey">{{ lectures.length }} lectures</span>
+      <!-- LEFT COLUMN: Video Canvas + Metadata Header + Tabbed Q&A/Notes Panel -->
+      <div class="canvas-column">
+
+        <!-- 1. 16:9 Video Canvas -->
+        <div class="video-canvas-box">
+          <app-video-player
+            #videoPlayer
+            [src]="currentLecture.videoUrl"
+            [lectureId]="currentLecture.id"
+            [initialTime]="0"
+            [videoTitle]="'Lec ' + currentLecture.number + ': ' + currentLecture.title"
+            [language]="selectedTranscriptLanguage"
+            (timeUpdate)="onTimeUpdate($event)"
+            (ended)="onVideoEnded()">
+          </app-video-player>
         </div>
 
-        <app-lecture-grid
-          [lectures]="lectures"
-          [currentLectureId]="currentLecture?.id ?? null"
-          [completedIds]="completedIds"
-          (select)="onLectureGridSelect($event)">
-        </app-lecture-grid>
-      </section>
+        <!-- 2. Video Title, Faculty Info, and Interactive Metadata Header -->
+        <div class="lecture-meta-card">
+          <div class="meta-main">
+            <div class="meta-tags">
+              <span class="badge-tag">{{ course?.department || 'Computer Engineering' }}</span>
+              <span class="badge-tag badge-tag--purple">Lec {{ currentLecture.number }}</span>
+              <span class="badge-tag badge-tag--outline">{{ completedIds.has(currentLecture.id) ? 'Completed' : (watchedPercent + '% watched') }}</span>
+              <span class="badge-tag badge-tag--quiz" *ngIf="hasLectureQuiz">Quiz Available</span>
+            </div>
 
-      <aside class="side-stack">
-        <app-notes-drawer
-          [courseId]="courseId ?? undefined"
-          [courseName]="course?.title || ''"
-          [lectureId]="currentLecture?.id"
-          [lectureLabel]="currentLecture ? ('Lec ' + currentLecture.number + ': ' + currentLecture.title) : ''"
-          [timestampSeconds]="playbackPosition">
-        </app-notes-drawer>
+            <h1 class="lecture-title">{{ currentLecture.title }}</h1>
+            <p class="course-subtitle">{{ course?.title || 'LearnSphere Masterclass' }}</p>
 
-        <app-lecture-discussion
-          *ngIf="courseId && currentLecture"
-          [courseId]="courseId"
-          [lectureId]="currentLecture.id"
-          [lectureLabel]="'Lec ' + currentLecture.number + ': ' + currentLecture.title">
-        </app-lecture-discussion>
-      </aside>
+            <div class="faculty-row">
+              <div class="faculty-avatar">
+                <lucide-icon name="graduation-cap" [size]="16"></lucide-icon>
+              </div>
+              <div class="faculty-info">
+                <span class="faculty-name">{{ course?.teacherName || 'Senior Course Instructor' }}</span>
+                <span class="faculty-dept">{{ course?.department || 'Department of Computer Engineering' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="meta-actions">
+            <button 
+              *ngIf="courseCompletionPercent === 100"
+              class="action-btn action-btn--cert" 
+              type="button" 
+              (click)="openCertificateModal()" 
+              title="Claim or view official course certificate">
+              <lucide-icon name="award" [size]="15"></lucide-icon>
+              <span>{{ hasEarnedCertificate ? 'View Certificate' : 'Claim Certificate' }}</span>
+            </button>
+
+            <button 
+              *ngIf="hasLectureQuiz"
+              class="action-btn action-btn--quiz" 
+              type="button" 
+              (click)="openQuizModal()" 
+              title="Take lecture assessment quiz">
+              <lucide-icon name="help-circle" [size]="15"></lucide-icon>
+              <span>Take Quiz</span>
+            </button>
+
+            <button 
+              class="action-btn" 
+              [class.is-bookmarked]="isBookmarked" 
+              type="button" 
+              (click)="toggleBookmark()" 
+              [title]="isBookmarked ? 'Remove bookmark' : 'Bookmark current timestamp'">
+              <lucide-icon name="bookmark" [size]="15"></lucide-icon>
+              <span>{{ isBookmarked ? 'Bookmarked' : 'Bookmark' }}</span>
+            </button>
+
+            <button 
+              class="action-btn" 
+              [class.is-completed]="completedIds.has(currentLecture.id)" 
+              type="button" 
+              (click)="toggleComplete()" 
+              [title]="completedIds.has(currentLecture.id) ? 'Click to unmark as complete' : 'Mark lecture as completed'">
+              <lucide-icon [name]="completedIds.has(currentLecture.id) ? 'check-circle' : 'check'" [size]="15"></lucide-icon>
+              <span>{{ completedIds.has(currentLecture.id) ? 'Completed' : 'Mark complete' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Tabbed Panel (Discussion & Q&A, Notes Drawer, Resources) -->
+        <div class="bottom-tabbed-card">
+          <div class="tab-header">
+            <button 
+              class="tab-btn" 
+              [class.is-active]="activeBottomTab === 'discussion'" 
+              type="button" 
+              (click)="activeBottomTab = 'discussion'">
+              <lucide-icon name="message-square" [size]="15"></lucide-icon>
+              <span>Discussion & Q&A</span>
+            </button>
+
+            <button 
+              class="tab-btn" 
+              [class.is-active]="activeBottomTab === 'notes'" 
+              type="button" 
+              (click)="activeBottomTab = 'notes'">
+              <lucide-icon name="file-text" [size]="15"></lucide-icon>
+              <span>Timestamp Notes</span>
+            </button>
+
+            <button 
+              class="tab-btn" 
+              [class.is-active]="activeBottomTab === 'resources'" 
+              type="button" 
+              (click)="activeBottomTab = 'resources'">
+              <lucide-icon name="layers" [size]="15"></lucide-icon>
+              <span>Course Resources</span>
+            </button>
+          </div>
+
+          <div class="tab-body">
+            <!-- Discussion Tab -->
+            <div class="discussion-tab-pane" *ngIf="activeBottomTab === 'discussion'">
+              <app-lecture-discussion
+                [courseId]="courseId || undefined"
+                [lectureId]="currentLecture?.id || 0"
+                [lectureLabel]="currentLecture?.title || 'Lecture'">
+              </app-lecture-discussion>
+            </div>
+
+            <!-- Notes Tab -->
+            <div class="notes-tab-pane" *ngIf="activeBottomTab === 'notes'">
+              <app-notes-drawer
+                [courseId]="courseId || undefined"
+                [courseName]="course?.title || ''"
+                [lectureId]="currentLecture?.id"
+                [lectureLabel]="currentLecture?.title || ''"
+                [timestampSeconds]="playbackPosition">
+              </app-notes-drawer>
+            </div>
+
+            <!-- Resources Tab -->
+            <div class="resources-tab-pane" *ngIf="activeBottomTab === 'resources'">
+              <div class="resource-item">
+                <div class="res-icon">
+                  <lucide-icon name="file-text" [size]="18"></lucide-icon>
+                </div>
+                <div class="res-info">
+                  <div class="res-title">Lecture Handout & Formula Reference</div>
+                  <div class="res-meta">PDF · 2.4 MB · Verified Course Material</div>
+                </div>
+                <button class="res-btn" type="button">
+                  <lucide-icon name="download" [size]="14"></lucide-icon>
+                  Download
+                </button>
+              </div>
+
+              <div class="resource-item">
+                <div class="res-icon">
+                  <lucide-icon name="code" [size]="18"></lucide-icon>
+                </div>
+                <div class="res-info">
+                  <div class="res-title">PyTorch Code Implementation Notebook</div>
+                  <div class="res-meta">IPYNB · 1.1 MB · Colab Ready</div>
+                </div>
+                <button class="res-btn" type="button">
+                  <lucide-icon name="download" [size]="14"></lucide-icon>
+                  Download
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Dynamic Sidebar Workspace (Playlist / Split Transcript) -->
+      <div class="sidebar-column">
+
+        <!-- Sidebar Top View Switcher Tabs -->
+        <div class="sidebar-switcher">
+          <button 
+            class="switcher-tab" 
+            [class.is-active]="activeSidebarTab === 'playlist'" 
+            type="button" 
+            (click)="activeSidebarTab = 'playlist'">
+            <lucide-icon name="book-open" [size]="15"></lucide-icon>
+            <span>Course Playlist</span>
+            <span class="tab-count">{{ lectures.length }}</span>
+          </button>
+
+          <button 
+            class="switcher-tab" 
+            [class.is-active]="activeSidebarTab === 'transcript'" 
+            type="button" 
+            (click)="activeSidebarTab = 'transcript'">
+            <lucide-icon name="file-text" [size]="15"></lucide-icon>
+            <span>Interactive Transcript</span>
+          </button>
+        </div>
+
+        <!-- 1. Interactive Transcript Panel (Mounted on top in Split Transcript View) -->
+        <div class="transcript-slot" *ngIf="activeSidebarTab === 'transcript'">
+          <app-interactive-transcript
+            [currentTime]="playbackPosition"
+            [duration]="videoDuration"
+            [lectureId]="currentLecture.id"
+            [videoTitle]="currentLecture.title"
+            (seekTo)="onTranscriptSeek($event)"
+            (languageChange)="onLanguageChange($event)">
+          </app-interactive-transcript>
+        </div>
+
+        <!-- 2. Course Playlist / Library Panel (Full Height or Slides below Transcript) -->
+        <div class="playlist-card" [class.is-split]="activeSidebarTab === 'transcript'">
+          
+          <div class="playlist-header">
+            <div class="header-titles">
+              <h3>Course Playlist</h3>
+              <p class="playlist-meta">{{ completedIds.size }}/{{ lectures.length }} completed ({{ courseCompletionPercent }}%) · {{ totalCourseDuration }}</p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mini-progress-bar">
+              <div class="fill" [style.width.%]="courseCompletionPercent"></div>
+            </div>
+
+            <!-- Course Completion & Certificate Banner -->
+            <div class="completion-banner" *ngIf="courseCompletionPercent === 100">
+              <div class="banner-top">
+                <lucide-icon name="award" [size]="18" class="award-icon"></lucide-icon>
+                <div class="banner-text">
+                  <span class="banner-title">Course 100% Completed!</span>
+                  <span class="banner-sub">Your verified certificate is ready.</span>
+                </div>
+              </div>
+              <button class="claim-cert-btn" type="button" (click)="openCertificateModal()">
+                <lucide-icon name="award" [size]="14"></lucide-icon>
+                <span>{{ hasEarnedCertificate ? 'View Certificate' : 'Claim Certificate' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Scrollable Lecture Cards -->
+          <div class="playlist-scroll-list">
+            <div 
+              *ngFor="let lec of lectures" 
+              class="playlist-item" 
+              [class.is-current]="lec.id === currentLecture.id"
+              [class.is-done]="completedIds.has(lec.id)"
+              (click)="onLectureGridSelect(lec.id)">
+              
+              <div class="item-status">
+                <lucide-icon name="check-circle" [size]="16" class="done-icon" *ngIf="completedIds.has(lec.id)"></lucide-icon>
+                <span class="item-num" *ngIf="!completedIds.has(lec.id)">{{ lec.number }}</span>
+              </div>
+
+              <div class="item-details">
+                <h4 class="item-title">{{ lec.title }}</h4>
+                <div class="item-footer">
+                  <span class="item-duration">
+                    <lucide-icon name="clock" [size]="11"></lucide-icon>
+                    18:00
+                  </span>
+                  <span class="playing-indicator" *ngIf="lec.id === currentLecture.id">
+                    <span class="bar bar-1"></span>
+                    <span class="bar bar-2"></span>
+                    <span class="bar bar-3"></span>
+                    Playing
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
+
   </ng-container>
+
+  <!-- Post-Video Quiz Modal Overlay -->
+  <app-post-video-quiz
+    *ngIf="showPostQuizModal && currentLecture"
+    [lectureId]="currentLecture.id"
+    [lectureTitle]="currentLecture.title"
+    [courseId]="courseId || undefined"
+    (quizPassed)="onQuizPassed($event)"
+    (close)="showPostQuizModal = false">
+  </app-post-video-quiz>
+
+  <!-- Certificate Modal Dialog -->
+  <app-certificate-modal
+    *ngIf="showCertModal"
+    [certificate]="certModalData"
+    (close)="showCertModal = false">
+  </app-certificate-modal>
+
 </div>

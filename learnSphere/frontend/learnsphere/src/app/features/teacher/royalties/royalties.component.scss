@@ -1,15 +1,37 @@
 .page-container {
-  padding: 24px;
-  max-width: 900px;
+  padding: 28px 32px 40px;
+  max-width: 1360px;
   margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  color: #202124;
+  font-family: inherit;
+  color: var(--text-primary);
 }
 
-.page-title {
-  font-size: 22px;
-  font-weight: 600;
+.page-header {
   margin-bottom: 24px;
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-primary);
+    margin: 0 0 6px 0;
+  }
+
+  .page-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0 0 6px 0;
+    color: var(--text-primary);
+  }
+
+  .subtitle {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
 }
 
 /* Stat Cards */
@@ -21,25 +43,27 @@
 }
 
 .stat-box {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   padding: 20px;
   display: flex;
   flex-direction: column;
+  box-shadow: var(--card-shadow);
 
-  .stat-label { font-size: 14px; color: #5f6368; margin-bottom: 12px; }
-  .stat-value { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
-  .stat-subtext { font-size: 13px; font-weight: 500; }
+  .stat-label { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+  .stat-subtext { font-size: 12.5px; font-weight: 500; }
 }
 
 /* Section Cards */
 .section-card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   padding: 24px;
   margin-bottom: 24px;
+  box-shadow: var(--card-shadow);
 }
 
 .section-header {
@@ -53,6 +77,7 @@
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 20px 0;
+  color: var(--text-primary);
 }
 
 .m-0 { margin: 0 !important; }
@@ -68,13 +93,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 0;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 1px solid var(--border-color);
 
   &:last-child { border-bottom: none; padding-bottom: 0; }
   &:first-child { padding-top: 0; }
 
-  .row-title { font-size: 15px; font-weight: 600; margin: 0 0 4px 0; }
-  .row-subtitle { font-size: 13px; color: #5f6368; margin: 0; }
+  .row-title { font-size: 15px; font-weight: 600; margin: 0 0 4px 0; color: var(--text-primary); }
+  .row-subtitle { font-size: 13px; color: var(--text-muted); margin: 0; }
   
   .row-right {
     text-align: right;
@@ -83,8 +108,8 @@
     align-items: flex-end;
   }
 
-  .row-amount { font-size: 16px; font-weight: 600; }
-  .row-status { font-size: 13px; color: #5f6368; margin-top: 4px; }
+  .row-amount { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+  .row-status { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 }
 
 /* Native Status Pills */
@@ -94,8 +119,8 @@
   font-size: 13px;
   font-weight: 600;
   
-  &.status-green { background-color: #e6f4ea; color: #137333; }
-  &.status-amber { background-color: #fef7e0; color: #b06000; }
+  &.status-green { background-color: var(--status-green-bg); color: var(--status-green-text); }
+  &.status-amber { background-color: var(--status-amber-bg); color: var(--status-amber-text); }
 }
 
 /* Native Breakdown Bars */
@@ -109,12 +134,13 @@
   .breakdown-label {
     width: 120px;
     font-size: 14px;
+    color: var(--text-secondary);
   }
   
   .breakdown-bar-track {
     flex: 1;
     height: 8px;
-    background-color: #f1f3f4;
+    background-color: var(--bg-hover);
     border-radius: 4px;
     margin: 0 16px;
     overflow: hidden;
@@ -123,6 +149,7 @@
   .breakdown-bar-fill {
     height: 100%;
     border-radius: 4px;
+    background: var(--brand-primary);
   }
   
   .breakdown-percent {
@@ -130,24 +157,33 @@
     text-align: right;
     font-size: 14px;
     font-weight: 600;
+    color: var(--text-primary);
   }
 }
 
 /* Utilities */
-.text-link {
-  color: #534AB7;
+.text-link, .text-link-btn {
+  color: var(--brand-primary);
   font-size: 14px;
   text-decoration: none;
   font-weight: 500;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .disclaimer-text {
   font-size: 13px;
-  color: #5f6368;
+  color: var(--text-muted);
   margin: 0;
   padding-top: 16px;
-  border-top: 1px solid #f1f3f4;
+  border-top: 1px solid var(--border-color);
 }
 
-.text-success { color: #1e8e3e; }
-.text-purple { color: #534AB7; }
+.text-success { color: var(--status-green-text); }
+.text-purple { color: var(--brand-primary); }

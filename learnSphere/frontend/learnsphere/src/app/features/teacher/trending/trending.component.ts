@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { TeacherService, TrendingCourse } from '../services/teacher.service';
 import { AuthService } from '@core/auth/auth.service';
 import { NotificationService } from '@core/services/notification.service';
+import { LucideAngularModule, BookOpen, Flame } from 'lucide-angular';
 
 @Component({
   selector: 'app-trending',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './trending.component.html',
   styleUrls: ['./trending.component.scss']
 })

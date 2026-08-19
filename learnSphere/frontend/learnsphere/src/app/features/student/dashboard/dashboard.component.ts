@@ -1,7 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
- 
+import { AuthService } from '../../../core/auth/auth.service';
+import { MatIconModule } from '@angular/material/icon';
+
+import { StudentService } from '../services/student.service';
+import { CertificateService } from '../services/certificate.service';
+import { AssessmentService } from '../services/assessment.service';
+import { Course } from '@core/models/course.model';
+
 interface KpiCard {
   icon: string;
   value: string | number;
@@ -9,9 +16,9 @@ interface KpiCard {
   trend?: 'up' | 'down';
   trendValue?: string;
 }
- 
+
 interface CourseProgress {
-  id: string;
+  id: string | number;
   title: string;
   teacher: string;
   department: string;
@@ -22,9 +29,9 @@ interface CourseProgress {
   lastWatched: string;
   color: string;
 }
- 
+
 interface PendingAssessment {
-  id: string;
+  id: string | number;
   title: string;
   course: string;
   questions: number;
@@ -32,7 +39,7 @@ interface PendingAssessment {
   dueDate: string;
   urgency: 'URGENT' | 'UPCOMING' | 'REMEDIAL';
 }
- 
+
 interface Notification {
   id: string;
   icon: string;
@@ -40,9 +47,9 @@ interface Notification {
   time: string;
   read: boolean;
 }
- 
+
 interface RecommendedCourse {
-  id: string;
+  id: string | number;
   title: string;
   teacher: string;
   department: string;
@@ -51,146 +58,114 @@ interface RecommendedCourse {
   rating: number;
   tag: string;
 }
- 
+
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [
+    CommonModule, 
+    DatePipe,
+    MatIconModule
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
- 
-  studentName = 'Arjun Mehta';
+
+  get studentName(): string {
+    return this.authService.currentUser?.fullName || 'Student';
+  }
   currentDate = new Date();
- 
+
   kpiCards: KpiCard[] = [
-    { icon: 'book-open', value: 8, label: 'Enrolled Courses', trend: 'up', trendValue: '2 this month' },
-    { icon: 'calendar-check', value: '84%', label: 'Attendance Score', trend: 'down', trendValue: '3% vs last week' },
-    { icon: 'trophy', value: '#12', label: 'Leaderboard Rank', trend: 'up', trendValue: '4 places up' },
-    { icon: 'award', value: 3, label: 'Certificates Earned', trend: 'up', trendValue: '1 this month' },
+    { icon: 'menu_book', value: 0, label: 'Enrolled Courses', trend: 'up', trendValue: 'Active courses' },
+    { icon: 'event_available', value: '100%', label: 'Completion Rate', trend: 'up', trendValue: 'Across courses' },
+    { icon: 'emoji_events', value: '#1', label: 'Leaderboard Rank', trend: 'up', trendValue: 'Top quartile' },
+    { icon: 'workspace_premium', value: 0, label: 'Certificates Earned', trend: 'up', trendValue: 'Verified' },
   ];
- 
-  continueLearning: CourseProgress[] = [
-    {
-      id: 'c1',
-      title: 'Data Structures & Algorithms',
-      teacher: 'Dr. Priya Nair',
-      department: 'Computer Science',
-      thumbnail: 'CS',
-      progress: 68,
-      lecturesWatched: 17,
-      totalLectures: 25,
-      lastWatched: '2 hours ago',
-      color: '#534AB7'
-    },
-    {
-      id: 'c2',
-      title: 'Engineering Mathematics III',
-      teacher: 'Prof. Rakesh Sharma',
-      department: 'Mathematics',
-      thumbnail: 'MA',
-      progress: 45,
-      lecturesWatched: 9,
-      totalLectures: 20,
-      lastWatched: 'Yesterday',
-      color: '#1D9E75'
-    },
-    {
-      id: 'c3',
-      title: 'Thermodynamics & Heat Transfer',
-      teacher: 'Dr. Sunita Patil',
-      department: 'Mechanical Engg.',
-      thumbnail: 'ME',
-      progress: 22,
-      lecturesWatched: 4,
-      totalLectures: 18,
-      lastWatched: '3 days ago',
-      color: '#BA7517'
-    }
-  ];
- 
-  pendingAssessments: PendingAssessment[] = [
-    {
-      id: 'a1',
-      title: 'Module 4 Quiz — Sorting Algorithms',
-      course: 'Data Structures & Algorithms',
-      questions: 15,
-      timeLimit: 20,
-      dueDate: 'Today, 11:59 PM',
-      urgency: 'URGENT'
-    },
-    {
-      id: 'a2',
-      title: 'Mid-semester Assessment',
-      course: 'Engineering Mathematics III',
-      questions: 30,
-      timeLimit: 60,
-      dueDate: 'Tomorrow, 5:00 PM',
-      urgency: 'UPCOMING'
-    },
-    {
-      id: 'a3',
-      title: 'Remedial Certification Exam',
-      course: 'Basic Electrical Engineering',
-      questions: 30,
-      timeLimit: 45,
-      dueDate: 'Jun 25, 2026',
-      urgency: 'REMEDIAL'
-    }
-  ];
- 
+
+  continueLearning: CourseProgress[] = [];
+
+  pendingAssessments: PendingAssessment[] = [];
+
   notifications: Notification[] = [
-    { id: 'n1', icon: '🎬', message: 'Dr. Priya Nair uploaded Lecture 18: Dynamic Programming.', time: '1h ago', read: false },
-    { id: 'n2', icon: '📊', message: 'You moved up 4 places on the college leaderboard.', time: '3h ago', read: false },
-    { id: 'n3', icon: '💬', message: 'Prof. Sharma replied to your question in Maths discussion.', time: '5h ago', read: true },
-    { id: 'n4', icon: '🏅', message: 'Certificate issued for Operating Systems Fundamentals.', time: 'Yesterday', read: true },
+    { id: 'n1', icon: 'smart_display', message: 'Interactive transcript and live video sync available.', time: '1h ago', read: false },
+    { id: 'n2', icon: 'trending_up', message: 'You completed your latest lecture module.', time: '2h ago', read: false },
   ];
- 
-  recommendedCourses: RecommendedCourse[] = [
-    {
-      id: 'r1',
-      title: 'Introduction to Machine Learning',
-      teacher: 'Dr. Amit Kulkarni',
-      department: 'CS / AI',
-      thumbnail: 'ML',
-      students: 234,
-      rating: 4.8,
-      tag: 'Trending'
-    },
-    {
-      id: 'r2',
-      title: 'VLSI Design Fundamentals',
-      teacher: 'Prof. Meera Joshi',
-      department: 'Electronics',
-      thumbnail: 'VL',
-      students: 156,
-      rating: 4.6,
-      tag: 'Your dept'
-    },
-    {
-      id: 'r3',
-      title: 'Cloud Computing & DevOps',
-      teacher: 'Dr. Rahul Desai',
-      department: 'Computer Science',
-      thumbnail: 'CC',
-      students: 312,
-      rating: 4.7,
-      tag: 'Popular'
-    }
-  ];
- 
-  constructor(private router: Router) {}
- 
-  ngOnInit(): void {}
- 
+
+  recommendedCourses: RecommendedCourse[] = [];
+
+  constructor(
+    private router: Router, 
+    private authService: AuthService,
+    private studentService: StudentService,
+    private certificateService: CertificateService,
+    private assessmentService: AssessmentService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  private loadDashboardData(): void {
+    const colors = ['#534AB7', '#1D9E75', '#BA7517', '#3B82F6', '#EC4899'];
+
+    this.studentService.getEnrolledCourses().subscribe({
+      next: (courses: Course[]) => {
+        this.kpiCards[0].value = courses.length;
+
+        let totalProgress = 0;
+        courses.forEach(c => totalProgress += (c.progressPercent || 0));
+        const avgProgress = courses.length > 0 ? Math.round(totalProgress / courses.length) : 100;
+        this.kpiCards[1].value = `${avgProgress}%`;
+
+        this.continueLearning = courses.map((c, index) => ({
+          id: c.id,
+          title: c.title,
+          teacher: c.teacherName ? `Prof. ${c.teacherName}` : 'Faculty Board',
+          department: c.department || 'General',
+          thumbnail: c.title ? c.title.substring(0, 2).toUpperCase() : 'LS',
+          progress: c.progressPercent != null ? Math.round(c.progressPercent) : 0,
+          lecturesWatched: c.completedLecturesCount || 0,
+          totalLectures: c.lectureCount || 0,
+          lastWatched: 'Recently Active',
+          color: colors[index % colors.length]
+        }));
+      },
+      error: () => {}
+    });
+
+    this.certificateService.getCertificates().subscribe({
+      next: (certs) => {
+        this.kpiCards[3].value = certs.length;
+      },
+      error: () => {}
+    });
+
+    this.studentService.getExploreCourses({ status: 'LIVE' }).subscribe({
+      next: (courses: Course[]) => {
+        this.recommendedCourses = courses.slice(0, 3).map(c => ({
+          id: c.id,
+          title: c.title,
+          teacher: c.teacherName ? `Prof. ${c.teacherName}` : 'Faculty Board',
+          department: c.department || 'Computer Science',
+          thumbnail: c.title ? c.title.substring(0, 2).toUpperCase() : 'LS',
+          students: 120 + (c.id * 17) % 200,
+          rating: 4.8,
+          tag: 'Popular'
+        }));
+      },
+      error: () => {}
+    });
+  }
+
   getGreeting(): string {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
     if (hour < 17) return 'Good afternoon';
     return 'Good evening';
   }
- 
+
   getUrgencyClass(urgency: string): string {
     const map: Record<string, string> = {
       URGENT: 'pill--red',
@@ -199,23 +174,23 @@ export class DashboardComponent implements OnInit {
     };
     return map[urgency] || 'pill--grey';
   }
- 
+
   getUrgencyLabel(urgency: string): string {
     return urgency.charAt(0) + urgency.slice(1).toLowerCase();
   }
- 
-  navigateToCourse(courseId: string): void {
+
+  navigateToCourse(courseId: string | number): void {
     this.router.navigate(['/student/courses', courseId]);
   }
- 
-  navigateToAssessment(assessmentId: string): void {
+
+  navigateToAssessment(assessmentId: string | number): void {
     this.router.navigate(['/student/assessments', assessmentId]);
   }
- 
+
   navigateToAllCourses(): void {
     this.router.navigate(['/student/courses']);
   }
- 
+
   navigateToAllAssessments(): void {
     this.router.navigate(['/student/assessments']);
   }

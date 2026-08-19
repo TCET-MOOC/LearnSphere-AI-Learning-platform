@@ -1,4 +1,146 @@
-<section class="portal-page"><header class="page-header"><div><div class="eyebrow">Administration</div><h1>Announcements</h1><p>Important news and updates from your LearnSphere community.</p></div></header>
-<div class="feed-toolbar"><label class="search-control"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg><input [(ngModel)]="query" placeholder="Search announcements…"></label><div class="filters"><button *ngFor="let filter of filters" [class.active]="activeFilter === filter" (click)="activeFilter = filter">{{ filter }}</button></div></div>
-<div class="feed-layout"><div class="feed-list"><article class="feed-card" *ngFor="let item of filteredItems"><div class="item-icon"><svg viewBox="0 0 24 24"><path d="M4 13V8l13-5v15L4 13Z"></path><path d="M7 14v5h4v-3"></path></svg></div><div class="feed-copy"><div class="feed-title-row"><h2>{{ item.title }}</h2><span class="pin" *ngIf="item.pinned">Pinned</span></div><p>{{ item.body }}</p><div class="feed-meta"><span>{{ item.category }}</span><span>{{ item.meta }}</span></div></div></article><div class="empty-state" *ngIf="!filteredItems.length">No matching announcements.</div></div><aside class="summary-card"><span class="summary-label">At a glance</span><strong>{{ items.length }}</strong><p>announcements this week</p><div class="summary-line"><span>Categories</span><b>{{ filters.length - 1 }}</b></div></aside></div></section>
+<section class="portal-page">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">Administration</div>
+      <h1>Announcements</h1>
+      <p>Broadcast platform updates, maintenance windows, and institution-wide notices.</p>
+    </div>
+    <div class="header-actions">
+      <button class="primary-btn" (click)="openCreateModal()">
+        <lucide-icon name="megaphone" [size]="14"></lucide-icon> New Announcement
+      </button>
+    </div>
+  </header>
 
+  <div class="feed-toolbar">
+    <label class="search-control">
+      <lucide-icon name="search" [size]="16"></lucide-icon>
+      <input [(ngModel)]="query" placeholder="Search announcements…" />
+    </label>
+    <div class="filters">
+      <button 
+        *ngFor="let filter of filters" 
+        [class.active]="activeFilter === filter" 
+        (click)="activeFilter = filter">
+        {{ filter }}
+      </button>
+    </div>
+  </div>
+
+  <div class="feed-layout">
+    <div class="feed-list">
+      <article class="feed-card" *ngFor="let item of filteredItems">
+        <div class="item-icon">
+          <lucide-icon name="megaphone" [size]="20"></lucide-icon>
+        </div>
+        <div class="feed-copy">
+          <div class="feed-title-row">
+            <h2>{{ item.title }}</h2>
+            <span class="pin" *ngIf="item.pinned">Pinned</span>
+          </div>
+          <p>{{ item.body }}</p>
+          <div class="feed-meta">
+            <span>{{ item.category }}</span>
+            <span>{{ item.meta }}</span>
+          </div>
+        </div>
+      </article>
+
+      <div class="empty-state" *ngIf="!filteredItems.length">
+        <lucide-icon name="megaphone" class="empty-icon"></lucide-icon>
+        <h3>No matching announcements</h3>
+        <p>Try searching for another topic or create a new announcement.</p>
+      </div>
+    </div>
+
+    <aside class="summary-card">
+      <span class="summary-label">At a glance</span>
+      <strong>{{ items.length }}</strong>
+      <p>announcements published</p>
+      <div class="summary-line">
+        <span>Categories</span>
+        <b>{{ filters.length - 1 }}</b>
+      </div>
+      <div class="summary-line">
+        <span>Pinned</span>
+        <b>{{ pinnedCount }}</b>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- Create Announcement Modal -->
+<div class="modal-backdrop" *ngIf="showCreateModal" (click)="closeCreateModal()">
+  <div class="modal-container create-ann-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-tag">Platform Notice</div>
+        <h2 class="modal-title">Publish Announcement</h2>
+        <p class="modal-sub">Broadcast to all students, teachers, and campus partners.</p>
+      </div>
+      <button type="button" class="close-btn" (click)="closeCreateModal()">
+        <lucide-icon name="x" [size]="18"></lucide-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="announcementForm" (ngSubmit)="submitAnnouncement()" class="dialog-form">
+      <div class="form-group">
+        <label for="ann-title" class="form-label">
+          Title <span class="req">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="ann-title" 
+          formControlName="title" 
+          class="dialog-input" 
+          placeholder="e.g. Scheduled Maintenance or New Feature Release"
+        />
+        <div class="form-error" *ngIf="announcementForm.get('title')?.touched && announcementForm.get('title')?.invalid">
+          Please enter a descriptive title (min 4 characters).
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="ann-category" class="form-label">Category</label>
+        <select id="ann-category" formControlName="category" class="dialog-input">
+          <option value="General">General</option>
+          <option value="Maintenance">Maintenance</option>
+          <option value="Update">Platform Update</option>
+          <option value="Academic">Academic</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="ann-body" class="form-label">
+          Message Body <span class="req">*</span>
+        </label>
+        <textarea 
+          id="ann-body" 
+          rows="4" 
+          formControlName="body" 
+          class="dialog-input" 
+          placeholder="Detailed announcement content...">
+        </textarea>
+        <div class="form-error" *ngIf="announcementForm.get('body')?.touched && announcementForm.get('body')?.invalid">
+          Please enter at least 10 characters.
+        </div>
+      </div>
+
+      <div class="form-check-group">
+        <label class="check-label">
+          <input type="checkbox" formControlName="pinned" />
+          <span>Pin to top of announcement feed</span>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn--ghost" (click)="closeCreateModal()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn--primary" [disabled]="announcementForm.invalid || creating">
+          <span>{{ creating ? 'Publishing…' : 'Publish Announcement' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

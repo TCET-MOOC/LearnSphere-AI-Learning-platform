@@ -19,6 +19,9 @@ export interface Course {
   price: number;
   createdAt?: string;
   lectureCount?: number;
+  completedLecturesCount?: number;
+  progressPercent?: number;
+  completed?: boolean;
 }
 
 /**

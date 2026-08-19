@@ -1,0 +1,152 @@
+<div class="verification-portal">
+  <!-- Navigation Topbar -->
+  <header class="portal-header">
+    <div class="portal-header-inner">
+      <a routerLink="/" class="portal-brand">
+        <div class="brand-logo">LS</div>
+        <span class="brand-name">LearnSphere<span class="brand-ai">.AI</span></span>
+      </a>
+      <div class="header-tag">
+        <lucide-icon name="shield-alert" [size]="15"></lucide-icon>
+        <span>Official Verification Registry</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="portal-main">
+    <div class="portal-hero">
+      <div class="hero-badge">
+        <lucide-icon name="award" [size]="14"></lucide-icon>
+        <span>Credential Verification</span>
+      </div>
+      <h1 class="hero-title">Verify Official Academic Certificate</h1>
+      <p class="hero-sub">
+        Validate the authenticity and accreditation of credentials issued by LearnSphere AI learning programs.
+      </p>
+
+      <!-- Search Box -->
+      <form class="search-box" (ngSubmit)="onSearch()">
+        <div class="search-input-wrapper">
+          <lucide-icon name="search" [size]="20" class="search-icon"></lucide-icon>
+          <input 
+            type="text" 
+            [(ngModel)]="searchCode" 
+            name="searchCode"
+            placeholder="Enter Certificate ID (e.g. LS-2026-A1B2-C3D4)" 
+            class="search-input"
+            required />
+        </div>
+        <button type="submit" class="search-btn" [disabled]="loading || !searchCode.trim()">
+          <span *ngIf="!loading">Verify Credential</span>
+          <span *ngIf="loading">Verifying...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Validating cryptographic registry records...</p>
+    </div>
+
+    <!-- Verification Result -->
+    <div class="result-container" *ngIf="!loading && hasSearched && result">
+      
+      <!-- VALID CERTIFICATE -->
+      <div class="cert-card-valid" *ngIf="result.valid">
+        <div class="status-banner valid-banner">
+          <div class="banner-icon">
+            <lucide-icon name="check-circle-2" [size]="24"></lucide-icon>
+          </div>
+          <div class="banner-text">
+            <h2>Authentic Certificate Verified</h2>
+            <p>{{ result.message }}</p>
+          </div>
+          <div class="banner-badge">
+            <span>OFFICIAL RECORD</span>
+          </div>
+        </div>
+
+        <div class="cert-content-grid">
+          <!-- Diploma Details View -->
+          <div class="cert-details">
+            <div class="detail-row header-row">
+              <span class="label">Course Program</span>
+              <h3 class="course-name">{{ result.courseTitle || result.title }}</h3>
+            </div>
+
+            <div class="meta-columns">
+              <div class="meta-col">
+                <span class="label">Recipient Student</span>
+                <p class="val student-val">{{ result.studentName }}</p>
+              </div>
+
+              <div class="meta-col">
+                <span class="label">Course Instructor</span>
+                <p class="val">{{ result.instructorName || 'LearnSphere Faculty Board' }}</p>
+              </div>
+
+              <div class="meta-col">
+                <span class="label">Issue Date</span>
+                <p class="val">{{ formatDate(result.issuedAt) }}</p>
+              </div>
+
+              <div class="meta-col">
+                <span class="label">Distinction / Grade</span>
+                <p class="val grade-val">{{ result.grade || 'Pass with Distinction' }}</p>
+              </div>
+            </div>
+
+            <div class="cert-id-bar">
+              <div class="id-item">
+                <span class="label">Certificate ID:</span>
+                <code class="code-val">{{ result.verificationCode }}</code>
+              </div>
+              <div class="id-item">
+                <span class="label">Status:</span>
+                <span class="status-active">Active & Recognized</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- QR and Actions -->
+          <div class="cert-side-pane">
+            <div class="qr-preview">
+              <img [src]="getQrCodeUrl(result.verificationCode)" alt="Official QR Code" class="qr-image" />
+              <span class="qr-caption">Scan to re-verify</span>
+            </div>
+
+            <button class="btn-print" (click)="printCertificate()">
+              <lucide-icon name="download" [size]="16"></lucide-icon>
+              <span>Download / Print Verification</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVALID CERTIFICATE -->
+      <div class="cert-card-invalid" *ngIf="!result.valid">
+        <div class="status-banner invalid-banner">
+          <div class="banner-icon">
+            <lucide-icon name="shield-alert" [size]="24"></lucide-icon>
+          </div>
+          <div class="banner-text">
+            <h2>Certificate Not Recognized</h2>
+            <p>No valid credential record was found matching <code>{{ result.verificationCode }}</code>.</p>
+          </div>
+        </div>
+
+        <div class="invalid-advice">
+          <h3>Possible Reasons:</h3>
+          <ul>
+            <li>The certificate ID was mistyped or contains extra spaces.</li>
+            <li>The certificate was issued under a different format or academic semester.</li>
+            <li>The record has not yet been synced with the national verification ledger.</li>
+          </ul>
+          <p class="support-note">If you believe this is an error, please contact the institution at <a href="mailto:support@learnsphere.ai">support&#64;learnsphere.ai</a>.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>

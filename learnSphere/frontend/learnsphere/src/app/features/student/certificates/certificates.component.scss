@@ -1,191 +1,489 @@
-.page-container {
-  padding: 24px;
-  max-width: 900px;
+.certificates-page {
+  padding: 28px 32px 40px;
+  max-width: 1360px;
   margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  color: #202124;
-}
+  color: var(--text-primary);
+  font-family: inherit;
 
-.page-title {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 24px;
-}
+  .page-head {
+    margin-bottom: 24px;
 
-/* Stat Cards */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brand-primary);
+      margin: 0 0 6px 0;
+    }
 
-.stat-box {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text-primary);
+      margin: 0 0 6px 0;
+    }
 
-  .stat-label { font-size: 14px; color: #5f6368; margin-bottom: 12px; }
-  .stat-value { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
-  .stat-subtext { font-size: 13px; font-weight: 500; }
-}
+    .sub-head {
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      margin: 0;
+    }
+  }
 
-/* Section Cards */
-.section-card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 20px 0;
-}
-
-/* Grid for Earned Certs */
-.certs-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.cert-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-
-  .cert-header {
-    display: flex;
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
-    
-    .icon-placeholder {
-      font-size: 24px;
-      background: #fdf3eb; /* default light orange background */
-      width: 48px;
-      height: 48px;
+
+    .stat-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px 20px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      
-      &.icon-green {
-        background: #e6f4ea;
+      flex-direction: column;
+      box-shadow: var(--card-shadow);
+
+      .stat-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+
+      .stat-subtext {
+        font-size: 0.8rem;
+        font-weight: 500;
+
+        &.text-success { color: var(--status-green-text); }
+        &.text-purple { color: var(--brand-primary); }
+        &.text-amber { color: var(--status-amber-text); }
       }
     }
-    
-    .course-name { font-size: 15px; font-weight: 600; margin: 0 0 4px 0; }
-    .issue-details { font-size: 13px; color: #5f6368; margin: 0; }
   }
 
-  .cert-actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    
-    .btn-link {
-      background: none;
-      border: none;
-      color: #534AB7;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 0;
+  .section-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+
+    &.mt-24 {
+      margin-top: 24px;
     }
-    
-    .btn-text {
-      background: none;
-      border: none;
-      color: #3c4043;
-      font-weight: 500;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 0;
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0 0 20px 0;
+    }
+
+    .certs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+
+      .cert-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all 0.2s ease;
+
+        &:hover {
+          border-color: var(--brand-primary);
+          box-shadow: var(--card-shadow);
+        }
+
+        .cert-header {
+          display: flex;
+          gap: 14px;
+          margin-bottom: 16px;
+
+          .icon-placeholder {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--brand-surface);
+            color: var(--brand-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            &.icon-green {
+              background: var(--status-green-bg);
+              color: var(--status-green-text);
+            }
+          }
+
+          .cert-info {
+            .course-name {
+              font-size: 1.05rem;
+              font-weight: 700;
+              color: var(--text-primary);
+              margin: 0 0 4px 0;
+              line-height: 1.3;
+            }
+
+            .issue-details {
+              font-size: 0.825rem;
+              color: var(--text-muted);
+              margin: 0 0 4px 0;
+            }
+
+            .credential-id {
+              font-size: 0.75rem;
+              font-family: monospace;
+              color: var(--brand-primary);
+              background: var(--brand-surface);
+              padding: 2px 6px;
+              border-radius: 4px;
+            }
+          }
+        }
+
+        .cert-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border-top: 1px solid var(--border-color);
+          padding-top: 12px;
+
+          .status-pill.completed {
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--status-green-bg);
+            color: var(--status-green-text);
+            padding: 3px 8px;
+            border-radius: 9999px;
+          }
+
+          .btn-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--brand-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+
+          .btn-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: auto;
+
+            &:hover {
+              color: var(--text-primary);
+            }
+          }
+        }
+      }
+    }
+
+    .progress-item, .remedial-item {
+      padding: 14px 0;
+
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .course-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 4px 0;
+      }
+
+      .requirement-text {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin: 0;
+      }
+    }
+
+    .remedial-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .remedial-status {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--status-red-text);
+        margin: 4px 0 0 0;
+      }
+
+      .btn-primary {
+        background: var(--brand-primary);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+
+        &:hover {
+          background: var(--brand-primary-hover);
+        }
+      }
     }
   }
 }
 
-/* Hardcoded Status Pill */
-.status-pill {
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 600;
-  
-  &.completed {
-    background-color: #e6f4ea;
-    color: #137333;
-  }
-}
-
-/* Progress Sections */
-.progress-item, .remedial-item {
-  margin-bottom: 24px;
-  
-  .course-name { font-size: 15px; font-weight: 600; margin: 0 0 4px 0; }
-  .requirement-text { font-size: 13px; color: #5f6368; margin: 0 0 12px 0; }
-  .progress-details { font-size: 13px; color: #5f6368; margin-top: 8px; }
-}
-
-/* Hardcoded Progress Bar */
-.progress-track {
-  height: 6px;
-  background-color: #e0e0e0;
-  border-radius: 3px;
-  width: 100%;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #534AB7;
-  border-radius: 3px;
-}
-
-.remedial-item {
+// Modal Backdrop
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 0;
-  
-  .remedial-content {
-    flex: 1;
-    margin-right: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+
+  .modal-container {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--dropdown-shadow);
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-surface-elevated);
+
+      .top-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .print-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: var(--brand-primary);
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+
+          &:hover {
+            background: var(--brand-primary-hover);
+          }
+        }
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 4px;
+
+        &:hover {
+          color: var(--text-primary);
+        }
+      }
+    }
+
+    // Diploma Layout
+    .diploma-wrapper {
+      padding: 30px;
+      background: var(--bg-app);
+
+      .diploma-border {
+        border: 10px double #b45309;
+        background: #fffdfa;
+        padding: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+        .diploma-inner {
+          border: 1px solid #d97706;
+          padding: 36px 40px;
+          text-align: center;
+
+          .diploma-seal {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 12px;
+
+            .seal-icon {
+              font-size: 2.2rem;
+            }
+
+            .seal-text {
+              font-size: 0.75rem;
+              font-weight: 800;
+              letter-spacing: 0.15em;
+              color: #b45309;
+            }
+          }
+
+          .diploma-eyebrow {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #534ab7;
+            margin: 0 0 16px 0;
+          }
+
+          .presented-to {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin: 0 0 6px 0;
+            font-style: italic;
+          }
+
+          .student-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            font-family: serif;
+            margin: 0 0 4px 0;
+          }
+
+          .college-affiliation {
+            font-size: 0.95rem;
+            color: #475569;
+            font-weight: 600;
+            margin: 0 0 20px 0;
+          }
+
+          .cert-body-text {
+            font-size: 0.95rem;
+            color: #475569;
+            max-width: 600px;
+            margin: 0 auto 16px auto;
+            line-height: 1.5;
+          }
+
+          .course-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #534ab7;
+            margin: 0 0 32px 0;
+          }
+
+          .diploma-signatures {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+
+            .sig-block {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+
+              .cursive-font {
+                font-family: cursive;
+                font-size: 1.1rem;
+                color: #1e293b;
+                margin-bottom: 4px;
+                min-width: 140px;
+                border-bottom: 1px solid #cbd5e1;
+                padding-bottom: 4px;
+              }
+
+              .sig-title {
+                font-size: 0.75rem;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+              }
+            }
+
+            .sig-qr-block {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+
+              .qr-box {
+                width: 64px;
+                height: 64px;
+                background: white;
+                border: 1px solid #cbd5e1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px;
+                padding: 3px;
+                margin-bottom: 6px;
+
+                .qr-img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: contain;
+                }
+              }
+
+              .cred-id {
+                font-size: 0.72rem;
+                font-weight: 700;
+                color: #0f172a;
+                font-family: monospace;
+              }
+
+              .cred-date {
+                font-size: 0.68rem;
+                color: #64748b;
+              }
+            }
+          }
+        }
+      }
+    }
   }
-  
-  .remedial-status {
-    font-size: 13px;
-    margin-top: 8px;
-    font-weight: 500;
-  }
 }
-
-.btn-primary {
-  background: #534AB7;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.divider {
-  border: 0;
-  border-top: 1px solid #e0e0e0;
-  margin: 24px 0;
-}
-
-/* Color Utils */
-.text-success { color: #137333; }
-.text-purple { color: #534AB7; }
-.text-amber { color: #b06000; }
-.text-danger { color: #c5221f; }
-.mt-24 { margin-top: 24px; }

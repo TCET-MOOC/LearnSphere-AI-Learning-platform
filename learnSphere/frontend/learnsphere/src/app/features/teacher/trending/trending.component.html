@@ -1,78 +1,179 @@
 <div class="trending-page">
-  <div class="pg">Trending on platform</div>
+  <!-- Header -->
+  <div class="page-header">
+    <p class="eyebrow">Platform Insights & Leaderboards</p>
+    <h1 class="page-title">Trending On LearnSphere</h1>
+    <p class="subtitle">Real-time student interest metrics, highest-enrolled courses, and platform-wide popularity rankings.</p>
+  </div>
   
-  <div class="srow3">
-    <div class="sc">
-      <div class="sc-lbl">Your best rank</div>
-      <div class="sc-val">{{ myBestRank ? '#' + myBestRank.rank : '—' }}</div>
-      <div class="sc-sub" style="color:#534AB7">{{ myBestRank ? myBestRank.title : 'Not in top list yet' }}</div>
-    </div>
-    <div class="sc">
-      <div class="sc-lbl">Trending courses shown</div>
-      <div class="sc-val">{{ trendingCourses.length }}</div>
-      <div class="sc-sub" style="color:var(--color-text-secondary)">Ranked by enrollments</div>
-    </div>
-    <div class="sc">
-      <div class="sc-lbl">Top course enrollments</div>
-      <div class="sc-val">{{ trendingCourses[0]?.enrolledCount ?? 0 }}</div>
-      <div class="sc-sub" style="color:#1D9E75">#1 on the platform</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-hd">Platform-wide trending courses</div>
-
-    <div class="row" *ngFor="let c of trendingCourses"
-         [ngClass]="{ 'own-course-row': isMine(c) }">
-      <span style="width:24px;font-size:14px;font-weight:600;color:var(--color-text-secondary);text-align:center">{{ c.rank }}</span>
-      <div class="thumb" *ngIf="!c.thumbnail">📚</div>
-      <img *ngIf="c.thumbnail" [src]="c.thumbnail" alt="" class="thumb" style="object-fit:cover" />
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px">
-          {{ c.title }}{{ isMine(c) ? ' — You' : (c.teacherName ? ' — ' + c.teacherName : '') }}
+  <!-- KPI Stat Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-card__icon" [class.is-highlight]="myBestRank">
+        <lucide-icon name="trophy" [size]="20"></lucide-icon>
+      </div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__label">Your Best Rank</div>
+        <div class="kpi-card__val">{{ myBestRank ? '#' + myBestRank.rank : '—' }}</div>
+        <div class="kpi-card__sub" [class.text-brand]="myBestRank" [class.text-muted]="!myBestRank">
+          {{ myBestRank ? myBestRank.title : 'Not in top 10 yet' }}
         </div>
-        <div style="font-size:12px;color:var(--color-text-secondary)">{{ c.enrolledCount }} students</div>
       </div>
-      <span class="pill p-pu" *ngIf="isMine(c)">Your course</span>
-      <span class="pill p-te" *ngIf="!isMine(c) && c.rank === 1">🔥 Hot</span>
-      <span class="pill p-gy" *ngIf="!isMine(c) && c.rank !== 1">#{{ c.rank }}</span>
     </div>
 
-    <div *ngIf="loading" style="padding:12px;color:var(--color-text-secondary);font-size:13px">Loading trending courses…</div>
-    <div *ngIf="!loading && trendingCourses.length === 0" style="padding:12px;color:var(--color-text-secondary);font-size:13px">
-      No live courses with enrollments yet.
+    <div class="kpi-card">
+      <div class="kpi-card__icon">
+        <lucide-icon name="flame" [size]="20"></lucide-icon>
+      </div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__label">Trending Courses Tracked</div>
+        <div class="kpi-card__val">{{ trendingCourses.length }}</div>
+        <div class="kpi-card__sub text-muted">Ranked by active enrollments</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-card__icon is-success">
+        <lucide-icon name="users" [size]="20"></lucide-icon>
+      </div>
+      <div class="kpi-card__body">
+        <div class="kpi-card__label">Top Course Enrollments</div>
+        <div class="kpi-card__val">{{ (trendingCourses[0]?.enrolledCount ?? 0) | number }}</div>
+        <div class="kpi-card__sub text-success">#1 most enrolled course</div>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-hd">Student sentiment on your courses</div>
-    <div style="margin-bottom:24px">
-      <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:12px">Engineering Mathematics III</div>
-      <div class="bar-wrap">
-        <div class="bar-lbl">Positive</div>
-        <div class="bar-track"><div class="bar-fill" style="width:97%;background:#1D9E75"></div></div>
-        <div class="bar-val">97%</div>
+  <!-- Main Content Layout -->
+  <div class="trending-layout">
+    <!-- Trending Courses Table / Card -->
+    <div class="card trending-list-card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Platform-Wide Trending Courses</h2>
+          <p class="card-subtitle">Top courses with highest student engagement across all colleges</p>
+        </div>
+        <span class="badge badge--purple">Live Ranking</span>
       </div>
-      <div class="bar-wrap">
-        <div class="bar-lbl">Neutral</div>
-        <div class="bar-track"><div class="bar-fill" style="width:2%;background:#BA7517"></div></div>
-        <div class="bar-val">2%</div>
+
+      <!-- Loading State -->
+      <div class="state-message" *ngIf="loading">
+        <lucide-icon name="loader-2" class="spin-icon" [size]="20"></lucide-icon>
+        <span>Loading trending courses…</span>
       </div>
-      <div class="bar-wrap">
-        <div class="bar-lbl">Negative</div>
-        <div class="bar-track"><div class="bar-fill" style="width:1%;background:#E24B4A"></div></div>
-        <div class="bar-val">1%</div>
+
+      <!-- Empty State -->
+      <div class="state-message" *ngIf="!loading && trendingCourses.length === 0">
+        <lucide-icon name="book-open" [size]="24"></lucide-icon>
+        <span>No live courses with enrollments recorded yet.</span>
+      </div>
+
+      <!-- Trending List -->
+      <div class="trending-list" *ngIf="!loading && trendingCourses.length > 0">
+        <div 
+          class="trending-item" 
+          *ngFor="let c of trendingCourses"
+          [class.is-mine]="isMine(c)">
+          
+          <!-- Rank Badge -->
+          <div class="rank-badge" [ngClass]="'rank-' + c.rank">
+            <span *ngIf="c.rank > 3">#{{ c.rank }}</span>
+            <lucide-icon *ngIf="c.rank === 1" name="flame" [size]="16"></lucide-icon>
+            <lucide-icon *ngIf="c.rank === 2 || c.rank === 3" name="trophy" [size]="14"></lucide-icon>
+          </div>
+
+          <!-- Thumbnail -->
+          <div class="course-thumb" *ngIf="!c.thumbnail">
+            <lucide-icon name="book-open" [size]="18"></lucide-icon>
+          </div>
+          <img *ngIf="c.thumbnail" [src]="c.thumbnail" alt="" class="course-thumb course-thumb--img" />
+
+          <!-- Info -->
+          <div class="course-details">
+            <div class="course-name-row">
+              <span class="course-name">{{ c.title }}</span>
+              <span class="mine-tag" *ngIf="isMine(c)">You</span>
+            </div>
+            <div class="course-meta">
+              <span class="teacher-name" *ngIf="!isMine(c) && c.teacherName">{{ c.teacherName }} · </span>
+              <span class="enrollment-count"><lucide-icon name="users" [size]="12"></lucide-icon> {{ c.enrolledCount | number }} enrolled students</span>
+            </div>
+          </div>
+
+          <!-- Status Badge -->
+          <div class="item-actions">
+            <span class="badge badge--purple" *ngIf="isMine(c)">Your Course</span>
+            <span class="badge badge--green" *ngIf="!isMine(c) && c.rank === 1">
+              <lucide-icon name="flame" [size]="12"></lucide-icon> Top Trending
+            </span>
+            <span class="badge badge--grey" *ngIf="!isMine(c) && c.rank !== 1">Rank #{{ c.rank }}</span>
+          </div>
+        </div>
       </div>
     </div>
-    
-    <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:12px">Top student comments</div>
-    <div class="comment">
-      "Excellent explanations, very clear and concise. The examples really helped." 
-      <span style="color:var(--color-text-secondary);font-size:12px;margin-left:4px">— Priya K.</span>
-    </div>
-    <div class="comment">
-      "Audio quality in lec 6 was a bit low, otherwise great course." 
-      <span style="color:var(--color-text-secondary);font-size:12px;margin-left:4px">— Anonymous</span>
+
+    <!-- Student Sentiment Analysis Panel -->
+    <div class="card sentiment-card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Student Sentiment & Feedback</h2>
+          <p class="card-subtitle">Aggregated student ratings across active courses</p>
+        </div>
+      </div>
+
+      <div class="sentiment-section">
+        <div class="sentiment-course-header">
+          <span class="sentiment-course-title">Engineering Mathematics III</span>
+          <span class="sentiment-overall text-success">97% Positive</span>
+        </div>
+
+        <div class="sentiment-bars">
+          <div class="sentiment-bar-row">
+            <span class="bar-label">Positive</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-fill--positive" style="width: 97%"></div>
+            </div>
+            <span class="bar-value">97%</span>
+          </div>
+
+          <div class="sentiment-bar-row">
+            <span class="bar-label">Neutral</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-fill--neutral" style="width: 2%"></div>
+            </div>
+            <span class="bar-value">2%</span>
+          </div>
+
+          <div class="sentiment-bar-row">
+            <span class="bar-label">Critical</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-fill--negative" style="width: 1%"></div>
+            </div>
+            <span class="bar-value">1%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="comments-section">
+        <h3 class="comments-title">Recent Student Reviews</h3>
+        
+        <div class="comment-item">
+          <p class="comment-text">"Excellent explanations, very clear and concise. The examples really helped me pass the remedial exam."</p>
+          <div class="comment-author">
+            <span class="author-avatar">PK</span>
+            <span class="author-name">Priya K. · VJTI Mumbai</span>
+          </div>
+        </div>
+
+        <div class="comment-item">
+          <p class="comment-text">"Audio quality in lecture 6 was a bit low, but overall an exceptional and structured course."</p>
+          <div class="comment-author">
+            <span class="author-avatar author-avatar--alt">ST</span>
+            <span class="author-name">Verified Student · Computer Science</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+

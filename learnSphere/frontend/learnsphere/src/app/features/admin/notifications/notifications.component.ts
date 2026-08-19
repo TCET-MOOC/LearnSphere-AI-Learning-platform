@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
 import { NotificationStateService } from '../../../core/services/notification-state.service';
 import { NotificationApiService } from '@core/services/notification-api.service';
 import { NotificationService } from '@core/services/notification.service';
@@ -14,7 +15,13 @@ interface NotificationItem {
   category: string;
 }
 
-@Component({ selector: 'app-admin-notifications', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './notifications.component.html', styleUrls: ['./notifications.component.scss'] })
+@Component({ 
+  selector: 'app-admin-notifications', 
+  standalone: true, 
+  imports: [CommonModule, FormsModule, LucideAngularModule], 
+  templateUrl: './notifications.component.html', 
+  styleUrls: ['./notifications.component.scss'] 
+})
 export class NotificationsComponent implements OnInit {
   query = '';
   activeFilter = 'All';
@@ -47,7 +54,13 @@ export class NotificationsComponent implements OnInit {
 
   get unreadCount(): number { return this.items.length - this.readItems.size; }
   get filters(): string[] { return ['All', 'Unread', ...Array.from(new Set(this.items.map(item => item.category)))]; }
-  get filteredItems() { const q = this.query.toLowerCase(); return this.items.filter(item => (this.activeFilter === 'All' || (this.activeFilter === 'Unread' ? !this.readItems.has(item.id) : item.category === this.activeFilter)) && (!q || (item.title + item.body).toLowerCase().includes(q))); }
+  get filteredItems() { 
+    const q = this.query.toLowerCase(); 
+    return this.items.filter(item => 
+      (this.activeFilter === 'All' || (this.activeFilter === 'Unread' ? !this.readItems.has(item.id) : item.category === this.activeFilter)) && 
+      (!q || (item.title + ' ' + item.body).toLowerCase().includes(q))
+    ); 
+  }
 
   markRead(id: number): void {
     if (this.readItems.has(id)) return;

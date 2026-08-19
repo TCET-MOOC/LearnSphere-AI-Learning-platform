@@ -1,0 +1,69 @@
+<!-- Floating Chat Widget -->
+<div class="chatbot-floating-wrapper">
+  <!-- Trigger Button -->
+  <button class="chatbot-trigger-btn" [class.active]="isOpen" (click)="toggleChat()" aria-label="Toggle AI Assistant">
+    <lucide-icon name="sparkles" [size]="18" *ngIf="!isOpen"></lucide-icon>
+    <lucide-icon name="x" [size]="18" *ngIf="isOpen"></lucide-icon>
+    <span class="trigger-label" *ngIf="!isOpen">Ask AI</span>
+  </button>
+
+  <!-- Chat Window Panel -->
+  <div class="chat-window" *ngIf="isOpen">
+    <div class="chat-header">
+      <div class="header-info">
+        <div class="bot-avatar">
+          <lucide-icon name="bot" [size]="18"></lucide-icon>
+        </div>
+        <div>
+          <h3 class="bot-name">Spherie AI</h3>
+          <span class="bot-status"><span class="status-dot"></span> Academic Assistant</span>
+        </div>
+      </div>
+      <button class="header-close" (click)="closeChat()" aria-label="Close Chat">
+        <lucide-icon name="x" [size]="16"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Messages Body -->
+    <div class="chat-messages">
+      <div 
+        class="message-bubble" 
+        *ngFor="let msg of messages" 
+        [class.is-user]="msg.sender === 'user'" 
+        [class.is-bot]="msg.sender === 'bot'">
+        <div class="bubble-text">{{ msg.text }}</div>
+        <div class="bubble-time">{{ msg.time }}</div>
+      </div>
+
+      <div class="message-bubble is-bot typing-indicator" *ngIf="loading">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <!-- Suggestion Chips -->
+    <div class="suggestion-chips" *ngIf="suggestions.length > 0 && !loading">
+      <button 
+        class="chip-btn" 
+        *ngFor="let s of suggestions" 
+        (click)="useSuggestion(s)">
+        {{ s }}
+      </button>
+    </div>
+
+    <!-- Input Footer -->
+    <div class="chat-footer">
+      <input 
+        type="text" 
+        [(ngModel)]="inputMessage" 
+        (keyup.enter)="sendMessage()" 
+        placeholder="Ask Spherie about courses, remedial, notes..." 
+        [disabled]="loading"
+      />
+      <button class="send-btn" (click)="sendMessage()" [disabled]="loading || !inputMessage.trim()" aria-label="Send message">
+        <lucide-icon name="send" [size]="15"></lucide-icon>
+      </button>
+    </div>
+  </div>
+</div>

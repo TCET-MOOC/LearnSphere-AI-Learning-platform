@@ -1,0 +1,144 @@
+<div class="post-quiz-overlay" *ngIf="quiz">
+  <div class="quiz-modal-card">
+    
+    <!-- Modal Header -->
+    <div class="quiz-header">
+      <div class="header-left">
+        <div class="badge-icon">
+          <lucide-icon name="help-circle" [size]="18"></lucide-icon>
+        </div>
+        <div>
+          <h3>Quick Check-in Quiz</h3>
+          <p class="quiz-sub">{{ quiz.title || ('Lecture Assessment: ' + lectureTitle) }}</p>
+        </div>
+      </div>
+      <button class="close-btn" type="button" (click)="close.emit()" aria-label="Close Quiz">
+        <lucide-icon name="x" [size]="18"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="quiz-body-loading" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Preparing quiz questions…</p>
+    </div>
+
+    <!-- Active Quiz Taker -->
+    <div class="quiz-content" *ngIf="!loading && quizDetail && !hasSubmitted">
+      
+      <!-- Stepper & Progress -->
+      <div class="stepper-bar">
+        <span class="step-label">Question {{ currentIndex + 1 }} of {{ quizDetail.questions.length }}</span>
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="((currentIndex + 1) / quizDetail.questions.length) * 100"></div>
+        </div>
+      </div>
+
+      <!-- Current Question Card -->
+      <div class="question-view" *ngIf="currentQuestion">
+        <h4 class="question-title">{{ currentQuestion.body }}</h4>
+
+        <!-- Options List -->
+        <div class="options-list">
+          <button 
+            *ngFor="let opt of currentQuestion.options; let idx = index" 
+            class="option-item"
+            [class.is-selected]="selectedAnswers[currentQuestion.questionId] === opt"
+            type="button"
+            (click)="selectOption(currentQuestion.questionId, opt)">
+            <span class="opt-prefix">{{ ['A', 'B', 'C', 'D', 'E'][idx] || (idx + 1) }}</span>
+            <span class="opt-text">{{ opt }}</span>
+            <lucide-icon name="check" [size]="16" class="check-icon" *ngIf="selectedAnswers[currentQuestion.questionId] === opt"></lucide-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stepper Navigation Controls -->
+      <div class="quiz-footer">
+        <button class="btn btn--outline" type="button" (click)="prevQuestion()" [disabled]="currentIndex === 0">
+          <lucide-icon name="arrow-left" [size]="15"></lucide-icon>
+          Previous
+        </button>
+
+        <div class="footer-right">
+          <button 
+            *ngIf="currentIndex < quizDetail.questions.length - 1" 
+            class="btn btn--primary" 
+            type="button" 
+            (click)="nextQuestion()"
+            [disabled]="!selectedAnswers[currentQuestion?.questionId || 0]">
+            Next
+            <lucide-icon name="arrow-right" [size]="15"></lucide-icon>
+          </button>
+
+          <button 
+            *ngIf="currentIndex === quizDetail.questions.length - 1" 
+            class="btn btn--success" 
+            type="button" 
+            (click)="submitQuiz()" 
+            [disabled]="!allAnswered || submitting">
+            <lucide-icon name="sparkles" [size]="15" *ngIf="!submitting"></lucide-icon>
+            <span>{{ submitting ? 'Grading Answers…' : 'Submit Quiz' }}</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Completed Review State -->
+    <div class="quiz-results" *ngIf="!loading && hasSubmitted && review">
+      <div class="results-banner" [class.is-passed]="isPassed" [class.is-failed]="!isPassed">
+        <div class="result-icon-circle">
+          <lucide-icon [name]="isPassed ? 'award' : 'rotate-ccw'" [size]="28"></lucide-icon>
+        </div>
+        <h2>{{ isPassed ? 'Great Job! Quiz Passed' : 'Keep Practicing' }}</h2>
+        <p class="score-line">You scored <strong>{{ review.score }}/{{ review.maxScore }}</strong> ({{ scorePercentage }}%)</p>
+        <span class="pass-tag">{{ isPassed ? 'PASSED · Lecture Progress Unlocked' : '60% Needed to Pass' }}</span>
+      </div>
+
+      <!-- Detailed Breakdown -->
+      <div class="answers-review-list">
+        <div 
+          *ngFor="let ans of review.answers; let idx = index" 
+          class="review-card"
+          [class.card-correct]="isAnswerCorrect(ans)"
+          [class.card-incorrect]="!isAnswerCorrect(ans)">
+          
+          <div class="card-head">
+            <span class="q-num">Q{{ idx + 1 }}</span>
+            <span class="card-badge" [class.is-correct]="isAnswerCorrect(ans)">
+              <lucide-icon [name]="isAnswerCorrect(ans) ? 'check-circle-2' : 'x-circle'" [size]="14"></lucide-icon>
+              {{ isAnswerCorrect(ans) ? 'Correct (+1)' : 'Incorrect' }}
+            </span>
+          </div>
+
+          <p class="review-question">{{ ans.questionBody }}</p>
+          
+          <div class="answer-comparison">
+            <div class="ans-row">
+              <span class="lbl">Your Answer:</span>
+              <span class="val" [class.text-wrong]="!isAnswerCorrect(ans)">{{ ans.studentAnswer || '(No answer)' }}</span>
+            </div>
+            <div class="ans-row" *ngIf="!isAnswerCorrect(ans) && ans.correctAnswer">
+              <span class="lbl">Correct Answer:</span>
+              <span class="val text-correct">{{ ans.correctAnswer }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-actions">
+        <button class="btn btn--outline" type="button" (click)="retakeQuiz()">
+          <lucide-icon name="rotate-ccw" [size]="14"></lucide-icon>
+          Retake Quiz
+        </button>
+        <button class="btn btn--primary" type="button" (click)="close.emit()">
+          Continue Learning
+          <lucide-icon name="arrow-right" [size]="14"></lucide-icon>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>

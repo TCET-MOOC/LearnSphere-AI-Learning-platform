@@ -1,5 +1,9 @@
 <div class="dashboard-container">
-  <div class="page-greeting">Welcome back, {{ teacherName }}</div>
+  <div class="page-header">
+    <p class="eyebrow">Faculty Workspace</p>
+    <h1 class="page-greeting">Welcome back, {{ teacherName }}</h1>
+    <p class="subtitle">Monitor active student engagement, review recent course enrollments, and manage lectures.</p>
+  </div>
 
   <div class="kpi-row">
     <div class="kpi-card" *ngFor="let card of kpiCards">
@@ -17,7 +21,7 @@
       </div>
       
       <div class="course-row" *ngFor="let course of myCourses">
-        <div class="course-thumb" [style.background]="course.bg">{{ course.icon }}</div>
+        <div class="course-thumb" [style.background]="course.bg" style="display: flex; align-items: center; justify-content: center;"><mat-icon style="font-size: 20px; height: 20px; width: 20px;">{{ course.icon }}</mat-icon></div>
         <div class="course-info">
           <div class="course-title">{{ course.title }}</div>
           <div class="course-meta">{{ course.stats }}</div>

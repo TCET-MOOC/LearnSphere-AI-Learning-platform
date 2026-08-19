@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { LucideAngularModule } from 'lucide-angular';
 import { AdminService } from '../services/admin.service';
 import { ReportsService } from '../services/reports.service';
 import { RevenueService } from '../services/revenue.service';
@@ -33,7 +34,7 @@ interface RankedPerson {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -47,7 +48,7 @@ export class DashboardComponent implements OnInit {
   positiveSentiment = 0;
   openFlags = 0;
 
-  private readonly medals = ['🥇', '🥈', '🥉'];
+  private readonly medals = ['#1', '#2', '#3'];
 
   constructor(
     private adminService: AdminService,
@@ -76,10 +77,10 @@ export class DashboardComponent implements OnInit {
     }).subscribe({
       next: ({ reports, revenue, teachers, students, pendingCourses, payouts }) => {
         this.kpiCards = [
-          { label: 'Total revenue', value: `₹${revenue.totalRevenue.toLocaleString()}`, sub: `${revenue.platformCutPercent}% platform cut`, subColor: '#0F6E56' },
-          { label: 'Registered users', value: reports.totalUsers.toLocaleString(), sub: `${reports.usersByRole['STUDENT'] ?? 0} students`, subColor: '#534AB7' },
-          { label: 'Total courses', value: reports.totalCourses.toLocaleString(), sub: `${pendingCourses.length} pending review`, subColor: '#D08C1A' },
-          { label: 'Flagged items', value: reports.flaggedContentPending.toLocaleString(), sub: 'Needs action', subColor: '#E5453A' }
+          { label: 'Total revenue', value: `₹${revenue.totalRevenue.toLocaleString()}`, sub: `${revenue.platformCutPercent}% platform cut`, subColor: 'var(--status-green-text)' },
+          { label: 'Registered users', value: reports.totalUsers.toLocaleString(), sub: `${reports.usersByRole['STUDENT'] ?? 0} students`, subColor: 'var(--brand-primary)' },
+          { label: 'Total courses', value: reports.totalCourses.toLocaleString(), sub: `${pendingCourses.length} pending review`, subColor: 'var(--status-amber-text)' },
+          { label: 'Flagged items', value: reports.flaggedContentPending.toLocaleString(), sub: 'Needs action', subColor: 'var(--status-red-text)' }
         ];
 
         this.topTeachers = teachers.map((t, i) => ({
@@ -101,7 +102,7 @@ export class DashboardComponent implements OnInit {
           color: getAvatarColor(s.name)
         }));
 
-        this.courseApprovals = pendingCourses.slice(0, 5).map((c) => ({ ...c, icon: '📘' }));
+        this.courseApprovals = pendingCourses.slice(0, 5).map((c) => ({ ...c, icon: 'book-open' }));
         this.pendingPayouts = payouts;
         this.openFlags = reports.flaggedContentPending;
 
@@ -139,7 +140,7 @@ export class DashboardComponent implements OnInit {
   }
 
   goToCourses(): void {
-    document.getElementById('course-approvals')?.scrollIntoView({ behavior: 'smooth' });
+    this.router.navigateByUrl('/admin/courses');
   }
 
   goToUsers(): void {

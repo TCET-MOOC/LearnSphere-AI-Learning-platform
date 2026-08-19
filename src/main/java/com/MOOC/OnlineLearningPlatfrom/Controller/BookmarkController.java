@@ -25,6 +25,12 @@ public class BookmarkController {
         return ResponseEntity.ok(bookmarkService.getBookmarks(principal));
     }
 
+    @GetMapping("/lecture/{lectureId}")
+    public ResponseEntity<List<BookmarkResponseDto>> getBookmarksByLecture(@PathVariable Long lectureId,
+                                                                             @AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(bookmarkService.getBookmarksByLecture(lectureId, principal));
+    }
+
     @PostMapping
     public ResponseEntity<BookmarkResponseDto> createBookmark(@RequestBody BookmarkRequestDto request,
                                                                 @AuthenticationPrincipal CustomUserDetails principal) {
@@ -35,6 +41,13 @@ public class BookmarkController {
     public ResponseEntity<Void> deleteBookmark(@PathVariable Long id,
                                                 @AuthenticationPrincipal CustomUserDetails principal) {
         bookmarkService.deleteBookmark(id, principal);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/lecture/{lectureId}")
+    public ResponseEntity<Void> deleteBookmarkByLecture(@PathVariable Long lectureId,
+                                                        @AuthenticationPrincipal CustomUserDetails principal) {
+        bookmarkService.deleteBookmarkByLecture(lectureId, principal);
         return ResponseEntity.noContent().build();
     }
 }

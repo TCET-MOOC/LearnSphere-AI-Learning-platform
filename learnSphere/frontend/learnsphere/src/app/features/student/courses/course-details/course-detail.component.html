@@ -9,16 +9,28 @@
         <p class="teacher">By {{ c.teacherName || 'Instructor' }}</p>
       </div>
       <div class="detail-actions">
-        <span class="pill" [ngClass]="'pill--' + (c.status || '').toLowerCase()">{{ c.status }}</span>
+        <span class="pill pill--completed" *ngIf="isCompleted">🏆 Completed (100%)</span>
+        <span class="pill" [ngClass]="'pill--' + (c.status || '').toLowerCase()" *ngIf="!isCompleted">{{ c.status }}</span>
         <button
           *ngIf="!isEnrolled"
           class="btn btn--primary"
           type="button"
-          [disabled]="enrolling"
+          [disabled]="enrolling || confirmingPayment"
           (click)="enroll()">
-          {{ enrolling ? 'Enrolling…' : (isFree ? 'Enroll free' : 'Requires payment') }}
+          <ng-container *ngIf="confirmingPayment">Confirming payment...</ng-container>
+          <ng-container *ngIf="!confirmingPayment">
+            {{ enrolling ? 'Processing...' : (isFree ? 'Enroll free' : 'Buy Course (₹' + c.price + ')') }}
+          </ng-container>
         </button>
-        <span class="pill pill--green" *ngIf="isEnrolled">Enrolled</span>
+        <button
+          *ngIf="isEnrolled && isCompleted"
+          class="btn btn--cert"
+          type="button"
+          (click)="openCertificateModal()">
+          <lucide-icon name="award" [size]="15"></lucide-icon>
+          <span>{{ hasEarnedCertificate ? 'View Certificate' : 'Claim Certificate' }}</span>
+        </button>
+        <span class="pill pill--green" *ngIf="isEnrolled && !isCompleted">Enrolled</span>
       </div>
     </header>
 
@@ -47,4 +59,11 @@
       </div>
     </section>
   </ng-container>
+
+  <!-- Certificate Modal Dialog -->
+  <app-certificate-modal
+    *ngIf="showCertModal"
+    [certificate]="certModalData"
+    (close)="showCertModal = false">
+  </app-certificate-modal>
 </div>

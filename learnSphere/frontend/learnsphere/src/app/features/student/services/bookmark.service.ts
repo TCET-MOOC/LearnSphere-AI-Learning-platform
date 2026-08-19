@@ -23,11 +23,19 @@ export class BookmarkService {
     return this.apiService.get<Bookmark[]>('/bookmarks');
   }
 
+  getBookmarksByLecture(lectureId: number): Observable<Bookmark[]> {
+    return this.apiService.get<Bookmark[]>(`/bookmarks/lecture/${lectureId}`);
+  }
+
   createBookmark(request: CreateBookmarkRequest): Observable<Bookmark> {
     return this.apiService.post<Bookmark>('/bookmarks', request);
   }
 
   deleteBookmark(id: number): Observable<void> {
     return this.apiService.delete<void>(`/bookmarks/${id}`);
+  }
+
+  deleteBookmarkByLecture(lectureId: number): Observable<void> {
+    return this.apiService.delete<void>(`/bookmarks/lecture/${lectureId}`);
   }
 }
