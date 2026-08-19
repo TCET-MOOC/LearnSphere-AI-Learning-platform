@@ -1,8 +1,8 @@
-$brand: #534ab7;
-$text: #1a1830;
-$muted: #6b6880;
-$border: #e8e7ef;
-$bg: #f5f5f8;
+$brand: var(--brand-primary);
+$text: var(--text-primary);
+$muted: var(--text-muted);
+$border: var(--border-color);
+$bg: var(--bg-app);
 
 :host {
   display: block;
@@ -10,10 +10,12 @@ $bg: #f5f5f8;
 
 .course-detail {
   min-height: 100%;
-  padding: 24px 32px;
+  padding: 28px 32px 40px;
+  max-width: 1360px;
+  margin: 0 auto;
   background: $bg;
   color: $text;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: inherit;
 }
 
 .detail-head {
@@ -21,19 +23,26 @@ $bg: #f5f5f8;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 
-  h1 { margin: 4px 0; font-size: 22px; }
-  .teacher { margin: 0; font-size: 12px; color: $muted; }
+  h1 {
+    margin: 0 0 6px 0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+  .teacher { margin: 0; font-size: 13px; color: var(--text-secondary); }
 }
 
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: $brand;
-  margin: 0;
+  margin: 0 0 6px 0;
 }
 
 .detail-actions {
@@ -43,7 +52,7 @@ $bg: #f5f5f8;
 }
 
 .description {
-  color: $muted;
+  color: var(--text-secondary);
   font-size: 13px;
   line-height: 1.6;
   max-width: 720px;
@@ -51,10 +60,11 @@ $bg: #f5f5f8;
 }
 
 .card {
-  background: #fff;
+  background: var(--bg-surface);
   border: 1px solid $border;
   border-radius: 12px;
   padding: 18px;
+  box-shadow: var(--card-shadow);
 }
 
 .card-head {
@@ -63,7 +73,7 @@ $bg: #f5f5f8;
   justify-content: space-between;
   margin-bottom: 12px;
 
-  h2 { margin: 0; font-size: 15px; }
+  h2 { margin: 0; font-size: 15px; color: var(--text-primary); }
 }
 
 .lecture-list {
@@ -79,10 +89,12 @@ $bg: #f5f5f8;
   padding: 10px 12px;
   border: 1px solid $border;
   border-radius: 9px;
-  background: #fff;
+  background: var(--bg-hover);
+  color: var(--text-primary);
   cursor: pointer;
   font: inherit;
   text-align: left;
+  transition: all 0.15s ease;
 
   &:disabled {
     cursor: not-allowed;
@@ -91,6 +103,7 @@ $bg: #f5f5f8;
 
   &:not(:disabled):hover {
     border-color: $brand;
+    background: var(--brand-surface);
   }
 }
 
@@ -98,7 +111,7 @@ $bg: #f5f5f8;
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #eeedfe;
+  background: var(--brand-surface);
   color: $brand;
   display: flex;
   align-items: center;
@@ -111,6 +124,7 @@ $bg: #f5f5f8;
 .lecture-title {
   flex: 1;
   font-size: 12.5px;
+  color: var(--text-primary);
 }
 
 .pill {
@@ -120,12 +134,13 @@ $bg: #f5f5f8;
   font-weight: 600;
   text-transform: capitalize;
 }
-.pill--live, .pill--published { background: #eaf3de; color: #1d9e75; }
-.pill--draft { background: #faeeda; color: #ba7517; }
-.pill--pending, .pill--processing { background: #fcebeb; color: #a32d2d; }
-.pill--archived, .pill--grey { background: #f1efe8; color: #6b6880; }
-.pill--purple { background: #eeedfe; color: $brand; }
-.pill--green { background: #eaf3de; color: #1d9e75; }
+.pill--live, .pill--published { background: var(--status-green-bg); color: var(--status-green-text); }
+.pill--draft { background: var(--status-amber-bg); color: var(--status-amber-text); }
+.pill--pending, .pill--processing { background: var(--status-red-bg); color: var(--status-red-text); }
+.pill--archived, .pill--grey { background: var(--bg-hover); color: var(--text-muted); }
+.pill--purple { background: var(--brand-surface); color: $brand; }
+.pill--green { background: var(--status-green-bg); color: var(--status-green-text); }
+.pill--completed { background: #dcfce7; color: #16a34a; font-weight: 700; }
 
 .hint {
   font-size: 12px;
@@ -136,14 +151,34 @@ $bg: #f5f5f8;
   border: none;
   border-radius: 8px;
   padding: 9px 14px;
-  font: 600 12px Inter, Arial;
+  font: 600 12px inherit;
   cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .btn--primary {
   background: $brand;
   color: #fff;
+
+  &:hover {
+    background: var(--brand-primary-hover);
+  }
 }
 .btn--primary:disabled {
   opacity: 0.7;
   cursor: default;
+}
+.btn--cert {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+  color: #1a1423;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(234, 179, 8, 0.25);
+
+  &:hover {
+    background: linear-gradient(135deg, #facc15, #eab308);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4);
+  }
 }

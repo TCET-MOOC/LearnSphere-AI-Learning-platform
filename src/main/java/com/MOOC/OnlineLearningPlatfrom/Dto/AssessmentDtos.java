@@ -19,6 +19,7 @@ public class AssessmentDtos {
         private Long id;
         private Long courseId;
         private String courseTitle;
+        private Long lectureId;
         private String title;
         private Integer durationMinutes;
         private Boolean isRemedial;
@@ -32,6 +33,9 @@ public class AssessmentDtos {
                 dto.courseId = test.getCourse().getId();
                 dto.courseTitle = test.getCourse().getTitle();
             }
+            if (test.getLecture() != null) {
+                dto.lectureId = test.getLecture().getId();
+            }
             dto.title = test.getTitle();
             dto.durationMinutes = test.getDurationMinutes();
             dto.isRemedial = test.getIsRemedial();
@@ -43,6 +47,7 @@ public class AssessmentDtos {
         public Long getId() { return id; }
         public Long getCourseId() { return courseId; }
         public String getCourseTitle() { return courseTitle; }
+        public Long getLectureId() { return lectureId; }
         public String getTitle() { return title; }
         public Integer getDurationMinutes() { return durationMinutes; }
         public Boolean getIsRemedial() { return isRemedial; }
@@ -79,6 +84,7 @@ public class AssessmentDtos {
     public static class TestDetailDto {
         private Long id;
         private Long courseId;
+        private Long lectureId;
         private String title;
         private Integer durationMinutes;
         private String securityPolicy;
@@ -90,6 +96,7 @@ public class AssessmentDtos {
             TestDetailDto dto = new TestDetailDto();
             dto.id = test.getTestId();
             dto.courseId = test.getCourse() != null ? test.getCourse().getId() : null;
+            dto.lectureId = test.getLecture() != null ? test.getLecture().getId() : null;
             dto.title = test.getTitle();
             dto.durationMinutes = test.getDurationMinutes();
             dto.securityPolicy = test.getSecurityPolicy();
@@ -103,6 +110,7 @@ public class AssessmentDtos {
 
         public Long getId() { return id; }
         public Long getCourseId() { return courseId; }
+        public Long getLectureId() { return lectureId; }
         public String getTitle() { return title; }
         public Integer getDurationMinutes() { return durationMinutes; }
         public String getSecurityPolicy() { return securityPolicy; }

@@ -1,0 +1,160 @@
+<div class="live-room-container" *ngIf="!loading && session">
+  <!-- Top Bar -->
+  <div class="room-topbar">
+    <div class="left-info">
+      <button class="back-btn" (click)="leaveRoom()">
+        <lucide-icon name="arrow-left" [size]="18"></lucide-icon>
+        <span>Exit Room</span>
+      </button>
+      <div class="session-meta">
+        <span class="live-indicator">
+          <span class="dot"></span> LIVE
+        </span>
+        <h1 class="room-title">{{ session.title }}</h1>
+        <span class="course-pill">{{ session.courseTitle }}</span>
+      </div>
+    </div>
+
+    <div class="right-stats">
+      <div class="viewer-count">
+        <lucide-icon name="users" [size]="16"></lucide-icon>
+        <span>{{ viewerCount }} Learners</span>
+      </div>
+      <button class="leave-btn" (click)="leaveRoom()">Leave</button>
+    </div>
+  </div>
+
+  <!-- Main Room Layout -->
+  <div class="room-body">
+    <!-- Main Video Stream -->
+    <div class="stream-viewport">
+      <div class="video-container">
+        <!-- Mock/Live Screen Broadcast simulation -->
+        <div class="video-overlay-elements">
+          <div class="teacher-watermark">
+            <div class="teacher-avatar">👨‍🏫</div>
+            <div class="teacher-details">
+              <span class="t-name">Course Faculty</span>
+              <span class="t-badge">Broadcasting 1080p 60fps</span>
+            </div>
+          </div>
+
+          <div class="presentation-canvas">
+            <div class="code-blackboard">
+              <div class="chalk-header">
+                <span class="chalk-title">📐 {{ session.title }}</span>
+                <span class="rec-dot">● REC</span>
+              </div>
+              <div class="chalk-content">
+                <p class="highlight-text">// Key Lecture Concept & Proof</p>
+                <pre><code>function dijkstra(graph, startNode) &#123;
+  const distances = &#123;&#125;;
+  const visited = new Set();
+  const priorityQueue = new PriorityQueue();
+  // Live faculty explanation active
+  ...
+&#125;</code></pre>
+                <div class="live-subtitle-caption">
+                  <span class="caption-icon">🎙️</span>
+                  <span>"...Notice how the greedy choice ensures the optimal substructure at every step..."</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stream Action Controls -->
+        <div class="stream-controls">
+          <div class="left-ctrls">
+            <button class="ctrl-btn" [class.active]="isHandRaised" (click)="toggleHandRaise()">
+              <span>✋</span>
+              <span>{{ isHandRaised ? 'Hand Raised' : 'Raise Hand' }}</span>
+            </button>
+            <button class="ctrl-btn" (click)="isMuted = !isMuted">
+              <lucide-icon [name]="isMuted ? 'volume-x' : 'volume-2'" [size]="18"></lucide-icon>
+              <span>{{ isMuted ? 'Unmute' : 'Mute' }}</span>
+            </button>
+          </div>
+
+          <div class="right-ctrls">
+            <span class="stream-quality-tag">HD 1080p</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Interaction Panel (Chat, Q&A, Notes) -->
+    <div class="interactive-sidebar">
+      <div class="sidebar-tabs">
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'chat'" 
+          (click)="activeTab = 'chat'">
+          <lucide-icon name="message-square" [size]="16"></lucide-icon>
+          <span>Chat</span>
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'qa'" 
+          (click)="activeTab = 'qa'">
+          <lucide-icon name="help-circle" [size]="16"></lucide-icon>
+          <span>Q&A</span>
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'notes'" 
+          (click)="activeTab = 'notes'">
+          <lucide-icon name="file-text" [size]="16"></lucide-icon>
+          <span>Live Notes</span>
+        </button>
+      </div>
+
+      <!-- Chat / Q&A View -->
+      <div class="chat-feed" *ngIf="activeTab === 'chat' || activeTab === 'qa'">
+        <div class="messages-list">
+          <div 
+            class="chat-bubble" 
+            *ngFor="let msg of messages" 
+            [class.is-teacher]="msg.isTeacher" 
+            [class.is-question]="msg.isQuestion">
+            <div class="bubble-header">
+              <span class="sender-name">{{ msg.sender }}</span>
+              <span class="badge" *ngIf="msg.isTeacher">Faculty</span>
+              <span class="badge q-badge" *ngIf="msg.isQuestion">Question</span>
+              <span class="time-stamp">{{ msg.time }}</span>
+            </div>
+            <div class="bubble-body">{{ msg.text }}</div>
+          </div>
+        </div>
+
+        <div class="chat-composer">
+          <input 
+            type="text" 
+            [(ngModel)]="newMessage" 
+            (keyup.enter)="sendMessage()" 
+            [placeholder]="activeTab === 'qa' ? 'Ask a question to faculty...' : 'Send message to classroom...'">
+          <button class="send-btn" (click)="sendMessage()">
+            <lucide-icon name="send" [size]="16"></lucide-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Notes View -->
+      <div class="notes-feed" *ngIf="activeTab === 'notes'">
+        <textarea 
+          class="notes-textarea" 
+          [(ngModel)]="liveNotes" 
+          placeholder="Take quick timestamped notes during this live lecture..."></textarea>
+        <button class="save-notes-btn" (click)="saveNote()">
+          <lucide-icon name="save" [size]="16"></lucide-icon>
+          <span>Save to My Notes</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="room-loading" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Connecting to secure live stream room...</p>
+</div>

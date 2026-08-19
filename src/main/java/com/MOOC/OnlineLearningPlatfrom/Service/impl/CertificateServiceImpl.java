@@ -63,9 +63,23 @@ public class CertificateServiceImpl implements CertificateService {
         certificate.setUser(user);
         certificate.setCourse(course);
         certificate.setType(type);
+        certificate.setStudentName(user.getFullName());
+        certificate.setInstructorName(course.getTeacher() != null ? course.getTeacher().getFullName() : "Faculty Board");
+        certificate.setGrade(type == Certificate.Type.REMEDIAL ? "Passing Grade" : "Distinction");
+        certificate.setVerificationCode("LS-" + java.time.Year.now().getValue() + "-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         certificate.setTitle((type == Certificate.Type.REMEDIAL ? "Remedial Certificate - " : "Certificate of Completion - ") + course.getTitle());
         Certificate saved = certificateRepository.save(certificate);
         return CertificateResponseDto.from(saved);
+    }
+
+    @Override
+    public com.MOOC.OnlineLearningPlatfrom.Dto.CertificateVerificationDto verifyCertificate(String verificationCode) {
+        if (verificationCode == null || verificationCode.trim().isEmpty()) {
+            return com.MOOC.OnlineLearningPlatfrom.Dto.CertificateVerificationDto.invalid(verificationCode);
+        }
+        return certificateRepository.findByVerificationCode(verificationCode.trim().toUpperCase())
+                .map(com.MOOC.OnlineLearningPlatfrom.Dto.CertificateVerificationDto::valid)
+                .orElseGet(() -> com.MOOC.OnlineLearningPlatfrom.Dto.CertificateVerificationDto.invalid(verificationCode));
     }
 
     private void assertStandardEligibility(Long userId, Course course) {

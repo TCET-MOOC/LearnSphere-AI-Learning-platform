@@ -3,8 +3,9 @@
   <!-- Header -->
   <div class="page-header">
     <div class="page-header__left">
-      <h1 class="page-title">🚩 Flagged Content</h1>
-      <p class="page-subtitle">Keyword-based moderation queue · Review and take action</p>
+      <p class="eyebrow">Moderation & Compliance Queue</p>
+      <h1 class="page-title"><lucide-icon name="flag" class="title-icon"></lucide-icon> Flagged Content</h1>
+      <p class="page-subtitle">Keyword-based automated moderation queue · Review, audit, and resolve reported discussions.</p>
     </div>
     <span class="badge-red">{{ openCount }} open</span>
   </div>
@@ -54,7 +55,8 @@
           </div>
         </div>
         <span class="pill" [ngClass]="item.severity === 'high' ? 'pill--red' : 'pill--amber'">
-          {{ item.severity === 'high' ? '🚨 ' : '' }}{{ item.reason.replace('_', ' ') | titlecase }}
+          <lucide-icon *ngIf="item.severity === 'high'" name="siren" class="pill-icon"></lucide-icon>
+          {{ item.reason.replace('_', ' ') | titlecase }}
         </span>
       </div>
       <div class="flag-card__content" [ngClass]="item.severity === 'high' ? 'flag-card__content--danger' : 'flag-card__content--neutral'">

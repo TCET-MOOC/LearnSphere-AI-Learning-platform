@@ -16,9 +16,12 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository,
+                                   org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate) {
         this.notificationRepository = notificationRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Override
@@ -59,6 +62,12 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setBody(body);
         notification.setCategory(category);
         notification.setRead(false);
-        return NotificationResponseDto.from(notificationRepository.save(notification));
+        NotificationResponseDto dto = NotificationResponseDto.from(notificationRepository.save(notification));
+
+        if (user != null && user.getUserId() != null) {
+            messagingTemplate.convertAndSend("/topic/notifications/" + user.getUserId(), dto);
+        }
+
+        return dto;
     }
 }

@@ -1,11 +1,7 @@
-// Admin messages SCSS — uses the same light theme as admin dashboard.
-// The admin dashboard content area is light-themed (white cards, #1A1830 text);
-// only the sidebar uses the dark navy background. This file follows that convention.
-
-$text-primary: #1A1830;
-$text-secondary: #6B6880;
-$border: #E8E7EF;
-$brand: #534AB7;
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$border: var(--border-color);
+$brand: var(--brand-primary);
 
 :host {
   display: block;
@@ -13,8 +9,10 @@ $brand: #534AB7;
 }
 
 .messages-page {
-  padding: 24px 32px;
-  font-family: 'Inter', sans-serif;
+  padding: 28px 32px 40px;
+  max-width: 1360px;
+  margin: 0 auto;
+  font-family: inherit;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -25,14 +23,33 @@ $brand: #534AB7;
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
 
-.page-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: $text-primary;
-  margin: 0;
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-primary);
+    margin: 0 0 6px 0;
+  }
+
+  .page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: $text-primary;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0 0 6px 0;
+  }
+
+  .subtitle {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
 }
 
 .header-actions {
@@ -41,11 +58,44 @@ $brand: #534AB7;
   align-items: center;
 }
 
+.new-msg-btn {
+  background: $brand;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: normal;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.18);
+
+  lucide-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &:hover {
+    background: var(--brand-primary-hover);
+    transform: translateY(-1px);
+  }
+}
+
 .search-box {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #fff;
+  background: var(--bg-input);
   border: 1px solid $border;
   border-radius: 10px;
   padding: 8px 14px;
@@ -54,7 +104,7 @@ $brand: #534AB7;
   .search-icon {
     width: 16px;
     height: 16px;
-    color: $text-secondary;
+    color: var(--text-muted);
     flex-shrink: 0;
   }
 
@@ -64,9 +114,10 @@ $brand: #534AB7;
     font-size: 13px;
     color: $text-primary;
     width: 100%;
-    font-family: 'Inter', sans-serif;
+    background: transparent;
+    font-family: inherit;
 
-    &::placeholder { color: #B0ADBE; }
+    &::placeholder { color: var(--text-muted); }
   }
 }
 
@@ -77,23 +128,28 @@ $brand: #534AB7;
   gap: 16px;
   flex: 1;
   min-height: 0;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* CONVERSATION PANEL */
 .conv-panel {
-  background: #fff;
+  background: var(--bg-surface);
   border: 1px solid $border;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: var(--card-shadow);
 }
 
 .conv-filters {
   display: flex;
   gap: 4px;
   padding: 12px 16px;
-  border-bottom: 1px solid #f5f5f8;
+  border-bottom: 1px solid var(--border-color);
 
   .filter-btn {
     padding: 6px 14px;
@@ -109,10 +165,10 @@ $brand: #534AB7;
     align-items: center;
     gap: 6px;
 
-    &:hover { background: #f5f5f8; color: $text-primary; }
+    &:hover { background: var(--bg-hover); color: $text-primary; }
 
     &.active {
-      background: #EEEDFE;
+      background: var(--brand-surface);
       color: $brand;
     }
 
@@ -138,14 +194,14 @@ $brand: #534AB7;
   gap: 10px;
   padding: 14px 16px;
   cursor: pointer;
-  border-bottom: 1px solid #f5f5f8;
+  border-bottom: 1px solid var(--border-color);
   transition: background 0.15s;
 
-  &:hover { background: #FAFAFA; }
+  &:hover { background: var(--bg-hover); }
 
   &--active {
-    background: #F3F2FF;
-    &:hover { background: #F3F2FF; }
+    background: var(--brand-surface);
+    &:hover { background: var(--brand-surface); }
   }
 
   &--unread .conv-name { font-weight: 700; }
@@ -162,6 +218,8 @@ $brand: #534AB7;
   font-size: 12px;
   font-weight: 600;
   flex-shrink: 0;
+  background: var(--brand-surface);
+  color: $brand;
 }
 
 .conv-info {
@@ -183,26 +241,15 @@ $brand: #534AB7;
 
 .conv-time {
   font-size: 11px;
-  color: $text-secondary;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
-.conv-context {
+.conv-course {
   font-size: 11px;
-  color: $text-secondary;
+  color: $brand;
   margin-top: 2px;
-}
-
-.conv-role {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  margin-right: 4px;
-
-  &--teacher { background: #EEEDFE; color: $brand; }
-  &--student { background: #EAF3DE; color: #27500A; }
+  font-weight: 500;
 }
 
 .conv-preview {
@@ -234,17 +281,18 @@ $brand: #534AB7;
   padding: 40px 16px;
   text-align: center;
   font-size: 13px;
-  color: $text-secondary;
+  color: var(--text-muted);
 }
 
 /* CHAT PANEL */
 .chat-panel {
-  background: #fff;
+  background: var(--bg-surface);
   border: 1px solid $border;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: var(--card-shadow);
 }
 
 .chat-header {
@@ -252,7 +300,8 @@ $brand: #534AB7;
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  border-bottom: 1px solid #f5f5f8;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-surface-elevated);
 }
 
 .chat-ava {
@@ -265,6 +314,8 @@ $brand: #534AB7;
   font-size: 12px;
   font-weight: 600;
   flex-shrink: 0;
+  background: var(--brand-surface);
+  color: $brand;
 }
 
 .chat-header-info {
@@ -279,7 +330,8 @@ $brand: #534AB7;
 
 .chat-context {
   font-size: 11.5px;
-  color: $text-secondary;
+  color: var(--text-secondary);
+  margin-top: 2px;
 }
 
 /* THREAD */
@@ -290,12 +342,12 @@ $brand: #534AB7;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background: var(--bg-app);
 }
 
 .chat-msg {
   display: flex;
 
-  // Admin's own messages go right (purple), others go left (grey).
   &--admin {
     justify-content: flex-end;
 
@@ -304,18 +356,19 @@ $brand: #534AB7;
       color: #fff;
       border-radius: 12px 12px 4px 12px;
     }
-    .chat-time { color: rgba(255, 255, 255, 0.65); }
+    .chat-time { color: rgba(255, 255, 255, 0.7); }
   }
 
   &--other {
     justify-content: flex-start;
 
     .chat-bubble {
-      background: #F3F4F6;
+      background: var(--bg-surface);
       color: $text-primary;
+      border: 1px solid var(--border-color);
       border-radius: 12px 12px 12px 4px;
     }
-    .chat-time { color: $text-secondary; }
+    .chat-time { color: var(--text-muted); }
   }
 }
 
@@ -340,7 +393,8 @@ $brand: #534AB7;
   align-items: center;
   gap: 10px;
   padding: 14px 20px;
-  border-top: 1px solid #f5f5f8;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-surface);
 }
 
 .chat-input {
@@ -349,12 +403,13 @@ $brand: #534AB7;
   border-radius: 10px;
   padding: 10px 14px;
   font-size: 13px;
-  font-family: 'Inter', sans-serif;
+  font-family: inherit;
   color: $text-primary;
+  background: var(--bg-input);
   outline: none;
   transition: border-color 0.15s;
 
-  &::placeholder { color: #B0ADBE; }
+  &::placeholder { color: var(--text-muted); }
   &:focus { border-color: $brand; }
 }
 
@@ -372,8 +427,56 @@ $brand: #534AB7;
   transition: background 0.15s;
   flex-shrink: 0;
 
-  svg { width: 16px; height: 16px; }
+  &:hover { background: var(--brand-primary-hover); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
 
-  &:hover { background: darken($brand, 5%); }
-  &:disabled { background: #D1CEE3; cursor: not-allowed; }
+.chat-panel--empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+
+  .empty-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+    opacity: 0.6;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+  }
+
+  p {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.conv-role {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-right: 4px;
+
+  &--teacher {
+    background: var(--brand-surface);
+    color: var(--brand-primary);
+  }
+
+  &--student {
+    background: var(--status-green-bg);
+    color: var(--status-green-text);
+  }
 }

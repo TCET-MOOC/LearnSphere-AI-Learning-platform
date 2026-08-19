@@ -1,45 +1,123 @@
 <div class="admin-courses">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Admin view</p>
-      <h1>Course approvals</h1>
+      <p class="eyebrow">Curriculum & Catalog Audit</p>
+      <h1>Course Approvals</h1>
+      <p class="subtitle">Review course submissions, syllabus modules, lecture videos, and publication status.</p>
     </div>
   </header>
 
-  <nav class="tabs" aria-label="Course status filters">
-    <button
-      class="tab"
-      *ngFor="let f of filters"
-      [class.tab--active]="f.id === activeFilter"
-      (click)="setFilter(f.id)"
-      type="button">
-      {{ f.label }} ({{ count(f.id) }})
-    </button>
-  </nav>
+  <div class="controls-bar">
+    <nav class="tabs" aria-label="Course status filters">
+      <button
+        class="tab"
+        *ngFor="let f of filters"
+        [class.tab--active]="f.id === activeFilter"
+        (click)="setFilter(f.id)"
+        type="button">
+        {{ f.label }} ({{ count(f.id) }})
+      </button>
+    </nav>
 
-  <p class="hint" *ngIf="loading">Loading…</p>
-  <p class="hint" *ngIf="!loading && courses.length === 0">No courses in this category.</p>
-
-  <div class="course-table" *ngIf="!loading && courses.length > 0">
-    <div class="course-row course-row--head">
-      <span>Course</span>
-      <span>Teacher</span>
-      <span>Lectures</span>
-      <span>Status</span>
-      <span>Actions</span>
+    <div class="search-box">
+      <lucide-icon name="search" class="search-icon"></lucide-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (ngModelChange)="onSearchChange()" 
+        placeholder="Search courses or faculty..." 
+      />
+      <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()" title="Clear search">
+        <lucide-icon name="x" [size]="14"></lucide-icon>
+      </button>
     </div>
-    <div class="course-row" *ngFor="let course of courses">
-      <span class="course-title">{{ course.title }}</span>
-      <span>{{ course.teacherName || '—' }}</span>
-      <span>{{ course.lectureCount ?? 0 }}</span>
-      <span class="pill" [ngClass]="statusClass(course.status)">{{ course.status }}</span>
-      <div class="action-set">
-        <ng-container *ngIf="course.status === 'PENDING'">
-          <button class="btn btn--success" [disabled]="actingId === course.id" (click)="approve(course)">Approve</button>
-          <button class="btn btn--danger" [disabled]="actingId === course.id" (click)="reject(course)">Reject</button>
-        </ng-container>
-        <button class="btn btn--ghost" *ngIf="course.status === 'LIVE'" [disabled]="actingId === course.id" (click)="archive(course)">Archive</button>
-        <button class="btn btn--ghost" *ngIf="course.status === 'ARCHIVED'" [disabled]="actingId === course.id" (click)="reactivate(course)">Reactivate</button>
+  </div>
+
+  <div class="card table-card" *ngIf="!loading && courses.length > 0">
+    <div class="course-table">
+      <div class="course-row course-row--head">
+        <span>Course</span>
+        <span>Teacher</span>
+        <span>Lectures</span>
+        <span>Status</span>
+        <span>Actions</span>
+      </div>
+      <div class="course-row" *ngFor="let course of courses">
+        <span class="course-title">{{ course.title }}</span>
+        <span>{{ course.teacherName || '—' }}</span>
+        <span>{{ course.lectureCount ?? 0 }}</span>
+        <span class="pill" [ngClass]="statusClass(course.status)">{{ course.status }}</span>
+        <div class="action-set">
+          <button class="btn btn--ghost" (click)="inspectCourse(course)">Inspect</button>
+          <ng-container *ngIf="course.status === 'PENDING'">
+            <button class="btn btn--success" [disabled]="actingId === course.id" (click)="approve(course)">Approve</button>
+            <button class="btn btn--danger" [disabled]="actingId === course.id" (click)="reject(course)">Reject</button>
+          </ng-container>
+          <button class="btn btn--ghost" *ngIf="course.status === 'LIVE'" [disabled]="actingId === course.id" (click)="archive(course)">Archive</button>
+          <button class="btn btn--ghost" *ngIf="course.status === 'ARCHIVED'" [disabled]="actingId === course.id" (click)="reactivate(course)">Reactivate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="card empty-card" *ngIf="loading">
+    <lucide-icon name="hourglass" class="empty-icon"></lucide-icon>
+    <p>Loading course catalog...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="card empty-card" *ngIf="!loading && courses.length === 0">
+    <lucide-icon name="book-open" class="empty-icon"></lucide-icon>
+    <h3>No courses found</h3>
+    <p *ngIf="searchQuery">No courses match "{{ searchQuery }}". Try clearing your search.</p>
+    <p *ngIf="!searchQuery">No courses currently in this status category.</p>
+  </div>
+
+  <!-- Course Inspection Modal -->
+  <div class="modal-backdrop" *ngIf="selectedCourseForInspect" (click)="closeInspect()">
+    <div class="modal-container inspect-modal" (click)="$event.stopPropagation()">
+      <div class="modal-top">
+        <div>
+          <span class="pill" [ngClass]="statusClass(selectedCourseForInspect.status)">{{ selectedCourseForInspect.status }}</span>
+          <h2 class="modal-title">{{ selectedCourseForInspect.title }}</h2>
+          <p class="modal-sub">By {{ selectedCourseForInspect.teacherName || 'Faculty' }} · {{ selectedCourseForInspect.department || 'General' }}</p>
+        </div>
+        <button class="close-btn" (click)="closeInspect()">
+          <lucide-icon name="x" [size]="18"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="course-summary-box">
+          <p><strong>Description:</strong> {{ selectedCourseForInspect.description || 'No description provided.' }}</p>
+          <p><strong>Price:</strong> {{ selectedCourseForInspect.price ? '₹' + selectedCourseForInspect.price : 'Free (Internal Students)' }}</p>
+        </div>
+
+        <div class="curriculum-review">
+          <h3>Curriculum Lectures ({{ inspectLectures.length }})</h3>
+          <div class="inspect-loading" *ngIf="loadingLectures">Loading syllabus modules...</div>
+          <div class="inspect-lecture-list" *ngIf="!loadingLectures && inspectLectures.length > 0">
+            <div class="inspect-lec-row" *ngFor="let lec of inspectLectures; let i = index">
+              <span class="lec-num">#{{ i + 1 }}</span>
+              <span class="lec-title">{{ lec.title }}</span>
+              <span class="lec-duration">{{ lec.duration ? (lec.duration / 60 | number:'1.0-0') + ' min' : '15 min' }}</span>
+            </div>
+          </div>
+          <div class="empty-lec" *ngIf="!loadingLectures && inspectLectures.length === 0">
+            No lecture videos uploaded to this course yet.
+          </div>
+        </div>
+
+        <div class="modal-actions-bar">
+          <button class="btn btn--ghost" (click)="closeInspect()">Close</button>
+          <button class="btn btn--danger" *ngIf="selectedCourseForInspect.status === 'PENDING'" (click)="reject(selectedCourseForInspect); closeInspect()">
+            Reject to Draft
+          </button>
+          <button class="btn btn--success" *ngIf="selectedCourseForInspect.status === 'PENDING'" (click)="approve(selectedCourseForInspect); closeInspect()">
+            Approve & Publish Live
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -17,12 +17,17 @@ public class PaymentResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime paidAt;
 
+    private String department;
+    private String thumbnail;
+
     public static PaymentResponseDto from(Payment payment) {
         PaymentResponseDto dto = new PaymentResponseDto();
         dto.id = payment.getId();
         if (payment.getCourse() != null) {
             dto.courseId = payment.getCourse().getId();
             dto.courseTitle = payment.getCourse().getTitle();
+            dto.department = payment.getCourse().getDepartment();
+            dto.thumbnail = payment.getCourse().getThumbnail();
         }
         dto.amount = payment.getAmount();
         dto.currency = payment.getCurrency();
@@ -37,6 +42,8 @@ public class PaymentResponseDto {
     public Long getId() { return id; }
     public Long getCourseId() { return courseId; }
     public String getCourseTitle() { return courseTitle; }
+    public String getDepartment() { return department; }
+    public String getThumbnail() { return thumbnail; }
     public BigDecimal getAmount() { return amount; }
     public String getCurrency() { return currency; }
     public String getStatus() { return status; }

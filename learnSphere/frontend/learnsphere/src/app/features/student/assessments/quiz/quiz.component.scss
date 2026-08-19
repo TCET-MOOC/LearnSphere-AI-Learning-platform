@@ -1,8 +1,8 @@
-$brand: #534ab7;
-$text: #1a1830;
-$muted: #6b6880;
-$border: #e8e7ef;
-$bg: #f5f5f8;
+$brand: var(--brand-primary);
+$text: var(--text-primary);
+$muted: var(--text-muted);
+$border: var(--border-color);
+$bg: var(--bg-app);
 
 :host {
   display: block;
@@ -13,7 +13,7 @@ $bg: #f5f5f8;
   padding: 24px 32px;
   background: $bg;
   color: $text;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: inherit;
 }
 
 .page-head {
@@ -23,21 +23,24 @@ $bg: #f5f5f8;
   gap: 24px;
   margin-bottom: 16px;
 
-  h1 { margin: 2px 0 0; font-size: 24px; }
+  h1 { margin: 2px 0 0; font-size: 24px; color: var(--text-primary); }
 }
 
 .eyebrow {
   margin: 0;
-  color: #a09db8;
+  color: var(--brand-primary);
   font-size: 12px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .card {
-  background: #fff;
+  background: var(--bg-surface);
   border: 1px solid $border;
   border-radius: 12px;
   padding: 20px;
+  box-shadow: var(--card-shadow);
 }
 
 .hint {
@@ -46,7 +49,7 @@ $bg: #f5f5f8;
 }
 
 .hint--error {
-  color: #c5221f;
+  color: var(--status-red-text);
 }
 
 .meta {
@@ -58,23 +61,67 @@ $bg: #f5f5f8;
 
 .mt-16 { margin-top: 16px; }
 
+.question-block {
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-color);
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 16px;
+    padding-bottom: 0;
+  }
+}
+
+.question-text {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.option-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: var(--bg-hover);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: $brand;
+    background: var(--brand-surface);
+  }
+
+  input[type="radio"] {
+    accent-color: var(--brand-primary);
+  }
+}
+
 .btn {
   border: 0;
   border-radius: 8px;
-  padding: 9px 16px;
-  font: 600 12px 'Inter', Arial;
+  padding: 9px 18px;
+  font: 600 13px inherit;
   cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
+  transition: all 0.15s ease;
 }
 
 .btn--primary {
   background: $brand;
   color: #fff;
-}
 
-.btn--ghost {
-  background: #fff;
-  border: 1px solid #dddbe8;
-  color: #46435d;
+  &:hover {
+    background: var(--brand-primary-hover);
+  }
 }

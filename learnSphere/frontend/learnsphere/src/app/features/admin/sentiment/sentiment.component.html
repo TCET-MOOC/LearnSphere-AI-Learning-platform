@@ -1,5 +1,9 @@
 <div class="page-container">
-  <h1 class="page-title">Sentiment analysis</h1>
+  <div class="page-header">
+    <p class="eyebrow">AI Sentiment & Course Quality</p>
+    <h1 class="page-title">Sentiment Analysis</h1>
+    <p class="subtitle">Natural language analysis across student discussion forums, messages, and course feedback.</p>
+  </div>
 
   <div class="tabs-container">
     <button *ngFor="let tab of tabs" 
@@ -32,7 +36,7 @@
 
   <div class="section-card" *ngIf="!loading">
     <h2 class="section-title">Overall platform sentiment</h2>
-    <p class="hint">Computed with a simple keyword-matching heuristic, not real NLP/ML.</p>
+    <p class="hint">Computed with a simple keyword-matching heuristic across platform content.</p>
 
     <div class="sentiment-blocks">
       <div class="block positive">
@@ -76,7 +80,9 @@
           <h3 class="action-title">{{ rec.title }}</h3>
           <p class="action-desc">{{ rec.description }}</p>
         </div>
-        <button class="action-btn" [ngClass]="rec.actionClass">{{ rec.action }}</button>
+        <button class="action-btn" [ngClass]="rec.actionClass" (click)="onRecommendationAction(rec)">
+          {{ rec.action }}
+        </button>
       </div>
     </div>
   </div>

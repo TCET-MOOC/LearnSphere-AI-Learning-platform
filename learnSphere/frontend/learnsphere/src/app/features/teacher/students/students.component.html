@@ -1,6 +1,8 @@
 <div class="students-page">
   <div class="students-page__header">
-    <h1 class="students-page__title">Student standings</h1>
+    <p class="students-page__eyebrow">Student Analytics & Performance</p>
+    <h1 class="students-page__title">Student Standings</h1>
+    <p class="students-page__subtitle">Track cohort progress, identify at-risk remedial students, and review academic performance.</p>
   </div>
 
   <!-- Course filter tabs -->
@@ -41,7 +43,7 @@
       <div class="student-card" *ngFor="let p of topPerformers">
         <div class="student-card__header">
           <div class="ava" [ngClass]="p.rank === 1 ? 'gold' : p.rank === 2 ? 'silver' : 'bronze'">
-            {{ p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : '🥉' }}
+            <lucide-icon name="medal" style="width: 20px; height: 20px;"></lucide-icon>
           </div>
           <div class="student-card__info">
             <div class="student-card__name">{{ p.name }}</div>
@@ -109,8 +111,8 @@
         </div>
       </ng-container>
       
-      <div class="no-risk-students" *ngIf="atRiskCount === 0">
-        🎉 No students are currently flagged as at-risk. Great job!
+      <div class="no-risk-students" *ngIf="atRiskCount === 0" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+        <lucide-icon name="party-popper" style="color: #1D9E75;"></lucide-icon> No students are currently flagged as at-risk. Great job!
       </div>
     </div>
   </div>

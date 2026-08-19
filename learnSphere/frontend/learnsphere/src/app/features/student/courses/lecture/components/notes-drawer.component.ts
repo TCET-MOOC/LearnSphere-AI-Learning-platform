@@ -30,12 +30,13 @@ import { NoteEditorComponent } from '../../../notes/components/note-editor.compo
     </section>
   `,
   styles: [`
-    .card { background: #fff; border: 1px solid #e8e7ef; border-radius: 12px; padding: 16px; }
-    .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .card-head h2 { margin: 0; font-size: 14px; }
-    .link-btn { border: none; background: transparent; color: #534ab7; font: 600 11px Inter, Arial; cursor: pointer; }
+    .card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; color: var(--text-primary); }
+    .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .card-head h2 { margin: 0; font-size: 14px; color: var(--text-primary); font-weight: 600; }
+    .link-btn { border: none; background: var(--brand-surface); color: var(--brand-primary); padding: 4px 10px; border-radius: 6px; font: 600 11.5px inherit; cursor: pointer; transition: all 0.15s ease; }
+    .link-btn:hover { background: var(--brand-primary); color: #fff; }
     .notes-list { display: flex; flex-direction: column; gap: 10px; }
-    .hint { font-size: 12px; color: #6b6880; }
+    .hint { font-size: 12px; color: var(--text-muted); }
   `]
 })
 export class NotesDrawerComponent implements OnChanges {

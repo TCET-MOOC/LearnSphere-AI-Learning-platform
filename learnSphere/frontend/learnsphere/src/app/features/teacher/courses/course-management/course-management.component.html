@@ -1,10 +1,20 @@
 <div class="course-management">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Teacher view</p>
-      <h1>{{ isEditMode ? (course?.title || 'Edit course') : 'New course' }}</h1>
+      <p class="eyebrow">Teacher Studio</p>
+      <h1>{{ isEditMode ? (course?.title || 'Edit Course') : 'New Course' }}</h1>
     </div>
-    <a class="btn btn--ghost" routerLink="/teacher/courses">Back to courses</a>
+    <div class="head-actions">
+      <button class="btn btn--youtube" *ngIf="isEditMode" (click)="openImportModal()">
+        <lucide-icon name="video" [size]="16"></lucide-icon>
+        <span>Import YouTube Video / Playlist</span>
+      </button>
+      <button class="btn btn--danger" *ngIf="isEditMode" (click)="onDeleteCourse()">
+        <lucide-icon name="trash-2" [size]="16"></lucide-icon>
+        <span>Delete Course</span>
+      </button>
+      <a class="btn btn--ghost" routerLink="/teacher/courses">Back to courses</a>
+    </div>
   </header>
 
   <p class="hint" *ngIf="loading">Loading course…</p>
@@ -19,10 +29,69 @@
   </section>
 
   <section class="card" *ngIf="!loading && isEditMode && courseId">
-    <app-quiz-builder></app-quiz-builder>
+    <app-quiz-builder [initialCourseId]="courseId"></app-quiz-builder>
   </section>
 
   <section class="card" *ngIf="!loading && !isEditMode">
-    <p class="hint">Save the course first, then you'll be able to add lectures.</p>
+    <p class="hint">Save the course first, then you'll be able to add lectures or import YouTube videos.</p>
   </section>
+
+  <!-- YouTube 1-Click Importer Modal -->
+  <div class="modal-backdrop" *ngIf="showImportModal">
+    <div class="modal-card youtube-import-modal">
+      <div class="modal-header">
+        <div class="header-title-box">
+          <span class="yt-icon">📺</span>
+          <div>
+            <h3>1-Click YouTube Video / Playlist Importer</h3>
+            <p>Paste a single YouTube video URL or a Playlist link to auto-extract titles, embed URLs, and HD thumbnails.</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="closeImportModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="input-row">
+          <input 
+            type="text" 
+            [(ngModel)]="playlistUrl" 
+            (keyup.enter)="fetchPlaylist()"
+            placeholder="e.g. https://youtu.be/dQw4w9WgXcQ or https://www.youtube.com/playlist?list=PL..." 
+            [disabled]="importingPlaylist"
+          />
+          <button class="btn-fetch" (click)="fetchPlaylist()" [disabled]="importingPlaylist || !playlistUrl.trim()">
+            <span>{{ importingPlaylist ? 'Scanning...' : 'Extract Video(s)' }}</span>
+          </button>
+        </div>
+
+        <div class="preview-results" *ngIf="importedLectures.length > 0">
+          <div class="playlist-meta-bar">
+            <h4>{{ playlistTitle }}</h4>
+            <span class="badge-count">{{ importedLectures.length }} lecture{{ importedLectures.length > 1 ? 's' : '' }} ready</span>
+          </div>
+
+          <div class="lecture-preview-scroll">
+            <div class="lec-preview-item" *ngFor="let lec of importedLectures; let i = index">
+              <span class="lec-order">#{{ i + 1 }}</span>
+              <img class="lec-thumb" [src]="lec.thumbnailUrl" alt="Thumbnail" />
+              <div class="lec-details">
+                <p class="lec-title">{{ lec.title }}</p>
+                <span class="lec-duration">⏱ {{ lec.durationSeconds }}s • Embed Ready</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn--ghost" (click)="closeImportModal()">Cancel</button>
+        <button 
+          class="btn btn--primary" 
+          [disabled]="importedLectures.length === 0 || savingImported" 
+          (click)="applyImportedLectures()">
+          <span>{{ savingImported ? 'Saving to Database...' : ('Import ' + importedLectures.length + ' Lecture' + (importedLectures.length > 1 ? 's' : '') + ' into Course') }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -12,6 +12,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.DiscussionPostRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.LectureRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.DiscussionService;
+import com.MOOC.OnlineLearningPlatfrom.Service.ProfanityFilterService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +24,19 @@ public class DiscussionServiceImpl implements DiscussionService {
     private final DiscussionPostRepository discussionPostRepository;
     private final CourseRepository courseRepository;
     private final LectureRepository lectureRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.ProfanityFilterService profanityFilterService;
+    private final com.MOOC.OnlineLearningPlatfrom.Repository.FlaggedContentRepository flaggedContentRepository;
 
     public DiscussionServiceImpl(DiscussionPostRepository discussionPostRepository,
                                   CourseRepository courseRepository,
-                                  LectureRepository lectureRepository) {
+                                  LectureRepository lectureRepository,
+                                  com.MOOC.OnlineLearningPlatfrom.Service.ProfanityFilterService profanityFilterService,
+                                  com.MOOC.OnlineLearningPlatfrom.Repository.FlaggedContentRepository flaggedContentRepository) {
         this.discussionPostRepository = discussionPostRepository;
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
+        this.profanityFilterService = profanityFilterService;
+        this.flaggedContentRepository = flaggedContentRepository;
     }
 
     @Override
@@ -52,9 +59,14 @@ public class DiscussionServiceImpl implements DiscussionService {
             throw new BadRequestException("body is required");
         }
 
+        ProfanityFilterService.CensorResult censorResult = profanityFilterService.censor(request.getBody());
+
         DiscussionPost post = new DiscussionPost();
         post.setAuthor(principal.getUser());
-        post.setBody(request.getBody());
+        post.setBody(censorResult.maskedText());
+        if (!censorResult.isClean()) {
+            post.setFlagged(true);
+        }
 
         DiscussionPost parent = null;
         if (request.getParentPostId() != null) {
@@ -83,6 +95,18 @@ public class DiscussionServiceImpl implements DiscussionService {
         post.setLecture(lecture);
 
         DiscussionPost saved = discussionPostRepository.save(post);
+
+        // If toxicity or prohibited phrases were found, automatically register in FlaggedContent for admin review
+        if (!censorResult.isClean()) {
+            com.MOOC.OnlineLearningPlatfrom.Entity.FlaggedContent flag = new com.MOOC.OnlineLearningPlatfrom.Entity.FlaggedContent();
+            flag.setContentType(com.MOOC.OnlineLearningPlatfrom.Entity.FlaggedContent.ContentType.DISCUSSION_POST);
+            flag.setContentId(saved.getId());
+            flag.setReason(censorResult.detectedReason() != null ? censorResult.detectedReason() : com.MOOC.OnlineLearningPlatfrom.Entity.FlaggedContent.Reason.BULLYING);
+            flag.setReporterId(null); // System AI auto-flagged
+            flag.setStatus(com.MOOC.OnlineLearningPlatfrom.Entity.FlaggedContent.Status.PENDING);
+            flaggedContentRepository.save(flag);
+        }
+
         return DiscussionPostDto.from(saved);
     }
 

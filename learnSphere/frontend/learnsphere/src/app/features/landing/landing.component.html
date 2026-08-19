@@ -30,16 +30,16 @@
     </div>
   </div>
   
-  <div style="background:#12102e;padding:80px 28px 100px;">
+  <div class="hero-section">
     <div style="max-width: 800px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center;">
       <div style="margin-bottom:20px;">
         <span class="pill pill-w">India's first college-verified learning platform</span>
       </div>
-      <h1 style="font-size:42px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:20px;letter-spacing:-1px;">
+      <h1 class="hero-title">
         Learn from real professors.<br>
-        <span style="color:#AFA9EC;">Earn credits that actually matter.</span>
+        <span class="hero-highlight">Earn credits that actually matter.</span>
       </h1>
-      <p style="font-size:16px;color:rgba(255,255,255,0.65);line-height:1.6;margin-bottom:40px;max-width:600px;">
+      <p class="hero-sub">
         Access engineering and higher-ed courses taught by verified faculty from registered colleges across India. Free for enrolled students. Affordable for everyone else.
       </p>
       
@@ -74,7 +74,7 @@
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:24px;max-width:1100px;margin:0 auto;">
       <div class="card" style="padding:32px;display:flex;flex-direction:column;gap:16px;">
-        <div style="font-size:28px;">🎓</div>
+        <div style="display:flex; align-items:center;"><lucide-icon name="graduation-cap" style="width:28px; height:28px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div>
           <div style="font-size:16px;font-weight:600;color:#1A1830;margin-bottom:8px;">Same-college student</div>
           <div style="font-size:13px;color:#6B6880;line-height:1.65;">Your college is registered on LearnSphere. Access every single course across every department — completely free.</div>
@@ -88,7 +88,7 @@
   
       <div style="border:2px solid #534AB7;border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:16px;position:relative;background:#ffffff;">
         <div style="position:absolute;top:-12px;left:24px;background:#534AB7;color:#fff;font-size:11px;font-weight:600;padding:4px 16px;border-radius:99px;">Most popular</div>
-        <div style="font-size:28px;">🌍</div>
+        <div style="display:flex; align-items:center;"><lucide-icon name="globe" style="width:28px; height:28px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div>
           <div style="font-size:16px;font-weight:600;color:#1A1830;margin-bottom:8px;">External student</div>
           <div style="font-size:13px;color:#6B6880;line-height:1.65;">Your college isn't on LearnSphere yet. Buy individual courses from top faculty at prices far below any other platform.</div>
@@ -101,7 +101,7 @@
       </div>
   
       <div class="card" style="padding:32px;display:flex;flex-direction:column;gap:16px;">
-        <div style="font-size:28px;">📝</div>
+        <div style="display:flex; align-items:center;"><lucide-icon name="file-text" style="width:28px; height:28px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div>
           <div style="font-size:16px;font-weight:600;color:#1A1830;margin-bottom:8px;">Remedial student</div>
           <div style="font-size:13px;color:#6B6880;line-height:1.65;">Assigned by your college due to attendance shortfall. Complete courses and pass the exam to recover academic credit.</div>
@@ -131,7 +131,7 @@
         
         <div class="card" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
           <div style="background:#1e1a4a;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
-            <div style="font-size:48px;">💻</div>
+            <div style="display:flex; align-items:center;"><lucide-icon name="monitor" style="width:48px; height:48px; color:rgba(255,255,255,0.7);"></lucide-icon></div>
             <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(255,255,255,0.15);color:#fff;">Lecture preview free</span></div>
           </div>
           <div style="padding:20px;">
@@ -150,7 +150,7 @@
   
         <div class="card" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
           <div style="background:#1a2e1a;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
-            <div style="font-size:48px;">⚙️</div>
+            <div style="display:flex; align-items:center;"><lucide-icon name="settings" style="width:48px; height:48px; color:rgba(255,255,255,0.7);"></lucide-icon></div>
             <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(15,110,86,0.35);color:#9FE1CB;">Bestseller</span></div>
           </div>
           <div style="padding:20px;">
@@ -169,7 +169,7 @@
   
         <div class="card" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
           <div style="background:#2e1a2e;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
-            <div style="font-size:48px;">📐</div>
+            <div style="display:flex; align-items:center;"><lucide-icon name="ruler" style="width:48px; height:48px; color:rgba(255,255,255,0.7);"></lucide-icon></div>
             <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(153,53,86,0.35);color:#ED93B1;">GATE 2026</span></div>
           </div>
           <div style="padding:20px;">
@@ -199,22 +199,22 @@
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:32px;max-width:1000px;margin:0 auto;">
       <div style="text-align:center;">
-        <div style="font-size:40px;margin-bottom:16px;">🔍</div>
+        <div style="margin-bottom:16px; display:flex; align-items:center; justify-content:center;"><lucide-icon name="search" style="width:40px; height:40px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div style="font-size:16px;font-weight:600;color:#1A1830;margin-bottom:8px;">Browse freely</div>
         <div style="font-size:13px;color:#6B6880;line-height:1.6;">No login needed. Search and watch the first lecture of any course completely free.</div>
       </div>
       <div style="text-align:center;">
-        <div style="font-size:40px;margin-bottom:16px;">👤</div>
+        <div style="margin-bottom:16px; display:flex; align-items:center; justify-content:center;"><lucide-icon name="user" style="width:40px; height:40px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div style="font-size:16px;font-weight:600;color:#1A1830;margin-bottom:8px;">Sign up</div>
         <div style="font-size:13px;color:#6B6880;line-height:1.6;">Register with your college email. The system automatically detects your college to grant free access.</div>
       </div>
       <div style="text-align:center;">
-        <div style="font-size:40px;margin-bottom:16px;">▶️</div>
+        <div style="margin-bottom:16px; display:flex; align-items:center; justify-content:center;"><lucide-icon name="play" style="width:40px; height:40px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div style="font-size:16px;font-weight:600;color:#1A1830;margin-bottom:8px;">Learn at your pace</div>
         <div style="font-size:13px;color:#6B6880;line-height:1.6;">Watch lectures, take timestamped notes, attempt quizzes, and join class discussions.</div>
       </div>
       <div style="text-align:center;">
-        <div style="font-size:40px;margin-bottom:16px;">🎓</div>
+        <div style="margin-bottom:16px; display:flex; align-items:center; justify-content:center;"><lucide-icon name="graduation-cap" style="width:40px; height:40px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div style="font-size:16px;font-weight:600;color:#1A1830;margin-bottom:8px;">Get certified</div>
         <div style="font-size:13px;color:#6B6880;line-height:1.6;">Pass the final exam, earn a shareable certificate, and fulfill your academic credit.</div>
       </div>

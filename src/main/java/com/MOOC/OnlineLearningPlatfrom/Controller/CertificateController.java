@@ -44,4 +44,9 @@ public class CertificateController {
         }
         return ResponseEntity.ok(certificateService.issueCertificate(principal.getUser(), courseId, type));
     }
+
+    @GetMapping("/verify/{code}")
+    public ResponseEntity<com.MOOC.OnlineLearningPlatfrom.Dto.CertificateVerificationDto> verifyCertificate(@PathVariable String code) {
+        return ResponseEntity.ok(certificateService.verifyCertificate(code));
+    }
 }

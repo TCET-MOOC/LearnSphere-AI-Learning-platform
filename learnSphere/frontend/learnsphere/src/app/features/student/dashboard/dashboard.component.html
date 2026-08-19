@@ -4,12 +4,12 @@
   <div class="dashboard__header">
     <div class="header__greeting">
       <span class="greeting__eyebrow">{{ getGreeting() }},</span>
-      <h1 class="greeting__name">{{ studentName }} 👋</h1>
+      <h1 class="greeting__name">{{ studentName }} <mat-icon style="vertical-align: bottom; font-size: 28px; height: 28px; width: 28px; color: #ffca28;">waving_hand</mat-icon></h1>
       <span class="greeting__date">{{ currentDate | date:'EEEE, d MMMM yyyy' }}</span>
     </div>
     <div class="header__actions">
-      <button class="btn btn--ghost" (click)="navigateToAllCourses()">
-        🔍 Explore Courses
+      <button class="btn btn--ghost" (click)="navigateToAllCourses()" style="display: inline-flex; align-items: center; gap: 6px;">
+        <mat-icon style="font-size: 20px; height: 20px; width: 20px;">search</mat-icon> Explore Courses
       </button>
     </div>
   </div>
@@ -19,12 +19,7 @@
     <div class="kpi-card" *ngFor="let card of kpiCards">
       <div class="kpi-card__icon-wrap">
         <span class="kpi-icon-emoji">
-          @switch (card.icon) {
-            @case ('book-open') { 📚 }
-            @case ('calendar-check') { 📅 }
-            @case ('trophy') { 🏆 }
-            @case ('award') { 🎖️ }
-          }
+          <mat-icon>{{ card.icon }}</mat-icon>
         </span>
       </div>
       <div class="kpi-card__body">
@@ -94,9 +89,9 @@
               <div class="assessment-item__title">{{ a.title }}</div>
               <div class="assessment-item__course">{{ a.course }}</div>
               <div class="assessment-item__meta">
-                <span>📝 {{ a.questions }} Qs</span>
-                <span>⏱ {{ a.timeLimit }} min</span>
-                <span>📅 {{ a.dueDate }}</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">description</mat-icon> {{ a.questions }} Qs</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">schedule</mat-icon> {{ a.timeLimit }} min</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">calendar_today</mat-icon> {{ a.dueDate }}</span>
               </div>
             </div>
             <div class="assessment-item__right">
@@ -122,7 +117,9 @@
           <div class="notif-item"
                *ngFor="let notif of notifications"
                [class.notif-item--unread]="!notif.read">
-            <span class="notif-item__icon">{{ notif.icon }}</span>
+            <span class="notif-item__icon" style="display: flex; align-items: center; justify-content: center;">
+              <mat-icon style="font-size: 20px; height: 20px; width: 20px;">{{ notif.icon }}</mat-icon>
+            </span>
             <div class="notif-item__body">
               <p class="notif-item__text">{{ notif.message }}</p>
               <span class="notif-item__time">{{ notif.time }}</span>
@@ -147,8 +144,8 @@
               <div class="rec-item__title">{{ rec.title }}</div>
               <div class="rec-item__teacher">{{ rec.teacher }} · {{ rec.department }}</div>
               <div class="rec-item__stats">
-                <span>⭐ {{ rec.rating }}</span>
-                <span>👥 {{ rec.students }} students</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">star</mat-icon> {{ rec.rating }}</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">groups</mat-icon> {{ rec.students }} students</span>
               </div>
             </div>
             <span class="rec-item__tag">{{ rec.tag }}</span>

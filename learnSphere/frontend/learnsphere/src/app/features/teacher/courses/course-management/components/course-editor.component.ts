@@ -61,29 +61,37 @@ import { Course, CourseStatus } from '@core/models/course.model';
     .course-form {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 16px;
     }
     label {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      font-size: 11.5px;
-      color: #5f5b70;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
     }
     label.full { grid-column: 1 / -1; }
     input, textarea, select {
-      border: 1px solid #dedce7;
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 9px 10px;
-      font: 12px Inter, Arial;
-      color: #1a1830;
-      background: #fff;
+      padding: 10px 12px;
+      font: 13px 'Inter', sans-serif;
+      color: var(--text-primary);
+      background: var(--bg-input);
+      transition: border-color 0.15s ease, background 0.15s ease;
       resize: vertical;
     }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      background: var(--bg-surface);
+    }
     .form-actions { display: flex; justify-content: flex-end; }
-    .btn { border: none; border-radius: 8px; padding: 9px 16px; font: 600 12px Inter, Arial; cursor: pointer; }
-    .btn--primary { background: #534ab7; color: #fff; }
-    .btn--primary:disabled { opacity: 0.6; cursor: default; }
+    .btn { border: none; border-radius: 8px; padding: 10px 20px; font: 600 13px 'Inter', sans-serif; cursor: pointer; transition: all 0.15s ease; }
+    .btn--primary { background: var(--brand-primary); color: #fff; }
+    .btn--primary:hover:not(:disabled) { background: var(--brand-primary-hover); }
+    .btn--primary:disabled { opacity: 0.6; cursor: not-allowed; }
   `]
 })
 export class CourseEditorComponent implements OnChanges {

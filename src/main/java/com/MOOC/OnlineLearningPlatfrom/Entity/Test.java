@@ -16,6 +16,10 @@ public class Test {
     @JoinColumn(name = "course_id")
     private Course course;
 
+    @ManyToOne
+    @JoinColumn(name = "lecture_id")
+    private Lecture lecture;
+
     private String title;
     private Integer durationMinutes;
     private String securityPolicy;
@@ -55,6 +59,18 @@ public class Test {
 
     public Long getCourseId() {
         return course != null ? course.getId() : null;
+    }
+
+    public Lecture getLecture() {
+        return lecture;
+    }
+
+    public void setLecture(Lecture lecture) {
+        this.lecture = lecture;
+    }
+
+    public Long getLectureId() {
+        return lecture != null ? lecture.getId() : null;
     }
 
     public Boolean getIsRemedial() {

@@ -24,18 +24,18 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     public List<LeaderboardEntryDto> getLeaderboard(String scope, CustomUserDetails principal) {
         String normalizedScope = scope == null ? "global" : scope.toLowerCase();
 
-        Long collegeId = null;
+        List<UserAccount> students;
         if (normalizedScope.equals("college")) {
             UserAccount currentUser = principal.getUser();
             if (currentUser.getCollege() == null) {
                 return List.of();
             }
-            collegeId = currentUser.getCollege().getId();
-        } else if (!normalizedScope.equals("global")) {
+            students = userAccountRepository.findCollegeStudentLeaderboard(currentUser.getCollege().getId());
+        } else if (normalizedScope.equals("global")) {
+            students = userAccountRepository.findGlobalStudentLeaderboard();
+        } else {
             throw new BadRequestException("scope must be 'global' or 'college'");
         }
-
-        List<UserAccount> students = userAccountRepository.findStudentLeaderboard(collegeId);
 
         List<LeaderboardEntryDto> result = new ArrayList<>();
         int rank = 1;

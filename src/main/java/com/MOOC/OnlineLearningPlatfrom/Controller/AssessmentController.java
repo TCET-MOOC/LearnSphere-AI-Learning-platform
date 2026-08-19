@@ -39,8 +39,22 @@ public class AssessmentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TestSummaryDto>> getAssessments(@RequestParam(required = false) Long courseId) {
-        List<Test> tests = courseId != null ? testRepository.findByCourse_Id(courseId) : testRepository.findAll();
+    public ResponseEntity<List<TestSummaryDto>> getAssessments(@RequestParam(required = false) Long courseId,
+                                                               @RequestParam(required = false) Long lectureId) {
+        List<Test> tests;
+        if (lectureId != null) {
+            tests = testRepository.findByLecture_Id(lectureId);
+        } else if (courseId != null) {
+            tests = testRepository.findByCourse_Id(courseId);
+        } else {
+            tests = testRepository.findAll();
+        }
+        return ResponseEntity.ok(tests.stream().map(TestSummaryDto::from).toList());
+    }
+
+    @GetMapping("/lecture/{lectureId}")
+    public ResponseEntity<List<TestSummaryDto>> getAssessmentsByLecture(@PathVariable Long lectureId) {
+        List<Test> tests = testRepository.findByLecture_Id(lectureId);
         return ResponseEntity.ok(tests.stream().map(TestSummaryDto::from).toList());
     }
 

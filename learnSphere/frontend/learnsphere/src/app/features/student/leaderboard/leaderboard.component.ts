@@ -1,29 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs';
 import { LeaderboardService } from '../services/leaderboard.service';
 import { AuthService } from '@core/auth/auth.service';
 import { NotificationService } from '@core/services/notification.service';
 import { LeaderboardEntryDto, LeaderboardScope } from '@core/models/social.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
-
-const MEDALS = ['🥇', '🥈', '🥉'];
+import { LucideAngularModule, Trophy, Medal, Star, Rocket, CheckCircle, FileText, MessageCircle, Loader2, RotateCcw } from 'lucide-angular';
 
 @Component({
   selector: 'app-leaderboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    LucideAngularModule
+  ],
   templateUrl: './leaderboard.component.html',
   styleUrls: ['./leaderboard.component.scss']
 })
 export class LeaderboardComponent implements OnInit {
-  activeTab = 'batch';
+  activeTab = 'monthly';
   entries: LeaderboardEntryDto[] = [];
   loading = false;
+  hasError = false;
 
   constructor(
     private leaderboardService: LeaderboardService,
     private authService: AuthService,
-    private notify: NotificationService
+    private notify: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -44,19 +49,32 @@ export class LeaderboardComponent implements OnInit {
     return this.activeTab === 'batch' || this.activeTab === 'college' ? 'college' : 'global';
   }
 
-  private load(): void {
+  load(): void {
     this.loading = true;
-    this.leaderboardService.getLeaderboard(this.scope).subscribe({
-      next: (entries) => {
-        this.entries = entries;
-        this.loading = false;
-      },
-      error: () => {
-        this.entries = [];
-        this.loading = false;
-        this.notify.error('Could not load the leaderboard.');
-      }
-    });
+    this.hasError = false;
+    this.cdr.markForCheck();
+
+    this.leaderboardService.getLeaderboard(this.scope)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (entries) => {
+          this.entries = entries || [];
+          this.hasError = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Failed to load leaderboard:', err);
+          this.entries = [];
+          this.hasError = true;
+          this.notify.error('Could not load the leaderboard.');
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   get topThree(): LeaderboardEntryDto[] {
@@ -107,9 +125,7 @@ export class LeaderboardComponent implements OnInit {
     return above.points - me.points;
   }
 
-  medal(rank: number): string {
-    return MEDALS[rank - 1] || `#${rank}`;
-  }
+
 
   getInitials(name: string): string { return getInitials(name); }
   getBg(name: string): string { return getAvatarBg(name); }

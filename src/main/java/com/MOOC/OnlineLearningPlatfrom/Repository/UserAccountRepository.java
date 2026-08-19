@@ -13,10 +13,11 @@ import java.util.List;
 public interface UserAccountRepository extends JpaRepository<UserAccount, Long> {
     UserAccount findByEmail(String email);
 
-    @Query("SELECT DISTINCT ur.user FROM UserRole ur WHERE ur.role.name = 'STUDENT' " +
-            "AND (:collegeId IS NULL OR ur.user.college.id = :collegeId) " +
-            "ORDER BY ur.user.leaderboardPoints DESC")
-    List<UserAccount> findStudentLeaderboard(@Param("collegeId") Long collegeId);
+    @Query("SELECT u FROM UserAccount u JOIN UserRole ur ON ur.user.userId = u.userId WHERE ur.role.name = 'STUDENT' ORDER BY COALESCE(u.leaderboardPoints, 0) DESC")
+    List<UserAccount> findGlobalStudentLeaderboard();
+
+    @Query("SELECT u FROM UserAccount u JOIN UserRole ur ON ur.user.userId = u.userId WHERE ur.role.name = 'STUDENT' AND u.college.id = :collegeId ORDER BY COALESCE(u.leaderboardPoints, 0) DESC")
+    List<UserAccount> findCollegeStudentLeaderboard(@Param("collegeId") Long collegeId);
 
     @Query("SELECT DISTINCT ur.user FROM UserRole ur WHERE ur.role.name = 'TEACHER' " +
             "AND ur.user.royaltyBalance > 0 ORDER BY ur.user.royaltyBalance DESC")

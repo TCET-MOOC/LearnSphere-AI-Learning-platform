@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TeacherService } from '../services/teacher.service';
 import { NotificationService } from '@core/services/notification.service';
@@ -9,6 +9,7 @@ import { DataTableComponent, TableColumn } from '@shared/components/data-table/d
 import { StatusPillComponent } from '@shared/components/status-pills/status-pill.component';
 import { TimeAgoPipe } from '@shared/pipes/time-ago.pipe';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { LucideAngularModule, Medal, PartyPopper } from 'lucide-angular';
 
 /**
  * StudentsComponent displays the student standings, KPI stats, top performers,
@@ -24,7 +25,8 @@ import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.
     DataTableComponent,
     StatusPillComponent,
     TimeAgoPipe,
-    EmptyStateComponent
+    EmptyStateComponent,
+    LucideAngularModule
   ],
   templateUrl: './students.component.html',
   styleUrls: ['./students.component.scss']
@@ -77,7 +79,8 @@ export class StudentsComponent implements OnInit {
 
   constructor(
     private teacherService: TeacherService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -90,10 +93,16 @@ export class StudentsComponent implements OnInit {
   fetchStandings(): void {
     this.teacherService.getStudentStandings('all').subscribe({
       next: (data: any) => {
-        this.allStandings = data;
+        this.allStandings = data || [];
         this.applyTabFilter();
+        this.cdr.markForCheck();
       },
-      error: (err: any) => console.error('Failed to fetch standings', err)
+      error: (err: any) => {
+        console.error('Failed to fetch standings', err);
+        this.allStandings = [];
+        this.applyTabFilter();
+        this.cdr.markForCheck();
+      }
     });
   }
 

@@ -12,7 +12,9 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="empty-state">
-      <div class="empty-state__icon">🔍</div>
+      <div class="empty-state__icon">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: #9CA3AF;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </div>
       <h3 class="empty-state__title">{{ title }}</h3>
       <p class="empty-state__subtitle">{{ subtitle }}</p>
       <button *ngIf="ctaLabel && ctaRoute" [routerLink]="ctaRoute" class="btn btn--primary">
@@ -28,32 +30,32 @@ import { RouterModule } from '@angular/router';
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: $spacing-xl * 2 $spacing-xl;
+      padding: 40px 24px;
       text-align: center;
-      background: var(--color-background-primary);
-      border: 0.5px solid var(--color-border-tertiary);
-      border-radius: $border-radius-lg;
-      margin: $spacing-md 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      margin: 16px 0;
       width: 100%;
 
       &__icon {
         font-size: 40px;
-        margin-bottom: $spacing-md;
+        margin-bottom: 16px;
         animation: float 3s ease-in-out infinite;
       }
 
       &__title {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--color-text-primary);
-        margin-bottom: $spacing-xs;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
       }
 
       &__subtitle {
-        font-size: 12px;
-        color: var(--color-text-secondary);
-        max-width: 280px;
-        margin-bottom: $spacing-lg;
+        font-size: 13px;
+        color: var(--text-muted);
+        max-width: 320px;
+        margin-bottom: 20px;
         line-height: 1.5;
       }
     }

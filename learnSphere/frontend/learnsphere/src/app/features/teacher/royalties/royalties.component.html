@@ -1,5 +1,9 @@
 <div class="page-container">
-  <h1 class="page-title">Royalties & earnings</h1>
+  <div class="page-header">
+    <p class="eyebrow">Faculty Revenue & Payouts</p>
+    <h1 class="page-title">Royalties & Earnings</h1>
+    <p class="subtitle">Review your course monetization, student enrollment breakdown, and scheduled bank transfers.</p>
+  </div>
 
   <div class="stats-grid">
     <div class="stat-box">
@@ -46,7 +50,7 @@
   <div class="section-card">
     <div class="section-header">
       <h2 class="section-title m-0">Payout history</h2>
-      <a href="#" class="text-link">Download statement</a>
+      <button type="button" class="text-link-btn" (click)="downloadStatement($event)">Download statement</button>
     </div>
     <div class="list-container">
       <div class="list-row" *ngFor="let payout of payoutHistory">

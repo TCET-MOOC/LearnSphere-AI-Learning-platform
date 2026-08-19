@@ -5,11 +5,16 @@ import { LiveSessionService, LiveSession } from '../services/live-session.servic
 import { TeacherService } from '../services/teacher.service';
 import { NotificationService } from '@core/services/notification.service';
 import { Course } from '@core/models/course.model';
+import { LucideAngularModule, Radio, Calendar, Target, Clapperboard, Megaphone, Play, Square } from 'lucide-angular';
 
 @Component({
   selector: 'app-live',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    LucideAngularModule
+  ],
   templateUrl: './live.component.html',
   styleUrls: ['./live.component.scss']
 })

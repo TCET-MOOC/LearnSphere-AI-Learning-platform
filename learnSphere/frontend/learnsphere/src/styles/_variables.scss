@@ -1,34 +1,34 @@
-// ── Color Palette Design Tokens ──
-$brand-purple: #534AB7;
-$brand-purple-light: #EEEDFE;
-$brand-purple-dark: #3C3489;
+// ── Color Palette Design Tokens (Theme-Reactive via CSS Variables) ──
+$brand-purple: var(--brand-primary);
+$brand-purple-light: var(--brand-surface);
+$brand-purple-dark: var(--brand-primary-hover);
 
-// Admin Unique Backgrounds (Dark Mode Sidebar)
-$admin-sidebar-bg: #12102e;
-$admin-sidebar-hover: rgba(255, 255, 255, 0.08);
-$admin-sidebar-active: rgba(83, 74, 183, 0.35);
+// Admin Backgrounds
+$admin-sidebar-bg: var(--bg-sidebar);
+$admin-sidebar-hover: var(--bg-hover);
+$admin-sidebar-active: var(--brand-surface);
 
 // Status Color Mappings (Background & Foreground pairs)
-$status-green-bg: #EAF3DE;
-$status-green-text: #27500A;
+$status-green-bg: var(--status-green-bg);
+$status-green-text: var(--status-green-text);
 
-$status-amber-bg: #FAEEDA;
-$status-amber-text: #633806;
+$status-amber-bg: var(--status-amber-bg);
+$status-amber-text: var(--status-amber-text);
 
-$status-red-bg: #FCEBEB;
-$status-red-text: #791F1F;
+$status-red-bg: var(--status-red-bg);
+$status-red-text: var(--status-red-text);
 
-$status-purple-bg: #EEEDFE;
-$status-purple-text: #3C3489;
+$status-purple-bg: var(--status-purple-bg);
+$status-purple-text: var(--status-purple-text);
 
-$status-grey-bg: #F1EFE8;
-$status-grey-text: #444441;
+$status-grey-bg: var(--status-grey-bg);
+$status-grey-text: var(--status-grey-text);
 
-$status-teal-bg: #E1F5EE;
-$status-teal-text: #085041;
+$status-teal-bg: var(--status-green-bg);
+$status-teal-text: var(--status-green-text);
 
-$status-blue-bg: #E6F1FB;
-$status-blue-text: #0C447C;
+$status-blue-bg: var(--status-blue-bg);
+$status-blue-text: var(--status-blue-text);
 
 // Layout spacing scale tokens
 $spacing-xs: 4px;

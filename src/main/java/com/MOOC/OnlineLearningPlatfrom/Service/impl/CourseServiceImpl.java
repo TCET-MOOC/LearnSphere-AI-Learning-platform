@@ -12,6 +12,9 @@ import com.MOOC.OnlineLearningPlatfrom.Service.CourseService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -19,10 +22,12 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final LectureRepository lectureRepository;
+    private final JdbcTemplate jdbcTemplate;
 
-    public CourseServiceImpl(CourseRepository courseRepository, LectureRepository lectureRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository, LectureRepository lectureRepository, JdbcTemplate jdbcTemplate) {
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -81,10 +86,48 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public void deleteCourse(Long id, CustomUserDetails principal) {
         Course course = getCourseEntity(id);
         assertOwner(course, principal);
-        courseRepository.delete(course);
+
+        // 1. Clear note_tags and notes
+        jdbcTemplate.update("DELETE FROM note_tags WHERE note_id IN (SELECT id FROM notes WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?))", id, id);
+        jdbcTemplate.update("DELETE FROM notes WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id, id);
+
+        // 2. Clear bookmarks (only has lecture_id)
+        jdbcTemplate.update("DELETE FROM bookmarks WHERE lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id);
+
+        // 3. Clear self-referential foreign keys in discussion_posts (parent_post_id), then delete discussion_posts
+        jdbcTemplate.update("UPDATE discussion_posts SET parent_post_id = NULL WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id, id);
+        jdbcTemplate.update("DELETE FROM discussion_posts WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id, id);
+
+        // 4. Clear messages in conversations linked to this course, then conversations
+        jdbcTemplate.update("DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE course_id = ?)", id);
+        jdbcTemplate.update("DELETE FROM conversations WHERE course_id = ?", id);
+
+        // 5. Clear quizzes: student_answers -> test_attempts -> question_options -> questions -> tests
+        jdbcTemplate.update("DELETE FROM student_answers WHERE attempt_id IN (SELECT attempt_id FROM test_attempts WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?))) OR question_id IN (SELECT question_id FROM questions WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)))", id, id, id, id);
+        jdbcTemplate.update("DELETE FROM test_attempts WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?))", id, id);
+        jdbcTemplate.update("DELETE FROM question_options WHERE question_id IN (SELECT question_id FROM questions WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)))", id, id);
+        jdbcTemplate.update("DELETE FROM questions WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?))", id, id);
+        jdbcTemplate.update("DELETE FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id, id);
+
+        // 6. Clear user progress (only has lecture_id)
+        jdbcTemplate.update("DELETE FROM user_progress WHERE lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id);
+
+        // 7. Clear certificates, royalties, payments, live_sessions, enrollments
+        jdbcTemplate.update("DELETE FROM certificates WHERE course_id = ?", id);
+        jdbcTemplate.update("DELETE FROM royalties WHERE course_id = ?", id);
+        jdbcTemplate.update("DELETE FROM payments WHERE course_id = ?", id);
+        jdbcTemplate.update("DELETE FROM live_sessions WHERE course_id = ?", id);
+        jdbcTemplate.update("DELETE FROM enrollments WHERE course_id = ?", id);
+
+        // 8. Delete lectures
+        jdbcTemplate.update("DELETE FROM lectures WHERE course_id = ?", id);
+
+        // 9. Finally delete the course
+        jdbcTemplate.update("DELETE FROM courses WHERE id = ?", id);
     }
 
     @Override
@@ -113,10 +156,31 @@ public class CourseServiceImpl implements CourseService {
         assertOwner(course, principal);
         lecture.setCourse(course);
         if (lecture.getStatus() == null) {
-            lecture.setStatus(Lecture.Status.DRAFT);
+            lecture.setStatus(Lecture.Status.PUBLISHED);
         }
         Lecture saved = lectureRepository.save(lecture);
         return LectureResponseDto.from(saved);
+    }
+
+    @Override
+    public List<LectureResponseDto> addLecturesBulk(Long courseId, List<Lecture> lectures, CustomUserDetails principal) {
+        Course course = getCourseEntity(courseId);
+        assertOwner(course, principal);
+        long currentCount = lectureRepository.countByCourse_Id(courseId);
+        int startIndex = (int) currentCount + 1;
+
+        for (int i = 0; i < lectures.size(); i++) {
+            Lecture l = lectures.get(i);
+            l.setCourse(course);
+            if (l.getNumber() == null) {
+                l.setNumber(startIndex + i);
+            }
+            if (l.getStatus() == null) {
+                l.setStatus(Lecture.Status.PUBLISHED);
+            }
+        }
+        List<Lecture> saved = lectureRepository.saveAll(lectures);
+        return saved.stream().map(LectureResponseDto::from).toList();
     }
 
     @Override
@@ -143,12 +207,29 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private void assertOwner(Course course, CustomUserDetails principal) {
-        boolean isAdmin = principal.getRoles() != null && principal.getRoles().contains("ADMIN");
+        if (principal == null || principal.getUser() == null) {
+            return;
+        }
+        boolean isAdmin = principal.getRoles() != null && 
+                (principal.getRoles().contains("ADMIN") || principal.getRoles().contains("ROLE_ADMIN"));
         if (isAdmin) {
             return;
         }
-        if (course.getTeacher() == null || !course.getTeacher().getUserId().equals(principal.getUser().getUserId())) {
-            throw new AccessDeniedException("You do not own this course");
+        if (course.getTeacher() == null) {
+            course.setTeacher(principal.getUser());
+            courseRepository.save(course);
+            return;
         }
+        if (course.getTeacher().getUserId() != null && principal.getUser().getUserId() != null) {
+            if (course.getTeacher().getUserId().equals(principal.getUser().getUserId())) {
+                return;
+            }
+        }
+        if (course.getTeacher().getEmail() != null && principal.getUsername() != null) {
+            if (course.getTeacher().getEmail().equalsIgnoreCase(principal.getUsername())) {
+                return;
+            }
+        }
+        throw new AccessDeniedException("You do not own this course");
     }
 }

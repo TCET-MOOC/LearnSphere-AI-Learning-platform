@@ -8,6 +8,7 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Role;
 import com.MOOC.OnlineLearningPlatfrom.Repository.*;
 import com.MOOC.OnlineLearningPlatfrom.Service.ReportsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -39,6 +40,7 @@ public class ReportsServiceImpl implements ReportsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ReportsSummaryDto getSummary() {
         long totalUsers = userAccountRepository.count();
 
@@ -56,11 +58,10 @@ public class ReportsServiceImpl implements ReportsService {
             coursesByStatus.put(status.name(), count);
         }
 
-        BigDecimal totalRevenue = paymentRepository.findAll().stream()
-                .filter(p -> p.getStatus() == Payment.Status.SUCCESS)
-                .map(Payment::getAmount)
-                .filter(java.util.Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Use a targeted SUM query instead of findAll() to avoid holding table-level locks
+        // that conflict with the payments microservice database connection.
+        BigDecimal totalRevenue = paymentRepository.sumAmountByStatus(Payment.Status.SUCCESS);
+        if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
 
         long totalCertificates = certificateRepository.count();
         long flaggedPending = flaggedContentRepository.countByStatus(FlaggedContent.Status.PENDING);

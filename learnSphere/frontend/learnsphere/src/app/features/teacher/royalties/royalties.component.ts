@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoyaltyService, RoyaltyBreakdownRow, RoyaltySourceSplit, PayoutRow } from '../services/royalty.service';
 import { NotificationService } from '@core/services/notification.service';
+import { AuthService } from '@core/auth/auth.service';
+import { PdfExportService } from '@core/services/pdf-export.service';
 
 interface EarningsRow {
   title: string;
@@ -59,7 +61,9 @@ export class RoyaltiesComponent implements OnInit {
 
   constructor(
     private royaltyService: RoyaltyService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private authService: AuthService,
+    private pdfExportService: PdfExportService
   ) {}
 
   ngOnInit(): void {
@@ -141,5 +145,37 @@ export class RoyaltiesComponent implements OnInit {
       return `₹${(amount / 100000).toFixed(1)}L`;
     }
     return `₹${Math.round(amount).toLocaleString('en-IN')}`;
+  }
+
+  downloadStatement(event: Event): void {
+    event.preventDefault();
+    if (this.earningsByCourse.length === 0) {
+      this.notificationService.info('No statement records available to export.');
+      return;
+    }
+
+    const teacher = this.authService.currentUser;
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    const currentPeriod = now.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+
+    this.pdfExportService.generateTeacherStatement({
+      teacherName: teacher?.fullName || 'Instructor',
+      teacherEmail: teacher?.email || 'instructor@learnsphere.io',
+      statementPeriod: currentPeriod,
+      generatedDate: formattedDate,
+      thisMonthTotal: this.thisMonthTotal,
+      totalEarned: this.totalEarned,
+      pendingPayout: this.pendingPayoutAmount,
+      courses: this.earningsByCourse.map(c => ({
+        title: c.title,
+        enrolled: c.enrolled,
+        externalPaid: c.externalPaid,
+        amount: c.amount,
+        status: c.status
+      }))
+    });
+
+    this.notificationService.success('📄 Royalties statement PDF generated and downloaded successfully.');
   }
 }

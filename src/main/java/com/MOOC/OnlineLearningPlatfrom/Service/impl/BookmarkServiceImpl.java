@@ -33,6 +33,13 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
+    public List<BookmarkResponseDto> getBookmarksByLecture(Long lectureId, CustomUserDetails principal) {
+        return bookmarkRepository.findByUser_UserIdAndLecture_Id(principal.getUser().getUserId(), lectureId).stream()
+                .map(BookmarkResponseDto::from)
+                .toList();
+    }
+
+    @Override
     public BookmarkResponseDto createBookmark(BookmarkRequestDto request, CustomUserDetails principal) {
         if (request.getLectureId() == null) {
             throw new BadRequestException("lectureId is required");
@@ -56,5 +63,11 @@ public class BookmarkServiceImpl implements BookmarkService {
             throw new ResourceNotFoundException("Bookmark not found with id: " + id);
         }
         bookmarkRepository.delete(bookmark);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteBookmarkByLecture(Long lectureId, CustomUserDetails principal) {
+        bookmarkRepository.deleteByUser_UserIdAndLecture_Id(principal.getUser().getUserId(), lectureId);
     }
 }

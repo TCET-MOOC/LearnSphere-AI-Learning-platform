@@ -1,75 +1,129 @@
 <header class="topbar">
   <div class="topbar__left">
-    <h1 class="brand-title">LearnSphere</h1>
+    <button class="icon-btn mobile-menu-btn" (click)="toggleMobileSidebar()" aria-label="Toggle navigation menu">
+      <lucide-icon name="menu" [size]="20"></lucide-icon>
+    </button>
     <div class="search-box">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
+      <lucide-icon name="search" [size]="16" class="search-icon"></lucide-icon>
       <input type="text" placeholder="Search courses, notes...">
     </div>
   </div>
   
   <div class="topbar__right">
+
+    <!-- Universal Theme Toggle Button (Light/Dark Switch) -->
+    <button 
+      class="icon-btn theme-btn" 
+      [title]="isDarkMode ? 'Switch to Light theme' : 'Switch to Dark theme'" 
+      (click)="toggleTheme()">
+      <lucide-icon [name]="isDarkMode ? 'sun' : 'moon'" [size]="18"></lucide-icon>
+    </button>
   
-  <button class="icon-btn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-    </svg>
-  </button>
+    <button class="icon-btn" title="Messages" [routerLink]="getMessagesRoute()">
+      <lucide-icon name="message-square" [size]="18"></lucide-icon>
+    </button>
 
-  <button class="icon-btn" title="Announcements" [routerLink]="getRoleRoute('announcements')" routerLinkActive="active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-    </svg>
-  </button>
+    <button class="icon-btn" title="Announcements" [routerLink]="getRoleRoute('announcements')" routerLinkActive="active">
+      <lucide-icon name="megaphone" [size]="18"></lucide-icon>
+    </button>
 
-  <button class="icon-btn" title="Notifications" [routerLink]="getRoleRoute('notifications')" routerLinkActive="active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-    </svg>
-    <span class="badge badge--count" *ngIf="unreadNotifications">{{ unreadNotifications > 9 ? '9+' : unreadNotifications }}</span>
-  </button>
-  
-  <div class="profile-container">
-    
-    <div class="avatar" (click)="toggleMenu()">
-      {{ userInitials }}
-    </div>
-
-    <div class="dropdown-backdrop" *ngIf="isMenuOpen" (click)="closeMenu()"></div>
-
-    <div class="profile-dropdown" *ngIf="isMenuOpen">
-      
-      <div class="dropdown-header">
-        <div class="user-name">{{ userName }}</div>
-        <div class="user-email">{{ userEmail }}</div>
-      </div>
-      
-      <div class="dropdown-divider"></div>
-
-      <a class="dropdown-item" [routerLink]="getRoleRoute('profile')" (click)="closeMenu()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
-        View profile
-      </a>
-
-      <a class="dropdown-item" [routerLink]="getRoleRoute('settings')" (click)="closeMenu()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.5 1A7 7 0 0 0 14.7 6L14.4 3h-4.8L9.3 6a7 7 0 0 0-1.7 1.1l-2.5-1-2 3.4L5.1 11a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.5-1A7 7 0 0 0 9.3 18l.3 3h4.8l.3-3a7 7 0 0 0 1.7-1.1l2.5 1 2-3.4-2-1.5a7 7 0 0 0 .1-1Z"></path></svg>
-        Settings
-      </a>
-
-      <div class="dropdown-divider"></div>
-      
-      <button class="dropdown-item text-danger" (click)="signOut()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
-        </svg>
-        Sign out
+    <div class="notification-container" style="position: relative;">
+      <button class="icon-btn" title="Notifications" (click)="toggleNotifications()">
+        <lucide-icon name="bell" [size]="18"></lucide-icon>
+        <span class="badge badge--count" *ngIf="unreadNotifications">{{ unreadNotifications > 9 ? '9+' : unreadNotifications }}</span>
       </button>
-      
-    </div>
-  </div>
 
-</div>
+      <div class="dropdown-backdrop" *ngIf="isNotificationsOpen" (click)="closeNotifications()"></div>
+
+      <div class="profile-dropdown notifications-dropdown" *ngIf="isNotificationsOpen">
+        <div class="dropdown-header">
+          <div class="header-left">
+            <span>Notifications</span>
+            <span class="unread-pill" *ngIf="unreadNotifications">{{ unreadNotifications }} New</span>
+          </div>
+          <button class="btn-text" (click)="markAllAsRead()" *ngIf="unreadNotifications > 0">Mark all read</button>
+        </div>
+        
+        <div class="notifications-list">
+          <div 
+            class="notification-item" 
+            *ngFor="let n of notifications" 
+            [class.unread]="!n.read"
+            (click)="onNotificationClick(n)">
+            
+            <div class="notification-icon" [attr.data-category]="n.category">
+              <lucide-icon [name]="getNotificationIcon(n.category)" [size]="16"></lucide-icon>
+            </div>
+            
+            <div class="notification-content">
+              <div class="notif-head">
+                <strong class="notif-title">{{ n.title }}</strong>
+                <span class="unread-dot" *ngIf="!n.read"></span>
+              </div>
+              <p class="notif-body">{{ n.body }}</p>
+              <span class="notif-time">{{ n.time }}</span>
+            </div>
+          </div>
+
+          <div class="notification-item-empty" *ngIf="notifications.length === 0">
+            <div class="empty-icon">
+              <lucide-icon name="bell" [size]="24"></lucide-icon>
+            </div>
+            <strong>All caught up!</strong>
+            <p>You have no new notifications.</p>
+          </div>
+        </div>
+
+        <div class="dropdown-footer">
+          <button class="dropdown-item" [routerLink]="getRoleRoute('notifications')" (click)="closeNotifications()">
+            <span>View all notifications</span>
+            <lucide-icon name="chevron-right" [size]="14"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-container">
+      
+      <div class="avatar" (click)="toggleMenu()">
+        {{ userInitials }}
+      </div>
+
+      <div class="dropdown-backdrop" *ngIf="isMenuOpen" (click)="closeMenu()"></div>
+
+      <div class="profile-dropdown" *ngIf="isMenuOpen">
+        
+        <div class="dropdown-header">
+          <div class="user-name">{{ userName }}</div>
+          <div class="user-email">{{ userEmail }}</div>
+        </div>
+        
+        <div class="dropdown-divider"></div>
+
+        <button class="dropdown-item" type="button" (click)="toggleTheme()">
+          <lucide-icon [name]="isDarkMode ? 'sun' : 'moon'" [size]="16"></lucide-icon>
+          <span>{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}</span>
+        </button>
+
+        <a class="dropdown-item" [routerLink]="getRoleRoute('profile')" (click)="closeMenu()">
+          <lucide-icon name="user" [size]="16"></lucide-icon>
+          <span>View profile</span>
+        </a>
+
+        <a class="dropdown-item" [routerLink]="getRoleRoute('settings')" (click)="closeMenu()">
+          <lucide-icon name="settings" [size]="16"></lucide-icon>
+          <span>Settings</span>
+        </a>
+
+        <div class="dropdown-divider"></div>
+        
+        <button class="dropdown-item text-danger" (click)="signOut()">
+          <lucide-icon name="x" [size]="16"></lucide-icon>
+          <span>Sign out</span>
+        </button>
+        
+      </div>
+    </div>
+
+  </div>
 </header>

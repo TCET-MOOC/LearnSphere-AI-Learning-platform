@@ -76,6 +76,13 @@ public class CourseController {
         return ResponseEntity.ok(courseService.addLecture(id, lecture, principal));
     }
 
+    @PostMapping("/teacher/courses/{id}/bulk-lectures")
+    public ResponseEntity<List<LectureResponseDto>> addLecturesBulk(@PathVariable Long id,
+                                                                      @RequestBody List<Lecture> lectures,
+                                                                      @AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(courseService.addLecturesBulk(id, lectures, principal));
+    }
+
     @PutMapping("/teacher/lectures/{id}")
     public ResponseEntity<LectureResponseDto> updateLecture(@PathVariable Long id,
                                                               @RequestBody Lecture lecture,

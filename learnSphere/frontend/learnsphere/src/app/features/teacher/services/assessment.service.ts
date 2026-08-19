@@ -5,6 +5,7 @@ import { QuestionDraft } from '@core/models/assessment.model';
 
 export interface TeacherTestDraft {
   course: { id: number };
+  lecture?: { id: number };
   title: string;
   durationMinutes: number;
   securityPolicy?: string;
@@ -13,8 +14,7 @@ export interface TeacherTestDraft {
 
 /**
  * TeacherAssessmentService lets a teacher author a test on one of their own
- * courses (create the test, then add questions to it). Backend enforces
- * that the course belongs to the authenticated teacher.
+ * courses or lectures (create the test, then add questions to it with or without AI).
  */
 @Injectable({
   providedIn: 'root'
@@ -26,7 +26,31 @@ export class TeacherAssessmentService {
     return this.apiService.post<any>('/teacher/tests', draft);
   }
 
+  getTestsForCourse(courseId: number): Observable<any[]> {
+    return this.apiService.get<any[]>(`/teacher/tests/course/${courseId}`);
+  }
+
+  getTestsForLecture(lectureId: number): Observable<any[]> {
+    return this.apiService.get<any[]>(`/teacher/tests/lecture/${lectureId}`);
+  }
+
+  getTestById(testId: number): Observable<any> {
+    return this.apiService.get<any>(`/teacher/tests/${testId}`);
+  }
+
+  deleteTest(testId: number): Observable<void> {
+    return this.apiService.delete<void>(`/teacher/tests/${testId}`);
+  }
+
   addQuestion(testId: number, question: QuestionDraft): Observable<any> {
     return this.apiService.post<any>(`/teacher/tests/${testId}/questions`, question);
+  }
+
+  addQuestionsBulk(testId: number, questions: QuestionDraft[]): Observable<any[]> {
+    return this.apiService.post<any[]>(`/teacher/tests/${testId}/questions/bulk`, questions);
+  }
+
+  extractAiQuestions(transcript: string, count: number = 3): Observable<any> {
+    return this.apiService.post<any>('/ai/extract-questions', { transcript, count });
   }
 }

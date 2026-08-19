@@ -3,8 +3,9 @@
   <!-- Header -->
   <div class="page-header">
     <div>
-      <h1 class="page-header__title">💬 Discussion</h1>
-      <p class="page-header__sub">Connect, ask, and learn together</p>
+      <p class="page-header__eyebrow">Peer & Faculty Q&A</p>
+      <h1 class="page-header__title"><lucide-icon name="message-circle" class="title-icon"></lucide-icon> Discussion Forum</h1>
+      <p class="page-header__sub">Connect, ask questions, share knowledge, and collaborate on course topics.</p>
     </div>
     <div class="tabs">
       <button class="tabs__item" *ngFor="let course of courses"
@@ -15,9 +16,9 @@
   </div>
 
   <!-- Search -->
-  <div class="search-actions">
+  <div class="search-actions" *ngIf="courses.length > 0">
     <div class="search-box">
-      <i class="ti ti-search" aria-hidden="true"></i>
+      <lucide-icon name="search" style="width: 16px; height: 16px; color: #8F93A1; margin-right: 6px;"></lucide-icon>
       <input type="text" placeholder="Search discussions…" class="search-input" [(ngModel)]="searchText" />
     </div>
   </div>
@@ -28,7 +29,8 @@
     <input type="text" class="input-box" placeholder="Start a new discussion or ask a doubt…"
            [(ngModel)]="newPostText" (keydown.enter)="submitPost()" />
     <button class="new-post-btn" type="button" [disabled]="!newPostText.trim()" (click)="submitPost()">
-      <i class="ti ti-plus" aria-hidden="true"></i> Post
+      <lucide-icon name="plus"></lucide-icon>
+      <span>Post</span>
     </button>
   </div>
 
@@ -36,6 +38,21 @@
   <div class="discussions-list">
 
     <p class="empty-state" *ngIf="loading">Loading discussion…</p>
+
+    <!-- Empty State: Not enrolled in any courses -->
+    <div class="empty-state" *ngIf="!loading && courses.length === 0" style="padding: 40px 20px; text-align: center;">
+      <div style="width: 48px; height: 48px; border-radius: 50%; background: #EEEDFE; color: #534AB7; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+        <lucide-icon name="message-circle" style="width: 24px; height: 24px;"></lucide-icon>
+      </div>
+      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #1a1830;">No Course Discussions Yet</h3>
+      <p style="margin: 0 0 20px 0; color: #64748b; font-size: 14px; max-width: 400px; margin-left: auto; margin-right: auto;">
+        Discussions are organized by course. Enroll in a course from your courses catalog to join discussions and ask questions.
+      </p>
+      <a [routerLink]="['/student/courses']" class="new-post-btn">
+        <lucide-icon name="book-open"></lucide-icon>
+        <span>Explore Courses</span>
+      </a>
+    </div>
 
     <div class="disc-post" *ngFor="let post of filteredPosts">
       <div class="post-layout">
@@ -59,9 +76,11 @@
 
           <div class="post-actions">
             <button class="action-btn reply-btn" (click)="toggleReply(post.id)">
-              ↩ {{ replyingTo === post.id ? 'Cancel' : 'Reply' }}
+              <lucide-icon name="corner-down-left" class="action-icon"></lucide-icon> {{ replyingTo === post.id ? 'Cancel' : 'Reply' }}
             </button>
-            <button class="action-btn" *ngIf="canDelete(post)" (click)="remove(post)">🗑 Delete</button>
+            <button class="action-btn" *ngIf="canDelete(post)" (click)="remove(post)">
+              <lucide-icon name="trash-2" class="action-icon action-icon--danger"></lucide-icon> Delete
+            </button>
             <span class="action-btn">{{ post.replies.length }} {{ post.replies.length === 1 ? 'reply' : 'replies' }}</span>
           </div>
 
@@ -73,8 +92,8 @@
       </div>
     </div>
 
-    <div class="empty-state" *ngIf="!loading && filteredPosts.length === 0">
-      No discussion posts yet{{ activeCourseId ? ' for this course' : '' }}. Be the first to ask something.
+    <div class="empty-state" *ngIf="!loading && courses.length > 0 && filteredPosts.length === 0">
+      No discussion posts yet{{ activeCourseId ? ' for this course' : '' }}. Use the input box above to ask the first question.
     </div>
   </div>
 </div>

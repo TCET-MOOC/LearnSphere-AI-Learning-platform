@@ -1,5 +1,11 @@
-<div class="page-container">
-  <h1 class="page-title">Certificates</h1>
+<div class="certificates-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Student workspace</p>
+      <h1>Certificates & Credentials</h1>
+      <p class="sub-head">Verified academic diploma credentials, attendance recoveries, and course completion badges.</p>
+    </div>
+  </header>
 
   <p class="hint" *ngIf="loading">Loading certificates…</p>
 
@@ -8,7 +14,7 @@
       <div class="stat-box">
         <span class="stat-label">Certificates earned</span>
         <span class="stat-value">{{ earnedCerts.length }}</span>
-        <span class="stat-subtext text-success">Keep them handy</span>
+        <span class="stat-subtext text-success">Verified & downloadable</span>
       </div>
       <div class="stat-box">
         <span class="stat-label">In progress</span>
@@ -18,7 +24,7 @@
       <div class="stat-box">
         <span class="stat-label">Remedial certs</span>
         <span class="stat-value">{{ remedialCerts.length }}</span>
-        <span class="stat-subtext text-amber">Pending attempt</span>
+        <span class="stat-subtext text-amber">Attendance recovery</span>
       </div>
     </div>
 
@@ -27,16 +33,25 @@
       <div class="certs-grid" *ngIf="earnedCerts.length > 0; else noEarned">
         <div class="cert-card" *ngFor="let cert of earnedCerts">
           <div class="cert-header">
-            <div class="icon-placeholder" [class.icon-green]="cert.icon === '🎓'">{{ cert.icon }}</div>
+            <div class="icon-placeholder" [class.icon-green]="cert.icon === 'graduation-cap'">
+              <lucide-icon [name]="cert.icon" [size]="24"></lucide-icon>
+            </div>
             <div class="cert-info">
               <h3 class="course-name">{{ cert.courseName }}</h3>
               <p class="issue-details">Issued {{ cert.date }} · {{ cert.teacher }}</p>
+              <span class="credential-id">ID: {{ cert.certId }}</span>
             </div>
           </div>
           <div class="cert-actions">
             <span class="status-pill completed">Completed</span>
-            <button class="btn-link" (click)="download(cert)">⬇ Download PDF</button>
-            <button class="btn-text" (click)="share(cert)">Share</button>
+            <button class="btn-link" (click)="download(cert)">
+              <lucide-icon name="download" [size]="14"></lucide-icon>
+              <span>View & PDF</span>
+            </button>
+            <button class="btn-text" (click)="share(cert)">
+              <lucide-icon name="share-2" [size]="14"></lucide-icon>
+              <span>Share</span>
+            </button>
           </div>
         </div>
       </div>
@@ -69,4 +84,100 @@
       </div>
     </div>
   </ng-container>
+</div>
+
+<!-- Certificate Diploma Preview Modal -->
+<div class="modal-backdrop" *ngIf="selectedCertForPreview" (click)="closePreview()">
+  <div class="modal-container cert-modal" (click)="$event.stopPropagation()">
+    <div class="modal-top">
+      <div class="top-title">Official Credential Document</div>
+      <div class="top-actions">
+        <button class="action-btn print-btn" (click)="printCertificate()">
+          <lucide-icon name="download" [size]="16"></lucide-icon>
+          <span>Download / Print PDF</span>
+        </button>
+        <button class="close-btn" (click)="closePreview()">
+          <lucide-icon name="x" [size]="18"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- The Diploma Document (Printable) -->
+    <div class="diploma-wrapper" id="printable-certificate">
+      <div class="diploma-border">
+        <div class="diploma-inner">
+          <div class="diploma-seal">
+            <div class="seal-icon">🎓</div>
+            <div class="seal-text">LEARNSPHERE ACADEMY</div>
+          </div>
+
+          <p class="diploma-eyebrow">CERTIFICATE OF {{ selectedCertForPreview.type === 'REMEDIAL' ? 'ATTENDANCE FULFILLMENT' : 'ACADEMIC ACHIEVEMENT' }}</p>
+          <p class="presented-to">This is to certify that</p>
+          <h1 class="student-name">{{ selectedCertForPreview.studentName }}</h1>
+          <p class="college-affiliation">of {{ selectedCertForPreview.collegeName }}</p>
+
+          <p class="cert-body-text">
+            has successfully completed all required coursework, lecture modules, and rigorous assessments for
+          </p>
+
+          <h2 class="course-title">{{ selectedCertForPreview.courseName }}</h2>
+
+          <div class="diploma-signatures">
+            <div class="sig-block">
+              <div class="sig-line cursive-font">{{ selectedCertForPreview.teacher }}</div>
+              <div class="sig-title">Course Instructor</div>
+            </div>
+
+            <div class="sig-qr-block">
+              <div class="qr-box">
+                <img [src]="getQrCodeUrl(selectedCertForPreview)" alt="Verification QR Code" class="qr-img" />
+              </div>
+              <div class="cred-id">ID: {{ selectedCertForPreview.certId }}</div>
+              <div class="cred-date">Issued: {{ selectedCertForPreview.date }}</div>
+            </div>
+
+            <div class="sig-block">
+              <div class="sig-line cursive-font">Academic Dean</div>
+              <div class="sig-title">Director of Accreditation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal-backdrop" *ngIf="selectedCertForShare" (click)="closeShare()">
+  <div class="modal-container share-modal" (click)="$event.stopPropagation()">
+    <div class="modal-top">
+      <div class="top-title">Share Certificate</div>
+      <button class="close-btn" (click)="closeShare()">
+        <lucide-icon name="x" [size]="18"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="share-body">
+      <p class="share-desc">Showcase your achievement in <strong>{{ selectedCertForShare.courseName }}</strong> on your professional profile.</p>
+
+      <div class="share-actions-list">
+        <button class="linkedin-share-btn" (click)="shareOnLinkedIn(selectedCertForShare)">
+          <span class="li-icon">in</span>
+          <span>Add Certificate to LinkedIn Profile</span>
+          <lucide-icon name="external-link" [size]="16"></lucide-icon>
+        </button>
+
+        <div class="copy-link-section">
+          <label>Verification Link</label>
+          <div class="copy-row">
+            <input type="text" readonly [value]="getShareUrl(selectedCertForShare)">
+            <button class="copy-btn" (click)="copyShareLink(selectedCertForShare)">
+              <lucide-icon [name]="linkCopied ? 'check' : 'copy'" [size]="16"></lucide-icon>
+              <span>{{ linkCopied ? 'Copied!' : 'Copy' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

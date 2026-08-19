@@ -63,13 +63,32 @@ From the repo root:
 The API comes up on **http://localhost:8080**, base path `/api`. First boot will log
 Hibernate `create table` statements — that's expected.
 
+## 3. Run the Payments Microservice
+
+This service handles Razorpay checkouts and webhooks.
+
+### Database setup
+By default, the payments microservice uses an in-memory H2 database for local development. If you want to use PostgreSQL, update its `application.properties`.
+
+### Start it
+From the `learnsphere-payments-service` directory:
+
+```bash
+cd learnsphere-payments-service
+..\mvnw.cmd spring-boot:run  # Windows
+# or ./mvnw spring-boot:run  # Mac/Linux
+```
+
+The microservice comes up on **http://localhost:8081**.
+*Note: To test webhooks locally, you must run ngrok (`ngrok http 8081`) and configure the webhook URL in your Razorpay Dashboard. See the microservice's `README.md` for detailed instructions.*
+
 To just compile without running:
 
 ```bash
 ./mvnw compile
 ```
 
-## 3. Run the frontend
+## 4. Run the frontend
 
 ```bash
 cd learnSphere/frontend/learnsphere
@@ -82,7 +101,7 @@ The app comes up on **http://localhost:4200** and is already configured
 
 To build a production bundle: `npm run build`.
 
-## 4. First-time use
+## 5. First-time use
 
 There's no pre-seeded login — register an account for each role you want to try:
 
@@ -97,9 +116,6 @@ There's no pre-seeded login — register an account for each role you want to tr
 
 ## Known simplifications (by design, not bugs)
 
-- **Payments are simulated.** There's no real Razorpay/Stripe integration (no gateway
-  keys configured). Checkout creates a pending order and immediately verifies it
-  client-side — no real redirect/callback happens.
 - **Password reset has no email.** No SMTP is configured, so `POST /api/auth/forgot-password`
   returns the reset token directly in the response instead of emailing it, and the
   frontend auto-fills it on the reset screen.
@@ -128,9 +144,10 @@ There's no pre-seeded login — register an account for each role you want to tr
 
 ```
 .
-├── pom.xml, mvnw, src/main/java/...   Spring Boot backend
+├── pom.xml, mvnw, src/main/java/...   Spring Boot main backend
 ├── src/main/resources/
 │   └── application.properties         DB connection, JWT secret, CORS, upload dir
+├── learnsphere-payments-service/      Payments Microservice (Razorpay)
 └── learnSphere/frontend/learnsphere/  Angular frontend
     └── src/environments/              apiUrl configuration
 ```

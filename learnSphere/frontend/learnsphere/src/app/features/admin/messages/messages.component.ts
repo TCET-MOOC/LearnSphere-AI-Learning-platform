@@ -1,17 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
 import { MessagingService } from '../services/messaging.service';
 import { AuthService } from '@core/auth/auth.service';
 import { NotificationService } from '@core/services/notification.service';
 import { ConversationDto, MessageDto } from '@core/models/social.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { formatClockTime, timeAgo } from '@core/utils/time.util';
-
-// Admin messages page — mirrors teacher/student messages component structure.
-// Admin can message both teachers and students (platform-level oversight).
-// The admin dashboard uses the same light theme as teacher/student — the dark
-// theme is only applied to the admin sidebar, not the content area.
 
 interface Message {
   id: string;
@@ -37,7 +33,7 @@ interface Conversation {
 @Component({
   selector: 'app-admin-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss']
 })

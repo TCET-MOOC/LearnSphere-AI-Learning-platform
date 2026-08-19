@@ -1,13 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { AuthService } from '../../../core/auth/auth.service';
+import { getInitials } from '../../../core/utils/avatar.util';
 
 interface SettingRow { label: string; hint: string; value?: string; action?: string; enabled?: boolean; }
 interface SettingsPanel { title: string; description: string; rows: SettingRow[]; }
 
 @Component({ selector: 'app-student-settings', standalone: true, imports: [CommonModule], templateUrl: './settings.component.html', styleUrls: ['./settings.component.scss'] })
 export class SettingsComponent {
-  readonly name = 'Raj Shah';
-  readonly email = 'raj.shah@mhcollege.edu.in';
+  constructor(private authService: AuthService) {}
+  
+  get name(): string { return this.authService.currentUser?.fullName || 'Student'; }
+  get email(): string { return this.authService.currentUser?.email || ''; }
+  get initials(): string { return getInitials(this.name); }
+  
   readonly tabs = ['General', 'Notifications', 'Privacy & security', 'Account'];
   activeTab = 'General';
   saved = false;

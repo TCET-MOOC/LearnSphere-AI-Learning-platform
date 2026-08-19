@@ -1,6 +1,16 @@
 <div class="notes-page">
-  <div class="notes-page__header">
-    <h1 class="notes-page__title">My notes</h1>
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Study Notes & Annotations</p>
+      <h1>My Notes</h1>
+      <p class="subtitle">Search, organize, and revise your timestamped course notes and key insights.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn--primary" (click)="openNewNoteDialog()">
+        <lucide-icon name="plus" class="btn-icon"></lucide-icon>
+        <span>New note</span>
+      </button>
+    </div>
   </div>
 
   <!-- Dynamic course filter tabs -->
@@ -18,19 +28,18 @@
     </div>
   </div>
 
-  <!-- Search input bar and New Note button -->
+  <!-- Search input bar -->
   <div class="controls-row">
     <div class="search-input-wrap">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon" style="display: flex; align-items: center;">
+        <lucide-icon name="search"></lucide-icon>
+      </span>
       <input type="text" 
-             placeholder="Search notes…" 
+             placeholder="Search notes by title, tag, or content…" 
              [(ngModel)]="searchQuery" 
              (ngModelChange)="onSearchChange()" 
              class="search-input" />
     </div>
-    <button class="btn btn--primary" (click)="openNewNoteDialog()">
-      ➕ New note
-    </button>
   </div>
 
   <!-- Handles loading states and zero results display -->

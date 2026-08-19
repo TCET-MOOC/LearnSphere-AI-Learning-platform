@@ -1,10 +1,10 @@
-$brand: #534ab7;
-$amber: #b06000;
-$amber-soft: #fdf3eb;
-$text: #1a1830;
-$muted: #6b6880;
-$border: #e8e7ef;
-$bg: #f5f5f8;
+$brand: var(--brand-primary);
+$amber: var(--status-amber-text);
+$amber-soft: var(--status-amber-bg);
+$text: var(--text-primary);
+$muted: var(--text-muted);
+$border: var(--border-color);
+$bg: var(--bg-app);
 
 :host {
   display: block;
@@ -12,30 +12,92 @@ $bg: #f5f5f8;
 
 .assessments-page {
   min-height: 100%;
-  padding: 24px 32px;
+  padding: 28px 32px 40px;
+  max-width: 1360px;
+  margin: 0 auto;
   background: $bg;
   color: $text;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: inherit;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 }
 
 .page-head {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 
-  h1 { margin: 2px 0 0; font-size: 24px; }
+  h1 {
+    margin: 0 0 6px 0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+
+  .subtitle {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
 }
 
 .eyebrow {
-  margin: 0;
-  color: #a09db8;
-  font-size: 12px;
+  margin: 0 0 6px 0;
+  color: var(--brand-primary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.empty-state-wrap {
+  padding: 36px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.empty-state-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--brand-surface);
+  color: var(--brand-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.empty-state-title {
+  margin: 0 0 6px 0;
+  font-size: 15px;
   font-weight: 600;
+  color: var(--text-primary);
+}
+
+.empty-state-sub {
+  margin: 0 0 18px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  max-width: 420px;
+}
+
+.empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .card {
-  background: #fff;
+  background: var(--bg-surface);
   border: 1px solid $border;
-  border-radius: 12px;
-  padding: 18px;
+  border-radius: var(--border-radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--card-shadow);
 }
 
 .mt-16 { margin-top: 16px; }
@@ -44,6 +106,7 @@ $bg: #f5f5f8;
   font-size: 15px;
   font-weight: 600;
   margin: 0 0 12px;
+  color: var(--text-primary);
 }
 
 .hint {
@@ -62,7 +125,7 @@ $bg: #f5f5f8;
   justify-content: space-between;
   gap: 14px;
   padding: 14px 4px;
-  border-bottom: 1px solid $bg;
+  border-bottom: 1px solid var(--border-color);
 
   &:last-child { border-bottom: none; }
 }
@@ -73,7 +136,7 @@ $bg: #f5f5f8;
   flex-direction: column;
   gap: 3px;
 
-  strong { font-size: 13px; }
+  strong { font-size: 13px; color: var(--text-primary); }
   small { color: $muted; font-size: 11px; }
 }
 
@@ -81,15 +144,20 @@ $bg: #f5f5f8;
   border: 0;
   border-radius: 8px;
   padding: 8px 16px;
-  font: 600 12px 'Inter', Arial;
+  font: 600 12px inherit;
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
 .btn--primary {
   background: $brand;
   color: #fff;
+
+  &:hover {
+    background: var(--brand-primary-hover);
+  }
 }
 
 .btn--amber {

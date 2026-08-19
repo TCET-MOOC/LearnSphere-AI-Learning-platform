@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface UserProgressRepository extends JpaRepository<UserProgress, Long> {
     Optional<UserProgress> findByUserIdAndLecture_Id(Long userId, Long lectureId);
     List<UserProgress> findByUserId(Long userId);
+    List<UserProgress> findByUserIdAndLecture_Course_Id(Long userId, Long courseId);
 }

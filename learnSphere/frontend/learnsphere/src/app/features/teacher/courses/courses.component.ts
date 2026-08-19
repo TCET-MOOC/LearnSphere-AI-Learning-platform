@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TeacherService } from '../services/teacher.service';
@@ -29,7 +29,8 @@ export class CoursesComponent implements OnInit {
 
   constructor(
     private teacherService: TeacherService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -38,12 +39,18 @@ export class CoursesComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.cdr.markForCheck();
     this.teacherService.getCourses().subscribe({
       next: (courses) => {
-        this.courses = courses;
+        this.courses = courses || [];
         this.loading = false;
+        this.cdr.markForCheck();
       },
-      error: () => (this.loading = false)
+      error: () => {
+        this.courses = [];
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -74,9 +81,13 @@ export class CoursesComponent implements OnInit {
     this.teacherService.deleteCourse(courseId).subscribe({
       next: () => {
         this.courses = this.courses.filter(c => c.id !== courseId);
-        this.notificationService.success('Course deleted.');
+        this.notificationService.success('Course deleted successfully.');
       },
-      error: () => this.notificationService.error('Could not delete course.')
+      error: (err) => {
+        console.error('Delete course error:', err);
+        const msg = err?.error?.message || (typeof err?.error === 'string' ? err.error : 'Could not delete course.');
+        this.notificationService.error(msg);
+      }
     });
   }
 }

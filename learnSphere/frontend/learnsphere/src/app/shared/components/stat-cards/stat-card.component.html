@@ -1,7 +1,7 @@
 <div class="stat-card">
   <div class="stat-card__header">
     <div class="stat-card__icon-wrapper">
-      <span class="stat-card__icon">{{ getEmoji() }}</span>
+      <lucide-icon [name]="getIconName()" class="stat-card__icon"></lucide-icon>
     </div>
     <div class="stat-card__trend" *ngIf="trend" [ngClass]="'stat-card__trend--' + trend">
       <span class="trend-arrow">{{ trend === 'up' ? '▲' : '▼' }}</span>

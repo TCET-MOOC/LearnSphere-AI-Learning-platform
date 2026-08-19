@@ -1,38 +1,59 @@
-@import 'variables';
+:host {
+  display: block;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
 
 .note-editor-wrapper {
   position: relative;
-  overflow: hidden;
-  border-radius: $border-radius-xl;
-  background: var(--color-background-primary);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow-x: hidden;
+  box-sizing: border-box;
+  border-radius: var(--border-radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 100%;
+  box-shadow: var(--dropdown-shadow);
 }
 
 .note-editor-brand-bar {
   height: 6px;
-  background: linear-gradient(90deg, $brand-purple, #7c73e6);
+  background: linear-gradient(90deg, var(--brand-primary), #7c73e6);
   width: 100%;
 }
 
 .note-editor {
-  padding: $spacing-lg $spacing-xl $spacing-xl $spacing-xl;
-  color: var(--color-text-primary);
+  padding: 16px 20px;
+  color: var(--text-primary);
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: $spacing-md;
-    border-bottom: 1px solid var(--color-border-tertiary);
-    padding-bottom: $spacing-sm;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
   }
 
   &__title {
     font-size: 16px;
     font-weight: 600;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     margin: 0 !important;
+  }
+
+  &__content {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
   }
 }
 
@@ -41,7 +62,7 @@
   background: transparent;
   font-size: 22px;
   line-height: 1;
-  color: var(--color-text-secondary);
+  color: var(--text-muted);
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -53,15 +74,15 @@
   height: 28px;
 
   &:hover {
-    background-color: var(--color-background-secondary);
-    color: var(--color-text-primary);
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
   }
 }
 
 .editor-form {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 14px;
 }
 
 .form-group {
@@ -78,7 +99,7 @@
 
 .form-label {
   font-size: 11px;
-  color: var(--color-text-secondary);
+  color: var(--text-muted);
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -86,44 +107,43 @@
 
 .char-counter {
   font-size: 10px;
-  color: var(--color-text-secondary);
+  color: var(--text-muted);
   font-weight: 500;
 
   &.limit-near {
-    color: $status-amber-text;
+    color: var(--status-amber-text);
     font-weight: 600;
   }
 }
 
 .form-control {
-  border: 1px solid var(--color-border-secondary);
-  border-radius: $border-radius-md;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
   padding: 10px 14px;
   font-size: 13px;
-  background: var(--color-background-secondary);
-  color: var(--color-text-primary);
+  background: var(--bg-input);
+  color: var(--text-primary);
   outline: none;
   width: 100%;
   transition: all 0.2s ease;
   
   &:focus {
-    border-color: $brand-purple;
-    box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.15);
-    background: var(--color-background-primary);
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px var(--brand-surface);
   }
 }
 
 .readonly-group {
-  background: var(--color-background-secondary);
-  border-radius: $border-radius-lg;
+  background: var(--bg-hover);
+  border-radius: var(--border-radius-md);
   padding: 12px;
-  border: 1px dashed var(--color-border-secondary);
+  border: 1px dashed var(--border-color);
 }
 
 .readonly-value {
   display: flex;
   flex-wrap: wrap;
-  gap: $spacing-xs;
+  gap: 6px;
   margin-top: 4px;
   align-items: center;
 }
@@ -131,16 +151,16 @@
 .course-badge {
   font-size: 11px;
   font-weight: 600;
-  color: $brand-purple-dark;
-  background: $brand-purple-light;
+  color: var(--brand-primary);
+  background: var(--brand-surface);
   padding: 2px 8px;
-  border-radius: $border-radius-sm;
+  border-radius: var(--border-radius-sm);
 }
 
 .lecture-badge, .timestamp-badge {
   font-size: 11px;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -153,20 +173,19 @@
 
 /* Rich Text Area with Toolbar */
 .editor-textarea-container {
-  border: 1px solid var(--color-border-secondary);
-  border-radius: $border-radius-md;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
   overflow: hidden;
-  background: var(--color-background-secondary);
+  background: var(--bg-input);
   transition: all 0.2s ease;
 
   &:focus-within {
-    border-color: $brand-purple;
-    box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.15);
-    background: var(--color-background-primary);
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px var(--brand-surface);
 
     .markdown-toolbar {
-      border-bottom-color: rgba(83, 74, 183, 0.3);
-      background: rgba(83, 74, 183, 0.03);
+      border-bottom-color: var(--border-color);
+      background: var(--bg-surface-elevated);
     }
   }
 
@@ -178,6 +197,7 @@
     resize: vertical;
     line-height: 1.6;
     padding: 12px;
+    color: var(--text-primary);
 
     &:focus {
       box-shadow: none !important;
@@ -190,8 +210,8 @@
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
-  background: var(--color-background-primary);
-  border-bottom: 1px solid var(--color-border-secondary);
+  background: var(--bg-surface-elevated);
+  border-bottom: 1px solid var(--border-color);
   transition: all 0.2s ease;
   flex-wrap: wrap;
 }
@@ -199,8 +219,8 @@
 .toolbar-btn {
   background: transparent;
   border: 1px solid transparent;
-  border-radius: $border-radius-sm;
-  color: var(--color-text-primary);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
   font-size: 12px;
   padding: 4px 8px;
   cursor: pointer;
@@ -211,8 +231,8 @@
   height: 24px;
   
   &:hover {
-    background-color: var(--color-background-secondary);
-    border-color: var(--color-border-secondary);
+    background-color: var(--bg-hover);
+    border-color: var(--border-color);
   }
 
   strong { font-weight: 700; }
@@ -223,21 +243,23 @@
 .toolbar-divider {
   width: 1px;
   height: 16px;
-  background-color: var(--color-border-secondary);
+  background-color: var(--border-color);
   margin: 0 6px;
 }
 
 .toolbar-tip {
   font-size: 10px;
-  color: var(--color-text-secondary);
+  color: var(--text-muted);
   margin-left: auto;
   font-style: italic;
+  white-space: normal;
+  flex-shrink: 1;
 }
 
 /* Tag Inputs */
 .tag-input-container {
   display: flex;
-  gap: $spacing-sm;
+  gap: 8px;
   
   .tag-input-wrap {
     flex: 1;
@@ -251,7 +273,7 @@
     left: 12px;
     font-size: 13px;
     font-weight: 600;
-    color: $brand-purple;
+    color: var(--brand-primary);
   }
 
   .tag-input {
@@ -263,32 +285,31 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: $spacing-xs;
+  margin-top: 4px;
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background-color: $brand-purple-light;
-  color: $brand-purple-dark;
+  background-color: var(--brand-surface);
+  color: var(--brand-primary);
   font-size: 11px;
   padding: 4px 10px;
-  border-radius: $border-radius-round;
+  border-radius: 20px;
   font-weight: 500;
-  border: 0.5px solid rgba(83, 74, 183, 0.2);
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid var(--border-color);
+  transition: all 0.15s ease;
   
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(83, 74, 183, 0.15);
+    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.15);
   }
   
   &__remove-btn {
     border: none;
     background: transparent;
-    color: $brand-purple-dark;
+    color: var(--brand-primary);
     cursor: pointer;
     font-size: 14px;
     padding: 0;
@@ -302,25 +323,14 @@
     transition: background-color 0.15s ease;
     
     &:hover {
-      background-color: rgba(83, 74, 183, 0.15);
+      background-color: var(--bg-hover);
     }
-  }
-}
-
-@keyframes popIn {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
   }
 }
 
 .error-msg {
   font-size: 11px;
-  color: $status-red-text;
+  color: var(--status-red-text);
   font-weight: 500;
   margin-top: 2px;
 }
@@ -328,27 +338,27 @@
 .editor-actions {
   display: flex;
   justify-content: flex-end;
-  gap: $spacing-sm;
-  margin-top: $spacing-lg;
-  border-top: 1px solid var(--color-border-tertiary);
-  padding-top: $spacing-md;
+  gap: 8px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 14px;
 }
 
 .btn {
-  border-radius: $border-radius-md;
+  border-radius: var(--border-radius-md);
   border: 1px solid transparent;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   padding: 8px 18px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &--primary {
-    background-color: $brand-purple;
+    background-color: var(--brand-primary);
     color: #fff;
     
     &:disabled {
@@ -359,8 +369,8 @@
     }
     
     &:not(:disabled):hover {
-      background-color: darken($brand-purple, 5%);
-      box-shadow: 0 4px 6px -1px rgba(83, 74, 183, 0.2), 0 2px 4px -1px rgba(83, 74, 183, 0.1);
+      background-color: var(--brand-primary-hover);
+      box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.25);
       transform: translateY(-1px);
     }
 
@@ -370,24 +380,24 @@
   }
 
   &--secondary {
-    background-color: var(--color-background-secondary);
-    color: var(--color-text-primary);
-    border-color: var(--color-border-secondary);
+    background-color: var(--bg-surface-elevated);
+    color: var(--text-primary);
+    border-color: var(--border-color);
 
     &:hover {
-      background-color: var(--color-background-primary);
-      border-color: var(--color-text-secondary);
+      background-color: var(--bg-hover);
+      border-color: var(--brand-primary);
     }
   }
 
   &--ghost {
     background-color: transparent;
-    color: var(--color-text-secondary);
+    color: var(--text-muted);
     border-color: transparent;
     
     &:hover {
-      background-color: var(--color-background-secondary);
-      color: var(--color-text-primary);
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
     }
   }
 
@@ -396,4 +406,3 @@
     font-size: 12px;
   }
 }
-

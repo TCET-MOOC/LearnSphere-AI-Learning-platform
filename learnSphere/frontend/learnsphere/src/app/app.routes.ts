@@ -22,12 +22,15 @@ import { CoursesComponent as TeacherCourses } from './features/teacher/courses/c
 import { CourseManagementComponent as TeacherCourseManagement } from './features/teacher/courses/course-management/course-management.component';
 import { UploadComponent as TeacherUpload } from './features/teacher/upload/upload.component';
 import { AssessmentsComponent as StudentAssessments } from './features/student/assessments/assessments.component';
+import { PurchasesComponent as StudentPurchases } from './features/student/purchases/purchases.component';
 import { QuizComponent as StudentQuiz } from './features/student/assessments/quiz/quiz.component';
 import { UsersComponent as AdminUsers } from './features/admin/users/users.component';
 import { LeaderboardComponent as StudentLeaderboard } from './features/student/leaderboard/leaderboard.component';
 import { DiscussionComponent as StudentDiscussion } from './features/student/discussion/discussion.component';
 import { DiscussionComponent as TeacherDiscussion } from './features/teacher/discussion/discussion.component';
 import { LiveComponent as TeacherLive } from './features/teacher/live/live.component';
+import { StudentLiveComponent } from './features/student/live/live.component';
+import { StudentLiveRoomComponent } from './features/student/live/live-room.component';
 import { TrendingComponent as TeacherTrending } from './features/teacher/trending/trending.component';
 import { PayoutsComponent as AdminPayouts } from './features/admin/payouts/payouts.component';
 import { FlaggedComponent as AdminFlagged } from './features/admin/flagged/flagged.component';
@@ -47,6 +50,7 @@ import { CollegesComponent as AdminColleges } from './features/admin/colleges/co
 import { ReportsComponent as AdminReports } from './features/admin/reports/reports.component';
 import { RevenueComponent as AdminRevenue } from './features/admin/revenue/revenue.component';
 import { CoursesComponent as AdminCourses } from './features/admin/courses/courses.component';
+import { VerifyCertificateComponent } from './features/public/verify-certificate/verify-certificate.component';
 import { CheckoutComponent } from './features/payment/checkout.component';
 import { PaymentSuccessComponent } from './features/payment/payment-success.component';
 import { NotFoundComponent } from './features/not-found/not-found.component';
@@ -65,6 +69,9 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'verify-college', component: VerifyCollegeComponent, canActivate: [authGuard] },
+  { path: 'verify-certificate', component: VerifyCertificateComponent },
+  { path: 'verify-certificate/:code', component: VerifyCertificateComponent },
+  { path: 'verify/certificate/:code', component: VerifyCertificateComponent },
   { path: 'payment/checkout/:courseId', component: CheckoutComponent, canActivate: [authGuard] },
   { path: 'payment/success', component: PaymentSuccessComponent, canActivate: [authGuard] },
 
@@ -72,6 +79,7 @@ export const routes: Routes = [
   { path: 'student/dashboard', component: StudentDashboard, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/courses', component: StudentCourses, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/courses/:id', component: StudentCourseDetail, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/courses/:courseId/lectures/:lectureId', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/courses/:courseId/lecture/:lectureId', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/lectures', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/notes', component: StudentNotes, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
@@ -80,6 +88,9 @@ export const routes: Routes = [
   { path: 'student/leaderboard', component: StudentLeaderboard, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/discussion', component: StudentDiscussion, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/certificates', component: CertificatesComponent, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/purchases', component: StudentPurchases, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/live', component: StudentLiveComponent, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/live/:id', component: StudentLiveRoomComponent, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/assessments', component: StudentAssessments, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/assessments/:id', component: StudentQuiz, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/settings', component: StudentSettings, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },

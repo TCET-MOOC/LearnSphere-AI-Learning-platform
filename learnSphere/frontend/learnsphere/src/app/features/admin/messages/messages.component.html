@@ -2,10 +2,14 @@
 
   <!-- Header -->
   <div class="page-header">
-    <h1 class="page-title">Messages</h1>
+    <div>
+      <p class="eyebrow">Administrative Broadcasts & Inbox</p>
+      <h1 class="page-title">Messages</h1>
+      <p class="subtitle">Direct communication with faculty members, student representatives, and institutional deans.</p>
+    </div>
     <div class="header-actions">
       <div class="search-box">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <lucide-icon name="search" [size]="16" class="search-icon"></lucide-icon>
         <input type="text" placeholder="Search conversations..." [(ngModel)]="searchText" class="search-input" />
       </div>
     </div>
@@ -44,7 +48,8 @@
         </div>
 
         <div class="conv-empty" *ngIf="filteredConversations.length === 0">
-          No conversations found
+          <lucide-icon name="message-square" class="empty-icon"></lucide-icon>
+          <p>No conversations found</p>
         </div>
       </div>
     </div>
@@ -80,11 +85,17 @@
                [(ngModel)]="newMessage"
                class="chat-input"
                (keydown.enter)="sendMessage()" />
-        <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()" title="Send message">
+          <lucide-icon name="send" [size]="16"></lucide-icon>
         </button>
       </div>
 
+    </div>
+
+    <div class="chat-panel chat-panel--empty" *ngIf="!selectedConversation">
+      <lucide-icon name="message-square" [size]="40" class="empty-icon"></lucide-icon>
+      <h3>Select a conversation</h3>
+      <p>Choose an ongoing thread from the list on the left to review messages.</p>
     </div>
 
   </div>

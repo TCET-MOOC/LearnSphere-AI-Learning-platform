@@ -21,41 +21,41 @@ import { CommonModule } from '@angular/common';
     .pill {
       display: inline-flex;
       align-items: center;
-      padding: 2px 8px;
-      border-radius: $border-radius-round;
+      padding: 3px 8px;
+      border-radius: 20px;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       white-space: nowrap;
       line-height: 1.4;
       text-transform: capitalize;
 
       &--green {
-        background-color: $status-green-bg;
-        color: $status-green-text;
+        background-color: var(--status-green-bg);
+        color: var(--status-green-text);
       }
       &--amber {
-        background-color: $status-amber-bg;
-        color: $status-amber-text;
+        background-color: var(--status-amber-bg);
+        color: var(--status-amber-text);
       }
       &--red {
-        background-color: $status-red-bg;
-        color: $status-red-text;
+        background-color: var(--status-red-bg);
+        color: var(--status-red-text);
       }
       &--purple {
-        background-color: $status-purple-bg;
-        color: $status-purple-text;
+        background-color: var(--status-purple-bg);
+        color: var(--status-purple-text);
       }
       &--grey {
-        background-color: $status-grey-bg;
-        color: $status-grey-text;
+        background-color: var(--status-grey-bg);
+        color: var(--status-grey-text);
       }
       &--teal {
-        background-color: $status-teal-bg;
-        color: $status-teal-text;
+        background-color: var(--status-green-bg);
+        color: var(--status-green-text);
       }
       &--blue {
-        background-color: $status-blue-bg;
-        color: $status-blue-text;
+        background-color: var(--status-blue-bg);
+        color: var(--status-blue-text);
       }
     }
   `]

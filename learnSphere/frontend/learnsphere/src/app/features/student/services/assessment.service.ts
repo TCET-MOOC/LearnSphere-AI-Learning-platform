@@ -21,10 +21,16 @@ export class AssessmentService {
 
   constructor(private apiService: ApiService) {}
 
-  /** Tests available for a course, or all visible tests if courseId is omitted. */
-  getAssessments(courseId?: number): Observable<Assessment[]> {
-    const params = courseId != null ? { courseId: String(courseId) } : undefined;
+  /** Tests available for a course/lecture, or all visible tests if omitted. */
+  getAssessments(courseId?: number, lectureId?: number): Observable<Assessment[]> {
+    const params: Record<string, string> = {};
+    if (courseId != null) params['courseId'] = String(courseId);
+    if (lectureId != null) params['lectureId'] = String(lectureId);
     return this.apiService.get<Assessment[]>('/assessments', { params });
+  }
+
+  getAssessmentsByLecture(lectureId: number): Observable<Assessment[]> {
+    return this.apiService.get<Assessment[]>(`/assessments/lecture/${lectureId}`);
   }
 
   /** Full test detail (questions, without correct answers). */

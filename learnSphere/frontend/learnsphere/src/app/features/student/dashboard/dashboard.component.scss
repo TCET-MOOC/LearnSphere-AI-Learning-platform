@@ -3,26 +3,25 @@
 // Uses variables from src/styles/_variables.scss
 // Brand purple: $brand-purple (#534AB7)
 // Status colours: $status-red, $status-amber, $status-green, $status-purple, $status-grey
-// ──────────────────────────────────────────────────────
-@use "sass:color"; 
-$brand-purple:    #534AB7;
-$brand-purple-lt: #EEEDFE;
-$status-red:      #E5453A;
-$status-red-lt:   #FDECEA;
-$status-amber:    #D08C1A;
-$status-amber-lt: #FEF6E4;
-$status-green:    #1D9E75;
-$status-green-lt: #E3F6F0;
-$status-purple:   $brand-purple;
-$status-grey:     #888780;
-$status-grey-lt:  #F1EFE8;
+
+$brand-purple:    var(--brand-primary);
+$brand-purple-lt: var(--brand-surface);
+$status-red:      var(--status-red-text);
+$status-red-lt:   var(--status-red-bg);
+$status-amber:    var(--status-amber-text);
+$status-amber-lt: var(--status-amber-bg);
+$status-green:    var(--status-green-text);
+$status-green-lt: var(--status-green-bg);
+$status-purple:   var(--brand-primary);
+$status-grey:     var(--text-muted);
+$status-grey-lt:  var(--bg-hover);
  
-$surface:         #FFFFFF;
-$bg:              #F5F5F8;
-$border:          #E8E7EF;
-$text-primary:    #1A1830;
-$text-secondary:  #6B6880;
-$text-tertiary:   #A09DB8;
+$surface:         var(--bg-surface);
+$bg:              var(--bg-app);
+$border:          var(--border-color);
+$text-primary:    var(--text-primary);
+$text-secondary:  var(--text-secondary);
+$text-tertiary:   var(--text-muted);
 $radius-sm:       6px;
 $radius-md:       10px;
 $radius-lg:       14px;
@@ -30,13 +29,14 @@ $radius-lg:       14px;
 // ── Layout ──────────────────────────────────────────
  
 .dashboard {
-  padding: 28px 32px;
+  padding: 28px 32px 40px;
+  max-width: 1360px;
+  margin: 0 auto;
   background: $bg;
-//   min-height: 100vh;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: inherit;
  
   @media (max-width: 768px) {
     padding: 16px;
@@ -61,9 +61,12 @@ $radius-lg:       14px;
 }
  
 .greeting__eyebrow {
-  font-size: 13px;
-  color: $text-tertiary;
-  letter-spacing: 0.02em;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brand-primary);
+  margin-bottom: 2px;
 }
  
 .greeting__name {
@@ -99,7 +102,7 @@ $radius-lg:       14px;
     padding: 8px 16px;
     font-size: 13px;
  
-    &:hover { background: color.adjust($brand-purple, $lightness: -8%); }
+    &:hover { background: var(--brand-primary-hover); }
   }
  
   &--sm {
@@ -377,8 +380,8 @@ $radius-lg:       14px;
   transition: border-color 0.12s, box-shadow 0.12s;
  
   &:hover {
-    border-color: color.adjust($brand-purple, $lightness: 20%);
-    box-shadow: 0 2px 10px rgba($brand-purple, 0.06);
+    border-color: var(--brand-primary);
+    box-shadow: var(--card-shadow);
   }
  
   &__left { flex: 1; min-width: 0; }

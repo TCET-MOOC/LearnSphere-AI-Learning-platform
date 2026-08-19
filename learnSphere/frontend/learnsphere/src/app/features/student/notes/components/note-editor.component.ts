@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { StudentService } from '../../services/student.service';
 import { Note } from '@core/models/course.model';
+import { LucideAngularModule, Video, Clock } from 'lucide-angular';
 
 /**
  * NoteEditorComponent is a reactive form modal displayed inside MatDialog.
@@ -16,7 +17,8 @@ import { Note } from '@core/models/course.model';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    MatDialogModule
+    MatDialogModule,
+    LucideAngularModule
   ],
   templateUrl: './note-editor.component.html',
   styleUrls: ['./note-editor.component.scss']

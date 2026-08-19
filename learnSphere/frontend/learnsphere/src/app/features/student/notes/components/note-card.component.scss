@@ -1,23 +1,21 @@
-@import 'variables';
-
 .note-card {
-  background: var(--color-background-primary);
-  border: 1px solid var(--color-border-tertiary);
-  border-left: 4px solid $brand-purple; /* Left vertical accent */
-  border-radius: $border-radius-lg;
-  padding: $spacing-md $spacing-lg;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--brand-primary);
+  border-radius: var(--border-radius-lg);
+  padding: 14px 18px;
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
+  gap: 8px;
   width: 100%;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--card-shadow);
 
   &:hover {
     transform: translateY(-2px);
-    border-color: rgba(83, 74, 183, 0.35);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    border-color: var(--brand-primary);
     
     .kebab-btn {
       opacity: 1;
@@ -33,13 +31,13 @@
   &__title {
     font-size: 14px;
     font-weight: 600;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     line-height: 1.4;
   }
 
   &__sub {
     font-size: 11px;
-    color: var(--color-text-secondary);
+    color: var(--text-muted);
     margin-top: 3px;
     display: flex;
     align-items: center;
@@ -48,7 +46,7 @@
   }
 
   &__timestamp {
-    color: $brand-purple;
+    color: var(--brand-primary);
     text-decoration: none;
     font-weight: 600;
     display: inline-flex;
@@ -57,18 +55,17 @@
     
     &:hover {
       text-decoration: underline;
-      color: $brand-purple-dark;
     }
   }
 
   &__time {
-    color: var(--color-text-secondary);
+    color: var(--text-muted);
   }
 
   &__actions {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
+    gap: 8px;
   }
 
   .kebab-btn {
@@ -76,7 +73,7 @@
     background: transparent;
     font-size: 16px;
     cursor: pointer;
-    color: var(--color-text-secondary);
+    color: var(--text-muted);
     width: 26px;
     height: 26px;
     display: flex;
@@ -86,25 +83,25 @@
     transition: all 0.15s ease;
     
     &:hover {
-      background-color: var(--color-background-secondary);
-      color: var(--color-text-primary);
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
     }
   }
 
   &__body {
     font-size: 13px;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     line-height: 1.6;
-    background: var(--color-background-secondary);
-    border-radius: $border-radius-md;
+    background: var(--bg-hover);
+    border-radius: var(--border-radius-md);
     padding: 10px 12px;
     margin-top: 6px;
     white-space: pre-wrap;
-    border: 1px solid var(--color-border-tertiary);
+    border: 1px solid var(--border-color);
 
     strong {
       font-weight: 600;
-      color: var(--color-text-primary);
+      color: var(--text-primary);
     }
 
     em {
@@ -112,13 +109,13 @@
     }
 
     .inline-code {
-      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-family: ui-monospace, 'Consolas', monospace;
       font-size: 12px;
-      background-color: rgba(83, 74, 183, 0.08);
-      color: $brand-purple-dark;
+      background-color: var(--brand-surface);
+      color: var(--brand-primary);
       padding: 2px 5px;
       border-radius: 4px;
-      border: 0.5px solid rgba(83, 74, 183, 0.15);
+      border: 1px solid var(--border-color);
     }
 
     .bullet-item {
@@ -137,22 +134,22 @@
     .tag {
       display: inline-flex;
       padding: 2px 8px;
-      border-radius: $border-radius-round;
+      border-radius: 20px;
       font-size: 10px;
       font-weight: 500;
-      background: $brand-purple-light;
-      color: $brand-purple-dark;
-      border: 0.5px solid rgba(83, 74, 183, 0.1);
+      background: var(--brand-surface);
+      color: var(--brand-primary);
+      border: 1px solid var(--border-color);
       transition: all 0.15s ease;
 
       &:hover {
-        background: darken($brand-purple-light, 2%);
-        border-color: rgba(83, 74, 183, 0.25);
+        background: var(--brand-primary);
+        color: #fff;
       }
     }
   }
 }
 
 .menu-item-danger {
-  color: $status-red-text !important;
+  color: var(--status-red-text) !important;
 }

@@ -28,11 +28,23 @@ public class Certificate {
 
     private String title;
 
+    @Column(unique = true)
+    private String verificationCode;
+
+    private String studentName;
+    private String instructorName;
+    private String grade;
+    private Double score;
+    private String status = "ACTIVE";
+
     private LocalDateTime issuedAt;
 
     @PrePersist
     protected void onCreate() {
         this.issuedAt = LocalDateTime.now();
+        if (this.verificationCode == null) {
+            this.verificationCode = "LS-" + java.time.Year.now().getValue() + "-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        }
     }
 
     public enum Type {

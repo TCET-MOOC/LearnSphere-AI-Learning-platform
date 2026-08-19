@@ -4,10 +4,15 @@ import { ModerationService, FlaggedContentItem } from '../services/moderation.se
 import { NotificationService } from '@core/services/notification.service';
 import { timeAgo } from '@core/utils/time.util';
 
+import { LucideAngularModule, Flag, Siren } from 'lucide-angular';
+
 @Component({
   selector: 'app-flagged',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    LucideAngularModule
+  ],
   templateUrl: './flagged.component.html',
   styleUrls: ['./flagged.component.scss']
 })

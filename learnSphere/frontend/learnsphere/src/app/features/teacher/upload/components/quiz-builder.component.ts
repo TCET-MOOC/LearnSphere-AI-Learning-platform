@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
 import { TeacherService } from '../../services/teacher.service';
 import { TeacherAssessmentService } from '../../services/assessment.service';
 import { Course } from '@core/models/course.model';
@@ -9,148 +10,513 @@ import { NotificationService } from '@core/services/notification.service';
 
 const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
 
-/**
- * QuizBuilderComponent lets a teacher build a Test (with Questions) against
- * one of their own courses: pick the course, set test-level details, then
- * add questions one at a time (MCQ questions collect options + the correct
- * answer so the backend can auto-grade; other types just collect marks).
- *
- * Self-contained (not yet wired into a parent template) — see the courses
- * dropdown for ownership scoping and NotificationService for feedback.
- */
 @Component({
   selector: 'app-quiz-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   template: `
     <div class="quiz-builder">
-      <h3>Build a test</h3>
-      <p class="hint">Create a test for one of your courses, then add its questions below.</p>
-
-      <div class="form-grid" *ngIf="!createdTestId">
-        <label>
-          Course
-          <select [(ngModel)]="courseId" [disabled]="courses.length === 0">
-            <option [ngValue]="null" disabled>Select a course…</option>
-            <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
-          </select>
-        </label>
-        <label>
-          Test title
-          <input type="text" [(ngModel)]="title" placeholder="e.g. Unit 3 quiz" />
-        </label>
-        <label>
-          Duration (minutes)
-          <input type="number" min="1" [(ngModel)]="durationMinutes" />
-        </label>
-        <label class="checkbox-row">
-          <input type="checkbox" [(ngModel)]="isRemedial" />
-          <span>This is a remedial / makeup test</span>
-        </label>
+      <div class="builder-header">
+        <div>
+          <h3>Course Assessments & Quiz Manager</h3>
+          <p class="hint">Create assessments, add auto-graded MCQ questions, or manage existing tests.</p>
+        </div>
+        <button 
+          class="btn btn--primary" 
+          *ngIf="!showCreateForm && !createdTestId" 
+          (click)="openNewTestForm()">
+          <lucide-icon name="plus" [size]="15"></lucide-icon>
+          <span>Build New Test</span>
+        </button>
+        <button 
+          class="btn btn--ghost" 
+          *ngIf="showCreateForm || createdTestId" 
+          (click)="cancelOrFinish()">
+          <lucide-icon name="arrow-left" [size]="15"></lucide-icon>
+          <span>Back to Tests List</span>
+        </button>
       </div>
 
-      <button
-        type="button"
-        class="btn btn--primary"
-        *ngIf="!createdTestId"
-        [disabled]="!courseId || !title || !durationMinutes || creatingTest"
-        (click)="createTest()">
-        {{ creatingTest ? 'Creating…' : 'Create test' }}
-      </button>
+      <!-- Existing Tests List View -->
+      <div class="existing-tests-view" *ngIf="!showCreateForm && !createdTestId">
+        <div class="loading-state" *ngIf="loadingTests">
+          <span>Loading course tests...</span>
+        </div>
 
-      <div class="questions-section" *ngIf="createdTestId">
-        <p class="status">Test "{{ title }}" created. Add its questions below.</p>
-
-        <div class="question-list" *ngIf="savedQuestions.length > 0">
-          <div class="saved-question" *ngFor="let q of savedQuestions; let i = index">
-            <strong>{{ i + 1 }}. {{ q.body }}</strong>
-            <span>{{ q.questionType }} · {{ q.marks }} mark{{ q.marks === 1 ? '' : 's' }}</span>
+        <div class="tests-grid" *ngIf="!loadingTests && existingTests.length > 0">
+          <div class="test-card" *ngFor="let t of existingTests">
+            <div class="test-card-head">
+              <div class="test-title-box">
+                <h4>{{ t.title }}</h4>
+                <div class="test-badges">
+                  <span class="badge duration-badge">
+                    <lucide-icon name="clock" [size]="12"></lucide-icon>
+                    {{ t.durationMinutes }} mins
+                  </span>
+                  <span class="badge remedial-badge" *ngIf="t.isRemedial">Remedial / Makeup</span>
+                </div>
+              </div>
+              <div class="test-card-actions">
+                <button class="btn btn--soft btn--sm" (click)="manageTest(t)">
+                  <lucide-icon name="plus" [size]="13"></lucide-icon>
+                  <span>Add Questions</span>
+                </button>
+                <button class="btn btn--danger-outline btn--sm" (click)="deleteTest(t)">
+                  <lucide-icon name="trash-2" [size]="13"></lucide-icon>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
+        <div class="empty-tests" *ngIf="!loadingTests && existingTests.length === 0">
+          <lucide-icon name="file-question" [size]="32" class="empty-icon"></lucide-icon>
+          <p>No tests created for this course yet.</p>
+          <button class="btn btn--primary btn--sm" (click)="openNewTestForm()">Create First Test</button>
+        </div>
+      </div>
+
+      <!-- Test Creation Form -->
+      <div class="test-form-panel" *ngIf="showCreateForm && !createdTestId">
         <div class="form-grid">
-          <label class="full">
-            Question
-            <textarea rows="2" [(ngModel)]="draftBody" placeholder="Question text…"></textarea>
-          </label>
-          <label>
-            Type
-            <select [(ngModel)]="draftType">
-              <option *ngFor="let t of questionTypes" [value]="t">{{ t }}</option>
+          <label *ngIf="!initialCourseId">
+            Target Course
+            <select [(ngModel)]="courseId" [disabled]="courses.length === 0">
+              <option [ngValue]="null" disabled>Select a course…</option>
+              <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
             </select>
           </label>
+          <label [class.full]="!!initialCourseId">
+            Test Title
+            <input type="text" [(ngModel)]="title" placeholder="e.g. Midterm Assessment: Neural Networks" />
+          </label>
           <label>
-            Marks
-            <input type="number" min="1" [(ngModel)]="draftMarks" />
+            Duration (Minutes)
+            <input type="number" min="1" [(ngModel)]="durationMinutes" placeholder="e.g. 30" />
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" [(ngModel)]="isRemedial" id="remedial-check" />
+            <span>Mark as Remedial / Makeup Credit Test (Pass threshold $\\ge 40\%$)</span>
           </label>
         </div>
 
-        <div class="options-section" *ngIf="draftType === 'MCQ'">
-          <label class="full">Options</label>
-          <div class="option-row" *ngFor="let opt of draftOptions; let i = index">
-            <input type="text" [(ngModel)]="draftOptions[i]" placeholder="Option text" />
-            <label class="correct-toggle">
-              <input type="radio" name="correct-option" [checked]="draftCorrectAnswer === opt && opt !== ''" (change)="draftCorrectAnswer = opt" />
-              Correct
-            </label>
-            <button type="button" class="btn-icon" (click)="removeOption(i)">✕</button>
-          </div>
-          <button type="button" class="btn btn--ghost" (click)="addOption()">+ Add option</button>
-        </div>
-
-        <label class="full" *ngIf="draftType !== 'MCQ'">
-          Answer key (optional reference for grading short answers manually)
-          <input type="text" [(ngModel)]="draftCorrectAnswer" placeholder="Model answer / key phrase" />
-        </label>
-
-        <div class="actions">
+        <div class="form-actions">
           <button
             type="button"
             class="btn btn--primary"
-            [disabled]="!draftBody || !draftMarks || addingQuestion"
-            (click)="addQuestion()">
-            {{ addingQuestion ? 'Adding…' : '+ Add question' }}
+            [disabled]="!courseId || !title || !durationMinutes || creatingTest"
+            (click)="createTest()">
+            <span>{{ creatingTest ? 'Creating Test…' : 'Next: Add Questions →' }}</span>
           </button>
-          <button type="button" class="btn btn--ghost" (click)="finishTest()">Done — start a new test</button>
+        </div>
+      </div>
+
+      <!-- Questions Authoring Section (Active Test) -->
+      <div class="questions-section" *ngIf="createdTestId">
+        <div class="active-test-banner">
+          <div>
+            <span class="active-label">Active Test:</span>
+            <strong>{{ title }}</strong>
+            <span class="badge" *ngIf="durationMinutes">({{ durationMinutes }} mins)</span>
+          </div>
+          <button class="btn btn--ghost btn--sm" (click)="cancelOrFinish()">Finish & Save</button>
+        </div>
+
+        <!-- Saved Questions List -->
+        <div class="saved-questions-box" *ngIf="savedQuestions.length > 0">
+          <h5>Saved Questions ({{ savedQuestions.length }})</h5>
+          <div class="saved-question" *ngFor="let q of savedQuestions; let i = index">
+            <div class="saved-q-head">
+              <strong>{{ i + 1 }}. {{ q.body }}</strong>
+              <span class="saved-q-meta">{{ q.questionType }} · {{ q.marks }} mark{{ q.marks === 1 ? '' : 's' }}</span>
+            </div>
+            <div class="saved-q-options" *ngIf="q.options?.length">
+              <span 
+                class="opt-chip" 
+                *ngFor="let opt of q.options"
+                [class.is-correct]="opt === q.correctAnswer">
+                {{ opt }} {{ opt === q.correctAnswer ? '✓' : '' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Question Card -->
+        <div class="add-q-card">
+          <h4>Add New Question</h4>
+
+          <div class="form-grid">
+            <label class="full">
+              Question Text / Problem Statement
+              <textarea rows="2" [(ngModel)]="draftBody" placeholder="e.g. What is the time complexity of Dijkstra's algorithm with a binary heap?"></textarea>
+            </label>
+            <label>
+              Question Type
+              <select [(ngModel)]="draftType">
+                <option *ngFor="let t of questionTypes" [value]="t">{{ t }}</option>
+              </select>
+            </label>
+            <label>
+              Marks
+              <input type="number" min="1" [(ngModel)]="draftMarks" />
+            </label>
+          </div>
+
+          <!-- MCQ Options Selector -->
+          <div class="options-section" *ngIf="draftType === 'MCQ'">
+            <label class="full">Answer Options (Select the correct choice):</label>
+            <div class="option-row" *ngFor="let opt of draftOptions; let i = index">
+              <input type="text" [(ngModel)]="draftOptions[i]" [placeholder]="'Option ' + (i + 1)" />
+              <label class="correct-toggle">
+                <input 
+                  type="radio" 
+                  name="correct-option" 
+                  [checked]="draftCorrectAnswer === draftOptions[i] && draftOptions[i] !== ''" 
+                  (change)="draftCorrectAnswer = draftOptions[i]" 
+                />
+                <span>Correct Answer</span>
+              </label>
+              <button type="button" class="btn-icon" (click)="removeOption(i)" title="Remove option">
+                <lucide-icon name="x" [size]="14"></lucide-icon>
+              </button>
+            </div>
+            <button type="button" class="btn btn--ghost btn--sm" (click)="addOption()">
+              <lucide-icon name="plus" [size]="13"></lucide-icon>
+              <span>Add Option</span>
+            </button>
+          </div>
+
+          <!-- Non-MCQ Key -->
+          <label class="full" *ngIf="draftType !== 'MCQ'">
+            Model Answer Key (Optional reference for instructor grading):
+            <input type="text" [(ngModel)]="draftCorrectAnswer" placeholder="Reference answer phrase" />
+          </label>
+
+          <div class="actions">
+            <button
+              type="button"
+              class="btn btn--primary"
+              [disabled]="!draftBody || !draftMarks || addingQuestion || (draftType === 'MCQ' && !draftCorrectAnswer)"
+              (click)="addQuestion()">
+              <lucide-icon name="plus" [size]="14"></lucide-icon>
+              <span>{{ addingQuestion ? 'Adding Question…' : 'Add Question' }}</span>
+            </button>
+            <button type="button" class="btn btn--ghost" (click)="cancelOrFinish()">Done — Finish Test</button>
+          </div>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .quiz-builder { background: #fff; border: 1px solid #e8e7ef; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-    h3 { margin: 0; font-size: 14px; }
-    .hint { margin: 0; font-size: 11px; color: #6b6880; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .form-grid label { display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: #46435d; }
-    .form-grid label.full { grid-column: 1 / -1; }
-    .form-grid input, .form-grid select, .form-grid textarea {
-      border: 1px solid #dedce7; border-radius: 7px; padding: 8px 10px; font: 12px 'Inter', Arial; color: #1a1830;
+    .quiz-builder {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: var(--card-shadow);
+      transition: all 0.2s ease;
     }
-    .checkbox-row { flex-direction: row !important; align-items: center; gap: 8px !important; }
-    .btn { border: 0; border-radius: 8px; padding: 9px 16px; font: 600 12px 'Inter', Arial; cursor: pointer; align-self: flex-start; }
-    .btn--primary { background: #534ab7; color: #fff; }
-    .btn--primary:disabled { opacity: .5; cursor: not-allowed; }
-    .btn--ghost { background: #fff; border: 1px solid #dddbe8; color: #46435d; }
-    .status { font-size: 12px; color: #1d9e75; font-weight: 600; margin: 0; }
-    .question-list { display: flex; flex-direction: column; gap: 6px; }
-    .saved-question { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; border-bottom: 1px solid #f0eff4; padding: 8px 0; }
-    .saved-question span { color: #6b6880; white-space: nowrap; }
-    .options-section { display: flex; flex-direction: column; gap: 8px; }
-    .option-row { display: flex; align-items: center; gap: 10px; }
-    .option-row input[type=text] { flex: 1; border: 1px solid #dedce7; border-radius: 7px; padding: 8px 10px; font: 12px 'Inter', Arial; }
-    .correct-toggle { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #46435d; white-space: nowrap; }
-    .btn-icon { border: 0; background: transparent; color: #a32d2d; cursor: pointer; font-size: 13px; }
-    .actions { display: flex; gap: 10px; }
+
+    .builder-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+
+      h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary); }
+      .hint { margin: 3px 0 0; font-size: 12px; color: var(--text-muted); }
+    }
+
+    .existing-tests-view {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tests-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .test-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 18px;
+      transition: border-color 0.15s ease;
+
+      &:hover {
+        border-color: var(--brand-primary);
+      }
+    }
+
+    .test-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .test-title-box {
+      h4 { margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+      .test-badges { display: flex; align-items: center; gap: 8px; }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+
+      &.remedial-badge {
+        background: var(--status-amber-bg);
+        color: var(--status-amber-text);
+      }
+    }
+
+    .test-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .empty-tests {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      text-align: center;
+      gap: 10px;
+      color: var(--text-muted);
+      border: 1px dashed var(--border-color);
+      border-radius: 10px;
+
+      .empty-icon { opacity: 0.5; }
+      p { margin: 0; font-size: 13px; }
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    label.full { grid-column: 1 / -1; }
+
+    input[type=text], input[type=number], select, textarea {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: 13px 'Inter', sans-serif;
+      color: var(--text-primary);
+      background: var(--bg-input);
+      transition: all 0.15s ease;
+      outline: none;
+      resize: vertical;
+
+      &:focus {
+        border-color: var(--brand-primary);
+        background: var(--bg-surface);
+      }
+    }
+
+    .checkbox-row {
+      flex-direction: row !important;
+      align-items: center;
+      gap: 8px !important;
+      color: var(--text-primary);
+      font-weight: 500 !important;
+      cursor: pointer;
+      grid-column: 1 / -1;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .active-test-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-primary);
+      padding: 12px 16px;
+      border-radius: 10px;
+      color: var(--brand-primary);
+
+      .active-label { font-size: 12px; font-weight: 500; opacity: 0.85; margin-right: 6px; }
+      strong { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    }
+
+    .saved-questions-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+
+      h5 { margin: 0 0 6px 0; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    }
+
+    .saved-question {
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 0;
+      &:last-child { border-bottom: none; }
+    }
+
+    .saved-q-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text-primary);
+    }
+
+    .saved-q-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .saved-q-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+
+      .opt-chip {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: var(--bg-hover);
+        color: var(--text-secondary);
+
+        &.is-correct {
+          background: var(--status-green-bg);
+          color: var(--status-green-text);
+          font-weight: 600;
+        }
+      }
+    }
+
+    .add-q-card {
+      background: var(--bg-hover);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+
+      h4 { margin: 0; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    }
+
+    .options-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      input[type=text] { flex: 1; }
+    }
+
+    .correct-toggle {
+      flex-direction: row !important;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .btn-icon {
+      border: none;
+      background: transparent;
+      color: var(--status-red-text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font: 600 12.5px 'Inter', sans-serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      text-decoration: none;
+
+      &--sm { padding: 6px 12px; font-size: 11.5px; }
+      &--primary { background: var(--brand-primary); color: #fff; }
+      &--primary:hover:not(:disabled) { background: var(--brand-primary-hover); }
+      &--primary:disabled { opacity: 0.5; cursor: not-allowed; }
+      &--soft { background: var(--brand-surface); color: var(--brand-primary); border-color: var(--border-color); }
+      &--soft:hover { background: var(--brand-primary); color: #fff; }
+      &--ghost { background: var(--bg-surface-elevated); border-color: var(--border-color); color: var(--text-primary); }
+      &--ghost:hover { background: var(--bg-hover); }
+      &--danger-outline { background: transparent; border-color: var(--status-red-bg); color: var(--status-red-text); }
+      &--danger-outline:hover { background: var(--status-red-text); color: #fff; }
+    }
   `]
 })
-export class QuizBuilderComponent implements OnInit {
+export class QuizBuilderComponent implements OnInit, OnChanges {
+  @Input() initialCourseId: number | null = null;
+
   courses: Course[] = [];
+  existingTests: any[] = [];
+  loadingTests = false;
+
   courseId: number | null = null;
   title = '';
   durationMinutes: number | null = null;
   isRemedial = false;
   creatingTest = false;
   createdTestId: number | null = null;
+  showCreateForm = false;
 
   questionTypes = QUESTION_TYPES;
   savedQuestions: QuestionDraft[] = [];
@@ -169,10 +535,73 @@ export class QuizBuilderComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (this.initialCourseId) {
+      this.courseId = this.initialCourseId;
+      this.loadTests();
+    }
     this.teacherService.getCourses().subscribe({
-      next: (courses) => (this.courses = courses),
+      next: (courses) => {
+        this.courses = courses;
+        if (!this.courseId && this.courses.length > 0) {
+          this.courseId = this.courses[0].id;
+          this.loadTests();
+        }
+      },
       error: () => this.notificationService.error('Could not load your courses.')
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialCourseId'] && this.initialCourseId) {
+      this.courseId = this.initialCourseId;
+      this.loadTests();
+    }
+  }
+
+  loadTests(): void {
+    if (!this.courseId) return;
+    this.loadingTests = true;
+    this.teacherAssessmentService.getTestsForCourse(this.courseId).subscribe({
+      next: (tests) => {
+        this.existingTests = tests || [];
+        this.loadingTests = false;
+      },
+      error: () => {
+        this.existingTests = [];
+        this.loadingTests = false;
+      }
+    });
+  }
+
+  openNewTestForm(): void {
+    this.showCreateForm = true;
+    this.createdTestId = null;
+    this.title = '';
+    this.durationMinutes = 30;
+    this.isRemedial = false;
+  }
+
+  manageTest(test: any): void {
+    this.createdTestId = test.testId || test.id;
+    this.title = test.title;
+    this.durationMinutes = test.durationMinutes;
+    this.isRemedial = !!test.isRemedial;
+    this.savedQuestions = [];
+    this.resetDraft();
+  }
+
+  deleteTest(test: any): void {
+    const id = test.testId || test.id;
+    if (!id) return;
+    if (confirm(`Delete test "${test.title}"?`)) {
+      this.teacherAssessmentService.deleteTest(id).subscribe({
+        next: () => {
+          this.notificationService.success('Test deleted.');
+          this.loadTests();
+        },
+        error: () => this.notificationService.error('Could not delete test.')
+      });
+    }
   }
 
   createTest(): void {
@@ -187,13 +616,16 @@ export class QuizBuilderComponent implements OnInit {
       })
       .subscribe({
         next: (test) => {
-          this.createdTestId = test.testId;
+          this.createdTestId = test?.testId || test?.id;
           this.creatingTest = false;
+          this.showCreateForm = false;
           this.notificationService.success('Test created — now add its questions.');
+          this.loadTests();
         },
-        error: () => {
+        error: (err) => {
           this.creatingTest = false;
-          this.notificationService.error('Could not create the test.');
+          const msg = err?.error?.message || err?.message || 'Could not create the test.';
+          this.notificationService.error(msg);
         }
       });
   }
@@ -229,23 +661,24 @@ export class QuizBuilderComponent implements OnInit {
         this.savedQuestions.push(question);
         this.addingQuestion = false;
         this.resetDraft();
-        this.notificationService.success('Question added.');
+        this.notificationService.success('Question added to test.');
       },
-      error: () => {
+      error: (err) => {
         this.addingQuestion = false;
-        this.notificationService.error('Could not add that question.');
+        this.notificationService.error(err?.error?.message || 'Could not add that question.');
       }
     });
   }
 
-  finishTest(): void {
+  cancelOrFinish(): void {
     this.createdTestId = null;
-    this.courseId = null;
+    this.showCreateForm = false;
     this.title = '';
     this.durationMinutes = null;
     this.isRemedial = false;
     this.savedQuestions = [];
     this.resetDraft();
+    this.loadTests();
   }
 
   private resetDraft(): void {

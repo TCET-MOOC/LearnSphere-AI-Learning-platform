@@ -128,7 +128,7 @@ $text-secondary: #6B6880;
     cursor: pointer;
     transition: background 0.2s;
 
-    &:hover { background: darken($brand-purple, 5%); }
+    &:hover { background: var(--brand-primary-hover); }
     &:disabled { background: #A09DB8; cursor: not-allowed; }
   }
 }
