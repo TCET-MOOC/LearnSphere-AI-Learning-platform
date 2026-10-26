@@ -356,11 +356,11 @@ Findings `F24` were measured on the running app (Chromium, 1489×1000 and 390×8
 
 ### Wave gate results
 
-No wave gate has run yet. The first gate is Phase 0, after P0-09. `AUD-14` (P0) is closed by `W1-11`; no gate can pass until the owning wave's remaining `AUD-xx` items are closed and TDD evidence is recorded. The same rule applies to the design overlay: `DS-xx` items close at the owning wave gate, `DS-01` is closed by `W1-12`, and `DS-02`…`DS-05` are P0.
+The Phase 0 gate passed on 2026-10-26 (`wave-0-done`). `AUD-14` (P0) is closed by `W1-11`; no later gate can pass until the owning wave's remaining `AUD-xx` items are closed and TDD evidence is recorded. The same rule applies to the design overlay: `DS-xx` items close at the owning wave gate, `DS-01` is closed by `W1-12`, and `DS-02`…`DS-05` are P0.
 
 | Date | Wave | Suites run | Result | Notes |
 |---|---|---|---|---|
-| - | - | - | Not run | Baseline not established (CI workflow green locally; no GitHub-hosted run yet) |
+| 2026-10-26 | Phase 0 | Local on `main` `2f3fbf0` (clean tree): backend `mvnw -B clean test` 32/32 + `target/openapi.json`; payments 10/10; frontend `npm ci`, `npm test` 7/7, `lint:styles`, `build`, `e2e` 2/2, `e2e:visual` 277 passed / 1 skipped. Compose: `POSTGRES_PORT=5434 docker compose --env-file .env.example up -d --build --wait` → db/backend/payments/frontend healthy; readiness 200 on both services; `/api/courses`, `/`, `/login` 200; demo login 200; `down -v` 0. GitHub Actions run `40344867992` (first hosted run): all 6 jobs green incl. `CI gate` and `Visual baseline` (windows-latest). | **PASS** | Exit criterion met: one-command stack + full suite green in CI on a clean checkout; demo personas sign in. Every P0 story was re-verified on its own commit during the split. Suite includes W1-11/W1-12 (already on `main`). Open: branch protection must require `CI gate` (admin); actions v4/`setup-java@v4` deprecation warnings (Node 20). |
 
 **Commit convention:** `<ID>: <story title>` — one story per commit; body lists failing test names and red/green commands. Wave done: commit `Wave <n> complete`, tag `wave-<n>-done`.
 
@@ -369,7 +369,7 @@ No wave gate has run yet. The first gate is Phase 0, after P0-09. `AUD-14` (P0) 
 ## 3. Next up (in order)
 
 1. **Plan v1.4 is the implementation baseline** (v1.3 was approved 2026-10-24; v1.4 adds the design-system overlay `DS-01…DS-13` in §12). The pre-existing product WIP is committed as `ee04458` (a snapshot, not a story); new work starts from a clean tree and lands one story per commit.
-2. **Repository admin follow-up:** require the `CI gate` status check in branch protection and confirm the first GitHub-hosted run once the Phase 0 files are pushed. The current token has `WRITE`, not `ADMIN`.
+2. **Repository admin follow-up:** require the `CI gate` status check in branch protection. The first GitHub-hosted run (`40344867992`, 2026-10-26) is green; the current token has `WRITE`, not `ADMIN`. Bump `actions/checkout`/`setup-node`/`upload-artifact` and `setup-java` to the Node 24 majors before GitHub removes Node 20.
 3. **P0-09 (API conventions), W1-11 (legacy `/api/users/**`, which also closed W1-07) and W1-12 (DS-01 visual baseline + token layer + style ratchet) are complete.** Keep their change sets separate from the pre-existing product WIP.
 4. **W1-13 (DS-02) is next**, then W1-14…W1-16 — the design overlay is P0 and every later DS story diffs against the `W1-12` baseline. **W1-05 then W1-06** remain the next security stories: refresh tokens with rotation/logout revocation, then the memory-only access token in Angular (`AUD-15`); W1-10 assembles the full auth/IDOR regression suite as those land.
 5. **W2 → W8 in backlog order.** Do not skip waves to reach an audit story; the P1 audit surfaces are pulled into the owning wave: W3-10/W3-11, W6-13/W6-14, W7-11/W7-12, each with failing tests first and that wave's gate. The NFR stories W2-11, W3-13, W7-13 and H-10 are gates, not optional cleanup; do not defer them to H-09. Media completeness W2-12/W2-13/W4-11/W5-10 is part of the owning waves, not a post-release cleanup.
@@ -416,7 +416,7 @@ No wave gate has run yet. The first gate is Phase 0, after P0-09. `AUD-14` (P0) 
 
 ## 6. Known issues / notes
 
-- **CI gate is not enforced remotely yet.** `.github/workflows/ci.yml` runs backend, payments, frontend and Playwright checks and exposes a `CI gate`; a repository admin must require that check in branch protection. The workflow has not run on GitHub yet because these changes are uncommitted. Business-rule coverage is still absent (W1 onward).
+- **CI gate is not enforced remotely yet.** `.github/workflows/ci.yml` runs backend, payments, frontend, Playwright smoke and visual checks and exposes a `CI gate`; it ran green on GitHub for the first time on 2026-10-26 (`40344867992`). A repository admin must still require that check in branch protection. Business-rule coverage is still thin (W1 onward).
 - **No performance or cache gate yet.** The MVP has no systematic public-read cache, `ETag`, after-commit invalidation or explicit `no-store` policy for sensitive reads; there is no query-count budget or load test. A visual-regression baseline now exists (`W1-12`: 276 PNGs, stylelint ratchet, `Visual baseline` CI job), but it only guards pixels — it is not a performance measurement. W2-11/W3-13/W7-13/H-10 close the rest; do not add caching or a UI restyle before their failing tests exist.
 - **Session is unsafe.** `ls_token` in `localStorage`, 24 h JWT, no refresh, logout is client-only. Do not expose this build to the internet before W1-05/W1-06.
 - **Money is unsafe.** Two rails; microservice has no auth; `/orders/verify` is fail-open; `/orders/simulate-success` is unauthenticated; `/internal/enroll` trusts `amount` and writes a royalty on every call. Do not connect a live Razorpay key.
