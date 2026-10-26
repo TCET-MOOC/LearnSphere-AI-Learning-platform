@@ -1,5 +1,6 @@
 package com.MOOC.OnlineLearningPlatfrom.Config;
 
+import com.MOOC.OnlineLearningPlatfrom.Security.ApiSecurityErrorHandler;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetailsService;
 import com.MOOC.OnlineLearningPlatfrom.Security.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +31,14 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
+    private final ApiSecurityErrorHandler apiSecurityErrorHandler;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter,
+                          CustomUserDetailsService userDetailsService,
+                          ApiSecurityErrorHandler apiSecurityErrorHandler) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
+        this.apiSecurityErrorHandler = apiSecurityErrorHandler;
     }
 
     @Bean
@@ -78,6 +83,7 @@ public class SecurityConfig {
                                 "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                         .requestMatchers("/api/uploads/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/chatbot/**", "/api/ai/**").permitAll()
                         .requestMatchers("/ws/**", "/ws-native/**").permitAll()
                         .requestMatchers("/internal/**").permitAll()
@@ -88,6 +94,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/teacher/**").hasRole("TEACHER")
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(errors -> errors
+                        .authenticationEntryPoint(apiSecurityErrorHandler)
+                        .accessDeniedHandler(apiSecurityErrorHandler))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

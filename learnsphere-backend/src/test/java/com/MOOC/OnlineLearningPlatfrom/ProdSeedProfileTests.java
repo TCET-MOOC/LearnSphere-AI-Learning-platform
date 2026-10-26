@@ -106,6 +106,11 @@ class ProdSeedProfileTests {
                 "select count(*) from flyway_schema_history where version = '1' and success", Integer.class))
                 .isEqualTo(1);
 
+        assertThat(environment.getProperty("springdoc.api-docs.enabled", Boolean.class))
+                .as("production must not expose the full API inventory")
+                .isFalse();
+        assertThat(environment.getProperty("springdoc.swagger-ui.enabled", Boolean.class)).isFalse();
+
         assertThat(roleRepository.count()).isEqualTo(3);
         assertThat(userAccountRepository.count()).isZero();
         assertThat(courseRepository.count()).isZero();
