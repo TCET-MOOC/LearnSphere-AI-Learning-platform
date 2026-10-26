@@ -76,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login",
                                 "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                         .requestMatchers("/api/uploads/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/chatbot/**", "/api/ai/**").permitAll()
                         .requestMatchers("/ws/**", "/ws-native/**").permitAll()
                         .requestMatchers("/internal/**").permitAll()
