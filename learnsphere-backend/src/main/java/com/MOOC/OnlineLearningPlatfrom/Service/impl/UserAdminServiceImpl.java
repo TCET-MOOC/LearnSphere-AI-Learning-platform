@@ -12,6 +12,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.EnrollmentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserRoleRepository;
+import com.MOOC.OnlineLearningPlatfrom.Service.AuditService;
 import com.MOOC.OnlineLearningPlatfrom.Service.UserAdminService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,15 +32,18 @@ public class UserAdminServiceImpl implements UserAdminService {
     private final UserRoleRepository userRoleRepository;
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final AuditService auditService;
 
     public UserAdminServiceImpl(UserAccountRepository userAccountRepository,
                                  UserRoleRepository userRoleRepository,
                                  CourseRepository courseRepository,
-                                 EnrollmentRepository enrollmentRepository) {
+                                 EnrollmentRepository enrollmentRepository,
+                                 AuditService auditService) {
         this.userAccountRepository = userAccountRepository;
         this.userRoleRepository = userRoleRepository;
         this.courseRepository = courseRepository;
         this.enrollmentRepository = enrollmentRepository;
+        this.auditService = auditService;
     }
 
     private Map<Long, List<String>> rolesByUserId() {
@@ -73,6 +77,7 @@ public class UserAdminServiceImpl implements UserAdminService {
     public UserAdminDto updateStatus(Long userId, String status) {
         UserAccount user = userAccountRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        UserAccount.Status oldStatus = user.getStatus();
         UserAccount.Status newStatus;
         try {
             newStatus = UserAccount.Status.valueOf(status.trim().toUpperCase());
@@ -81,6 +86,14 @@ public class UserAdminServiceImpl implements UserAdminService {
         }
         user.setStatus(newStatus);
         userAccountRepository.save(user);
+        if (oldStatus != newStatus) {
+            auditService.record(
+                    AuditService.USER_STATUS_CHANGED,
+                    AuditService.RESOURCE_USER,
+                    userId,
+                    AuditService.snapshot("status", oldStatus != null ? oldStatus.name() : null),
+                    AuditService.snapshot("status", newStatus.name()));
+        }
         List<String> roles = rolesByUserId().get(user.getUserId());
         return UserAdminDto.from(user, roles);
     }

@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
     List<UserRole> findByUser_UserId(Long userId);
     Optional<UserRole> findByUser_UserIdAndRole_RoleId(Long userId, Long roleId);
+    void deleteByUser_UserIdAndRole_RoleId(Long userId, Long roleId);
     long countByRole_NameAndUser_College_Id(String roleName, Long collegeId);
     long countByRole_Name(String roleName);
 }
