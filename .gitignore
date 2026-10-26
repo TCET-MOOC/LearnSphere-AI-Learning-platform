@@ -35,8 +35,8 @@ build/
 .vscode/
 
 ### Claude Code ###
+# CLAUDE.md is the tracked session entry point (P0-01); only local settings are ignored.
 .claude/
-CLAUDE.md
 
 ### Secrets & Environment Variables ###
 .env
