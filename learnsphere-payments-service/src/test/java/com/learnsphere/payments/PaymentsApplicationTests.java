@@ -60,6 +60,13 @@ class PaymentsApplicationTests {
     }
 
     @Test
+    void shouldRunUnderTheTestProfileOnly() {
+        assertThat(environment.getActiveProfiles())
+                .contains("test")
+                .doesNotContain("local");
+    }
+
+    @Test
     void shouldExposeReadinessProbe() throws Exception {
         mockMvc.perform(get("/actuator/health/readiness"))
                 .andExpect(status().isOk())

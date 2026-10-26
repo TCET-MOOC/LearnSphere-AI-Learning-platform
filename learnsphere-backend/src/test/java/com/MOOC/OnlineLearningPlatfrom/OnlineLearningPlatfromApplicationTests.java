@@ -45,6 +45,13 @@ class OnlineLearningPlatfromApplicationTests extends PostgresIntegrationTest {
 	}
 
 	@Test
+	void shouldRunUnderTheTestProfileOnly() {
+		assertThat(environment.getActiveProfiles())
+				.contains("test")
+				.doesNotContain("local");
+	}
+
+	@Test
 	void shouldExposeReadinessProbeWithoutAuthentication() throws Exception {
 		mockMvc.perform(get("/actuator/health/readiness"))
 				.andExpect(status().isOk())

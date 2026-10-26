@@ -9,21 +9,22 @@ It acts as the single source of truth for payment status via Razorpay Webhooks.
 - Calls the main LearnSphere backend (`/internal/enroll`) via a secure internal REST call to finalize enrollment once a payment is confirmed.
 
 ## Environment Variables
-The following environment variables should be set to run the service:
+Every value below is required. There are no secret fallbacks in the source or in
+`docker-compose.yml`; the service fails fast when one is missing. Use the repository-level
+`.env.example` for Docker Compose, or export the variables for a bare-metal run.
 
-| Variable | Description | Default (Local) |
-|----------|-------------|-----------------|
-| `RAZORPAY_KEY_ID` | Public Key ID from Razorpay Dashboard | `rzp_test_yourkey` |
-| `RAZORPAY_KEY_SECRET` | Secret Key from Razorpay Dashboard | `your_secret` |
-| `RAZORPAY_WEBHOOK_SECRET` | Secret configured in the Razorpay Webhook settings | `your_webhook_secret` |
-| `INTERNAL_API_KEY` | Shared secret key with the main backend | `my_secret_internal_key` |
-| `MAIN_BACKEND_URL` | Base URL of the main LearnSphere backend | `http://localhost:8080` |
+| Variable | Description |
+|----------|-------------|
+| `RAZORPAY_KEY_ID` | Public test Key ID from the Razorpay Dashboard |
+| `RAZORPAY_KEY_SECRET` | Test Secret Key from the Razorpay Dashboard |
+| `RAZORPAY_WEBHOOK_SECRET` | Secret configured in the Razorpay Webhook settings |
+| `INTERNAL_API_KEY` | Shared secret key with the main backend |
+| `MAIN_BACKEND_URL` | Base URL of the main LearnSphere backend (`http://backend:8080` in Compose) |
 
-### Database Variables (Optional - PostgreSQL)
-To use PostgreSQL instead of the default in-memory H2 database, set these variables and uncomment the properties in `application.properties`:
-- `DB_URL`
-- `DB_USER`
-- `DB_PASSWORD`
+### Database Variables
+The service uses PostgreSQL in every profile. The `local` profile reads `DB_URL`,
+`DB_USER` and `DB_PASSWORD`; the `prod` profile requires all three with no defaults.
+The `test` profile gets its disposable PostgreSQL from Testcontainers.
 
 ## Local Testing with Ngrok
 To test webhooks locally, Razorpay needs to be able to reach your locally running instance.
@@ -47,8 +48,10 @@ To test webhooks locally, Razorpay needs to be able to reach your locally runnin
 6. Save the webhook.
 
 ## Running the Application
-To run the application locally:
+From this directory, after exporting the variables above:
+
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
-The application will start on port `8081`.
+
+On Windows use `.\mvnw.cmd spring-boot:run`. The service starts on port `8081`.
