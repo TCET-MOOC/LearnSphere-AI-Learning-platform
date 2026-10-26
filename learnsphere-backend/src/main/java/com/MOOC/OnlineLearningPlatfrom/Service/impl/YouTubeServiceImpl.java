@@ -1,6 +1,8 @@
 package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
 import com.MOOC.OnlineLearningPlatfrom.Service.YouTubeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class YouTubeServiceImpl implements YouTubeService {
+
+    private static final Logger log = LoggerFactory.getLogger(YouTubeServiceImpl.class);
 
     @Value("${app.youtube.api-key:}")
     private String apiKey;
@@ -139,7 +143,7 @@ public class YouTubeServiceImpl implements YouTubeService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Note: YouTube oEmbed fetch fallback: " + e.getMessage());
+            log.warn("YouTube oEmbed fetch fallback: {}", e.getMessage());
         }
 
         return new YouTubeLectureItem(
@@ -198,7 +202,7 @@ public class YouTubeServiceImpl implements YouTubeService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Note: Full playlist scraping encountered: " + e.getMessage());
+            log.warn("Full YouTube playlist scraping encountered: {}", e.getMessage());
         }
         return list;
     }
@@ -250,7 +254,7 @@ public class YouTubeServiceImpl implements YouTubeService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Note: Live YouTube RSS fetch encountered: " + e.getMessage());
+            log.warn("Live YouTube RSS fetch encountered: {}", e.getMessage());
         }
         return list;
     }

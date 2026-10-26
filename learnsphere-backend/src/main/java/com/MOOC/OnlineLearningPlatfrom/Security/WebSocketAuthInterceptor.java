@@ -1,5 +1,7 @@
 package com.MOOC.OnlineLearningPlatfrom.Security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -14,6 +16,8 @@ import java.util.List;
 
 @Component
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
+
+    private static final Logger log = LoggerFactory.getLogger(WebSocketAuthInterceptor.class);
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
@@ -58,7 +62,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                         accessor.setUser(authentication);
                     }
                 } catch (Exception e) {
-                    System.err.println("WebSocket JWT authentication failed: " + e.getMessage());
+                    log.warn("WebSocket JWT authentication failed: {}", e.getMessage());
                 }
             }
         }

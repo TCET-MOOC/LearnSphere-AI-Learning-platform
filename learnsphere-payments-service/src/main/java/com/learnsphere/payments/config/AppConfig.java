@@ -2,6 +2,7 @@ package com.learnsphere.payments.config;
 
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,14 @@ public class AppConfig {
 
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getInterceptors().add((request, body, execution) -> {
+            String traceId = MDC.get(TraceIdFilter.TRACE_ID_MDC_KEY);
+            if (traceId != null && !traceId.isBlank()) {
+                request.getHeaders().set(TraceIdFilter.REQUEST_ID_HEADER, traceId);
+            }
+            return execution.execute(request, body);
+        });
+        return restTemplate;
     }
 }

@@ -5,6 +5,8 @@ import com.learnsphere.payments.repository.OrderRepository;
 import com.learnsphere.payments.repository.PaymentRepository;
 import com.razorpay.RazorpayClient;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,8 @@ import java.util.Map;
 @RequestMapping("/api/payments/orders")
 @CrossOrigin("*") // Enable CORS for local dev
 public class OrderController {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     private final RazorpayClient razorpayClient;
     private final OrderRepository orderRepository;
@@ -72,7 +76,7 @@ public class OrderController {
                     }
                 }
             } catch (Exception fetchEx) {
-                System.err.println("Note: Course price fetch via internal call: " + fetchEx.getMessage());
+                log.warn("Course price fetch via internal call failed: {}", fetchEx.getMessage());
             }
 
             if (amountInPaise <= 0) {
@@ -90,7 +94,7 @@ public class OrderController {
                 com.razorpay.Order razorpayOrder = razorpayClient.orders.create(orderRequest);
                 rzpOrderId = razorpayOrder.get("id");
             } catch (Exception rzpEx) {
-                System.err.println("Razorpay Orders API Error: " + rzpEx.getMessage());
+                log.error("Razorpay Orders API error: {}", rzpEx.getMessage());
                 return ResponseEntity.status(400).body(Map.of(
                         "status", "ERROR",
                         "message", "Razorpay Error: " + rzpEx.getMessage() + ". Please verify RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env"
@@ -115,7 +119,7 @@ public class OrderController {
                     "key_id", razorpayKeyId
             ));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error creating order", e);
             return ResponseEntity.internalServerError().body("Error creating order: " + e.getMessage());
         }
     }
@@ -164,7 +168,7 @@ public class OrderController {
             org.springframework.http.HttpEntity<Map<String, Object>> req = new org.springframework.http.HttpEntity<>(body, headers);
             restTemplate.postForEntity(url, req, String.class);
         } catch (Exception e) {
-            System.err.println("Note: Enrollment call on test payment simulation: " + e.getMessage());
+            log.warn("Enrollment call during test payment simulation failed: {}", e.getMessage());
         }
 
         return ResponseEntity.ok(Map.of(
@@ -200,7 +204,7 @@ public class OrderController {
                 options.put("razorpay_signature", rzpSignature);
                 com.razorpay.Utils.verifyPaymentSignature(options, razorpayKeySecret);
             } catch (Exception sigEx) {
-                System.err.println("Signature verification notice: " + sigEx.getMessage());
+                log.warn("Signature verification notice: {}", sigEx.getMessage());
             }
         }
 
@@ -236,7 +240,7 @@ public class OrderController {
             org.springframework.http.HttpEntity<Map<String, Object>> req = new org.springframework.http.HttpEntity<>(body, headers);
             restTemplate.postForEntity(url, req, String.class);
         } catch (Exception e) {
-            System.err.println("Enrollment trigger error: " + e.getMessage());
+            log.warn("Enrollment trigger failed: {}", e.getMessage());
         }
 
         return ResponseEntity.ok(Map.of(

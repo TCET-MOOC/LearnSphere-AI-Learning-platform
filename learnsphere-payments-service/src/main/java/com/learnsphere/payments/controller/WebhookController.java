@@ -6,6 +6,8 @@ import com.learnsphere.payments.repository.OrderRepository;
 import com.learnsphere.payments.repository.PaymentRepository;
 import com.razorpay.Utils;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/payments/webhook")
 public class WebhookController {
+
+    private static final Logger log = LoggerFactory.getLogger(WebhookController.class);
 
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
@@ -101,7 +105,7 @@ public class WebhookController {
 
             return ResponseEntity.ok("OK");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error processing Razorpay webhook", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing webhook");
         }
     }
@@ -124,10 +128,10 @@ public class WebhookController {
             
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                System.err.println("Failed to enroll student: " + response.getBody());
+                log.error("Failed to enroll student: {}", response.getBody());
             }
         } catch (Exception e) {
-            System.err.println("Error calling main backend: " + e.getMessage());
+            log.error("Error calling main backend: {}", e.getMessage());
         }
     }
 }

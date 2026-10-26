@@ -151,8 +151,8 @@ public class AuthServiceImpl implements AuthService {
         resetToken.setToken(UUID.randomUUID().toString());
         resetToken.setExpiresAt(LocalDateTime.now().plusHours(1));
         passwordResetTokenRepository.save(resetToken);
-        // No SMTP configured in this project: log the reset link instead of emailing it.
-        log.info("Password reset requested for {}. Reset token: {}", user.getEmail(), resetToken.getToken());
+        // The reset token is returned to the caller; never write it to the logs.
+        log.info("Password reset requested for {}.", user.getEmail());
         return resetToken.getToken();
     }
 
