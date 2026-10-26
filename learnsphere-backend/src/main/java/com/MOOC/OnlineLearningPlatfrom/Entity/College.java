@@ -25,7 +25,9 @@ public class College {
 
     @PrePersist
     protected void onCreate() {
-        this.appliedAt = LocalDateTime.now();
+        if (this.appliedAt == null) {
+            this.appliedAt = LocalDateTime.now();
+        }
     }
 
     public enum VerificationStatus {

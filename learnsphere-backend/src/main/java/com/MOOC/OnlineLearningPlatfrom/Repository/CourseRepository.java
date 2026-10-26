@@ -5,9 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
+    Optional<Course> findFirstByTitle(String title);
     List<Course> findByTeacher_UserId(Long teacherId);
     List<Course> findByStatus(Course.Status status);
     List<Course> findByDepartment(String department);
