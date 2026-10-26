@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StudentService } from '../../../services/student.service';
@@ -46,6 +46,8 @@ export class NotesDrawerComponent implements OnChanges {
   @Input() lectureLabel = '';
   @Input() timestampSeconds = 0;
 
+  @Output() openEditor = new EventEmitter<void>();
+
   notes: Note[] = [];
   loading = false;
 
@@ -82,6 +84,8 @@ export class NotesDrawerComponent implements OnChanges {
   }
 
   openNewNote(): void {
+    this.openEditor.emit();
+
     const dialogRef = this.dialog.open(NoteEditorComponent, {
       width: '500px',
       data: {

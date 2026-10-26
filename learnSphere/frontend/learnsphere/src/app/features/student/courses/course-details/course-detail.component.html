@@ -1,27 +1,51 @@
 <div class="course-detail">
-  <p class="hint" *ngIf="loading">Loading course…</p>
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading course information…</p>
+  </div>
 
   <ng-container *ngIf="!loading && course as c">
+    <!-- Course Hero / Header -->
     <header class="detail-head">
-      <div>
-        <p class="eyebrow">{{ c.department }}</p>
-        <h1>{{ c.title }}</h1>
-        <p class="teacher">By {{ c.teacherName || 'Instructor' }}</p>
+      <div class="head-info">
+        <div class="badge-row">
+          <span class="eyebrow-badge">{{ c.department || 'General Curriculum' }}</span>
+          <span class="rating-badge" *ngIf="ratingSummary && ratingSummary.totalReviews > 0">
+            <lucide-icon name="star" [size]="14" class="star-icon fill-star"></lucide-icon>
+            <strong>{{ ratingSummary.averageRating | number:'1.1-1' }}</strong>
+            <span class="count">({{ ratingSummary.totalReviews }} reviews)</span>
+          </span>
+          <span class="pill" [ngClass]="'pill--' + (c.status || '').toLowerCase()">{{ c.status }}</span>
+        </div>
+
+        <h1 class="course-title">{{ c.title }}</h1>
+        <p class="teacher">Taught by <strong>{{ c.teacherName || 'Faculty Instructor' }}</strong></p>
+        <p class="description">{{ c.description }}</p>
       </div>
+
       <div class="detail-actions">
         <span class="pill pill--completed" *ngIf="isCompleted">🏆 Completed (100%)</span>
-        <span class="pill" [ngClass]="'pill--' + (c.status || '').toLowerCase()" *ngIf="!isCompleted">{{ c.status }}</span>
+        
         <button
           *ngIf="!isEnrolled"
-          class="btn btn--primary"
+          class="btn btn--primary enroll-btn"
           type="button"
           [disabled]="enrolling || confirmingPayment"
           (click)="enroll()">
           <ng-container *ngIf="confirmingPayment">Confirming payment...</ng-container>
           <ng-container *ngIf="!confirmingPayment">
-            {{ enrolling ? 'Processing...' : (isFree ? 'Enroll free' : 'Buy Course (₹' + c.price + ')') }}
+            {{ enrolling ? 'Processing...' : (isFree ? 'Enroll Free' : 'Buy Course (₹' + c.price + ')') }}
           </ng-container>
         </button>
+
+        <a
+          *ngIf="isEnrolled && (lectures.length > 0 || modules.length > 0)"
+          class="btn btn--play"
+          [routerLink]="['/student/courses', courseId, 'lectures', lectures[0]?.id || 1]">
+          <lucide-icon name="book-open" [size]="16"></lucide-icon>
+          <span>Continue Learning</span>
+        </a>
+
         <button
           *ngIf="isEnrolled && isCompleted"
           class="btn btn--cert"
@@ -30,34 +54,237 @@
           <lucide-icon name="award" [size]="15"></lucide-icon>
           <span>{{ hasEarnedCertificate ? 'View Certificate' : 'Claim Certificate' }}</span>
         </button>
-        <span class="pill pill--green" *ngIf="isEnrolled && !isCompleted">Enrolled</span>
       </div>
     </header>
 
-    <p class="description">{{ c.description }}</p>
+    <!-- Main Navigation Tabs -->
+    <nav class="course-tabs">
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'curriculum'"
+        (click)="activeTab = 'curriculum'">
+        <lucide-icon name="layers" [size]="16"></lucide-icon>
+        <span>Curriculum & Modules</span>
+        <span class="tab-badge" *ngIf="modules.length > 0">{{ modules.length }}</span>
+      </button>
 
-    <section class="card">
-      <div class="card-head">
-        <h2>Lectures</h2>
-        <span class="pill pill--grey">{{ lectures.length }}</span>
-      </div>
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'reviews'"
+        (click)="activeTab = 'reviews'">
+        <lucide-icon name="message-square" [size]="16"></lucide-icon>
+        <span>Reviews & Feedback</span>
+        <span class="tab-badge" *ngIf="courseFeedback.length > 0">{{ courseFeedback.length }}</span>
+      </button>
 
-      <p class="hint" *ngIf="!isEnrolled">Enroll in this course to unlock lecture playback.</p>
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'leaderboard'"
+        (click)="activeTab = 'leaderboard'">
+        <lucide-icon name="trophy" [size]="16"></lucide-icon>
+        <span>Leaderboard</span>
+        <span class="tab-badge" *ngIf="courseLeaderboard.length > 0">{{ courseLeaderboard.length }}</span>
+      </button>
+    </nav>
 
-      <div class="lecture-list">
-        <button
-          type="button"
-          class="lecture-row"
-          *ngFor="let lecture of lectures"
-          [disabled]="!isEnrolled"
-          (click)="goToLecture(lecture)">
-          <span class="lecture-number">{{ lecture.number }}</span>
-          <span class="lecture-title">{{ lecture.title }}</span>
-          <span class="lecture-status pill" [ngClass]="'pill--' + (lecture.status || '').toLowerCase()">{{ lecture.status }}</span>
-        </button>
-        <p class="hint" *ngIf="lectures.length === 0">No lectures published yet.</p>
+    <!-- TAB 1: CURRICULUM & MODULES -->
+    <section class="tab-content" *ngIf="activeTab === 'curriculum'">
+      <div class="curriculum-container">
+        
+        <!-- Case A: 3-Tier Modules Exist -->
+        <div class="modules-tree" *ngIf="modules.length > 0">
+          <div class="module-card" *ngFor="let m of modules; let i = index">
+            <div class="module-header" (click)="toggleModule(m.moduleId || m.id)">
+              <div class="module-title-box">
+                <span class="module-index">Module {{ m.position || (i + 1) }}</span>
+                <h3 class="module-name">{{ m.title }}</h3>
+              </div>
+              <div class="module-meta">
+                <span class="item-count">{{ (m.contents?.length || 0) + (m.assignments?.length || 0) }} items</span>
+                <lucide-icon [name]="expandedModuleIds.has(m.moduleId || m.id) ? 'chevron-down' : 'chevron-right'" [size]="18"></lucide-icon>
+              </div>
+            </div>
+
+            <!-- Expandable Module Items -->
+            <div class="module-items" *ngIf="expandedModuleIds.has(m.moduleId || m.id)">
+              
+              <!-- Content items (Video, PDF, Quiz) -->
+              <div class="content-item" *ngFor="let cItem of m.contents">
+                <div class="item-type-icon" [ngClass]="'type--' + (cItem.contentType || 'video').toLowerCase()">
+                  <lucide-icon [name]="cItem.contentType === 'PDF' ? 'file-text' : (cItem.contentType === 'QUIZ' ? 'award' : 'book-open')" [size]="16"></lucide-icon>
+                </div>
+                <div class="item-info">
+                  <span class="item-title">{{ cItem.title }}</span>
+                  <span class="item-sub">
+                    {{ cItem.contentType }} 
+                    <span *ngIf="cItem.durationSeconds">· {{ Math.round(cItem.durationSeconds / 60) }} mins</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Module Assignments -->
+              <div class="content-item assignment-item" *ngFor="let assign of m.assignments">
+                <div class="item-type-icon type--assignment">
+                  <lucide-icon name="file-text" [size]="16"></lucide-icon>
+                </div>
+                <div class="item-info">
+                  <span class="item-title">{{ assign.title }} (Assignment)</span>
+                  <span class="item-sub">Max Marks: {{ assign.maxMarks }} <span *ngIf="assign.dueDate">· Due: {{ assign.dueDate | date:'shortDate' }}</span></span>
+                </div>
+              </div>
+
+              <p class="empty-module-hint" *ngIf="(!m.contents || m.contents.length === 0) && (!m.assignments || m.assignments.length === 0)">
+                Curriculum content for this module is being published.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case B: Fallback flat lectures list -->
+        <div class="card" *ngIf="modules.length === 0">
+          <div class="card-head">
+            <h2>Course Lectures</h2>
+            <span class="pill pill--grey">{{ lectures.length }}</span>
+          </div>
+
+          <p class="hint" *ngIf="!isEnrolled">Enroll in this course to unlock lecture playback.</p>
+
+          <div class="lecture-list">
+            <button
+              type="button"
+              class="lecture-row"
+              *ngFor="let lecture of lectures"
+              [disabled]="!isEnrolled"
+              (click)="goToLecture(lecture)">
+              <span class="lecture-number">{{ lecture.number }}</span>
+              <span class="lecture-title">{{ lecture.title }}</span>
+              <span class="lecture-status pill" [ngClass]="'pill--' + (lecture.status || '').toLowerCase()">{{ lecture.status }}</span>
+            </button>
+            <p class="hint" *ngIf="lectures.length === 0">No lectures published yet.</p>
+          </div>
+        </div>
+
       </div>
     </section>
+
+    <!-- TAB 2: REVIEWS & FEEDBACK (Section 9) -->
+    <section class="tab-content" *ngIf="activeTab === 'reviews'">
+      <div class="reviews-container">
+        
+        <!-- Score Overview Card -->
+        <div class="rating-overview-card" *ngIf="ratingSummary">
+          <div class="score-display">
+            <span class="big-score">{{ ratingSummary.averageRating | number:'1.1-1' }}</span>
+            <div class="stars-row">
+              <lucide-icon name="star" [size]="18" *ngFor="let star of [1,2,3,4,5]" 
+                [class.fill-star]="star <= ratingSummary.averageRating" 
+                class="star-icon">
+              </lucide-icon>
+            </div>
+            <span class="reviews-total">Based on {{ ratingSummary.totalReviews }} student reviews</span>
+
+          </div>
+        </div>
+
+        <!-- Write Review Form (For Enrolled Students) -->
+        <div class="write-review-card" *ngIf="isEnrolled">
+          <h3>Leave Your Feedback</h3>
+          <p class="review-prompt">Share your rating and thoughts to help instructors improve course quality.</p>
+          
+          <div class="star-selector">
+            <button 
+              type="button" 
+              class="star-btn" 
+              *ngFor="let star of [1,2,3,4,5]" 
+              (click)="selectedRating = star">
+              <lucide-icon name="star" [size]="24" [class.fill-star]="star <= selectedRating" class="star-icon"></lucide-icon>
+            </button>
+            <span class="selected-rating-label">{{ selectedRating }} of 5 Stars</span>
+          </div>
+
+          <textarea 
+            class="review-textarea" 
+            rows="3" 
+            placeholder="Write your course review or feedback (optional)…" 
+            [(ngModel)]="reviewMessage">
+          </textarea>
+
+          <button 
+            type="button" 
+            class="btn btn--primary" 
+            [disabled]="submittingReview || !selectedRating" 
+            (click)="submitReview()">
+            {{ submittingReview ? 'Submitting…' : 'Submit Feedback' }}
+          </button>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="reviews-list">
+          <div class="review-card" *ngFor="let f of courseFeedback">
+            <div class="reviewer-header">
+              <div class="reviewer-info">
+                <span class="reviewer-name">{{ f.userName || 'Student' }}</span>
+                <span class="review-date">{{ f.createdAt | date:'mediumDate' }}</span>
+              </div>
+              <div class="review-stars">
+                <lucide-icon name="star" [size]="14" *ngFor="let s of [1,2,3,4,5]" 
+                  [class.fill-star]="s <= f.rating" 
+                  class="star-icon">
+                </lucide-icon>
+              </div>
+            </div>
+            <p class="review-body" *ngIf="f.message">{{ f.message }}</p>
+          </div>
+
+          <div class="empty-state" *ngIf="courseFeedback.length === 0">
+            <lucide-icon name="message-square" [size]="28"></lucide-icon>
+            <p>No student feedback submitted yet. Be the first to review!</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: COURSE LEADERBOARD (Section 8) -->
+    <section class="tab-content" *ngIf="activeTab === 'leaderboard'">
+      <div class="leaderboard-container">
+        <div class="leaderboard-card">
+          <div class="board-head">
+            <h3>Course Honor Roll & Rankings</h3>
+            <p>Rankings calculated from test attempts and completed module assessments.</p>
+          </div>
+
+          <div class="leaderboard-table" *ngIf="courseLeaderboard.length > 0">
+            <div class="table-header">
+              <span>Rank</span>
+              <span>Student</span>
+              <span>Average Score</span>
+              <span>Dept Rank</span>
+            </div>
+            <div class="table-row" *ngFor="let item of courseLeaderboard; let rank = index">
+              <span class="rank-col">
+                <span class="medal" *ngIf="rank === 0">🥇</span>
+                <span class="medal" *ngIf="rank === 1">🥈</span>
+                <span class="medal" *ngIf="rank === 2">🥉</span>
+                <span class="rank-num" *ngIf="rank > 2">#{{ item.globalRank || (rank + 1) }}</span>
+              </span>
+              <span class="student-name-col">{{ item.user?.fullName || item.userName || 'Student' }}</span>
+              <span class="score-col">{{ item.avgScore | number:'1.1-2' }}%</span>
+              <span class="dept-col">#{{ item.deptRank || (rank + 1) }}</span>
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="courseLeaderboard.length === 0">
+            <lucide-icon name="trophy" [size]="32"></lucide-icon>
+            <p>No student rankings recorded yet for this course. Complete tests to lead the board!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </ng-container>
 
   <!-- Certificate Modal Dialog -->

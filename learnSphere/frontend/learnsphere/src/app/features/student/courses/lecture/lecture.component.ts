@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { StudentService } from '../../services/student.service';
 import { BookmarkService } from '../../services/bookmark.service';
 import { Course, Lecture, LectureProgress } from '@core/models/course.model';
@@ -15,6 +16,10 @@ import { CertificateService } from '../../services/certificate.service';
 import { AuthService } from '@core/auth/auth.service';
 import { AssessmentService } from '../../services/assessment.service';
 import { NotificationService } from '@core/services/notification.service';
+import { LectureContextService } from '@core/services/lecture-context.service';
+import { FormsModule } from '@angular/forms';
+import { AssignmentService } from '@core/services/assignment.service';
+import { Assignment, AssignmentSubmission } from '@core/models/course.model';
 import { 
   LucideAngularModule, 
   BookOpen, 
@@ -36,6 +41,7 @@ import {
   imports: [
     CommonModule, 
     RouterModule, 
+    FormsModule,
     LucideAngularModule, 
     VideoPlayerComponent, 
     NotesDrawerComponent, 
@@ -47,7 +53,7 @@ import {
   templateUrl: './lecture.component.html',
   styleUrls: ['./lecture.component.scss']
 })
-export class LectureComponent implements OnInit {
+export class LectureComponent implements OnInit, OnDestroy {
   @ViewChild(VideoPlayerComponent) videoPlayer?: VideoPlayerComponent;
 
   loading = true;
@@ -63,7 +69,12 @@ export class LectureComponent implements OnInit {
   private autoCompletedForLecture: number | null = null;
   playbackPosition = 0;
   videoDuration = 0;
+  initialSeekTime = 0;
   isBookmarked = false;
+
+  // Anti-cheat cumulative watch tracking
+  private cumulativeWatchedSeconds = 0;
+  private lastReportedTime = -1;
 
   // Post-Video Quiz State
   hasLectureQuiz = false;
@@ -76,8 +87,19 @@ export class LectureComponent implements OnInit {
 
   // Workspace Dynamic Tabs
   activeSidebarTab: 'playlist' | 'transcript' = 'playlist';
-  activeBottomTab: 'discussion' | 'notes' | 'resources' = 'discussion';
+  activeBottomTab: 'discussion' | 'notes' | 'resources' | 'assignments' = 'discussion';
   selectedTranscriptLanguage = 'en';
+
+  // Assignment & Submissions State (Section 4 & 8)
+  assignments: Assignment[] = [];
+  selectedAssignment: Assignment | null = null;
+  mySubmissions = new Map<number, AssignmentSubmission>();
+  submissionText = '';
+  submissionFileUrl = '';
+  submittingAssignment = false;
+
+  private routeSub?: Subscription;
+  private querySub?: Subscription;
 
   onLanguageChange(lang: string): void {
     this.selectedTranscriptLanguage = lang;
@@ -87,16 +109,31 @@ export class LectureComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private studentService: StudentService,
+    private assignmentService: AssignmentService,
     private bookmarkService: BookmarkService,
     private assessmentService: AssessmentService,
     private certificateService: CertificateService,
     private authService: AuthService,
     private notificationService: NotificationService,
+    private lectureContext: LectureContextService,
     private cdr: ChangeDetectorRef
   ) {}
 
+
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.querySub = this.route.queryParams.subscribe(qParams => {
+      if (qParams['t']) {
+        const t = parseFloat(qParams['t']);
+        if (!isNaN(t) && t > 0) {
+          this.initialSeekTime = t;
+          if (this.videoPlayer) {
+            this.videoPlayer.seekTo(t);
+          }
+        }
+      }
+    });
+
+    this.routeSub = this.route.paramMap.subscribe(params => {
       const courseIdParam = params.get('courseId');
       const lectureIdParam = params.get('lectureId');
       if (courseIdParam && lectureIdParam) {
@@ -105,6 +142,12 @@ export class LectureComponent implements OnInit {
         this.loadDefaultContext();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routeSub) this.routeSub.unsubscribe();
+    if (this.querySub) this.querySub.unsubscribe();
+    this.lectureContext.reset();
   }
 
   private loadDefaultContext(): void {
@@ -145,6 +188,11 @@ export class LectureComponent implements OnInit {
   private loadCourseContext(courseId: number, lectureId: number): void {
     this.loading = true;
     this.courseId = courseId;
+    this.playbackPosition = 0;
+    this.videoDuration = 0;
+    this.cumulativeWatchedSeconds = 0;
+    this.lastReportedTime = -1;
+
     this.studentService.getPublicCourse(courseId).subscribe({
       next: (course) => {
         this.course = course;
@@ -196,6 +244,7 @@ export class LectureComponent implements OnInit {
           this.loadLectureBookmarks(target.id);
           this.checkLectureQuiz(target.id);
         }
+        this.loadCourseAssignments(courseId);
       },
       error: () => {
         this.loading = false;
@@ -204,7 +253,72 @@ export class LectureComponent implements OnInit {
     });
   }
 
+  loadCourseAssignments(courseId: number): void {
+    this.assignmentService.getAssignmentsByCourse(courseId).subscribe({
+      next: (list) => {
+        this.assignments = list || [];
+        if (this.assignments.length > 0 && !this.selectedAssignment) {
+          this.selectAssignment(this.assignments[0]);
+        }
+        this.cdr.markForCheck();
+      },
+      error: () => { this.assignments = []; }
+    });
+
+    this.assignmentService.getMySubmissions().subscribe({
+      next: (subs) => {
+        this.mySubmissions.clear();
+        (subs || []).forEach(s => {
+          this.mySubmissions.set(s.assignmentId, s);
+        });
+        if (this.selectedAssignment) {
+          this.selectAssignment(this.selectedAssignment);
+        }
+        this.cdr.markForCheck();
+      },
+      error: () => {}
+    });
+  }
+
+  selectAssignment(assign: Assignment): void {
+    this.selectedAssignment = assign;
+    const sub = this.mySubmissions.get(assign.assignmentId || 0);
+    if (sub) {
+      this.submissionText = sub.submissionText || '';
+      this.submissionFileUrl = sub.fileUrl || '';
+    } else {
+      this.submissionText = '';
+      this.submissionFileUrl = '';
+    }
+  }
+
+  submitAssignment(): void {
+    if (!this.selectedAssignment || !this.selectedAssignment.assignmentId) return;
+    if (!this.submissionText.trim() && !this.submissionFileUrl.trim()) {
+      this.notificationService.error('Please provide submission text or a file link.');
+      return;
+    }
+    this.submittingAssignment = true;
+    this.assignmentService.submitAssignment(this.selectedAssignment.assignmentId, {
+      submissionText: this.submissionText,
+      fileUrl: this.submissionFileUrl
+    }).subscribe({
+      next: (sub) => {
+        this.submittingAssignment = false;
+        this.mySubmissions.set(sub.assignmentId, sub);
+        this.notificationService.success('Assignment submitted successfully!');
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.submittingAssignment = false;
+        this.notificationService.error(err?.error?.message || 'Failed to submit assignment.');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
   private checkLectureQuiz(lectureId: number): void {
+
     this.assessmentService.getAssessmentsByLecture(lectureId).subscribe({
       next: (tests) => {
         this.hasLectureQuiz = tests && tests.length > 0;
@@ -240,7 +354,7 @@ export class LectureComponent implements OnInit {
     this.studentService.getWatchProgress(lectureId).subscribe({
       next: (progress: LectureProgress) => {
         this.currentProgress = progress;
-        if (progress.completedAt || progress.progressPercent >= 80) {
+        if (progress.completedAt || (progress.progressPercent != null && progress.progressPercent >= 100)) {
           this.completedIds.add(lectureId);
         } else {
           this.completedIds.delete(lectureId);
@@ -267,12 +381,34 @@ export class LectureComponent implements OnInit {
   }
 
   onTimeUpdate(update: VideoTimeUpdate): void {
+    this.lectureContext.updateContext({
+      currentTimestamp: update.currentTime,
+      activeCueText: update.activeCueText ?? ''
+    });
+
     this.playbackPosition = Math.floor(update.currentTime);
     this.videoDuration = Math.floor(update.duration);
 
-    if (this.currentLecture && update.duration > 0) {
-      const watchedRatio = update.currentTime / update.duration;
-      if (watchedRatio >= 0.8 && this.autoCompletedForLecture !== this.currentLecture.id && !this.completedIds.has(this.currentLecture.id) && !this.hasLectureQuiz) {
+    // Cumulative anti-cheat watch increment
+    if (this.lastReportedTime >= 0) {
+      const delta = update.currentTime - this.lastReportedTime;
+      // Normal playback progress delta between 0.1s and 1.5s
+      if (delta > 0 && delta <= 1.5) {
+        this.cumulativeWatchedSeconds += delta;
+      }
+    }
+    this.lastReportedTime = update.currentTime;
+
+    if (this.currentLecture && update.duration > 10) {
+      const requiredWatchTime = update.duration * 0.8;
+      const isSufficientlyWatched = this.cumulativeWatchedSeconds >= requiredWatchTime || update.currentTime >= update.duration - 2;
+
+      if (
+        isSufficientlyWatched && 
+        this.autoCompletedForLecture !== this.currentLecture.id && 
+        !this.completedIds.has(this.currentLecture.id) && 
+        !this.hasLectureQuiz
+      ) {
         this.autoCompletedForLecture = this.currentLecture.id;
         this.markComplete(false);
       }
@@ -282,6 +418,12 @@ export class LectureComponent implements OnInit {
   onTranscriptSeek(seconds: number): void {
     if (this.videoPlayer) {
       this.videoPlayer.seekTo(seconds);
+    }
+  }
+
+  onNoteModalOpen(): void {
+    if (this.videoPlayer) {
+      this.videoPlayer.pause();
     }
   }
 
@@ -341,6 +483,10 @@ export class LectureComponent implements OnInit {
         }
       });
     } else {
+      if (this.hasLectureQuiz) {
+        this.openQuizModal();
+        return;
+      }
       this.markComplete(true);
     }
   }
@@ -366,13 +512,16 @@ export class LectureComponent implements OnInit {
   }
 
   get watchedPercent(): number {
-    if (!this.currentProgress || !this.currentLecture) return 0;
-    return this.completedIds.has(this.currentLecture.id) ? 100 : 
-      Math.min(100, Math.round(((this.currentProgress.secondsWatched || 0) / 1200) * 100));
+    if (!this.currentLecture) return 0;
+    if (this.completedIds.has(this.currentLecture.id)) return 100;
+    if (this.videoDuration > 0) {
+      return Math.min(99, Math.round((this.playbackPosition / this.videoDuration) * 100));
+    }
+    return 0;
   }
 
   get totalCourseDuration(): string {
-    const totalMinutes = this.lectures.length * 18;
+    const totalMinutes = this.lectures.length * 15;
     const hrs = Math.floor(totalMinutes / 60);
     const mins = totalMinutes % 60;
     return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
@@ -421,9 +570,15 @@ export class LectureComponent implements OnInit {
     };
   }
 
-  formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+  formatTime(seconds: number | undefined | null): string {
+    if (!seconds || seconds <= 0) return '00:00';
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    if (hrs > 0) {
+      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 }

@@ -17,7 +17,16 @@
 
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password" formControlName="password" placeholder="••••••••" />
+        <input type="password" id="password" formControlName="password" placeholder="8–16 chars (e.g. Pass@123)" />
+        <small class="field-hint" [class.field-error]="passwordControl?.touched && passwordControl?.invalid">
+          8–16 characters, min. 1 uppercase letter, 1 number, and 1 special character.
+        </small>
+        <div class="error-text" *ngIf="passwordControl?.touched && passwordControl?.invalid">
+          <span *ngIf="passwordControl?.errors?.['required']">Password is required.</span>
+          <span *ngIf="!passwordControl?.errors?.['required'] && passwordControl?.errors?.['invalidPassword']">
+            Must be 8–16 characters with 1 uppercase, 1 number, and 1 special character.
+          </span>
+        </div>
       </div>
 
       <div class="form-actions">

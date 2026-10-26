@@ -7,6 +7,7 @@ export interface ExploreCourseFilters {
   status?: string;
   department?: string;
   teacherId?: number;
+  search?: string;
 }
 
 /**
@@ -41,13 +42,30 @@ export class StudentService {
     if (filters?.status) params['status'] = filters.status;
     if (filters?.department) params['department'] = filters.department;
     if (filters?.teacherId != null) params['teacherId'] = String(filters.teacherId);
+    if (filters?.search?.trim()) params['search'] = filters.search.trim();
     return this.apiService.get<Course[]>('/courses', { params });
+  }
+
+  /** Modules belonging to a course (Section 3 of LMS_Entity_Reference.pdf). */
+  getCourseModules(courseId: number): Observable<any[]> {
+    return this.apiService.get<any[]>(`/courses/${courseId}/modules`);
+  }
+
+  /** Content items inside a module (Section 4 of LMS_Entity_Reference.pdf). */
+  getModuleContents(moduleId: number): Observable<any[]> {
+    return this.apiService.get<any[]>(`/modules/${moduleId}/contents`);
+  }
+
+  /** Single content item. */
+  getContent(contentId: number): Observable<any> {
+    return this.apiService.get<any>(`/contents/${contentId}`);
   }
 
   /** All lectures belonging to a public course (used by course detail page). */
   getCourseLectures(courseId: number): Observable<Lecture[]> {
     return this.apiService.get<Lecture[]>(`/courses/${courseId}/lectures`);
   }
+
 
   getLecture(courseId: number, lectureId: number): Observable<Lecture> {
     return this.apiService.get<Lecture>(`/student/courses/${courseId}/lectures/${lectureId}`);

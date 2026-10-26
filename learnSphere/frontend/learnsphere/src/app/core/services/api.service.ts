@@ -46,9 +46,17 @@ export class ApiService {
   }
 
   /**
+   * Perform PATCH request.
+   */
+  patch<T>(endpoint: string, body: any, options?: any): Observable<T> {
+    return this.http.patch<T>(this.getFullUrl(endpoint), body, options) as Observable<T>;
+  }
+
+  /**
    * Perform DELETE request.
    */
   delete<T>(endpoint: string, options?: any): Observable<T> {
     return this.http.delete<T>(this.getFullUrl(endpoint), options) as Observable<T>;
   }
 }
+

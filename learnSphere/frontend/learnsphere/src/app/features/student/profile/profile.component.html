@@ -1,4 +1,99 @@
-<section class="portal-page"><header class="page-header"><div><div class="eyebrow">Student workspace</div><h1>Profile</h1><p>Manage how your identity and activity appear across LearnSphere.</p></div><div class="header-actions"><span class="saved-toast" *ngIf="saved">Profile saved</span><button class="primary-btn" (click)="editing ? save() : editing = true">{{ editing ? 'Save profile' : 'Edit profile' }}</button></div></header>
-<div class="profile-grid"><aside class="profile-card identity-card"><div class="profile-avatar">{{ initials }}<button *ngIf="editing">+</button></div><h2>{{ name }}</h2><p>{{ detail }}</p><span class="verified">✓ Verified account</span><div class="profile-links"><a routerLink="/student/settings">Account settings</a><a routerLink="/student/notifications">Notification centre</a></div></aside>
-<div class="profile-main"><div class="stats-grid"><div class="stat" *ngFor="let stat of stats"><strong>{{ stat[0] }}</strong><span>{{ stat[1] }}</span></div></div><section class="profile-card info-card"><div class="card-heading"><h2>Personal information</h2><p>Your core account and public details.</p></div><div class="form-grid"><label><span>Display name</span><input [disabled]="!editing" [(ngModel)]="name"></label><label><span>Email address</span><input disabled [value]="email"></label><label class="full"><span>Role and institution</span><input [disabled]="!editing" [(ngModel)]="detail"></label><label class="full"><span>About</span><textarea rows="4" [disabled]="!editing" [(ngModel)]="bio"></textarea></label></div></section><section class="profile-card security-card"><div><h2>Account security</h2><p>Password last updated 30 days ago</p></div><button class="secondary-btn">Change password</button></section></div></div></section>
+<section class="portal-page">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">Student workspace</div>
+      <h1>Profile</h1>
+      <p>Manage how your identity and activity appear across LearnSphere.</p>
+    </div>
+    <div class="header-actions">
+      <span class="saved-toast" *ngIf="saved">Profile saved ✓</span>
+      <ng-container *ngIf="!editing">
+        <button id="profile-edit-btn" class="primary-btn" (click)="startEdit()" [disabled]="loading">Edit profile</button>
+      </ng-container>
+      <ng-container *ngIf="editing">
+        <button id="profile-cancel-btn" class="secondary-btn" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
+        <button id="profile-save-btn" class="primary-btn" (click)="save()" [disabled]="saving">
+          {{ saving ? 'Saving…' : 'Save profile' }}
+        </button>
+      </ng-container>
+    </div>
+  </header>
 
+  <!-- Loading skeleton -->
+  <div *ngIf="loading && !user" class="loading-state">
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+  </div>
+
+  <!-- Error alert -->
+  <div *ngIf="error" class="error-alert">
+    <span>⚠ {{ error }}</span>
+    <button (click)="error = null">✕</button>
+  </div>
+
+  <div class="profile-grid" *ngIf="user">
+    <!-- Identity sidebar -->
+    <aside class="profile-card identity-card">
+      <div class="profile-avatar">{{ initials }}</div>
+      <h2>{{ name }}</h2>
+      <p class="identity-detail">{{ detail }}</p>
+      <span class="verified" *ngIf="user.collegeVerificationStatus === 'VERIFIED'">✓ College verified</span>
+      <div class="profile-links">
+        <a routerLink="/student/settings">Account settings</a>
+        <a routerLink="/student/notifications">Notification centre</a>
+      </div>
+    </aside>
+
+    <div class="profile-main">
+      <!-- Stats row (live from server) -->
+      <div class="stats-grid">
+        <div class="stat" *ngFor="let stat of stats">
+          <strong>{{ stat[0] }}</strong>
+          <span>{{ stat[1] }}</span>
+        </div>
+      </div>
+
+      <!-- Personal information card -->
+      <section class="profile-card info-card">
+        <div class="card-heading">
+          <h2>Personal information</h2>
+          <p>Your core account and public details.</p>
+        </div>
+        <div class="form-grid">
+          <label>
+            <span>Display name</span>
+            <input id="profile-name-input"
+                   [disabled]="!editing"
+                   [(ngModel)]="editName"
+                   placeholder="Your name">
+          </label>
+          <label>
+            <span>Email address</span>
+            <input disabled [value]="email" placeholder="Email">
+          </label>
+          <label class="full">
+            <span>Department · College</span>
+            <input disabled [value]="detail" placeholder="Department info">
+          </label>
+          <label class="full">
+            <span>About</span>
+            <textarea id="profile-bio-input"
+                      rows="4"
+                      [disabled]="!editing"
+                      [(ngModel)]="editBio"
+                      placeholder="Write a short bio…"></textarea>
+          </label>
+        </div>
+      </section>
+
+      <!-- Security card -->
+      <section class="profile-card security-card">
+        <div>
+          <h2>Account security</h2>
+          <p>Keep your account safe and up to date.</p>
+        </div>
+        <a routerLink="/student/settings" class="secondary-btn">Manage security</a>
+      </section>
+    </div>
+  </div>
+</section>

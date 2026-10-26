@@ -10,6 +10,10 @@ import java.util.List;
 
 public interface CourseService {
     List<CourseResponseDto> getCourses(String status, String department, Long teacherId);
+
+    default List<CourseResponseDto> getCourses(String status, String department, Long teacherId, String search) {
+        return getCourses(status, department, teacherId);
+    }
     CourseResponseDto getCourseById(Long id);
     Course getCourseEntity(Long id);
     CourseResponseDto createCourse(Course course, CustomUserDetails principal);

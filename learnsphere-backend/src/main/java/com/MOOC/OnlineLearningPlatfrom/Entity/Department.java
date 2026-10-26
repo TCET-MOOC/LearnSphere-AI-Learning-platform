@@ -1,38 +1,33 @@
 package com.MOOC.OnlineLearningPlatfrom.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "departments")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "department_id")
     private Long departmentId;
 
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    // These manual methods are now correct
-    public Long getDepartmentId() {
-        return departmentId;
-    }
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-}
+}

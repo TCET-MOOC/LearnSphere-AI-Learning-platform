@@ -16,7 +16,7 @@ public class ChatbotController {
 
     private final NvidiaNimService nvidiaNimService;
 
-    public record ChatQuery(String message) {}
+    public record ChatQuery(String message, Double currentTimestamp, String activeCueText) {}
     public record ChatResponse(String reply, List<String> suggestions, boolean aiPowered, String model) {}
 
     private static final Map<String, String> KNOWLEDGE_BASE = new LinkedHashMap<>();
@@ -46,7 +46,7 @@ public class ChatbotController {
         // 1. Try NVIDIA NIM LLM if configured
         if (nvidiaNimService.isConfigured()) {
             try {
-                String aiReply = nvidiaNimService.generateChatResponse(msg, "LearnSphere MOOC & Engineering Platform");
+                String aiReply = nvidiaNimService.generateChatResponse(msg, buildRoleContext(query));
                 if (aiReply != null && !aiReply.isBlank()) {
                     return ResponseEntity.ok(new ChatResponse(aiReply, defaultSuggestions(), true, nvidiaNimService.getActiveModel()));
                 }
@@ -77,6 +77,19 @@ public class ChatbotController {
         }
 
         return ResponseEntity.ok(new ChatResponse(answer, defaultSuggestions(), false, "knowledge-base"));
+    }
+
+    private String buildRoleContext(ChatQuery query) {
+        StringBuilder ctx = new StringBuilder("LearnSphere MOOC & Engineering Platform");
+        if (query != null && query.currentTimestamp() != null) {
+            long secs = Math.round(query.currentTimestamp());
+            ctx.append(". The student is currently watching a lecture at second ").append(secs);
+            if (query.activeCueText() != null && !query.activeCueText().isBlank()) {
+                ctx.append(", where the current transcript cue reads: \"").append(query.activeCueText()).append('"');
+            }
+            ctx.append(". If the question refers to 'this' or the current moment of the lecture, use that context in your answer.");
+        }
+        return ctx.toString();
     }
 
     private List<String> defaultSuggestions() {

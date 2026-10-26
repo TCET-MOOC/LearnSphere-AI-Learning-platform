@@ -15,4 +15,6 @@ public interface AuthService {
     String forgotPassword(ForgotPasswordRequest request);
     void resetPassword(ResetPasswordRequest request);
     UserResponseDto verifyCollege(String email, VerifyCollegeRequest request);
+    AuthResponse refreshToken(String token);
 }
+

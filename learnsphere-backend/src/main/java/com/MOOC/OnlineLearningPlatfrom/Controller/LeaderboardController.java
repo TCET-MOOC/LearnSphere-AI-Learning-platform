@@ -12,20 +12,39 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import com.MOOC.OnlineLearningPlatfrom.Entity.Leaderboard;
+import com.MOOC.OnlineLearningPlatfrom.Repository.LeaderboardRepository;
+import org.springframework.web.bind.annotation.PathVariable;
+
 @RestController
-@RequestMapping("/api/leaderboard")
+@RequestMapping("/api")
 public class LeaderboardController {
 
     private final LeaderboardService leaderboardService;
+    private final LeaderboardRepository leaderboardRepository;
 
-    public LeaderboardController(LeaderboardService leaderboardService) {
+    public LeaderboardController(LeaderboardService leaderboardService,
+                                 LeaderboardRepository leaderboardRepository) {
         this.leaderboardService = leaderboardService;
+        this.leaderboardRepository = leaderboardRepository;
     }
 
-    @GetMapping
+    @GetMapping("/leaderboard")
     public ResponseEntity<List<LeaderboardEntryDto>> getLeaderboard(
             @RequestParam(defaultValue = "global") String scope,
             @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(leaderboardService.getLeaderboard(scope, principal));
     }
+
+    @GetMapping("/courses/{courseId}/leaderboard")
+    public ResponseEntity<List<Leaderboard>> getCourseLeaderboard(@PathVariable Long courseId) {
+        return ResponseEntity.ok(leaderboardRepository.findByCourse_IdOrderByAvgScoreDesc(courseId));
+    }
+
+    @GetMapping("/leaderboard/me")
+    public ResponseEntity<List<Leaderboard>> getMyLeaderboard(@AuthenticationPrincipal CustomUserDetails principal) {
+        Long userId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : 0L;
+        return ResponseEntity.ok(leaderboardRepository.findByUser_UserId(userId));
+    }
 }
+

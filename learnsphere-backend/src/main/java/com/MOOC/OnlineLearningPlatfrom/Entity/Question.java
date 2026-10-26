@@ -28,6 +28,10 @@ public class Question {
     // The correct option text (for MCQ) or a short-answer key. Never exposed to students.
     private String correctAnswer;
 
+    @Column(name = "extra", columnDefinition = "TEXT")
+    private String extra;
+
+
     // --- NEW RELATIONSHIP ---
     // Many questions can belong to one test.
     @ManyToOne
@@ -93,4 +97,12 @@ public class Question {
     public void setCorrectAnswer(String correctAnswer) {
         this.correctAnswer = correctAnswer;
     }
-}
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
+    }
+}

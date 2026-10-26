@@ -6,6 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '@core/auth/auth.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { NotificationService } from '@core/services/notification.service';
+import { passwordValidator } from '@core/validators/password.validator';
 
 @Component({
   selector: 'app-forgot-password',
@@ -35,8 +36,12 @@ export class ForgotPasswordComponent {
     });
     this.resetForm = this.fb.group({
       token: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]]
+      newPassword: ['', [Validators.required, passwordValidator()]]
     });
+  }
+
+  get newPasswordControl() {
+    return this.resetForm.get('newPassword');
   }
 
   submitRequest(): void {

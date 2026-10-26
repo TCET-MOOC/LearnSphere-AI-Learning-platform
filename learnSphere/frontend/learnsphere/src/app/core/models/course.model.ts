@@ -81,3 +81,81 @@ export interface Bookmark {
   label: string;
   createdAt: string;
 }
+
+/**
+ * Module within a course (Section 3 of LMS_Entity_Reference.pdf).
+ */
+export interface Module {
+  moduleId: number;
+  courseId: number;
+  title: string;
+  position: number;
+  createdAt?: string;
+  contents?: CourseContent[];
+  assignments?: Assignment[];
+}
+
+/**
+ * CourseContent (Section 4 of LMS_Entity_Reference.pdf)
+ * Represents individual Video, PDF, or Quiz items inside a Module.
+ */
+export type ContentType = 'VIDEO' | 'PDF' | 'QUIZ';
+
+export interface CourseContent {
+  contentId: number;
+  moduleId: number;
+  contentType: ContentType;
+  title: string;
+  filePath: string;
+  durationSeconds: number;
+  position: number;
+  uploadedAt?: string;
+}
+
+/**
+ * Assignment (Section 4 of LMS_Entity_Reference.pdf)
+ */
+export interface Assignment {
+  assignmentId: number;
+  moduleId: number;
+  title: string;
+  description: string;
+  maxMarks: number;
+  dueDate: string;
+  createdAt?: string;
+}
+
+/**
+ * Assignment Submission (Section 8 of LMS_Entity_Reference.pdf)
+ */
+export interface AssignmentSubmission {
+  submissionId?: number;
+  assignmentId: number;
+  studentId?: number;
+  studentName?: string;
+  submissionText?: string;
+  fileUrl?: string;
+  marksAwarded?: number | null;
+  feedback?: string | null;
+  submittedAt?: string;
+}
+
+/**
+ * Course Feedback / Review (Section 9 of LMS_Entity_Reference.pdf)
+ */
+export interface CourseFeedback {
+  feedbackId?: number;
+  userId?: number;
+  userName?: string;
+  courseId: number;
+  rating: number; // 1 to 5
+  message?: string;
+  createdAt?: string;
+}
+
+export interface CourseRatingSummary {
+  courseId: number;
+  averageRating: number;
+  totalReviews: number;
+}
+

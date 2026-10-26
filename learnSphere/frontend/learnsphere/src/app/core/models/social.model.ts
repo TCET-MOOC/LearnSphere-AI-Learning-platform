@@ -95,3 +95,47 @@ export interface LeaderboardEntryDto {
 }
 
 export type LeaderboardScope = 'global' | 'college';
+
+/**
+ * Two-tier discussion forum models (Section 10 of LMS_Entity_Reference.pdf)
+ */
+export interface DiscussionThreadDto {
+  threadId: number;
+  courseId: number;
+  userId: number;
+  authorName: string;
+  authorAvatar?: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt?: string;
+  posts?: ThreadPostDto[];
+}
+
+export interface ThreadPostDto {
+  postId: number;
+  threadId: number;
+  userId: number;
+  authorName: string;
+  authorAvatar?: string;
+  body: string;
+  parentPostId?: number;
+  createdAt: string;
+  replies?: ThreadPostDto[];
+}
+
+/**
+ * Course-specific leaderboard (Section 8 of LMS_Entity_Reference.pdf)
+ */
+export interface CourseLeaderboardDto {
+  leaderboardId: number;
+  userId: number;
+  userName: string;
+  userAvatar?: string;
+  courseId: number;
+  avgScore: number;
+  globalRank: number;
+  deptRank: number;
+  updatedAt: string;
+}
+

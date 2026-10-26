@@ -42,4 +42,10 @@ public class DepartmentController {
         departmentService.deleteDepartment(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/courses")
+    public ResponseEntity<List<com.MOOC.OnlineLearningPlatfrom.Entity.Course>> getCoursesByDepartment(@PathVariable Long id) {
+        return ResponseEntity.ok(departmentService.getCoursesByDepartmentId(id));
+    }
 }
+

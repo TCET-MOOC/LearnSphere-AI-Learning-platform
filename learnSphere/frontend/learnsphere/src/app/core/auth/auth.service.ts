@@ -50,7 +50,18 @@ export class AuthService {
   }
 
   fetchCurrentUser(): Observable<User> {
-    return this.apiService.get<User>('/auth/me').pipe(
+    // Spec §2: GET /api/users/me — returns the authenticated user's own profile.
+    return this.apiService.get<User>('/users/me').pipe(
+      tap((user) => {
+        this.storageService.setUser(user);
+        this.currentUserSubject.next(user);
+      })
+    );
+  }
+
+  updateProfile(patch: Partial<Pick<User, 'fullName' | 'bio' | 'avatarUrl'>>): Observable<User> {
+    // Spec §2: PUT /api/users/me — updates the authenticated user's own profile.
+    return this.apiService.put<User>('/users/me', patch).pipe(
       tap((user) => {
         this.storageService.setUser(user);
         this.currentUserSubject.next(user);

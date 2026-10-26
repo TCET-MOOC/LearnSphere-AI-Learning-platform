@@ -5,7 +5,8 @@
     </button>
     <div class="search-box">
       <lucide-icon name="search" [size]="16" class="search-icon"></lucide-icon>
-      <input type="text" placeholder="Search courses, notes...">
+      <input type="text" placeholder="Search courses, notes..." aria-label="Search courses"
+        [(ngModel)]="searchQuery" (keydown.enter)="submitSearch()">
     </div>
   </div>
   

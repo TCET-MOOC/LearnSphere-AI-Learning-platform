@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AssessmentService } from '../../../services/assessment.service';
 import { Assessment, AssessmentDetail, AttemptReview, TestAttempt } from '@core/models/assessment.model';
 import { 
@@ -133,14 +135,15 @@ export class PostVideoQuizComponent implements OnInit {
     if (!this.attempt || !this.quizDetail || this.submitting) return;
     this.submitting = true;
 
-    const answersToSubmit = this.quizDetail.questions.map(q => ({
-      questionId: q.questionId,
-      answerText: this.selectedAnswers[q.questionId] || ''
-    }));
+    const answerRequests = this.quizDetail.questions.map(q => {
+      const answerText = this.selectedAnswers[q.questionId] || '';
+      return this.assessmentService.submitAnswer(this.attempt!.attemptId, q.questionId, answerText).pipe(
+        catchError(() => of(null))
+      );
+    });
 
-    // Submit answers sequentially
-    const submitNext = (index: number) => {
-      if (index >= answersToSubmit.length) {
+    forkJoin(answerRequests).subscribe({
+      next: () => {
         this.assessmentService.finalizeAssessment(this.attempt!.attemptId).subscribe({
           next: (rev) => {
             this.review = rev;
@@ -160,17 +163,12 @@ export class PostVideoQuizComponent implements OnInit {
             this.cdr.markForCheck();
           }
         });
-        return;
+      },
+      error: () => {
+        this.submitting = false;
+        this.cdr.markForCheck();
       }
-
-      const item = answersToSubmit[index];
-      this.assessmentService.submitAnswer(this.attempt!.attemptId, item.questionId, item.answerText).subscribe({
-        next: () => submitNext(index + 1),
-        error: () => submitNext(index + 1)
-      });
-    };
-
-    submitNext(0);
+    });
   }
 
   retakeQuiz(): void {

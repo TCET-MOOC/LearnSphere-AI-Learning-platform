@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationStateService } from '../../../core/services/notification-state.service';
 import { NotificationApiService } from '../../../core/services/notification-api.service';
@@ -39,13 +40,14 @@ export interface TopbarNotificationItem {
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.scss']
 })
 export class TopbarComponent implements OnInit {
   isMenuOpen = false;
   isNotificationsOpen = false;
+  searchQuery = '';
 
   notifications: TopbarNotificationItem[] = [];
   private wsSubscription?: Subscription;
@@ -89,6 +91,14 @@ export class TopbarComponent implements OnInit {
 
   toggleMobileSidebar(): void {
     this.sidebarService.toggleMobile();
+  }
+
+  /** Global search: jump to the role's courses page with ?search= applied. */
+  submitSearch(): void {
+    const q = this.searchQuery.trim();
+    this.router.navigate([`/${this.role}/courses`], {
+      queryParams: q ? { search: q } : {}
+    });
   }
 
   get isDarkMode(): boolean {

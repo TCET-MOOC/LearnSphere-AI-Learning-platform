@@ -14,8 +14,10 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.UserProgressRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.CourseService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -42,17 +44,20 @@ public class StudentController {
 
     @GetMapping("/live-sessions")
     public ResponseEntity<List<com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto>> getLiveSessions(@AuthenticationPrincipal CustomUserDetails principal) {
+        requireUserId(principal);
         return ResponseEntity.ok(liveSessionService.getStudentSessions(principal));
     }
 
     @GetMapping("/live-sessions/{id}")
-    public ResponseEntity<com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto> getLiveSession(@PathVariable Long id) {
+    public ResponseEntity<com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto> getLiveSession(@PathVariable Long id,
+                                                                                                       @AuthenticationPrincipal CustomUserDetails principal) {
+        requireUserId(principal);
         return ResponseEntity.ok(liveSessionService.getSessionById(id));
     }
 
     @GetMapping("/courses")
     public ResponseEntity<List<CourseResponseDto>> getEnrolledCourses(@AuthenticationPrincipal CustomUserDetails principal) {
-        Long userId = principal.getUser().getUserId();
+        Long userId = requireUserId(principal);
         List<CourseResponseDto> courses = enrollmentRepository.findByUserId(userId).stream()
                 .map(Enrollment::getCourse)
                 .filter(c -> c != null)
@@ -70,7 +75,7 @@ public class StudentController {
     @GetMapping("/courses/{id}")
     public ResponseEntity<CourseResponseDto> getEnrolledCourseDetail(@PathVariable Long id,
                                                                        @AuthenticationPrincipal CustomUserDetails principal) {
-        Long userId = principal.getUser().getUserId();
+        Long userId = requireUserId(principal);
         assertEnrolled(userId, id);
         Course c = courseService.getCourseEntity(id);
         long lectureCount = courseService.getLectures(id).size();
@@ -83,7 +88,7 @@ public class StudentController {
     @GetMapping("/courses/{courseId}/progress")
     public ResponseEntity<List<UserProgressResponseDto>> getCourseProgress(@PathVariable Long courseId,
                                                                             @AuthenticationPrincipal CustomUserDetails principal) {
-        Long userId = principal.getUser().getUserId();
+        Long userId = requireUserId(principal);
         assertEnrolled(userId, courseId);
         List<UserProgressResponseDto> progressList = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, courseId).stream()
                 .map(UserProgressResponseDto::from)
@@ -95,7 +100,7 @@ public class StudentController {
     public ResponseEntity<LectureResponseDto> getLecture(@PathVariable Long courseId,
                                                            @PathVariable Long lectureId,
                                                            @AuthenticationPrincipal CustomUserDetails principal) {
-        assertEnrolled(principal.getUser().getUserId(), courseId);
+        assertEnrolled(requireUserId(principal), courseId);
         LectureResponseDto lecture = courseService.getLectureById(lectureId);
         if (lecture.getCourseId() == null || !lecture.getCourseId().equals(courseId)) {
             throw new ResourceNotFoundException("Lecture not found in course " + courseId);
@@ -107,7 +112,7 @@ public class StudentController {
     public ResponseEntity<UserProgressResponseDto> markLectureComplete(@PathVariable Long id,
                                                                          @AuthenticationPrincipal CustomUserDetails principal) {
         Lecture lecture = courseService.getLectureEntity(id);
-        Long userId = principal.getUser().getUserId();
+        Long userId = requireUserId(principal);
         UserProgress progress = userProgressRepository.findByUserIdAndLecture_Id(userId, id)
                 .orElseGet(() -> {
                     UserProgress p = new UserProgress();
@@ -127,7 +132,7 @@ public class StudentController {
     @PostMapping("/lectures/{id}/uncomplete")
     public ResponseEntity<UserProgressResponseDto> unmarkLectureComplete(@PathVariable Long id,
                                                                              @AuthenticationPrincipal CustomUserDetails principal) {
-        Long userId = principal.getUser().getUserId();
+        Long userId = requireUserId(principal);
         UserProgress progress = userProgressRepository.findByUserIdAndLecture_Id(userId, id)
                 .orElseGet(() -> {
                     Lecture lecture = courseService.getLectureEntity(id);
@@ -146,7 +151,7 @@ public class StudentController {
     @GetMapping("/lectures/{id}/progress")
     public ResponseEntity<UserProgressResponseDto> getProgress(@PathVariable Long id,
                                                                  @AuthenticationPrincipal CustomUserDetails principal) {
-        Long userId = principal.getUser().getUserId();
+        Long userId = requireUserId(principal);
         return ResponseEntity.ok(userProgressRepository.findByUserIdAndLecture_Id(userId, id)
                 .map(UserProgressResponseDto::from)
                 .orElseGet(() -> UserProgressResponseDto.empty(id)));
@@ -159,7 +164,7 @@ public class StudentController {
         if (course.getPrice() != null && course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
             throw new BadRequestException("This course requires payment — use the checkout flow.");
         }
-        Long userId = principal.getUser().getUserId();
+        Long userId = requireUserId(principal);
         if (!enrollmentRepository.existsByUserIdAndCourse_Id(userId, id)) {
             Enrollment enrollment = new Enrollment();
             enrollment.setUserId(userId);
@@ -175,5 +180,12 @@ public class StudentController {
         if (!enrollmentRepository.existsByUserIdAndCourse_Id(userId, courseId)) {
             throw new ResourceNotFoundException("Course not found or not enrolled: " + courseId);
         }
+    }
+
+    private Long requireUserId(CustomUserDetails principal) {
+        if (principal == null || principal.getUser() == null || principal.getUser().getUserId() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+        return principal.getUser().getUserId();
     }
 }

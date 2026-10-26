@@ -1,5 +1,6 @@
 package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
+import com.MOOC.OnlineLearningPlatfrom.Dto.AuthDtos;
 import com.MOOC.OnlineLearningPlatfrom.Dto.AuthDtos.*;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.*;
@@ -59,9 +60,19 @@ public class AuthServiceImpl implements AuthService {
         this.authenticationManager = authenticationManager;
     }
 
+    private static final java.util.regex.Pattern PASSWORD_PATTERN =
+            java.util.regex.Pattern.compile(AuthDtos.PASSWORD_REGEX);
+
+    private void validatePassword(String password) {
+        if (password == null || !PASSWORD_PATTERN.matcher(password).matches()) {
+            throw new BadRequestException(AuthDtos.PASSWORD_ERROR_MSG);
+        }
+    }
+
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        validatePassword(request.getPassword());
         if (userAccountRepository.findByEmail(request.getEmail()) != null) {
             throw new BadRequestException("An account with this email already exists");
         }
@@ -98,6 +109,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
+        validatePassword(request.getPassword());
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
@@ -147,6 +159,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
+        validatePassword(request.getNewPassword());
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken());
         if (resetToken == null || resetToken.isUsed() || resetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("This reset link is invalid or has expired");
@@ -187,4 +200,21 @@ public class AuthServiceImpl implements AuthService {
         return userRoleRepository.findByUser_UserId(user.getUserId())
                 .stream().map(UserRole::getRole).map(Role::getName).toList();
     }
+
+    @Override
+    @Transactional
+    public AuthResponse refreshToken(String token) {
+        String email = jwtService.extractEmail(token);
+        UserAccount user = userAccountRepository.findByEmail(email);
+        if (user == null || user.getStatus() == UserAccount.Status.BLACKLISTED) {
+            throw new BadCredentialsException("Invalid token or account is deactivated");
+        }
+        user.setLastActiveAt(LocalDateTime.now());
+        userAccountRepository.save(user);
+
+        List<String> roles = rolesOf(user);
+        String newToken = jwtService.generateToken(user.getEmail(), user.getUserId(), roles);
+        return new AuthResponse(newToken, newToken, UserResponseDto.from(user, roles));
+    }
 }
+

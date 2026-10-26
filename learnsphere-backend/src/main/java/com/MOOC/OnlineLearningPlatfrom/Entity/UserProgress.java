@@ -12,13 +12,23 @@ public class UserProgress {
 
     private Long userId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "content_id")
+    private CourseContent content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
 
+    @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    @Column(name = "progress_percent")
     private Integer progressPercent;
+
+    @Column(name = "seconds_watched")
     private Integer secondsWatched;
+
 
     // --- Getters and Setters ---
 
@@ -38,9 +48,18 @@ public class UserProgress {
         this.userId = userId;
     }
 
+    public CourseContent getContent() {
+        return content;
+    }
+
+    public void setContent(CourseContent content) {
+        this.content = content;
+    }
+
     public Lecture getLecture() {
         return lecture;
     }
+
 
     public void setLecture(Lecture lecture) {
         this.lecture = lecture;

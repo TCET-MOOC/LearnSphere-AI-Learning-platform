@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { TeacherService } from '../services/teacher.service';
 import { Course } from '@core/models/course.model';
 import { CourseCardComponent } from './components/course-card.component';
@@ -15,9 +16,11 @@ type StatusFilter = 'ALL' | 'LIVE' | 'DRAFT' | 'PENDING' | 'ARCHIVED';
   templateUrl: './courses.component.html',
   styleUrls: ['./courses.component.scss']
 })
-export class CoursesComponent implements OnInit {
+export class CoursesComponent implements OnInit, OnDestroy {
   loading = true;
   courses: Course[] = [];
+  searchQuery = '';
+  private queryParamSub?: Subscription;
   activeFilter: StatusFilter = 'ALL';
   filters: { key: StatusFilter; label: string }[] = [
     { key: 'ALL', label: 'All' },
@@ -30,11 +33,21 @@ export class CoursesComponent implements OnInit {
   constructor(
     private teacherService: TeacherService,
     private notificationService: NotificationService,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    // Honor ?search= from the global topbar search box.
+    this.queryParamSub = this.route.queryParamMap.subscribe((params) => {
+      this.searchQuery = params.get('search') || '';
+      this.cdr.markForCheck();
+    });
     this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.queryParamSub?.unsubscribe();
   }
 
   load(): void {
@@ -55,8 +68,18 @@ export class CoursesComponent implements OnInit {
   }
 
   get filteredCourses(): Course[] {
-    if (this.activeFilter === 'ALL') return this.courses;
-    return this.courses.filter(c => c.status === this.activeFilter);
+    const base = this.activeFilter === 'ALL' ? this.courses : this.courses.filter(c => c.status === this.activeFilter);
+    const q = this.searchQuery.trim().toLowerCase();
+    if (!q) return base;
+    return base.filter(c =>
+      (c.title || '').toLowerCase().includes(q) ||
+      (c.teacherName || '').toLowerCase().includes(q) ||
+      (c.department || '').toLowerCase().includes(q)
+    );
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
   }
 
   setFilter(filter: StatusFilter): void {

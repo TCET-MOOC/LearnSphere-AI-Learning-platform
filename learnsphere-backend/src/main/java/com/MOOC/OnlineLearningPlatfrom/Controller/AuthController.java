@@ -31,10 +31,29 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestBody(required = false) RefreshTokenRequest request,
+                                                @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        String token = request != null && request.getRefreshToken() != null ? request.getRefreshToken() : null;
+        if (token == null && authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        }
+        if (token == null) {
+            throw new com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException("Refresh token is required");
+        }
+        return ResponseEntity.ok(authService.refreshToken(token));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout() {
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> me(@AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(authService.currentUser(principal.getUsername()));
     }
+
 
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {

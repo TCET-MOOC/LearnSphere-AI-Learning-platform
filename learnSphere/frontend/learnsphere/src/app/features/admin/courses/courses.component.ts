@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { LucideAngularModule } from 'lucide-angular';
@@ -45,10 +46,18 @@ export class CoursesComponent implements OnInit {
     private apiService: ApiService,
     private notificationService: NotificationService,
     private dialog: MatDialog,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    // Honor ?search= from the global topbar search box.
+    this.route.queryParamMap.subscribe((params) => {
+      const q = params.get('search') || '';
+      if (q && q !== this.searchQuery) {
+        this.searchQuery = q;
+      }
+    });
     this.load();
   }
 

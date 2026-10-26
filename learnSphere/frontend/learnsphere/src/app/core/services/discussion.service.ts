@@ -26,7 +26,42 @@ export class DiscussionService {
     return this.api.post<DiscussionPostDto>('/discussion', payload);
   }
 
+  // --- Two-Tier Discussion Forum (Section 10 of LMS_Entity_Reference.pdf) ---
+
+  getThreads(courseId: number): Observable<any[]> {
+    return this.api.get<any[]>(`/courses/${courseId}/threads`);
+  }
+
+  getThread(threadId: number): Observable<any> {
+    return this.api.get<any>(`/threads/${threadId}`);
+  }
+
+  createThread(courseId: number, thread: { title: string; content: string }): Observable<any> {
+    return this.api.post<any>(`/courses/${courseId}/threads`, thread);
+  }
+
+  updateThread(threadId: number, thread: { title?: string; content?: string }): Observable<any> {
+    return this.api.put<any>(`/threads/${threadId}`, thread);
+  }
+
+  deleteThread(threadId: number): Observable<void> {
+    return this.api.delete<void>(`/threads/${threadId}`);
+  }
+
+  getThreadPosts(threadId: number): Observable<any[]> {
+    return this.api.get<any[]>(`/threads/${threadId}/posts`);
+  }
+
+  postReply(threadId: number, body: string, parentPostId?: number): Observable<any> {
+    return this.api.post<any>(`/threads/${threadId}/posts`, { body, parentPostId });
+  }
+
+  updatePost(postId: number, body: string): Observable<any> {
+    return this.api.put<any>(`/posts/${postId}`, { body });
+  }
+
   deletePost(id: number): Observable<void> {
-    return this.api.delete<void>(`/discussion/${id}`);
+    return this.api.delete<void>(`/posts/${id}`);
   }
 }
+

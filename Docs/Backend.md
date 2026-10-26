@@ -35,3 +35,10 @@ The backend comprises two decoupled **Java Spring Boot 3.3.5** services serving 
 - **Database**: PostgreSQL
 - **Security**: Spring Security + JJWT (0.11.5)
 - **External APIs**: YouTube Data API v3, NVIDIA NIM (LLaMA 3.1 70B Instruct)
+
+---
+
+## Domain Architecture Reference
+
+All domain entities, table schemas, and API routes in `learnsphere-backend` are governed by [`LMS_Entity_Reference.pdf`](file:///c:/Users/singh/OneDrive/Desktop/LearnSphere-AI---An-Online-Learning-Platform/LMS_Entity_Reference.pdf) as documented in [`AGENTS.md`](file:///c:/Users/singh/OneDrive/Desktop/LearnSphere-AI---An-Online-Learning-Platform/AGENTS.md).
+

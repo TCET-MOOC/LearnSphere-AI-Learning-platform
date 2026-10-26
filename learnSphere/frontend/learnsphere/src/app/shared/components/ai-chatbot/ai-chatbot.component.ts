@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
+import { LectureContextService } from '@core/services/lecture-context.service';
 import { LucideAngularModule } from 'lucide-angular';
 
 interface ChatMessage {
@@ -39,7 +40,11 @@ export class AiChatbotComponent implements OnInit {
     'Where do I join live lectures?'
   ];
 
-  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private apiService: ApiService,
+    private lectureContext: LectureContextService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {}
 
@@ -66,7 +71,14 @@ export class AiChatbotComponent implements OnInit {
     this.loading = true;
     this.cdr.markForCheck();
 
-    this.apiService.post<{ reply: string; suggestions?: string[] }>('/chatbot/ask', { message: text }).subscribe({
+    const ctx = this.lectureContext.snapshot;
+    const payload: Record<string, unknown> = { message: text };
+    if (ctx.currentTimestamp > 0 || !!ctx.activeCueText) {
+      payload['currentTimestamp'] = ctx.currentTimestamp;
+      payload['activeCueText'] = ctx.activeCueText;
+    }
+
+    this.apiService.post<{ reply: string; suggestions?: string[] }>('/chatbot/ask', payload).subscribe({
       next: (res) => {
         this.messages.push({
           id: (Date.now() + 1).toString(),

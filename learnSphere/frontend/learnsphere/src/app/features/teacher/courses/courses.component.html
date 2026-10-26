@@ -36,7 +36,8 @@
         (remove)="onDelete($event)">
       </app-teacher-course-card>
       <p class="hint" *ngIf="!loading && filteredCourses.length === 0">
-        No courses in this filter. Create your first course to get started.
+        {{ searchQuery ? ('No courses match "' + searchQuery + '".') : 'No courses in this filter. Create your first course to get started.' }}
+        <button class="link-btn" *ngIf="searchQuery" (click)="clearSearch()" type="button">Clear search</button>
       </p>
     </section>
 

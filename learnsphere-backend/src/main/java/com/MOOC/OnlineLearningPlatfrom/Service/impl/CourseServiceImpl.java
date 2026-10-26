@@ -32,6 +32,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseResponseDto> getCourses(String status, String department, Long teacherId) {
+        return getCourses(status, department, teacherId, null);
+    }
+
+    @Override
+    public List<CourseResponseDto> getCourses(String status, String department, Long teacherId, String search) {
         List<Course> courses;
         if (teacherId != null) {
             courses = courseRepository.findByTeacher_UserId(teacherId);
@@ -43,6 +48,19 @@ public class CourseServiceImpl implements CourseService {
             courses = courseRepository.findByDepartment(department);
         } else {
             courses = courseRepository.findAll();
+        }
+        if (search != null && !search.isBlank()) {
+            String[] tokens = search.toLowerCase().trim().split("\\s+");
+            courses = courses.stream()
+                    .filter(c -> {
+                        String haystack = ((c.getTitle() != null ? c.getTitle() : "") + " "
+                                + (c.getDescription() != null ? c.getDescription() : "")).toLowerCase();
+                        for (String token : tokens) {
+                            if (!haystack.contains(token)) return false;
+                        }
+                        return true;
+                    })
+                    .toList();
         }
         return courses.stream()
                 .map(c -> CourseResponseDto.from(c, lectureRepository.countByCourse_Id(c.getId())))

@@ -15,4 +15,13 @@ export class LeaderboardService {
   getLeaderboard(scope: LeaderboardScope = 'global'): Observable<LeaderboardEntryDto[]> {
     return this.api.get<LeaderboardEntryDto[]>('/leaderboard', { params: { scope } });
   }
+
+  getCourseLeaderboard(courseId: number): Observable<any[]> {
+    return this.api.get<any[]>(`/courses/${courseId}/leaderboard`);
+  }
+
+  getMyLeaderboard(): Observable<any[]> {
+    return this.api.get<any[]>('/leaderboard/me');
+  }
 }
+

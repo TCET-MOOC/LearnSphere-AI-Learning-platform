@@ -28,8 +28,9 @@ public class CourseController {
     public ResponseEntity<List<CourseResponseDto>> getCourses(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String department,
-            @RequestParam(required = false) Long teacherId) {
-        return ResponseEntity.ok(courseService.getCourses(status, department, teacherId));
+            @RequestParam(required = false) Long teacherId,
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(courseService.getCourses(status, department, teacherId, search));
     }
 
     @GetMapping("/courses/{id}")
@@ -49,25 +50,26 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getCourses(null, null, principal.getUser().getUserId()));
     }
 
-    @PostMapping("/teacher/courses")
+    @PostMapping({"/courses", "/teacher/courses"})
     public ResponseEntity<CourseResponseDto> createCourse(@RequestBody Course course,
                                                             @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(courseService.createCourse(course, principal));
     }
 
-    @PutMapping("/teacher/courses/{id}")
+    @PutMapping({"/courses/{id}", "/teacher/courses/{id}"})
     public ResponseEntity<CourseResponseDto> updateCourse(@PathVariable Long id,
                                                             @RequestBody Course course,
                                                             @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(courseService.updateCourse(id, course, principal));
     }
 
-    @DeleteMapping("/teacher/courses/{id}")
+    @DeleteMapping({"/courses/{id}", "/teacher/courses/{id}"})
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id,
                                               @AuthenticationPrincipal CustomUserDetails principal) {
         courseService.deleteCourse(id, principal);
         return ResponseEntity.noContent().build();
     }
+
 
     @PostMapping("/teacher/courses/{id}/lectures")
     public ResponseEntity<LectureResponseDto> addLecture(@PathVariable Long id,

@@ -6,6 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '@core/auth/auth.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { NotificationService } from '@core/services/notification.service';
+import { passwordValidator } from '@core/validators/password.validator';
 
 @Component({
   selector: 'app-login',
@@ -28,8 +29,12 @@ export class LoginComponent {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', [Validators.required, passwordValidator()]]
     });
+  }
+
+  get passwordControl() {
+    return this.loginForm.get('password');
   }
 
   onSubmit(): void {

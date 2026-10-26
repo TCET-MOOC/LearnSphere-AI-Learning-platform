@@ -53,3 +53,20 @@ LearnSphere follows a modern decoupled web application architecture combining an
 - **Authentication**: Stateless JWT tokens passed via `Authorization: Bearer <token>` header.
 - **Authorization**: Role-Based Access Control (`ROLE_STUDENT`, `ROLE_TEACHER`, `ROLE_ADMIN`).
 - **Passwords**: BCrypt salted password hashing.
+
+---
+
+## Organizational Reference Standard & Single Source of Truth
+
+As established in [`AGENTS.md`](file:///c:/Users/singh/OneDrive/Desktop/LearnSphere-AI---An-Online-Learning-Platform/AGENTS.md) and [`LMS_Entity_Reference.pdf`](file:///c:/Users/singh/OneDrive/Desktop/LearnSphere-AI---An-Online-Learning-Platform/LMS_Entity_Reference.pdf), all future database models, entity mappings, business rules, and API routes strictly conform to the 10 domain specifications:
+1. **Department & Role** (`department`, `role`)
+2. **User Account & User Role** (`user_account`, `user_role`)
+3. **Course & Module** (`course`, `module`)
+4. **Course Content & Assignment** (`course_content`, `assignment`)
+5. **Enrollment & User Progress** (`enrollment`, `user_progress`)
+6. **Test & Test Attempt** (`test`, `test_attempt`)
+7. **Question & Student Answer** (`question`, `student_answer`)
+8. **Leaderboard & Assignment Submission** (`leaderboard`, `assignment_submission`)
+9. **Feedback & Progress Detail** (`feedback`)
+10. **Discussion Thread & Post** (`discussion_thread`, `post`)
+

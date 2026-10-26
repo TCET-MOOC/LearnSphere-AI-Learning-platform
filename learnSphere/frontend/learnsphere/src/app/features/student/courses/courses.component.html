@@ -5,6 +5,15 @@
       <h1>My Courses</h1>
       <p class="subtitle">Access your semester modules, lecture playback, progress trackers, and syllabus materials.</p>
     </div>
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search courses by title, faculty, department..."
+        aria-label="Search courses"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange($event)">
+      <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()" title="Clear search" type="button">×</button>
+    </div>
   </header>
 
   <nav class="tabs" aria-label="Course filters">
@@ -29,7 +38,7 @@
     <div class="course-list" *ngIf="!loading">
       <app-course-card *ngFor="let course of filteredCourses" [course]="course"></app-course-card>
       <p class="hint" *ngIf="filteredCourses.length === 0">
-        No courses in this filter yet. Explore the catalog below to get started.
+        {{ searchQuery ? ('No courses match "' + searchQuery + '". Try a different keyword.') : 'No courses in this filter yet. Explore the catalog below to get started.' }}
       </p>
     </div>
   </section>

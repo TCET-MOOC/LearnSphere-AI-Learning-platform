@@ -2,15 +2,22 @@ package com.MOOC.OnlineLearningPlatfrom.Dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public class AuthDtos {
+
+    public static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?`~]).{8,16}$";
+    public static final String PASSWORD_ERROR_MSG = "Password must be 8-16 characters and contain at least one uppercase letter, one numerical digit, and one special character";
 
     public static class RegisterRequest {
         @NotBlank
         private String fullName;
         @NotBlank @Email
         private String email;
-        @NotBlank
+        @NotBlank(message = "Password is required")
+        @Size(min = 8, max = 16, message = "Password must be 8-16 characters long")
+        @Pattern(regexp = PASSWORD_REGEX, message = PASSWORD_ERROR_MSG)
         private String password;
         @NotBlank
         private String role; // STUDENT | TEACHER | ADMIN
@@ -34,7 +41,9 @@ public class AuthDtos {
     public static class LoginRequest {
         @NotBlank @Email
         private String email;
-        @NotBlank
+        @NotBlank(message = "Password is required")
+        @Size(min = 8, max = 16, message = "Password must be 8-16 characters long")
+        @Pattern(regexp = PASSWORD_REGEX, message = PASSWORD_ERROR_MSG)
         private String password;
 
         public String getEmail() { return email; }
@@ -45,16 +54,34 @@ public class AuthDtos {
 
     public static class AuthResponse {
         private String token;
+        private String refreshToken;
         private UserResponseDto user;
 
         public AuthResponse(String token, UserResponseDto user) {
             this.token = token;
+            this.refreshToken = token;
+            this.user = user;
+        }
+
+        public AuthResponse(String token, String refreshToken, UserResponseDto user) {
+            this.token = token;
+            this.refreshToken = refreshToken;
             this.user = user;
         }
 
         public String getToken() { return token; }
+        public String getAccessToken() { return token; }
+        public String getRefreshToken() { return refreshToken; }
         public UserResponseDto getUser() { return user; }
     }
+
+    public static class RefreshTokenRequest {
+        private String refreshToken;
+
+        public String getRefreshToken() { return refreshToken; }
+        public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+    }
+
 
     public static class ForgotPasswordRequest {
         @NotBlank @Email
@@ -67,7 +94,9 @@ public class AuthDtos {
     public static class ResetPasswordRequest {
         @NotBlank
         private String token;
-        @NotBlank
+        @NotBlank(message = "New password is required")
+        @Size(min = 8, max = 16, message = "Password must be 8-16 characters long")
+        @Pattern(regexp = PASSWORD_REGEX, message = PASSWORD_ERROR_MSG)
         private String newPassword;
 
         public String getToken() { return token; }

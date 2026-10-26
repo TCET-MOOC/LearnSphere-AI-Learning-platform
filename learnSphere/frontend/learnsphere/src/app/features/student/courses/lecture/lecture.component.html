@@ -33,7 +33,7 @@
             #videoPlayer
             [src]="currentLecture.videoUrl"
             [lectureId]="currentLecture.id"
-            [initialTime]="0"
+            [initialTime]="initialSeekTime"
             [videoTitle]="'Lec ' + currentLecture.number + ': ' + currentLecture.title"
             [language]="selectedTranscriptLanguage"
             (timeUpdate)="onTimeUpdate($event)"
@@ -101,9 +101,9 @@
               [class.is-completed]="completedIds.has(currentLecture.id)" 
               type="button" 
               (click)="toggleComplete()" 
-              [title]="completedIds.has(currentLecture.id) ? 'Click to unmark as complete' : 'Mark lecture as completed'">
+              [title]="completedIds.has(currentLecture.id) ? 'Click to unmark as complete' : (hasLectureQuiz ? 'Take quiz to complete' : 'Mark lecture as completed')">
               <lucide-icon [name]="completedIds.has(currentLecture.id) ? 'check-circle' : 'check'" [size]="15"></lucide-icon>
-              <span>{{ completedIds.has(currentLecture.id) ? 'Completed' : 'Mark complete' }}</span>
+              <span>{{ completedIds.has(currentLecture.id) ? 'Completed' : (hasLectureQuiz ? 'Quiz Required' : 'Mark complete') }}</span>
             </button>
           </div>
         </div>
@@ -131,6 +131,16 @@
 
             <button 
               class="tab-btn" 
+              [class.is-active]="activeBottomTab === 'assignments'" 
+              type="button" 
+              (click)="activeBottomTab = 'assignments'">
+              <lucide-icon name="award" [size]="15"></lucide-icon>
+              <span>Assignments</span>
+              <span class="tab-count-pill" *ngIf="assignments.length > 0">{{ assignments.length }}</span>
+            </button>
+
+            <button 
+              class="tab-btn" 
               [class.is-active]="activeBottomTab === 'resources'" 
               type="button" 
               (click)="activeBottomTab = 'resources'">
@@ -144,8 +154,8 @@
             <div class="discussion-tab-pane" *ngIf="activeBottomTab === 'discussion'">
               <app-lecture-discussion
                 [courseId]="courseId || undefined"
-                [lectureId]="currentLecture?.id || 0"
-                [lectureLabel]="currentLecture?.title || 'Lecture'">
+                [lectureId]="currentLecture.id"
+                [lectureLabel]="currentLecture.title">
               </app-lecture-discussion>
             </div>
 
@@ -154,10 +164,82 @@
               <app-notes-drawer
                 [courseId]="courseId || undefined"
                 [courseName]="course?.title || ''"
-                [lectureId]="currentLecture?.id"
-                [lectureLabel]="currentLecture?.title || ''"
-                [timestampSeconds]="playbackPosition">
+                [lectureId]="currentLecture.id"
+                [lectureLabel]="currentLecture.title"
+                [timestampSeconds]="playbackPosition"
+                (openEditor)="onNoteModalOpen()">
               </app-notes-drawer>
+            </div>
+
+            <!-- Assignments Tab (Section 4 & 8) -->
+            <div class="assignments-tab-pane" *ngIf="activeBottomTab === 'assignments'">
+              <div class="assignments-workspace">
+                <div class="assign-list-col">
+                  <div 
+                    class="assign-nav-card" 
+                    *ngFor="let a of assignments"
+                    [class.is-selected]="selectedAssignment?.assignmentId === a.assignmentId"
+                    (click)="selectAssignment(a)">
+                    <div class="assign-card-head">
+                      <span class="assign-card-title">{{ a.title }}</span>
+                      <span class="status-badge" [ngClass]="mySubmissions.has(a.assignmentId!) ? 'status-badge--done' : 'status-badge--pending'">
+                        {{ mySubmissions.has(a.assignmentId!) ? 'Submitted' : 'Pending' }}
+                      </span>
+                    </div>
+                    <div class="assign-card-meta">
+                      <span>{{ a.maxMarks }} Marks</span>
+                      <span *ngIf="a.dueDate">Due: {{ a.dueDate | date:'shortDate' }}</span>
+                    </div>
+                  </div>
+                  <p class="empty-assign-hint" *ngIf="assignments.length === 0">No assignments assigned for this course yet.</p>
+                </div>
+
+                <div class="assign-detail-col" *ngIf="selectedAssignment">
+                  <div class="assign-header">
+                    <div>
+                      <h3 class="assign-active-title">{{ selectedAssignment.title }}</h3>
+                      <p class="assign-meta-sub">Max Marks: <strong>{{ selectedAssignment.maxMarks }}</strong> <span *ngIf="selectedAssignment.dueDate">· Due: {{ selectedAssignment.dueDate | date:'medium' }}</span></p>
+                    </div>
+                  </div>
+
+                  <p class="assign-desc" *ngIf="selectedAssignment.description">{{ selectedAssignment.description }}</p>
+
+                  <!-- Graded Banner -->
+                  <div class="grade-banner" *ngIf="mySubmissions.get(selectedAssignment.assignmentId!)?.marksAwarded != null">
+                    <div class="grade-pill">
+                      <strong>Score: {{ mySubmissions.get(selectedAssignment.assignmentId!)?.marksAwarded }} / {{ selectedAssignment.maxMarks }}</strong>
+                    </div>
+                    <p class="feedback-text" *ngIf="mySubmissions.get(selectedAssignment.assignmentId!)?.feedback">
+                      Instructor Feedback: "{{ mySubmissions.get(selectedAssignment.assignmentId!)?.feedback }}"
+                    </p>
+                  </div>
+
+                  <!-- Submission Form -->
+                  <div class="submission-box">
+                    <label class="submission-label">{{ mySubmissions.has(selectedAssignment.assignmentId!) ? 'Your Submission (Click Submit to update)' : 'Your Answer / Solution' }}</label>
+                    <textarea 
+                      rows="4" 
+                      class="submission-textarea"
+                      placeholder="Write your explanation, solution text, or paste code here…" 
+                      [(ngModel)]="submissionText">
+                    </textarea>
+
+                    <input 
+                      type="text" 
+                      class="submission-input"
+                      placeholder="Submission File URL / Google Drive / GitHub Link (optional)" 
+                      [(ngModel)]="submissionFileUrl" />
+
+                    <button 
+                      type="button" 
+                      class="btn-submit-assign"
+                      [disabled]="submittingAssignment || (!submissionText.trim() && !submissionFileUrl.trim())"
+                      (click)="submitAssignment()">
+                      {{ submittingAssignment ? 'Submitting…' : (mySubmissions.has(selectedAssignment.assignmentId!) ? 'Update Submission' : 'Submit Assignment') }}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Resources Tab -->
@@ -192,6 +274,7 @@
             </div>
           </div>
         </div>
+
 
       </div>
 
@@ -281,7 +364,7 @@
                 <div class="item-footer">
                   <span class="item-duration">
                     <lucide-icon name="clock" [size]="11"></lucide-icon>
-                    18:00
+                    {{ formatTime(lec.duration || 1080) }}
                   </span>
                   <span class="playing-indicator" *ngIf="lec.id === currentLecture.id">
                     <span class="bar bar-1"></span>

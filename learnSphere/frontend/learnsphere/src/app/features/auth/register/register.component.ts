@@ -6,6 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '@core/auth/auth.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { NotificationService } from '@core/services/notification.service';
+import { passwordValidator } from '@core/validators/password.validator';
 
 @Component({
   selector: 'app-register',
@@ -36,8 +37,12 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, passwordValidator()]]
     });
+  }
+
+  get passwordControl() {
+    return this.registerForm.get('password');
   }
 
   // Method to update the role when a user clicks a role button

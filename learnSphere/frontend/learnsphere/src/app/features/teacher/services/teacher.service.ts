@@ -63,6 +63,33 @@ export class TeacherService {
     return this.apiService.delete<void>(`/teacher/courses/${id}`);
   }
 
+  // --- Module & Content authoring (Sections 3 & 4 of LMS_Entity_Reference.pdf) ---
+
+  createModule(courseId: number, module: { title: string; position?: number }): Observable<any> {
+    return this.apiService.post<any>(`/courses/${courseId}/modules`, module);
+  }
+
+  updateModule(moduleId: number, module: { title?: string; position?: number }): Observable<any> {
+    return this.apiService.put<any>(`/modules/${moduleId}`, module);
+  }
+
+  deleteModule(moduleId: number): Observable<void> {
+    return this.apiService.delete<void>(`/modules/${moduleId}`);
+  }
+
+  addContentToModule(moduleId: number, content: { title: string; contentType: string; filePath: string; durationSeconds?: number }): Observable<any> {
+    return this.apiService.post<any>(`/modules/${moduleId}/contents`, content);
+  }
+
+  updateContent(contentId: number, content: any): Observable<any> {
+    return this.apiService.put<any>(`/contents/${contentId}`, content);
+  }
+
+  deleteContent(contentId: number): Observable<void> {
+    return this.apiService.delete<void>(`/contents/${contentId}`);
+  }
+
+
   // --- Lecture CRUD ---
 
   getLectures(courseId: number): Observable<Lecture[]> {

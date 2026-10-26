@@ -7,7 +7,12 @@ import { NotificationService } from '@core/services/notification.service';
 import { CertificateModalComponent, CertificateModalData } from '@shared/components/certificate-modal/certificate-modal.component';
 import { CertificateService } from '../../services/certificate.service';
 import { AuthService } from '@core/auth/auth.service';
-import { LucideAngularModule, Award, Download, CheckCircle, BookOpen } from 'lucide-angular';
+import { FormsModule } from '@angular/forms';
+import { FeedbackService } from '@core/services/feedback.service';
+import { AssignmentService } from '@core/services/assignment.service';
+import { ApiService } from '@core/services/api.service';
+import { Module, Assignment, CourseFeedback, CourseRatingSummary } from '@core/models/course.model';
+import { LucideAngularModule, Award, Download, CheckCircle, BookOpen, Star, FileText, MessageSquare, Layers, Trophy, ChevronDown, ChevronRight } from 'lucide-angular';
 import { PaymentsService } from '../../services/payments.service';
 
 declare var Razorpay: any;
@@ -15,7 +20,7 @@ declare var Razorpay: any;
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, CertificateModalComponent],
+  imports: [CommonModule, RouterModule, FormsModule, LucideAngularModule, CertificateModalComponent],
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.scss']
 })
@@ -23,6 +28,21 @@ export class CourseDetailComponent implements OnInit {
   courseId!: number;
   course: Course | null = null;
   lectures: Lecture[] = [];
+  modules: any[] = [];
+  assignments: Assignment[] = [];
+  courseFeedback: CourseFeedback[] = [];
+  ratingSummary: CourseRatingSummary | null = null;
+  courseLeaderboard: any[] = [];
+
+  activeTab: 'curriculum' | 'reviews' | 'leaderboard' = 'curriculum';
+  expandedModuleIds = new Set<number>();
+  Math = Math;
+
+  // Feedback form state
+  selectedRating = 5;
+  reviewMessage = '';
+  submittingReview = false;
+
   isEnrolled = false;
   enrolling = false;
   loading = true;
@@ -39,6 +59,9 @@ export class CourseDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private studentService: StudentService,
+    private feedbackService: FeedbackService,
+    private assignmentService: AssignmentService,
+    private apiService: ApiService,
     private certificateService: CertificateService,
     private authService: AuthService,
     private notificationService: NotificationService,
@@ -66,6 +89,9 @@ export class CourseDetailComponent implements OnInit {
         this.course = course;
         this.loading = false;
         this.checkEnrollment();
+        this.loadCurriculum();
+        this.loadFeedback();
+        this.loadLeaderboard();
         this.cdr.markForCheck();
       },
       error: () => {
@@ -94,6 +120,103 @@ export class CourseDetailComponent implements OnInit {
       }
     });
   }
+
+  loadCurriculum(): void {
+    this.studentService.getCourseModules(this.courseId).subscribe({
+      next: (mods) => {
+        this.modules = mods || [];
+        if (this.modules.length > 0) {
+          this.expandedModuleIds.add(this.modules[0].moduleId || this.modules[0].id);
+          // Load contents and assignments for each module
+          this.modules.forEach(m => {
+            const mId = m.moduleId || m.id;
+            this.studentService.getModuleContents(mId).subscribe({
+              next: (contents) => {
+                m.contents = contents || [];
+                this.cdr.markForCheck();
+              },
+              error: () => { m.contents = []; }
+            });
+            this.assignmentService.getAssignmentsByModule(mId).subscribe({
+              next: (assigns) => {
+                m.assignments = assigns || [];
+                this.cdr.markForCheck();
+              },
+              error: () => { m.assignments = []; }
+            });
+          });
+        }
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.modules = [];
+      }
+    });
+
+    this.assignmentService.getAssignmentsByCourse(this.courseId).subscribe({
+      next: (assigns) => {
+        this.assignments = assigns || [];
+        this.cdr.markForCheck();
+      },
+      error: () => { this.assignments = []; }
+    });
+  }
+
+  toggleModule(moduleId: number): void {
+    if (this.expandedModuleIds.has(moduleId)) {
+      this.expandedModuleIds.delete(moduleId);
+    } else {
+      this.expandedModuleIds.add(moduleId);
+    }
+  }
+
+  loadFeedback(): void {
+    this.feedbackService.getAverageRating(this.courseId).subscribe({
+      next: (summary) => {
+        this.ratingSummary = summary;
+        this.cdr.markForCheck();
+      },
+      error: () => { this.ratingSummary = null; }
+    });
+
+    this.feedbackService.getCourseFeedback(this.courseId).subscribe({
+      next: (feedbackList) => {
+        this.courseFeedback = feedbackList || [];
+        this.cdr.markForCheck();
+      },
+      error: () => { this.courseFeedback = []; }
+    });
+  }
+
+  submitReview(): void {
+    if (!this.selectedRating) return;
+    this.submittingReview = true;
+    this.feedbackService.submitFeedback(this.courseId, this.selectedRating, this.reviewMessage).subscribe({
+      next: () => {
+        this.submittingReview = false;
+        this.reviewMessage = '';
+        this.notificationService.success('Thank you! Your review has been submitted.');
+        this.loadFeedback();
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.submittingReview = false;
+        this.notificationService.error(err?.error?.message || 'Could not submit review.');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  loadLeaderboard(): void {
+    this.apiService.get<any[]>(`/courses/${this.courseId}/leaderboard`).subscribe({
+      next: (board) => {
+        this.courseLeaderboard = board || [];
+        this.cdr.markForCheck();
+      },
+      error: () => { this.courseLeaderboard = []; }
+    });
+  }
+
 
   checkCertificate(): void {
     this.certificateService.getCertificates().subscribe({

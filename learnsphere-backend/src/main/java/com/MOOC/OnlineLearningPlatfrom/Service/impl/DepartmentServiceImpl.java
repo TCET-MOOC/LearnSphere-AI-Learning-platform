@@ -2,7 +2,9 @@ package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
 import org.springframework.stereotype.Service;
 
+import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Department;
+import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.DepartmentService;
 
@@ -12,10 +14,14 @@ import java.util.List;
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
+    private final CourseRepository courseRepository;
 
-    public DepartmentServiceImpl(DepartmentRepository departmentRepository) {
+    public DepartmentServiceImpl(DepartmentRepository departmentRepository,
+                                 CourseRepository courseRepository) {
         this.departmentRepository = departmentRepository;
+        this.courseRepository = courseRepository;
     }
+
 
     @Override
     public List<Department> getAllDepartments() {
@@ -45,4 +51,11 @@ public class DepartmentServiceImpl implements DepartmentService {
     public void deleteDepartment(Long id) {
         departmentRepository.deleteById(id);
     }
+
+    @Override
+    public List<Course> getCoursesByDepartmentId(Long id) {
+        Department dept = getDepartmentById(id);
+        return courseRepository.findByDepartment(dept.getName());
+    }
 }
+
