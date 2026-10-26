@@ -49,3 +49,6 @@ CLAUDE.md
 *.err
 uploads/
 **/uploads/
+
+### Docs tooling (context only, never shipped; a nested git repository) ###
+project-docs-template/
