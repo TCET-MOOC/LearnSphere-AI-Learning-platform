@@ -4,6 +4,7 @@ import com.MOOC.OnlineLearningPlatfrom.Dto.TopTeacherDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserActivitySummaryDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserAdminDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
+import com.MOOC.OnlineLearningPlatfrom.Entity.RoleVocabulary;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserAccount;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserRole;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
@@ -58,7 +59,9 @@ public class UserAdminServiceImpl implements UserAdminService {
     @Override
     public List<UserAdminDto> getUsers(String role, String status, String search) {
         Map<Long, List<String>> roleMap = rolesByUserId();
-        String roleFilter = role != null && !role.isBlank() ? role.trim().toUpperCase() : null;
+        String roleFilter = (role != null && !role.isBlank())
+                ? (RoleVocabulary.isValid(role) ? RoleVocabulary.canonicalize(role) : role.trim().toUpperCase())
+                : null;
         String statusFilter = status != null && !status.isBlank() ? status.trim().toUpperCase() : null;
         String searchFilter = search != null && !search.isBlank() ? search.trim().toLowerCase() : null;
 

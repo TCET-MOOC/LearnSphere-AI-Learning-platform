@@ -76,7 +76,9 @@ public class AuthServiceImpl implements AuthService {
         if (userAccountRepository.findByEmail(request.getEmail()) != null) {
             throw new BadRequestException("An account with this email already exists");
         }
-        String roleName = request.getRole() == null ? "STUDENT" : request.getRole().toUpperCase();
+        String roleName = request.getRole() == null || request.getRole().isBlank()
+                ? RoleVocabulary.STUDENT
+                : RoleVocabulary.canonicalize(request.getRole());
         Role role = roleRepository.findByName(roleName);
         if (role == null) {
             throw new BadRequestException("Unknown role: " + roleName);
