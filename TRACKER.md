@@ -366,7 +366,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - IDOR authorization: `OwnershipService.requireAssignmentStaff` returns `404 NOT_FOUND` for unauthorized foreign teachers attempting update or delete.
 - Red: `AssignmentValidationTests` failed 3/11 tests (update with blank title returned 200 instead of 400; update with `maxMarks <= 0` returned 200 instead of 400; update with past `dueDate` returned 200 instead of 400).
 - Green: `AssignmentValidationTests` passed 11/11 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 149, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
-- [~] W2-07 Storage port + upload safety
+- [x] W2-07 Storage port + upload safety
+
+**W2-07 evidence (2026-10-27) — Storage port + upload safety:**
+- Rules: spec §6, [B-F9], BR-26.
+- Flyway Migration `V6__stored_files.sql`: created `stored_files` table with `file_key` (UNIQUE), `owner_id`, `original_filename`, `content_type`, `size_bytes`, `storage_path`, and indexes on `file_key` and `owner_id`.
+- Storage Port & Local Adapter: created `StorageService` interface and `LocalStorageService` implementing safe file operations under private `uploads/{ownerId}/{uuid}.{ext}`.
+- Upload Safety & Validation:
+  - 200 MB maximum size cap strictly enforced (rejects > 200 MB with `400 BAD_REQUEST`).
+  - MIME type allow-list for resources (PDF, DOC/DOCX, PPT/PPTX, TXT, PNG, JPEG, GIF, WEBP) and videos (MP4, WebM, MOV, MKV).
+  - Magic byte verification: validates binary file headers (%PDF-, PNG, JPEG, GIF8, RIFF..WEBP, PK.. Zip, OLE2 compound document, MP4/MOV `ftyp`/`moov`/`mdat`, WebM EBML header) and forbids executables/scripts (`MZ`, ELF, `#!`).
+  - Path traversal defense: validates and sanitizes filenames, verifies normalized paths stay strictly within upload root.
+- Removed Public `/api/uploads/**` static handler:
+  - Removed static resource handler in `WebConfig`.
+  - Removed `.requestMatchers("/api/uploads/**").permitAll()` from `SecurityConfig`.
+  - Unauthenticated access returns `401 UNAUTHORIZED`, and authenticated access returns `404 NOT_FOUND`.
+- Authorized File Retrieval: created `FileController` (`GET /api/files/{key}`) returning `200 OK` with `Cache-Control: private, no-store` and streaming file for owner or admin, while foreign users receive `404 NOT_FOUND` (IDOR defense).
+- Hardened Upload API: `UploadController` returns `201 CREATED` with opaque `{ "fileKey": key, "url": "/api/files/" + key }`, eliminating raw storage paths while preserving frontend compatibility.
+- Red: `StorageAndUploadSafetyTests` failed 2/11 tests initially (path traversal double-encoded in mock request; unauthenticated `/api/uploads` expectation was 404 rather than 401).
+- Green: `StorageAndUploadSafetyTests` passed 11/11 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 160, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
 - [ ] W2-08 Notes/bookmarks rebind to CourseContent
 - [~] W2-09 YouTube import into canonical content
 - [ ] W2-10 Curriculum contract suite

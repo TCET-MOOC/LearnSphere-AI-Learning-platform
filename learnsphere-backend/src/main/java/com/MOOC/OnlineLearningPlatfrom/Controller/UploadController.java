@@ -1,70 +1,52 @@
 package com.MOOC.OnlineLearningPlatfrom.Controller;
 
-import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
-import org.springframework.beans.factory.annotation.Value;
+import com.MOOC.OnlineLearningPlatfrom.Entity.StoredFile;
+import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
+import com.MOOC.OnlineLearningPlatfrom.Service.StorageService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/teacher/upload")
+@PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
 public class UploadController {
 
-    @Value("${app.upload.dir}")
-    private String uploadDir;
+    private final StorageService storageService;
 
-    private static final List<String> ALLOWED_RESOURCE_TYPES = Arrays.asList(
-            "application/pdf", "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/vnd.ms-powerpoint",
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            "text/plain", "image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"
-    );
+    public UploadController(StorageService storageService) {
+        this.storageService = storageService;
+    }
 
     @PostMapping("/video")
-    public ResponseEntity<Map<String, String>> uploadVideo(@RequestParam("file") MultipartFile file) {
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("video/")) {
-            throw new BadRequestException("File must be a video");
-        }
-        return ResponseEntity.ok(Map.of("url", store(file)));
+    public ResponseEntity<Map<String, String>> uploadVideo(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        Long ownerId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : 0L;
+        StoredFile storedFile = storageService.storeVideo(file, ownerId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "fileKey", storedFile.getFileKey(),
+                "url", "/api/files/" + storedFile.getFileKey()
+        ));
     }
 
     @PostMapping("/resource")
-    public ResponseEntity<Map<String, String>> uploadResource(@RequestParam("file") MultipartFile file) {
-        String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_RESOURCE_TYPES.contains(contentType)) {
-            throw new BadRequestException("Unsupported resource file type: " + contentType);
-        }
-        return ResponseEntity.ok(Map.of("url", store(file)));
-    }
-
-    private String store(MultipartFile file) {
-        try {
-            File dir = new File(uploadDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            String originalName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "file";
-            String safeName = originalName.replaceAll("[^a-zA-Z0-9._-]", "_");
-            String filename = UUID.randomUUID() + "_" + safeName;
-            Path target = dir.toPath().resolve(filename);
-            Files.copy(file.getInputStream(), target);
-            return "/api/uploads/" + filename;
-        } catch (IOException e) {
-            throw new BadRequestException("Failed to store file: " + e.getMessage());
-        }
+    public ResponseEntity<Map<String, String>> uploadResource(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        Long ownerId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : 0L;
+        StoredFile storedFile = storageService.storeResource(file, ownerId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "fileKey", storedFile.getFileKey(),
+                "url", "/api/files/" + storedFile.getFileKey()
+        ));
     }
 }
