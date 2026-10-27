@@ -60,3 +60,37 @@ body, p, span, input, select, textarea, button,
   line-height: 1.5;
   margin: 0;
 }
+
+// ── Aliases & Backward-compatible Utilities (DS-03 / W1-14) ─
+.h2 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin: 0 0 6px 0;
+}
+
+.sec-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brand-primary);
+  margin-bottom: 6px;
+}
+
+.sub {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  margin: 0;
+}
+

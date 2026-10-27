@@ -163,8 +163,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W1-10 Auth/IDOR regression suite (legacy user API, localStorage, refresh replay)
 - [x] W1-11 Lock down legacy `/api/users/**` (AUD-14)
 - [x] W1-12 Visual baseline harness + token inventory + stylelint ratchet (DS-01)
-- [ ] W1-13 Theme correctness: public routes light, no hardcoded surfaces (DS-02)
-- [ ] W1-14 Typography classes + heading semantics (DS-03)
+- [x] W1-13 Theme correctness: public routes light, no hardcoded surfaces (DS-02)
+- [x] W1-14 Typography classes + heading semantics (DS-03)
 - [ ] W1-15 Landing truth, nav and dead links, no restyle (DS-04)
 - [ ] W1-16 Auth screens on tokens (DS-05)
 
@@ -263,6 +263,14 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Green: `npm test` -> `7 passed (7)` test files, `22 passed (22)` tests, including 5/5 tests in `theme.service.spec.ts` and 2/2 tests in `landing.component.spec.ts`.
 - Style ratchet: `npm run lint:styles` -> 100% passed ratchet (0 new violations, hex/radius/transitions unchanged).
 - Full build: `npm run build` -> production build succeeded (`BUILD_EXIT=0`).
+
+**W1-14 evidence (2026-10-27) — DS-03 Typography classes and heading semantics:**
+- Contract: Semantic typography classes defined in `_typography.scss` for `.h2`, `.sec-label`, `.sub`, `.divider` mapped directly against the token scale (`var(--font-display)`, `var(--text-primary)`, `var(--text-secondary)`, `var(--brand-primary)`, `var(--border-color)`).
+- Semantics: Replaced all 5 instances of non-semantic `<div class="h2">` with `<h2 class="h2 text-title">` across sections in `landing.component.html`. Replaced `<div class="sub">` with `<p class="sub text-subtitle">`. Replaced card titles and FAQ question titles with semantic `<h3>`.
+- Red: `landing.component.spec.ts` failed assertions: `expected 5 to be +0` for `div.h2` elements, and missing `h2` headings.
+- Green: `landing.component.spec.ts` passed 4/4 tests verifying 0 `div.h2`, at least 5 `h2` elements, and valid heading hierarchy starting with `h1` followed by `h2`.
+- Verification: `npm test` -> `7 passed (7)` test files, `24 passed (24)` tests; `npm run lint:styles` -> 100% passed ratchet (0 new violations); `npm run build` -> production build succeeded.
+
 
 
 
