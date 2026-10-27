@@ -1,9 +1,15 @@
 package com.MOOC.OnlineLearningPlatfrom.Service;
 
+import com.MOOC.OnlineLearningPlatfrom.Dto.AuditLogResponseDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.PageResponse;
 import com.MOOC.OnlineLearningPlatfrom.Entity.AuditLog;
 import com.MOOC.OnlineLearningPlatfrom.Repository.AuditLogRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -11,17 +17,11 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Writes the append-only {@code audit_log} rows for administrative changes.
- *
- * <p>The actor comes from the authenticated {@link CustomUserDetails}; the IP
- * prefers the proxy-supplied {@code X-Forwarded-For} value and falls back to
- * the socket address. Callers run inside the business transaction, so a failed
- * write rolls the change back as well.</p>
- */
 @Service
 public class AuditService {
 
@@ -51,6 +51,31 @@ public class AuditService {
         entry.setAfterJson(after);
         entry.setIp(currentIp());
         auditLogRepository.save(entry);
+    }
+
+    public PageResponse<AuditLogResponseDto> getAuditLogs(Long actorId,
+                                                          String resourceType,
+                                                          Long resourceId,
+                                                          String action,
+                                                          Pageable pageable) {
+        Specification<AuditLog> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (actorId != null) {
+                predicates.add(cb.equal(root.get("actorId"), actorId));
+            }
+            if (resourceType != null && !resourceType.isBlank()) {
+                predicates.add(cb.equal(root.get("resourceType"), resourceType.trim()));
+            }
+            if (resourceId != null) {
+                predicates.add(cb.equal(root.get("resourceId"), resourceId));
+            }
+            if (action != null && !action.isBlank()) {
+                predicates.add(cb.equal(root.get("action"), action.trim()));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        Page<AuditLog> page = auditLogRepository.findAll(spec, pageable);
+        return PageResponse.from(page.map(AuditLogResponseDto::from));
     }
 
     /**

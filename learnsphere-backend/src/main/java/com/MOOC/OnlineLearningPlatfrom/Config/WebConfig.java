@@ -1,8 +1,10 @@
 package com.MOOC.OnlineLearningPlatfrom.Config;
 
+import com.MOOC.OnlineLearningPlatfrom.Security.FlaggedUserInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -16,6 +18,17 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
+
+    private final FlaggedUserInterceptor flaggedUserInterceptor;
+
+    public WebConfig(FlaggedUserInterceptor flaggedUserInterceptor) {
+        this.flaggedUserInterceptor = flaggedUserInterceptor;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(flaggedUserInterceptor);
+    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

@@ -91,4 +91,7 @@ public class UserAccount {
     public void setLastActiveAt(LocalDateTime lastActiveAt) { this.lastActiveAt = lastActiveAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public boolean isActive() {
+        return status != null && status != Status.BLACKLISTED;
+    }
 }

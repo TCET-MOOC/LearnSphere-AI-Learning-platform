@@ -19,6 +19,7 @@ public class UserAdminDto {
     private String status;
     private LocalDateTime lastActiveAt;
     private LocalDateTime createdAt;
+    private Boolean isActive;
 
     public static UserAdminDto from(UserAccount user, List<String> roles) {
         UserAdminDto dto = new UserAdminDto();
@@ -29,12 +30,16 @@ public class UserAdminDto {
         dto.department = user.getDepartment() != null ? user.getDepartment().getName() : null;
         dto.college = user.getCollege() != null ? user.getCollege().getName() : null;
         dto.status = user.getStatus() != null ? user.getStatus().name() : null;
+        dto.isActive = user.isActive();
         dto.lastActiveAt = user.getLastActiveAt();
         dto.createdAt = user.getCreatedAt();
         return dto;
     }
 
     public Long getId() { return id; }
+
+    @com.fasterxml.jackson.annotation.JsonProperty("isActive")
+    public Boolean getIsActive() { return isActive; }
     public String getName() { return name; }
     public String getEmail() { return email; }
     public String getRole() { return role; }

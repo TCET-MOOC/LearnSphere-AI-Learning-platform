@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,12 +127,12 @@ public class AuthServiceImpl implements AuthService {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        } catch (BadCredentialsException ex) {
+        } catch (AuthenticationException ex) {
             throw new BadCredentialsException("Invalid email or password");
         }
 
         UserAccount user = userAccountRepository.findByEmail(request.getEmail());
-        if (user == null) {
+        if (user == null || user.getStatus() == UserAccount.Status.BLACKLISTED) {
             throw new BadCredentialsException("Invalid email or password");
         }
         user.setLastActiveAt(LocalDateTime.now());

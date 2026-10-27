@@ -26,6 +26,7 @@ public class UserResponseDto {
     private Integer leaderboardPoints;
     private LocalDateTime lastActiveAt;
     private LocalDateTime createdAt;
+    private Boolean isActive;
 
     public static UserResponseDto from(UserAccount user, List<String> roles) {
         UserResponseDto dto = new UserResponseDto();
@@ -46,6 +47,7 @@ public class UserResponseDto {
         dto.avatarUrl = user.getAvatarUrl();
         dto.bio = user.getBio();
         dto.status = user.getStatus() != null ? user.getStatus().name() : null;
+        dto.isActive = user.isActive();
         dto.twoFactorEnabled = Boolean.TRUE.equals(user.isTwoFactorEnabled());
         dto.bankAccountLinked = Boolean.TRUE.equals(user.isBankAccountLinked());
         dto.royaltyBalance = user.getRoyaltyBalance();
@@ -57,6 +59,9 @@ public class UserResponseDto {
     }
 
     public Long getId() { return id; }
+
+    @com.fasterxml.jackson.annotation.JsonProperty("isActive")
+    public Boolean getIsActive() { return isActive; }
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
     public String getRole() { return role; }
