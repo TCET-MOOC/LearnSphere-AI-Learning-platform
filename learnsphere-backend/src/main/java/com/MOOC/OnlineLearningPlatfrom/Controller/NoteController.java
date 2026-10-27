@@ -21,27 +21,32 @@ public class NoteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<NoteResponseDto>> getNotes(@RequestParam(required = false) Long courseId,
-                                                            @AuthenticationPrincipal CustomUserDetails principal) {
-        return ResponseEntity.ok(noteService.getNotes(principal, courseId));
+    public ResponseEntity<List<NoteResponseDto>> getNotes(
+            @RequestParam(required = false) Long courseId,
+            @RequestParam(required = false) Long contentId,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(noteService.getNotes(principal, courseId, contentId));
     }
 
     @PostMapping
-    public ResponseEntity<NoteResponseDto> createNote(@RequestBody NoteRequestDto request,
-                                                        @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<NoteResponseDto> createNote(
+            @RequestBody NoteRequestDto request,
+            @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(noteService.createNote(request, principal));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<NoteResponseDto> updateNote(@PathVariable Long id,
-                                                        @RequestBody NoteRequestDto request,
-                                                        @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<NoteResponseDto> updateNote(
+            @PathVariable Long id,
+            @RequestBody NoteRequestDto request,
+            @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(noteService.updateNote(id, request, principal));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNote(@PathVariable Long id,
-                                            @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<Void> deleteNote(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails principal) {
         noteService.deleteNote(id, principal);
         return ResponseEntity.noContent().build();
     }

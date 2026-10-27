@@ -28,6 +28,10 @@ public class Note {
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "content_id")
+    private CourseContent courseContent;
+
     private Integer timestampSeconds;
 
     private String title;

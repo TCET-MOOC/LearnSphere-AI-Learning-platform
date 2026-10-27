@@ -5,6 +5,7 @@ import java.util.List;
 public class NoteRequestDto {
     private Long courseId;
     private Long lectureId;
+    private Long contentId;
     private Integer timestampSeconds;
     private String title;
     private String content;
@@ -14,6 +15,8 @@ public class NoteRequestDto {
     public void setCourseId(Long courseId) { this.courseId = courseId; }
     public Long getLectureId() { return lectureId; }
     public void setLectureId(Long lectureId) { this.lectureId = lectureId; }
+    public Long getContentId() { return contentId; }
+    public void setContentId(Long contentId) { this.contentId = contentId; }
     public Integer getTimestampSeconds() { return timestampSeconds; }
     public void setTimestampSeconds(Integer timestampSeconds) { this.timestampSeconds = timestampSeconds; }
     public String getTitle() { return title; }

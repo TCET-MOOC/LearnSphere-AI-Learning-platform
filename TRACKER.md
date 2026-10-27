@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03`, `W2-04`, `W2-05` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints, and delete re-normalisation (`413d3f8`). `W2-05` migrated `Lecture` 1:1 to `CourseContent` via Flyway `V5__legacy_lecture_migration.sql`, backfilled `user_progress.content_id`, retired legacy lecture mutation endpoints (400), and maintained legacy lecture read endpoints as a read-only projection. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-06 Assignment validation (create and update)` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03`, `W2-04`, `W2-05`, `W2-06`, `W2-07`, `W2-08` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints, and delete re-normalisation (`413d3f8`). `W2-05` migrated `Lecture` 1:1 to `CourseContent` via Flyway `V5__legacy_lecture_migration.sql`, backfilled `user_progress.content_id`, retired legacy lecture mutation endpoints (400), and maintained legacy lecture read endpoints as a read-only projection. `W2-06` enforced assignment validation and ownership IDOR defense (`ebfc48e`). `W2-07` implemented storage port, upload safety, opaque file keys, and removed public uploads (`1bba6f0`). `W2-08` rebound notes and bookmarks to canonical `CourseContent`, migrated legacy lecture rows via Flyway `V7__notes_bookmarks_content_rebind.sql`, bounded timestamps to content duration, and enforced IDOR defenses. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-09 YouTube import into canonical content` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -385,7 +385,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Hardened Upload API: `UploadController` returns `201 CREATED` with opaque `{ "fileKey": key, "url": "/api/files/" + key }`, eliminating raw storage paths while preserving frontend compatibility.
 - Red: `StorageAndUploadSafetyTests` failed 2/11 tests initially (path traversal double-encoded in mock request; unauthenticated `/api/uploads` expectation was 404 rather than 401).
 - Green: `StorageAndUploadSafetyTests` passed 11/11 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 160, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
-- [ ] W2-08 Notes/bookmarks rebind to CourseContent
+- [x] W2-08 Notes/bookmarks rebind to CourseContent
+
+**W2-08 evidence (2026-10-27) — Rebind notes/bookmarks to CourseContent:**
+- Rules: A-15, AC-14, BR-11, [E-F10].
+- Flyway Migration `V7__notes_bookmarks_content_rebind.sql`:
+  - Added `content_id` FK column to `notes` table referencing `course_content(content_id)` with index `idx_notes_content_id`.
+  - Added `content_id` FK column to `bookmarks` table referencing `course_content(content_id)` with index `idx_bookmarks_content_id`.
+  - Backfilled existing `notes` and `bookmarks` rows having `lecture_id` from `course_content.legacy_lecture_id`.
+- Entity & Schema Alignment:
+  - Updated `Note.java` with `@ManyToOne CourseContent courseContent` mapped to `content_id` (preventing field collision with note text `content`).
+  - Updated `Bookmark.java` with `@ManyToOne CourseContent content` mapped to `content_id`.
+  - Added repository methods in `NoteRepository` and `BookmarkRepository` for content-level retrieval and deletion.
+- Timestamp Bounding & DTO Contracts:
+  - Validated `timestampSeconds >= 0` across notes and bookmarks (returns RFC 9457 `400 BAD_REQUEST` with `code: BAD_REQUEST` if negative).
+  - Enforced `timestampSeconds <= durationSeconds` when content or lecture duration is known (> 0) (returns `400 BAD_REQUEST` if out of bounds).
+  - Extended DTOs (`NoteRequestDto`, `NoteResponseDto`, `BookmarkRequestDto`, `BookmarkResponseDto`) with `contentId` and `contentTitle`.
+  - Endpoints supported: `GET /api/notes?contentId=...`, `GET /api/bookmarks/content/{contentId}`, `DELETE /api/bookmarks/content/{contentId}`.
+  - Ownership & IDOR defense: foreign users attempting to mutate or delete notes or bookmarks receive `404 NOT_FOUND`.
+- Red-green verification: `NotesBookmarksRebindTests` passed 8/8 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 168, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
 - [~] W2-09 YouTube import into canonical content
 - [ ] W2-10 Curriculum contract suite
 - [ ] W2-11 Public catalogue/reference cache + ETag invalidation

@@ -9,7 +9,9 @@ import java.util.List;
 public interface BookmarkService {
     List<BookmarkResponseDto> getBookmarks(CustomUserDetails principal);
     List<BookmarkResponseDto> getBookmarksByLecture(Long lectureId, CustomUserDetails principal);
+    List<BookmarkResponseDto> getBookmarksByContent(Long contentId, CustomUserDetails principal);
     BookmarkResponseDto createBookmark(BookmarkRequestDto request, CustomUserDetails principal);
     void deleteBookmark(Long id, CustomUserDetails principal);
     void deleteBookmarkByLecture(Long lectureId, CustomUserDetails principal);
+    void deleteBookmarkByContent(Long contentId, CustomUserDetails principal);
 }

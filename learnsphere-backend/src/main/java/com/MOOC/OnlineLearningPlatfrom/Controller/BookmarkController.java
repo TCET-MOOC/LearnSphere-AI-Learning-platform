@@ -27,19 +27,25 @@ public class BookmarkController {
 
     @GetMapping("/lecture/{lectureId}")
     public ResponseEntity<List<BookmarkResponseDto>> getBookmarksByLecture(@PathVariable Long lectureId,
-                                                                             @AuthenticationPrincipal CustomUserDetails principal) {
+                                                                           @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(bookmarkService.getBookmarksByLecture(lectureId, principal));
+    }
+
+    @GetMapping("/content/{contentId}")
+    public ResponseEntity<List<BookmarkResponseDto>> getBookmarksByContent(@PathVariable Long contentId,
+                                                                           @AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(bookmarkService.getBookmarksByContent(contentId, principal));
     }
 
     @PostMapping
     public ResponseEntity<BookmarkResponseDto> createBookmark(@RequestBody BookmarkRequestDto request,
-                                                                @AuthenticationPrincipal CustomUserDetails principal) {
+                                                              @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(bookmarkService.createBookmark(request, principal));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBookmark(@PathVariable Long id,
-                                                @AuthenticationPrincipal CustomUserDetails principal) {
+                                               @AuthenticationPrincipal CustomUserDetails principal) {
         bookmarkService.deleteBookmark(id, principal);
         return ResponseEntity.noContent().build();
     }
@@ -48,6 +54,13 @@ public class BookmarkController {
     public ResponseEntity<Void> deleteBookmarkByLecture(@PathVariable Long lectureId,
                                                         @AuthenticationPrincipal CustomUserDetails principal) {
         bookmarkService.deleteBookmarkByLecture(lectureId, principal);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/content/{contentId}")
+    public ResponseEntity<Void> deleteBookmarkByContent(@PathVariable Long contentId,
+                                                        @AuthenticationPrincipal CustomUserDetails principal) {
+        bookmarkService.deleteBookmarkByContent(contentId, principal);
         return ResponseEntity.noContent().build();
     }
 }

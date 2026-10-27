@@ -23,6 +23,10 @@ public class Bookmark {
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "content_id")
+    private CourseContent content;
+
     private Integer timestampSeconds;
 
     private String label;

@@ -7,7 +7,10 @@ import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import java.util.List;
 
 public interface NoteService {
-    List<NoteResponseDto> getNotes(CustomUserDetails principal, Long courseId);
+    default List<NoteResponseDto> getNotes(CustomUserDetails principal, Long courseId) {
+        return getNotes(principal, courseId, null);
+    }
+    List<NoteResponseDto> getNotes(CustomUserDetails principal, Long courseId, Long contentId);
     NoteResponseDto createNote(NoteRequestDto request, CustomUserDetails principal);
     NoteResponseDto updateNote(Long id, NoteRequestDto request, CustomUserDetails principal);
     void deleteNote(Long id, CustomUserDetails principal);

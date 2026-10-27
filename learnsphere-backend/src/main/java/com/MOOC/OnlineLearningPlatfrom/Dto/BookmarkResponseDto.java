@@ -8,6 +8,8 @@ public class BookmarkResponseDto {
     private Long id;
     private Long lectureId;
     private String lectureTitle;
+    private Long contentId;
+    private String contentTitle;
     private Long courseId;
     private String courseName;
     private Integer timestampSeconds;
@@ -25,6 +27,14 @@ public class BookmarkResponseDto {
                 dto.courseName = bookmark.getLecture().getCourse().getTitle();
             }
         }
+        if (bookmark.getContent() != null) {
+            dto.contentId = bookmark.getContent().getContentId();
+            dto.contentTitle = bookmark.getContent().getTitle();
+            if (dto.courseId == null && bookmark.getContent().getModule() != null && bookmark.getContent().getModule().getCourse() != null) {
+                dto.courseId = bookmark.getContent().getModule().getCourse().getId();
+                dto.courseName = bookmark.getContent().getModule().getCourse().getTitle();
+            }
+        }
         dto.timestampSeconds = bookmark.getTimestampSeconds();
         dto.label = bookmark.getLabel();
         dto.createdAt = bookmark.getCreatedAt();
@@ -34,6 +44,8 @@ public class BookmarkResponseDto {
     public Long getId() { return id; }
     public Long getLectureId() { return lectureId; }
     public String getLectureTitle() { return lectureTitle; }
+    public Long getContentId() { return contentId; }
+    public String getContentTitle() { return contentTitle; }
     public Long getCourseId() { return courseId; }
     public String getCourseName() { return courseName; }
     public Integer getTimestampSeconds() { return timestampSeconds; }

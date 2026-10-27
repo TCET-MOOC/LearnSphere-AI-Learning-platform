@@ -3,14 +3,17 @@ package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 import com.MOOC.OnlineLearningPlatfrom.Dto.BookmarkRequestDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.BookmarkResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Bookmark;
+import com.MOOC.OnlineLearningPlatfrom.Entity.CourseContent;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Lecture;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.BookmarkRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.LectureRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.BookmarkService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,10 +22,14 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     private final BookmarkRepository bookmarkRepository;
     private final LectureRepository lectureRepository;
+    private final CourseContentRepository courseContentRepository;
 
-    public BookmarkServiceImpl(BookmarkRepository bookmarkRepository, LectureRepository lectureRepository) {
+    public BookmarkServiceImpl(BookmarkRepository bookmarkRepository,
+                               LectureRepository lectureRepository,
+                               CourseContentRepository courseContentRepository) {
         this.bookmarkRepository = bookmarkRepository;
         this.lectureRepository = lectureRepository;
+        this.courseContentRepository = courseContentRepository;
     }
 
     @Override
@@ -40,17 +47,56 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
+    public List<BookmarkResponseDto> getBookmarksByContent(Long contentId, CustomUserDetails principal) {
+        return bookmarkRepository.findByUser_UserIdAndContent_ContentId(principal.getUser().getUserId(), contentId).stream()
+                .map(BookmarkResponseDto::from)
+                .toList();
+    }
+
+    @Override
     public BookmarkResponseDto createBookmark(BookmarkRequestDto request, CustomUserDetails principal) {
-        if (request.getLectureId() == null) {
-            throw new BadRequestException("lectureId is required");
+        if (request.getContentId() == null && request.getLectureId() == null) {
+            throw new BadRequestException("contentId or lectureId is required");
         }
-        Lecture lecture = lectureRepository.findById(request.getLectureId())
-                .orElseThrow(() -> new ResourceNotFoundException("Lecture not found with id: " + request.getLectureId()));
 
         Bookmark bookmark = new Bookmark();
         bookmark.setUser(principal.getUser());
-        bookmark.setLecture(lecture);
-        bookmark.setTimestampSeconds(request.getTimestampSeconds());
+
+        CourseContent content = null;
+        Lecture lecture = null;
+
+        if (request.getContentId() != null) {
+            content = courseContentRepository.findById(request.getContentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Content not found with id: " + request.getContentId()));
+            bookmark.setContent(content);
+        }
+
+        if (request.getLectureId() != null) {
+            lecture = lectureRepository.findById(request.getLectureId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Lecture not found with id: " + request.getLectureId()));
+            bookmark.setLecture(lecture);
+            if (bookmark.getContent() == null) {
+                courseContentRepository.findByLegacyLectureId(request.getLectureId())
+                        .ifPresent(bookmark::setContent);
+            }
+        }
+
+        if (request.getTimestampSeconds() != null) {
+            if (request.getTimestampSeconds() < 0) {
+                throw new BadRequestException("timestampSeconds must be non-negative");
+            }
+            Integer maxDuration = null;
+            if (bookmark.getContent() != null && bookmark.getContent().getDurationSeconds() != null && bookmark.getContent().getDurationSeconds() > 0) {
+                maxDuration = bookmark.getContent().getDurationSeconds();
+            } else if (bookmark.getLecture() != null && bookmark.getLecture().getDuration() != null && bookmark.getLecture().getDuration() > 0) {
+                maxDuration = bookmark.getLecture().getDuration();
+            }
+            if (maxDuration != null && request.getTimestampSeconds() > maxDuration) {
+                throw new BadRequestException("timestampSeconds cannot exceed content duration (" + maxDuration + "s)");
+            }
+            bookmark.setTimestampSeconds(request.getTimestampSeconds());
+        }
+
         bookmark.setLabel(request.getLabel());
         return BookmarkResponseDto.from(bookmarkRepository.save(bookmark));
     }
@@ -66,8 +112,14 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void deleteBookmarkByLecture(Long lectureId, CustomUserDetails principal) {
         bookmarkRepository.deleteByUser_UserIdAndLecture_Id(principal.getUser().getUserId(), lectureId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBookmarkByContent(Long contentId, CustomUserDetails principal) {
+        bookmarkRepository.deleteByUser_UserIdAndContent_ContentId(principal.getUser().getUserId(), contentId);
     }
 }
