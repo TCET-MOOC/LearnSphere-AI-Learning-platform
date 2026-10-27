@@ -80,16 +80,25 @@ public class AssignmentServiceImpl implements AssignmentService {
     public Assignment updateAssignment(Long assignmentId, Assignment updated) {
         Assignment existing = getAssignmentById(assignmentId);
 
-        if (updated.getTitle() != null && !updated.getTitle().isBlank()) {
+        if (updated.getTitle() != null) {
+            if (updated.getTitle().isBlank()) {
+                throw new BadRequestException("Assignment title cannot be blank");
+            }
             existing.setTitle(updated.getTitle());
         }
         if (updated.getDescription() != null) {
             existing.setDescription(updated.getDescription());
         }
-        if (updated.getMaxMarks() != null && updated.getMaxMarks() > 0) {
+        if (updated.getMaxMarks() != null) {
+            if (updated.getMaxMarks() <= 0) {
+                throw new BadRequestException("maxMarks must be greater than 0");
+            }
             existing.setMaxMarks(updated.getMaxMarks());
         }
         if (updated.getDueDate() != null) {
+            if (updated.getDueDate().isBefore(LocalDateTime.now())) {
+                throw new BadRequestException("dueDate must be in the future");
+            }
             existing.setDueDate(updated.getDueDate());
         }
 

@@ -356,7 +356,16 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Progress Integration: Marking lectures complete in `StudentController` (`POST /api/student/lectures/{id}/complete`) automatically resolves and links canonical `CourseContent` into `user_progress.content`.
 - Red: `LectureContentMigrationTests` failed compilation on missing `CourseContent.legacyLectureId`.
 - Green: `LectureContentMigrationTests` passed 6/6 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 138, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
-- [~] W2-06 Assignment validation (create and update)
+- [x] W2-06 Assignment validation (create and update)
+
+**W2-06 evidence (2026-10-27) — Assignment validation (create and update):**
+- Rules: AC-09, [B-F8].
+- Assignment creation (`POST /api/modules/{id}/assignments`) strictly validates non-blank title, `maxMarks > 0`, and future `dueDate` (`dueDate.isBefore(LocalDateTime.now())`), rejecting violations with `400 BAD_REQUEST` (RFC 9457 `application/problem+json`).
+- Assignment update (`PUT /api/assignments/{id}`) validates non-blank title if provided (`isBlank()`), `maxMarks > 0` if provided, and future `dueDate` if modified (`dueDate.isBefore(LocalDateTime.now())`), rejecting past deadlines or non-positive marks with `400 BAD_REQUEST`.
+- Assignment submission (`POST /api/assignments/{id}/submissions`) requires at least one of `submissionText` or `fileUrl` to be non-blank, rejecting empty submissions with `400 BAD_REQUEST`, and upserts existing student submissions.
+- IDOR authorization: `OwnershipService.requireAssignmentStaff` returns `404 NOT_FOUND` for unauthorized foreign teachers attempting update or delete.
+- Red: `AssignmentValidationTests` failed 3/11 tests (update with blank title returned 200 instead of 400; update with `maxMarks <= 0` returned 200 instead of 400; update with past `dueDate` returned 200 instead of 400).
+- Green: `AssignmentValidationTests` passed 11/11 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 149, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
 - [~] W2-07 Storage port + upload safety
 - [ ] W2-08 Notes/bookmarks rebind to CourseContent
 - [~] W2-09 YouTube import into canonical content
