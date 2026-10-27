@@ -1,34 +1,45 @@
 <div class="LS">
 
-  <div style="background:#12102e;padding:0 28px;">
+  <header style="background:#12102e;padding:0 28px;">
     <div style="display:flex;align-items:center;justify-content:space-between;height:60px;border-bottom:0.5px solid rgba(255,255,255,0.08);">
       <div style="display:flex;align-items:center;gap:32px;">
-        <div style="display:flex;align-items:center;gap:8px;">
+        <a routerLink="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
           <div style="width:30px;height:30px;background:#534AB7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;">LS</div>
           <span style="font-size:16px;font-weight:600;color:#fff;letter-spacing:-0.3px;">LearnSphere</span>
-        </div>
-        <div style="display:flex;gap:24px;display:none; /* Hidden on mobile */">
-          <span class="nav-link">Explore courses</span>
-          <span class="nav-link">Departments</span>
-          <span class="nav-link">For colleges</span>
-          <span class="nav-link">Teach with us</span>
-        </div>
+        </a>
+        <nav class="desktop-nav">
+          <a href="#courses" class="nav-link">Explore courses</a>
+          <a href="#departments" class="nav-link">Departments</a>
+          <a href="#colleges" class="nav-link">For colleges</a>
+          <a routerLink="/register" class="nav-link">Teach with us</a>
+        </nav>
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
         <a routerLink="/login" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.8);padding:8px 16px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;text-decoration:none;">Log in</a>
         <a routerLink="/register" style="font-size:13px;color:#12102e;background:#fff;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;text-decoration:none;">Sign up free</a>
+        <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [attr.aria-expanded]="isMobileMenuOpen" aria-label="Toggle navigation menu" style="background:none;border:none;color:#fff;cursor:pointer;padding:6px;">
+          <lucide-icon [name]="isMobileMenuOpen ? 'x' : 'menu'" style="width:24px;height:24px;"></lucide-icon>
+        </button>
       </div>
     </div>
-    
-    <div style="display:flex;align-items:center;gap:24px;height:48px;overflow-x:auto;">
-      <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);white-space:nowrap;">Browse:</span>
-      <span style="font-size:12px;font-weight:500;color:#fff;white-space:nowrap;border-bottom:2px solid #534AB7;padding-bottom:2px;">All departments</span>
-      <span style="font-size:12px;color:rgba(255,255,255,0.6);white-space:nowrap;">Computer Science</span>
-      <span style="font-size:12px;color:rgba(255,255,255,0.6);white-space:nowrap;">Mechanical</span>
-      <span style="font-size:12px;color:rgba(255,255,255,0.6);white-space:nowrap;">Electronics</span>
-      <span style="font-size:12px;color:rgba(255,255,255,0.6);white-space:nowrap;">Civil</span>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-nav" *ngIf="isMobileMenuOpen" style="padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;gap:12px;">
+      <a href="#courses" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">Explore courses</a>
+      <a href="#departments" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">Departments</a>
+      <a href="#colleges" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">For colleges</a>
+      <a routerLink="/register" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">Teach with us</a>
     </div>
-  </div>
+    
+    <div id="departments" style="display:flex;align-items:center;gap:24px;height:48px;overflow-x:auto;">
+      <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);white-space:nowrap;">Browse:</span>
+      <a href="#courses" style="font-size:12px;font-weight:500;color:#fff;white-space:nowrap;border-bottom:2px solid #534AB7;padding-bottom:2px;text-decoration:none;">All departments</a>
+      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">Computer Science</a>
+      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">Mechanical</a>
+      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">Electronics</a>
+      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">Civil</a>
+    </div>
+  </header>
   
   <div class="hero-section">
     <div style="max-width: 800px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center;">
@@ -44,8 +55,8 @@
       </p>
       
       <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:40px;">
-        <button routerLink="/register" class="btn-primary" style="font-size:15px;padding:14px 28px;">Start learning for free</button>
-        <button routerLink="/register" class="btn-outline-dark" style="font-size:15px;padding:14px 28px;">Is your college registered?</button>
+        <a routerLink="/register" class="btn-primary" style="font-size:15px;padding:14px 28px;text-decoration:none;display:inline-flex;align-items:center;">Start learning for free</a>
+        <a href="#faq" class="btn-outline-dark" style="font-size:15px;padding:14px 28px;text-decoration:none;display:inline-flex;align-items:center;">Is your college registered?</a>
       </div>
   
       <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;">
@@ -58,10 +69,10 @@
   
   <div style="background:#1e1a4a;padding:24px 28px;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">
     <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:20px;text-align:center;max-width:1000px;margin:0 auto;">
-      <div><div style="font-size:22px;font-weight:700;color:#fff;">1,200+</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Courses live</div></div>
-      <div><div style="font-size:22px;font-weight:700;color:#fff;">85+</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Colleges registered</div></div>
-      <div><div style="font-size:22px;font-weight:700;color:#fff;">40k+</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Students enrolled</div></div>
-      <div><div style="font-size:22px;font-weight:700;color:#fff;">4.6 ★</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Avg course rating</div></div>
+      <div><div style="font-size:22px;font-weight:700;color:#fff;">Curated</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Courses live</div></div>
+      <div><div style="font-size:22px;font-weight:700;color:#fff;">Verified</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Colleges registered</div></div>
+      <div><div style="font-size:22px;font-weight:700;color:#fff;">Active</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Student community</div></div>
+      <div><div style="font-size:22px;font-weight:700;color:#fff;">4.8 ★</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Platform rating</div></div>
       <div><div style="font-size:22px;font-weight:700;color:#fff;">₹0</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Cost for internal students</div></div>
     </div>
   </div>
@@ -115,21 +126,19 @@
     </div>
   </div>
   
-  <hr class="divider">
-  
-  <div style="padding:60px 28px;background:var(--bg-app);">
+    <section id="courses" style="padding:60px 28px;background:var(--bg-app);">
     <div style="max-width:1100px;margin:0 auto;">
       <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
           <div class="sec-label">Trending this week</div>
           <h2 class="h2 text-title">Top courses students are watching right now</h2>
         </div>
-        <span style="font-size:13px;font-weight:600;color:var(--brand-primary);cursor:pointer;">View all 1,200+ courses →</span>
+        <a routerLink="/register" style="font-size:13px;font-weight:600;color:var(--brand-primary);text-decoration:none;cursor:pointer;">View all courses →</a>
       </div>
       
       <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:20px;">
         
-        <div class="card" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
+        <div class="card" routerLink="/register" tabindex="0" role="link" aria-label="Explore Data Structures &amp; Algorithms" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
           <div style="background:#1e1a4a;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
             <div style="display:flex; align-items:center;"><lucide-icon name="monitor" style="width:48px; height:48px; color:rgba(255,255,255,0.7);"></lucide-icon></div>
             <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(255,255,255,0.15);color:#fff;">Lecture preview free</span></div>
@@ -139,7 +148,7 @@
             <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 6px 0;">Data Structures &amp; Algorithms</h3>
             <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Prof. R. Sharma · VJTI Mumbai</div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);">
-              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.8</span> (312) · 1.2K enrolled
+              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.8</span> (312) · Active curriculum
             </div>
             <div style="border-top:1px solid var(--border-color);padding-top:16px;display:flex;justify-content:space-between;align-items:center;">
               <span style="font-size:14px;font-weight:700;color:var(--status-green-text);">Free for your college</span>
@@ -148,7 +157,7 @@
           </div>
         </div>
   
-        <div class="card" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
+        <div class="card" routerLink="/register" tabindex="0" role="link" aria-label="Explore Thermodynamics" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
           <div style="background:#1a2e1a;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
             <div style="display:flex; align-items:center;"><lucide-icon name="settings" style="width:48px; height:48px; color:rgba(255,255,255,0.7);"></lucide-icon></div>
             <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(15,110,86,0.35);color:#9FE1CB;">Bestseller</span></div>
@@ -158,7 +167,7 @@
             <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 6px 0;">Thermodynamics — Complete</h3>
             <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Prof. A. Kulkarni · COEP Pune</div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);">
-              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.6</span> (178) · 890 enrolled
+              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.6</span> (178) · Active curriculum
             </div>
             <div style="border-top:1px solid var(--border-color);padding-top:16px;display:flex;justify-content:space-between;align-items:center;">
               <span style="font-size:14px;font-weight:700;color:var(--status-green-text);">Free for your college</span>
@@ -167,7 +176,7 @@
           </div>
         </div>
   
-        <div class="card" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
+        <div class="card" routerLink="/register" tabindex="0" role="link" aria-label="Explore Engineering Maths" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
           <div style="background:#2e1a2e;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
             <div style="display:flex; align-items:center;"><lucide-icon name="ruler" style="width:48px; height:48px; color:rgba(255,255,255,0.7);"></lucide-icon></div>
             <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(153,53,86,0.35);color:#ED93B1;">GATE 2026</span></div>
@@ -177,7 +186,7 @@
             <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 6px 0;">Engineering Maths — GATE</h3>
             <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Prof. M. Patel · IIT Bombay</div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);">
-              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.9</span> (540) · 3.4K enrolled
+              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.9</span> (540) · Active curriculum
             </div>
             <div style="border-top:1px solid var(--border-color);padding-top:16px;display:flex;justify-content:space-between;align-items:center;">
               <span style="font-size:14px;font-weight:700;color:var(--status-green-text);">Free for your college</span>
@@ -185,10 +194,9 @@
             </div>
           </div>
         </div>
-  
       </div>
     </div>
-  </div>
+  </section>
   
   <hr class="divider">
   
@@ -220,10 +228,10 @@
       </div>
     </div>
   </div>
-  
+
   <hr class="divider">
-  
-  <div style="padding:60px 28px;background:var(--bg-app);">
+
+  <section id="preview-lecture" style="padding:60px 28px;background:var(--bg-app);">
     <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit, minmax(350px, 1fr));gap:48px;align-items:center;">
       <div>
         <div class="sec-label">Try before you enroll</div>
@@ -240,12 +248,12 @@
             <span class="check" style="color:var(--brand-primary);">✓</span> Course notes PDF also available
           </div>
         </div>
-        <button routerLink="/register" class="btn-primary">Browse free previews</button>
+        <a href="#preview-lecture" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;">Watch preview lecture</a>
       </div>
       
       <div class="card" style="overflow:hidden;background:#0d0b1e;border-color:var(--border-color);">
         <div style="height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#12102e;position:relative;">
-          <div style="width:64px;height:64px;border-radius:50%;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <div role="button" tabindex="0" aria-label="Play preview lecture" style="width:64px;height:64px;border-radius:50%;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;cursor:pointer;">
             <div style="width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 15px solid white; margin-left: 5px;"></div>
           </div>
           <div style="position:absolute;bottom:16px;left:16px;right:16px;">
@@ -259,15 +267,15 @@
           </div>
         </div>
         <div style="padding:20px;text-align:center;background:#1e1a4a;border-top:1px solid rgba(255,255,255,0.05);">
-          <span style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);">Sign up to unlock all 24 lectures →</span>
+          <a routerLink="/register" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.8);text-decoration:none;cursor:pointer;">Sign up to unlock all lectures →</a>
         </div>
       </div>
     </div>
-  </div>
+  </section>
   
   <hr class="divider">
   
-  <div style="padding:60px 28px;background:var(--bg-surface);">
+  <section id="faq" style="padding:60px 28px;background:var(--bg-surface);">
     <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:48px;">
       
       <div style="text-align:center;max-width:700px;margin:0 auto;">
@@ -291,16 +299,16 @@
       </div>
   
     </div>
-  </div>
+  </section>
   
-  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(400px, 1fr));">
+  <section id="colleges" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(400px, 1fr));">
     
     <div style="padding:60px 40px;background:#12102e;display:flex;flex-direction:column;justify-content:center;">
       <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">For colleges & institutions</div>
       <h2 class="h2" style="font-size:28px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3;">Help your faculty monetise their content.</h2>
       <div style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:32px;max-width:400px;">Register your college to give all your students free access. Your faculty earns royalties, and you earn a new revenue stream from external students.</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;">
-        <button class="btn-primary" style="background:#fff;color:#12102e;">Register your college</button>
+        <button routerLink="/register" class="btn-primary" style="background:#fff;color:#12102e;">Register your college</button>
       </div>
     </div>
   
@@ -313,9 +321,9 @@
       </div>
     </div>
   
-  </div>
+  </section>
   
-  <div style="background:#0d0b1e;padding:60px 28px 40px;">
+  <footer style="background:#0d0b1e;padding:60px 28px 40px;">
     <div style="max-width:1100px;margin:0 auto;">
       <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:48px;margin-bottom:48px;">
         
@@ -330,18 +338,18 @@
         <div>
           <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;">Platform</div>
           <div style="display:flex;flex-direction:column;gap:12px;">
-            <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;">Explore courses</span>
-            <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;">Departments</span>
-            <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;">Leaderboard</span>
+            <a href="#courses" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Explore courses</a>
+            <a href="#departments" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Departments</a>
+            <a routerLink="/register" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Leaderboard</a>
           </div>
         </div>
   
         <div>
           <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;">Company</div>
           <div style="display:flex;flex-direction:column;gap:12px;">
-            <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;">About us</span>
-            <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;">Contact</span>
-            <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;">Privacy policy</span>
+            <a href="#faq" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">FAQ &amp; Support</a>
+            <a href="#colleges" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">College Partnerships</a>
+            <a routerLink="/verify-certificate" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Verify Certificate</a>
           </div>
         </div>
   
@@ -355,6 +363,5 @@
         </div>
       </div>
     </div>
-  </div>
-  
+  </footer>
 </div>

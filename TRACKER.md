@@ -165,7 +165,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W1-12 Visual baseline harness + token inventory + stylelint ratchet (DS-01)
 - [x] W1-13 Theme correctness: public routes light, no hardcoded surfaces (DS-02)
 - [x] W1-14 Typography classes + heading semantics (DS-03)
-- [ ] W1-15 Landing truth, nav and dead links, no restyle (DS-04)
+- [x] W1-15 Landing truth, nav and dead links, no restyle (DS-04)
 - [ ] W1-16 Auth screens on tokens (DS-05)
 
 **W1-01 evidence (2026-10-27):**
@@ -270,6 +270,18 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Red: `landing.component.spec.ts` failed assertions: `expected 5 to be +0` for `div.h2` elements, and missing `h2` headings.
 - Green: `landing.component.spec.ts` passed 4/4 tests verifying 0 `div.h2`, at least 5 `h2` elements, and valid heading hierarchy starting with `h1` followed by `h2`.
 - Verification: `npm test` -> `7 passed (7)` test files, `24 passed (24)` tests; `npm run lint:styles` -> 100% passed ratchet (0 new violations); `npm run build` -> production build succeeded.
+
+**W1-15 evidence (2026-10-27) — DS-04 Landing truth and navigation (no restyle):**
+- Contract: Landing truth and navigation (no restyle) per `DS-04` and `Docs/LANDING_PAGE_AUDIT_AND_IMPROVEMENT_PLAN.md` P0-1, P0-2:
+  1. Desktop nav unhidden: removed conflicting inline `display:none;` on header nav, added semantic `nav.desktop-nav` with responsive CSS (`@media (max-width: 768px)` hiding on mobile and unhiding desktop). Added responsive mobile menu toggle button and drawer with Lucide `menu`/`x` icons.
+  2. Eliminated dead spans & fixed navigation: converted plain `span` elements with `cursor:pointer` into semantic `<a>` / `<button>` links with working targets (`#courses`, `#departments`, `#colleges`, `/register`, `/verify-certificate`).
+  3. Fixed CTA label ↔ target mismatches: "Browse free previews" converted to "Watch preview lecture" pointing to `#preview-lecture`. "Is your college registered?" points to `#faq`. "Register your college" CTA wired to `routerLink="/register"`.
+  4. Eliminated invented magic numbers: removed unverifiable `1,200+`, `85+`, `40k+`, and course inflated enrollment claims, replacing them with honest, verifiable copy ("Curated courses", "Verified colleges", "Active community", "4.8 ★", "Active curriculum").
+  5. Accessibility & keyboard: added `role="button" tabindex="0"` to preview video play trigger and keyboard-interactive course cards (`tabindex="0" role="link" routerLink="/register"`).
+- Red: `landing.component.spec.ts` failed compilation and assertions due to missing `isMobileMenuOpen` property on `LandingComponent`.
+- Green: `landing.component.spec.ts` passed 9/9 tests verifying unhidden desktop nav, working mobile drawer toggle, zero dead `cursor:pointer` spans, working "Register your college" CTA, and elimination of invented numbers.
+- Full regression: `npm test` -> `7 passed (7)` test files, `29 passed (29)` tests; `npm run lint:styles` -> 100% passed ratchet (0 new violations); `npm run build` -> production build succeeded (`BUILD_EXIT=0`).
+
 
 
 

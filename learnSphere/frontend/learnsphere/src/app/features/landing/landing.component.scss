@@ -76,3 +76,23 @@
 
 .star { color: var(--status-amber-text); }
 .check { color: var(--brand-primary); font-weight: bold; }
+
+.desktop-nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+.mobile-menu-btn {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

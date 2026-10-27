@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
-import { LucideAngularModule, GraduationCap, Globe, FileText, Monitor, Ruler, Search, User, Play, Settings } from 'lucide-angular';
+import { LucideAngularModule, GraduationCap, Globe, FileText, Monitor, Ruler, Search, User, Play, Settings, Menu, X } from 'lucide-angular';
 import { LandingComponent } from './landing.component';
 
 describe('LandingComponent Surface & Token Conformance (DS-02 / W1-13)', () => {
@@ -15,7 +15,7 @@ describe('LandingComponent Surface & Token Conformance (DS-02 / W1-13)', () => {
         provideRouter([]),
         importProvidersFrom(
           LucideAngularModule.pick({
-            GraduationCap, Globe, FileText, Monitor, Ruler, Search, User, Play, Settings
+            GraduationCap, Globe, FileText, Monitor, Ruler, Search, User, Play, Settings, Menu, X
           })
         )
       ]
@@ -64,5 +64,64 @@ describe('LandingComponent Surface & Token Conformance (DS-02 / W1-13)', () => {
     const headings = Array.from(compiled.querySelectorAll('h1, h2, h3, h4, h5, h6'));
     expect(headings[0].tagName.toLowerCase()).toBe('h1');
     expect(headings[1].tagName.toLowerCase()).toBe('h2');
+  });
+
+  describe('Landing Truth & Navigation (DS-04 / W1-15)', () => {
+    it('should unhide the desktop navigation bar and provide semantic links', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const nav = compiled.querySelector('nav.desktop-nav') as HTMLElement;
+      expect(nav).toBeTruthy();
+
+      const inlineStyle = nav.getAttribute('style') || '';
+      expect(inlineStyle.toLowerCase()).not.toContain('display:none');
+      expect(inlineStyle.toLowerCase()).not.toContain('display: none');
+
+      const links = Array.from(nav.querySelectorAll('a'));
+      expect(links.length).toBeGreaterThanOrEqual(4);
+      expect(links.every(link => link.getAttribute('href') || link.getAttribute('routerlink') || link.getAttribute('ng-reflect-router-link'))).toBe(true);
+    });
+
+    it('should provide a mobile menu toggle button and drawer', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const mobileBtn = compiled.querySelector('.mobile-menu-btn') as HTMLButtonElement;
+      expect(mobileBtn).toBeTruthy();
+
+      expect(component.isMobileMenuOpen).toBe(false);
+      mobileBtn.click();
+      fixture.detectChanges();
+      expect(component.isMobileMenuOpen).toBe(true);
+
+      const mobileNav = compiled.querySelector('.mobile-nav') as HTMLElement;
+      expect(mobileNav).toBeTruthy();
+    });
+
+    it('should eliminate dead cursor:pointer spans without navigation', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const allSpans = Array.from(compiled.querySelectorAll('span')) as HTMLElement[];
+      const deadCursorSpans = allSpans.filter(span => {
+        const style = span.getAttribute('style') || '';
+        const isPointer = style.includes('cursor:pointer') || style.includes('cursor: pointer');
+        const hasLink = span.hasAttribute('routerLink') || span.hasAttribute('href') || span.getAttribute('role') === 'button';
+        return isPointer && !hasLink;
+      });
+
+      expect(deadCursorSpans.length).toBe(0);
+    });
+
+    it('should ensure "Register your college" CTA has a routerLink', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const buttons = Array.from(compiled.querySelectorAll('button, a')) as HTMLElement[];
+      const collegeCta = buttons.find(b => b.textContent?.includes('Register your college'));
+      expect(collegeCta).toBeTruthy();
+      expect(collegeCta?.getAttribute('routerlink') || collegeCta?.getAttribute('ng-reflect-router-link')).toBeTruthy();
+    });
+
+    it('should eliminate invented numbers (1,200+, 85+, 40k+)', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const text = compiled.textContent || '';
+      expect(text).not.toContain('1,200+');
+      expect(text).not.toContain('85+');
+      expect(text).not.toContain('40k+');
+    });
   });
 });
