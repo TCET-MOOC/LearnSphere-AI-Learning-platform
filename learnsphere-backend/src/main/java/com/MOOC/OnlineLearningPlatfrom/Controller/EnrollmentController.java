@@ -1,16 +1,18 @@
 package com.MOOC.OnlineLearningPlatfrom.Controller;
 
+import com.MOOC.OnlineLearningPlatfrom.Entity.CourseContent;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Enrollment;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserProgress;
-import com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
+import com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.EnrollmentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserProgressRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
+import com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService;
+import com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -22,13 +24,19 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
     private final EnrollmentRepository enrollmentRepository;
     private final UserProgressRepository userProgressRepository;
+    private final CourseContentRepository courseContentRepository;
+    private final OwnershipService ownershipService;
 
     public EnrollmentController(EnrollmentService enrollmentService,
                                 EnrollmentRepository enrollmentRepository,
-                                UserProgressRepository userProgressRepository) {
+                                UserProgressRepository userProgressRepository,
+                                CourseContentRepository courseContentRepository,
+                                OwnershipService ownershipService) {
         this.enrollmentService = enrollmentService;
         this.enrollmentRepository = enrollmentRepository;
         this.userProgressRepository = userProgressRepository;
+        this.courseContentRepository = courseContentRepository;
+        this.ownershipService = ownershipService;
     }
 
     @PostMapping("/enrollments")
@@ -37,6 +45,8 @@ public class EnrollmentController {
             @AuthenticationPrincipal CustomUserDetails principal) {
         if (enrollment.getUserId() == null && principal != null && principal.getUser() != null) {
             enrollment.setUserId(principal.getUser().getUserId());
+        } else if (enrollment.getUserId() != null) {
+            ownershipService.requireSelf(enrollment.getUserId(), principal);
         }
         return ResponseEntity.ok(enrollmentService.enrollUser(enrollment));
     }
@@ -48,13 +58,26 @@ public class EnrollmentController {
     }
 
     @DeleteMapping("/enrollments/{id}")
-    public ResponseEntity<Void> unenrollFromCourse(@PathVariable Long id) {
-        enrollmentRepository.deleteById(id);
+    public ResponseEntity<Void> unenrollFromCourse(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        Enrollment enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found with id: " + id));
+        boolean isSelf = principal != null && principal.getUser() != null
+                && principal.getUser().getUserId().equals(enrollment.getUserId());
+        boolean isStaff = enrollment.getCourse() != null && ownershipService.isCourseStaff(enrollment.getCourse(), principal);
+        if (!isSelf && !isStaff && !ownershipService.isAdmin(principal)) {
+            throw new ResourceNotFoundException("Enrollment not found with id: " + id);
+        }
+        enrollmentRepository.delete(enrollment);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/courses/{courseId}/enrollments")
-    public ResponseEntity<List<Enrollment>> getCourseEnrollments(@PathVariable Long courseId) {
+    public ResponseEntity<List<Enrollment>> getCourseEnrollments(
+            @PathVariable Long courseId,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireCourseStaff(courseId, principal);
         return ResponseEntity.ok(enrollmentRepository.findByCourse_Id(courseId));
     }
 
@@ -64,6 +87,14 @@ public class EnrollmentController {
             @AuthenticationPrincipal CustomUserDetails principal) {
         if (userProgress.getUserId() == null && principal != null && principal.getUser() != null) {
             userProgress.setUserId(principal.getUser().getUserId());
+        } else if (userProgress.getUserId() != null) {
+            ownershipService.requireSelf(userProgress.getUserId(), principal);
+        }
+        if (userProgress.getContent() != null && userProgress.getContent().getContentId() != null) {
+            CourseContent content = courseContentRepository.findById(userProgress.getContent().getContentId()).orElse(null);
+            if (content != null && content.getModule() != null && content.getModule().getCourse() != null) {
+                ownershipService.requireEnrolled(content.getModule().getCourse().getId(), principal);
+            }
         }
         return ResponseEntity.ok(enrollmentService.updateUserProgress(userProgress));
     }
@@ -85,7 +116,10 @@ public class EnrollmentController {
     }
 
     @GetMapping("/progress/course/{courseId}/summary")
-    public ResponseEntity<Map<String, Object>> getCourseProgressSummary(@PathVariable Long courseId) {
+    public ResponseEntity<Map<String, Object>> getCourseProgressSummary(
+            @PathVariable Long courseId,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireCourseStaff(courseId, principal);
         long enrollmentCount = enrollmentRepository.countByCourse_Id(courseId);
         return ResponseEntity.ok(Map.of(
                 "courseId", courseId,
@@ -93,4 +127,3 @@ public class EnrollmentController {
         ));
     }
 }
-

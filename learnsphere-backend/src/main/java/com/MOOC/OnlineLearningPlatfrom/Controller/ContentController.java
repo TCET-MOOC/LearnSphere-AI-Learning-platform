@@ -1,8 +1,11 @@
 package com.MOOC.OnlineLearningPlatfrom.Controller;
 
 import com.MOOC.OnlineLearningPlatfrom.Entity.CourseContent;
+import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
+import com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService;
 import com.MOOC.OnlineLearningPlatfrom.Service.CourseContentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -10,9 +13,12 @@ import org.springframework.web.bind.annotation.*;
 public class ContentController {
 
     private final CourseContentService courseContentService;
+    private final OwnershipService ownershipService;
 
-    public ContentController(CourseContentService courseContentService) {
+    public ContentController(CourseContentService courseContentService,
+                             OwnershipService ownershipService) {
         this.courseContentService = courseContentService;
+        this.ownershipService = ownershipService;
     }
 
     @GetMapping("/{id}")
@@ -21,12 +27,17 @@ public class ContentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CourseContent> updateContent(@PathVariable Long id, @RequestBody CourseContent content) {
+    public ResponseEntity<CourseContent> updateContent(@PathVariable Long id,
+                                                        @RequestBody CourseContent content,
+                                                        @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireContentStaff(id, principal);
         return ResponseEntity.ok(courseContentService.updateContent(id, content));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteContent(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteContent(@PathVariable Long id,
+                                              @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireContentStaff(id, principal);
         courseContentService.deleteContent(id);
         return ResponseEntity.noContent().build();
     }

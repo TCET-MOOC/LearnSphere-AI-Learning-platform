@@ -23,11 +23,21 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final LectureRepository lectureRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService;
 
-    public CourseServiceImpl(CourseRepository courseRepository, LectureRepository lectureRepository, JdbcTemplate jdbcTemplate) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public CourseServiceImpl(CourseRepository courseRepository,
+                             LectureRepository lectureRepository,
+                             JdbcTemplate jdbcTemplate,
+                             com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService) {
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
         this.jdbcTemplate = jdbcTemplate;
+        this.ownershipService = ownershipService;
+    }
+
+    public CourseServiceImpl(CourseRepository courseRepository, LectureRepository lectureRepository, JdbcTemplate jdbcTemplate) {
+        this(courseRepository, lectureRepository, jdbcTemplate, null);
     }
 
     @Override
@@ -225,6 +235,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private void assertOwner(Course course, CustomUserDetails principal) {
+        if (ownershipService != null) {
+            ownershipService.requireCourseStaff(course.getId(), principal);
+            return;
+        }
         if (principal == null || principal.getUser() == null) {
             return;
         }
@@ -233,21 +247,16 @@ public class CourseServiceImpl implements CourseService {
         if (isAdmin) {
             return;
         }
-        if (course.getTeacher() == null) {
-            course.setTeacher(principal.getUser());
-            courseRepository.save(course);
-            return;
-        }
-        if (course.getTeacher().getUserId() != null && principal.getUser().getUserId() != null) {
+        if (course.getTeacher() != null && course.getTeacher().getUserId() != null && principal.getUser().getUserId() != null) {
             if (course.getTeacher().getUserId().equals(principal.getUser().getUserId())) {
                 return;
             }
         }
-        if (course.getTeacher().getEmail() != null && principal.getUsername() != null) {
+        if (course.getTeacher() != null && course.getTeacher().getEmail() != null && principal.getUsername() != null) {
             if (course.getTeacher().getEmail().equalsIgnoreCase(principal.getUsername())) {
                 return;
             }
         }
-        throw new AccessDeniedException("You do not own this course");
+        throw new ResourceNotFoundException("Course not found with id: " + course.getId());
     }
 }
