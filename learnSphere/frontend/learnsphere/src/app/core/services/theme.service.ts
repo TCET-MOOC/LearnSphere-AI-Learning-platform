@@ -1,8 +1,25 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID, Optional } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export type ThemeMode = 'dark' | 'light';
+
+export const PUBLIC_ROUTES = [
+  '/',
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/verify-college',
+  '/verify-certificate',
+  '/verify/certificate'
+];
+
+export function isPublicRoute(url: string): boolean {
+  if (!url) return true;
+  const clean = url.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
+  return PUBLIC_ROUTES.some(route => route === clean || clean.startsWith(route + '/'));
+}
 
 @Injectable({
   providedIn: 'root'
@@ -12,11 +29,22 @@ export class ThemeService {
   private themeSubject: BehaviorSubject<ThemeMode>;
   public theme$: Observable<ThemeMode>;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    @Optional() private router?: Router
+  ) {
     const initialTheme = this.getInitialTheme();
     this.themeSubject = new BehaviorSubject<ThemeMode>(initialTheme);
     this.theme$ = this.themeSubject.asObservable();
     this.applyTheme(initialTheme);
+
+    if (this.router) {
+      this.router.events.subscribe(event => {
+        if (event instanceof NavigationEnd) {
+          this.handleRouteChange(event.urlAfterRedirects || event.url);
+        }
+      });
+    }
   }
 
   get currentTheme(): ThemeMode {
@@ -42,7 +70,33 @@ export class ThemeService {
     }
   }
 
+  private handleRouteChange(url: string): void {
+    if (isPublicRoute(url)) {
+      if (this.themeSubject.value !== 'light') {
+        this.themeSubject.next('light');
+        this.applyTheme('light');
+      }
+    } else {
+      const savedTheme = this.getSavedUserTheme();
+      if (this.themeSubject.value !== savedTheme) {
+        this.themeSubject.next(savedTheme);
+        this.applyTheme(savedTheme);
+      }
+    }
+  }
+
   private getInitialTheme(): ThemeMode {
+    if (isPlatformBrowser(this.platformId)) {
+      const currentUrl = this.router?.url || window.location.pathname;
+      if (isPublicRoute(currentUrl)) {
+        return 'light';
+      }
+      return this.getSavedUserTheme();
+    }
+    return 'light';
+  }
+
+  private getSavedUserTheme(): ThemeMode {
     if (isPlatformBrowser(this.platformId)) {
       try {
         const saved = localStorage.getItem(this.THEME_KEY) as ThemeMode | null;
@@ -54,7 +108,7 @@ export class ThemeService {
         }
       } catch (e) {}
     }
-    return 'dark'; // Default to modern obsidian dark theme for LearnSphere
+    return 'light';
   }
 
   private applyTheme(theme: ThemeMode): void {
@@ -78,3 +132,4 @@ export class ThemeService {
     }
   }
 }
+

@@ -7,6 +7,8 @@ import { TeacherSidebarComponent } from './shared/components/teacher-sidebar/tea
 import { AdminSidebarComponent } from './shared/components/admin-sidebar/admin-sidebar.component';
 import { AiChatbotComponent } from './shared/components/ai-chatbot/ai-chatbot.component';
 
+import { ThemeService } from './core/services/theme.service';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -29,7 +31,7 @@ export class App {
   isStandalonePage = false; 
   userRole = 'STUDENT';
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private themeService: ThemeService) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         
