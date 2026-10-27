@@ -71,6 +71,22 @@ public class ModuleController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/modules/{id}/reorder")
+    public ResponseEntity<Module> reorderModule(@PathVariable Long id,
+                                                @RequestBody(required = false) com.MOOC.OnlineLearningPlatfrom.dto.ReorderRequest request,
+                                                @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireModuleStaff(id, principal);
+        return ResponseEntity.ok(moduleService.reorderModule(id, request));
+    }
+
+    @PutMapping("/courses/{courseId}/modules/reorder")
+    public ResponseEntity<List<Module>> reorderCourseModules(@PathVariable Long courseId,
+                                                             @RequestBody com.MOOC.OnlineLearningPlatfrom.dto.ReorderRequest request,
+                                                             @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireCourseStaff(courseId, principal);
+        return ResponseEntity.ok(moduleService.reorderModules(courseId, request));
+    }
+
     // --- Module contents and assignments ---
 
     @GetMapping("/modules/{id}/contents")
@@ -84,6 +100,14 @@ public class ModuleController {
                                                              @AuthenticationPrincipal CustomUserDetails principal) {
         ownershipService.requireModuleStaff(id, principal);
         return ResponseEntity.ok(courseContentService.addContentToModule(id, content));
+    }
+
+    @PutMapping("/modules/{id}/contents/reorder")
+    public ResponseEntity<List<CourseContent>> reorderModuleContents(@PathVariable Long id,
+                                                                     @RequestBody com.MOOC.OnlineLearningPlatfrom.dto.ReorderRequest request,
+                                                                     @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireModuleStaff(id, principal);
+        return ResponseEntity.ok(courseContentService.reorderContents(id, request));
     }
 
     @GetMapping("/modules/{id}/assignments")

@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced the hand-written hard cascade with soft-delete archiving (`DELETE /api/courses/{id}`) and restore (`POST /api/courses/{id}/restore`). |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-04 Module/content ordering + delete renormalisation` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03`, `W2-04` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints (`PUT /api/modules/{id}/reorder`, `PUT /api/contents/{id}/reorder`, `PUT /api/courses/{courseId}/modules/reorder`), and delete re-normalisation (`1..n`). |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-05 Lecture → CourseContent migration` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -327,7 +327,21 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Visibility: archived courses are excluded from public catalog (`GET /api/courses`) and return `404 NOT_FOUND` on detail read (`GET /api/courses/{id}`) for public and students (course staff and admins bypass).
 - Red: `CourseArchiveSoftDeleteTests` failed 5/7 (deletion previously caused foreign key conflict on hard cascade or failed to archive; restore endpoints returned 404).
 - Green: `CourseArchiveSoftDeleteTests` passed 7/7. Full backend suite `.\mvnw.cmd test` -> `Tests run: 123, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
-- [~] W2-04 Module/content ordering + delete renormalisation
+- [x] W2-04 Module/content ordering + delete renormalisation
+
+**W2-04 evidence (2026-10-27) — Module/content ordering & delete renormalisation:**
+- Rules: AC-07, AC-08, BR-06, [B-F6].
+- Ordering: Modules inside courses and CourseContent inside modules are returned contiguously ordered by `position ASC` (1..n).
+- Creation: Creating module or content without a specified position automatically assigns `count + 1`.
+- Deletion: Deleting a module (`DELETE /api/modules/{id}`) or content (`DELETE /api/contents/{id}`) flushes the removal and re-normalises all remaining sibling items contiguously to `1..n` without gaps.
+- Reorder endpoints:
+  - `PUT /api/modules/{id}/reorder`: supports `{ "position": targetPosition }` (reordering module within course and shifting siblings contiguously) and `{ "orderedIds": [id1, id2, ...] }`.
+  - `PUT /api/courses/{courseId}/modules/reorder`: supports bulk reordering via ordered ID list or ReorderRequest.
+  - `PUT /api/contents/{id}/reorder`: supports `{ "position": targetPosition }` (reordering content within module and shifting siblings contiguously) and `{ "orderedIds": [id1, id2, ...] }`.
+  - `PUT /api/modules/{id}/contents/reorder`: supports module-level bulk reordering of contents.
+- IDOR security: All reorder and delete endpoints are protected by `OwnershipService` (`requireCourseStaff`, `requireModuleStaff`, `requireContentStaff`). Unauthorized foreign teachers or non-staff receive `404 NOT_FOUND`.
+- Red: `ModuleContentOrderingTests` failed 4/9 tests (content deletion did not re-normalise positions and returned gap `[1, 3]`; reorder endpoints returned 404).
+- Green: `ModuleContentOrderingTests` passed 9/9 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 132, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
 - [~] W2-05 Lecture → CourseContent migration
 - [~] W2-06 Assignment validation (create and update)
 - [~] W2-07 Storage port + upload safety

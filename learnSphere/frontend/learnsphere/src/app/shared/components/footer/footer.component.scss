@@ -81,23 +81,29 @@ $text-tertiary: #A09DB8;
       gap: 12px;
       margin-bottom: 16px;
 
-      .logo-box {
+      .footer-logo-img {
         width: 32px;
         height: 32px;
-        background: $brand-purple;
-        color: white;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 14px;
+        object-fit: contain;
       }
 
       .brand-name {
         font-size: 18px;
         font-weight: 700;
         color: $text-primary;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .ai-badge {
+          font-size: 10px;
+          font-weight: 700;
+          padding: 2px 6px;
+          border-radius: var(--border-radius-sm);
+          background: var(--brand-primary);
+          color: var(--text-inverse);
+          letter-spacing: 0.5px;
+        }
       }
     }
 

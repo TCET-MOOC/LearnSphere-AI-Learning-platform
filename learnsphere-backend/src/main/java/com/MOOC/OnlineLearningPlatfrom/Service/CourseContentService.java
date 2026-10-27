@@ -7,4 +7,6 @@ public interface CourseContentService {
     CourseContent addContentToModule(Long moduleId, CourseContent content);
     CourseContent updateContent(Long contentId, CourseContent content);
     void deleteContent(Long contentId);
+    CourseContent reorderContent(Long contentId, com.MOOC.OnlineLearningPlatfrom.dto.ReorderRequest request);
+    java.util.List<CourseContent> reorderContents(Long moduleId, com.MOOC.OnlineLearningPlatfrom.dto.ReorderRequest request);
 }

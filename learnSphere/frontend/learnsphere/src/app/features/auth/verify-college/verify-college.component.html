@@ -1,7 +1,11 @@
 <div class="auth-layout">
   <div class="auth-card">
     <div class="brand">
-      <div class="logo-box">LS</div>
+      <a routerLink="/" class="logo-link" title="LearnSphere Home">
+        <div class="logo-box">
+          <img src="/logo-mark.svg" alt="LearnSphere AI" class="logo-img" />
+        </div>
+      </a>
       <h2>{{ isTeacher ? 'Verify your college affiliation' : 'Link your college' }}</h2>
       <p *ngIf="isTeacher">Admins review teacher affiliation requests before granting course-publishing access.</p>
       <p *ngIf="!isTeacher">Select your college so we can personalize your dashboard.</p>

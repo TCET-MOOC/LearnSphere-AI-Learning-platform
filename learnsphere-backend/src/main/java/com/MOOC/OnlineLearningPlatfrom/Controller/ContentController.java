@@ -41,4 +41,12 @@ public class ContentController {
         courseContentService.deleteContent(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/reorder")
+    public ResponseEntity<CourseContent> reorderContent(@PathVariable Long id,
+                                                        @RequestBody(required = false) com.MOOC.OnlineLearningPlatfrom.dto.ReorderRequest request,
+                                                        @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireContentStaff(id, principal);
+        return ResponseEntity.ok(courseContentService.reorderContent(id, request));
+    }
 }

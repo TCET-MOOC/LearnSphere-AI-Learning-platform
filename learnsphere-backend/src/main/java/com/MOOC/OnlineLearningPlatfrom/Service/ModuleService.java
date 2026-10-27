@@ -12,4 +12,6 @@ public interface ModuleService {
     Module updateModule(Long moduleId, Module module);
     void deleteModule(Long moduleId);
     List<CourseContent> getContentsByModuleId(Long moduleId);
+    Module reorderModule(Long moduleId, com.MOOC.OnlineLearningPlatfrom.dto.ReorderRequest request);
+    List<Module> reorderModules(Long courseId, com.MOOC.OnlineLearningPlatfrom.dto.ReorderRequest request);
 }
