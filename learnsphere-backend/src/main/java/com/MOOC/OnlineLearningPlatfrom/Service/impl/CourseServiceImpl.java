@@ -22,22 +22,25 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final LectureRepository lectureRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository departmentRepository;
     private final JdbcTemplate jdbcTemplate;
     private final com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService;
 
     @org.springframework.beans.factory.annotation.Autowired
     public CourseServiceImpl(CourseRepository courseRepository,
                              LectureRepository lectureRepository,
+                             com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository departmentRepository,
                              JdbcTemplate jdbcTemplate,
                              com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService) {
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
+        this.departmentRepository = departmentRepository;
         this.jdbcTemplate = jdbcTemplate;
         this.ownershipService = ownershipService;
     }
 
     public CourseServiceImpl(CourseRepository courseRepository, LectureRepository lectureRepository, JdbcTemplate jdbcTemplate) {
-        this(courseRepository, lectureRepository, jdbcTemplate, null);
+        this(courseRepository, lectureRepository, null, jdbcTemplate, null);
     }
 
     @Override
@@ -51,11 +54,21 @@ public class CourseServiceImpl implements CourseService {
         if (teacherId != null) {
             courses = courseRepository.findByTeacher_UserId(teacherId);
         } else if (status != null && department != null) {
-            courses = courseRepository.findByStatusAndDepartment(Course.Status.valueOf(status.toUpperCase()), department);
+            Long deptId = tryParseLong(department);
+            if (deptId != null) {
+                courses = courseRepository.findByStatusAndDepartment_DepartmentId(Course.Status.valueOf(status.toUpperCase()), deptId);
+            } else {
+                courses = courseRepository.findByStatusAndDepartmentLabel(Course.Status.valueOf(status.toUpperCase()), department);
+            }
         } else if (status != null) {
             courses = courseRepository.findByStatus(Course.Status.valueOf(status.toUpperCase()));
         } else if (department != null) {
-            courses = courseRepository.findByDepartment(department);
+            Long deptId = tryParseLong(department);
+            if (deptId != null) {
+                courses = courseRepository.findByDepartment_DepartmentId(deptId);
+            } else {
+                courses = courseRepository.findByDepartmentLabel(department);
+            }
         } else {
             courses = courseRepository.findAll();
         }
@@ -77,6 +90,14 @@ public class CourseServiceImpl implements CourseService {
                 .toList();
     }
 
+    private Long tryParseLong(String s) {
+        try {
+            return Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     @Override
     public CourseResponseDto getCourseById(Long id) {
         Course course = getCourseEntity(id);
@@ -89,10 +110,35 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
     }
 
+    private com.MOOC.OnlineLearningPlatfrom.Entity.Department resolveDepartment(Course course) {
+        if (course == null || departmentRepository == null) return null;
+        if (course.getDepartment() != null && course.getDepartment().getDepartmentId() != null) {
+            return departmentRepository.findById(course.getDepartment().getDepartmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + course.getDepartment().getDepartmentId()));
+        }
+        if (course.getDepartmentId() != null) {
+            return departmentRepository.findById(course.getDepartmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + course.getDepartmentId()));
+        }
+        if (course.getDepartmentLabel() != null && !course.getDepartmentLabel().isBlank()) {
+            return departmentRepository.findByNameIgnoreCase(course.getDepartmentLabel().trim())
+                    .orElseThrow(() -> new ResourceNotFoundException("Department not found with name: " + course.getDepartmentLabel()));
+        }
+        return null;
+    }
+
     @Override
     public CourseResponseDto createCourse(Course course, CustomUserDetails principal) {
         course.setTeacher(principal.getUser());
         course.setStatus(Course.Status.DRAFT);
+
+        com.MOOC.OnlineLearningPlatfrom.Entity.Department dept = resolveDepartment(course);
+        if (dept == null) {
+            throw new com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException("Department is required for course creation");
+        }
+        course.setDepartment(dept);
+        course.setDepartmentLabel(dept.getName());
+
         Course saved = courseRepository.save(course);
         return CourseResponseDto.from(saved, 0);
     }
@@ -104,7 +150,13 @@ public class CourseServiceImpl implements CourseService {
 
         if (updates.getTitle() != null) course.setTitle(updates.getTitle());
         if (updates.getDescription() != null) course.setDescription(updates.getDescription());
-        if (updates.getDepartment() != null) course.setDepartment(updates.getDepartment());
+        
+        com.MOOC.OnlineLearningPlatfrom.Entity.Department dept = resolveDepartment(updates);
+        if (dept != null) {
+            course.setDepartment(dept);
+            course.setDepartmentLabel(dept.getName());
+        }
+
         if (updates.getThumbnail() != null) course.setThumbnail(updates.getThumbnail());
         if (updates.getPrice() != null) course.setPrice(updates.getPrice());
         if (updates.getStatus() != null) course.setStatus(updates.getStatus());

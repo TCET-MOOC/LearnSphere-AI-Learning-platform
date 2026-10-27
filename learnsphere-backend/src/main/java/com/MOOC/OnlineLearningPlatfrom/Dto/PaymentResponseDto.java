@@ -26,7 +26,9 @@ public class PaymentResponseDto {
         if (payment.getCourse() != null) {
             dto.courseId = payment.getCourse().getId();
             dto.courseTitle = payment.getCourse().getTitle();
-            dto.department = payment.getCourse().getDepartment();
+            dto.department = payment.getCourse().getDepartment() != null
+                    ? payment.getCourse().getDepartment().getName()
+                    : payment.getCourse().getDepartmentLabel();
             dto.thumbnail = payment.getCourse().getThumbnail();
         }
         dto.amount = payment.getAmount();

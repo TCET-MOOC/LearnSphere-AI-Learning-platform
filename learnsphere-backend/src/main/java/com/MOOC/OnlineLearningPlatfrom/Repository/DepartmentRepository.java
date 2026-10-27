@@ -6,6 +6,6 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Department;
 
 @Repository
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
-    // Example of a custom query
     Department findByName(String name);
+    java.util.Optional<Department> findByNameIgnoreCase(String name);
 }

@@ -11,6 +11,7 @@ public class CourseResponseDto {
     private String description;
     private Long teacherId;
     private String teacherName;
+    private Long departmentId;
     private String department;
     private String thumbnail;
     private String status;
@@ -30,7 +31,12 @@ public class CourseResponseDto {
             dto.teacherId = course.getTeacher().getUserId();
             dto.teacherName = course.getTeacher().getFullName();
         }
-        dto.department = course.getDepartment();
+        if (course.getDepartment() != null) {
+            dto.departmentId = course.getDepartment().getDepartmentId();
+            dto.department = course.getDepartment().getName();
+        } else {
+            dto.department = course.getDepartmentLabel();
+        }
         dto.thumbnail = course.getThumbnail();
         dto.status = course.getStatus() != null ? course.getStatus().name() : null;
         dto.price = course.getPrice();
@@ -56,7 +62,10 @@ public class CourseResponseDto {
     public String getDescription() { return description; }
     public Long getTeacherId() { return teacherId; }
     public String getTeacherName() { return teacherName; }
+    public Long getDepartmentId() { return departmentId; }
+    public void setDepartmentId(Long departmentId) { this.departmentId = departmentId; }
     public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
     public String getThumbnail() { return thumbnail; }
     public String getStatus() { return status; }
     public BigDecimal getPrice() { return price; }

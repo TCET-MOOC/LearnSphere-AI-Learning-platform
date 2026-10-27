@@ -1,12 +1,14 @@
 package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
-import org.springframework.stereotype.Service;
-
+import com.MOOC.OnlineLearningPlatfrom.Dto.CourseResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Department;
+import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.LectureRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.DepartmentService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -15,13 +17,15 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final CourseRepository courseRepository;
+    private final LectureRepository lectureRepository;
 
     public DepartmentServiceImpl(DepartmentRepository departmentRepository,
-                                 CourseRepository courseRepository) {
+                                 CourseRepository courseRepository,
+                                 LectureRepository lectureRepository) {
         this.departmentRepository = departmentRepository;
         this.courseRepository = courseRepository;
+        this.lectureRepository = lectureRepository;
     }
-
 
     @Override
     public List<Department> getAllDepartments() {
@@ -31,7 +35,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Department getDepartmentById(Long id) {
         return departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
     }
 
     @Override
@@ -41,8 +45,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Department updateDepartment(Long id, Department department) {
-        Department existing = departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+        Department existing = getDepartmentById(id);
         existing.setName(department.getName());
         return departmentRepository.save(existing);
     }
@@ -53,9 +56,12 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public List<Course> getCoursesByDepartmentId(Long id) {
+    public List<CourseResponseDto> getCoursesByDepartmentId(Long id) {
         Department dept = getDepartmentById(id);
-        return courseRepository.findByDepartment(dept.getName());
+        List<Course> courses = courseRepository.findByStatusAndDepartment_DepartmentId(Course.Status.LIVE, dept.getDepartmentId());
+        return courses.stream()
+                .map(c -> CourseResponseDto.from(c, lectureRepository.countByCourse_Id(c.getId())))
+                .toList();
     }
 }
 

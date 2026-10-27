@@ -44,7 +44,7 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}/courses")
-    public ResponseEntity<List<com.MOOC.OnlineLearningPlatfrom.Entity.Course>> getCoursesByDepartment(@PathVariable Long id) {
+    public ResponseEntity<List<com.MOOC.OnlineLearningPlatfrom.Dto.CourseResponseDto>> getCoursesByDepartment(@PathVariable Long id) {
         return ResponseEntity.ok(departmentService.getCoursesByDepartmentId(id));
     }
 }

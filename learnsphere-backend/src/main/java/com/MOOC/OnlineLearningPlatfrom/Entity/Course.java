@@ -48,7 +48,71 @@ public class Course {
         this.teacher = creator;
     }
 
-    private String department;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    @Column(name = "department")
+    private String departmentLabel;
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+        if (department != null && department.getName() != null) {
+            this.departmentLabel = department.getName();
+        }
+    }
+
+    public void setDepartment(String departmentName) {
+        this.departmentLabel = departmentName;
+    }
+
+    public String getDepartmentLabel() {
+        if (departmentLabel != null) {
+            return departmentLabel;
+        }
+        return department != null ? department.getName() : null;
+    }
+
+    public void setDepartmentLabel(String departmentLabel) {
+        this.departmentLabel = departmentLabel;
+    }
+
+    @JsonProperty("departmentId")
+    public Long getDepartmentId() {
+        return department != null ? department.getDepartmentId() : null;
+    }
+
+    @JsonProperty("departmentId")
+    public void setDepartmentId(Long departmentId) {
+        if (departmentId != null) {
+            Department d = new Department();
+            d.setDepartmentId(departmentId);
+            this.department = d;
+        } else {
+            this.department = null;
+        }
+    }
+
+    @com.fasterxml.jackson.annotation.JsonSetter("department")
+    public void setDepartmentFromJson(com.fasterxml.jackson.databind.JsonNode node) {
+        if (node == null || node.isNull()) {
+            this.department = null;
+            this.departmentLabel = null;
+        } else if (node.isTextual()) {
+            this.departmentLabel = node.asText();
+        } else if (node.isObject()) {
+            if (node.has("departmentId") && !node.get("departmentId").isNull()) {
+                setDepartmentId(node.get("departmentId").asLong());
+            }
+            if (node.has("name") && !node.get("name").isNull()) {
+                this.departmentLabel = node.get("name").asText();
+            }
+        }
+    }
 
     private String thumbnail;
 

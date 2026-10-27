@@ -222,8 +222,11 @@ public class DemoDataSeeder implements CommandLineRunner {
         Course course = courseRepository.findFirstByTitle(title).orElseGet(() -> {
             Course newCourse = new Course();
             newCourse.setTitle(title);
-            newCourse.setDescription(description);
-            newCourse.setDepartment(DEPARTMENT_NAME);
+            Department dept = departmentRepository.findByName(DEPARTMENT_NAME);
+            if (dept != null) {
+                newCourse.setDepartment(dept);
+            }
+            newCourse.setDepartmentLabel(DEPARTMENT_NAME);
             newCourse.setStatus(Course.Status.LIVE);
             newCourse.setTeacher(teacher);
             newCourse.setPrice(BigDecimal.ZERO);

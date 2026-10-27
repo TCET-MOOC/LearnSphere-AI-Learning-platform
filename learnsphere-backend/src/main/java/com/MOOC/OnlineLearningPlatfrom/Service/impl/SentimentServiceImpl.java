@@ -88,8 +88,10 @@ public class SentimentServiceImpl implements SentimentService {
     private List<CourseTypeSentimentDto> buildCourseTypeSentiment(List<Item> items) {
         Map<String, List<Item>> byDept = new LinkedHashMap<>();
         for (Item item : items) {
-            if (item.course() == null || item.course().getDepartment() == null || item.course().getDepartment().isBlank()) continue;
-            byDept.computeIfAbsent(item.course().getDepartment(), k -> new ArrayList<>()).add(item);
+            if (item.course() == null) continue;
+            String deptName = item.course().getDepartment() != null ? item.course().getDepartment().getName() : item.course().getDepartmentLabel();
+            if (deptName == null || deptName.isBlank()) continue;
+            byDept.computeIfAbsent(deptName, k -> new ArrayList<>()).add(item);
         }
 
         List<CourseTypeSentimentDto> result = new ArrayList<>();
