@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AffiliationRequestRepository extends JpaRepository<AffiliationRequest, Long> {
+    boolean existsByTeacher_UserIdAndStatus(Long userId, AffiliationRequest.Status status);
 }

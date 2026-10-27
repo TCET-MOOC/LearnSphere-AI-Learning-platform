@@ -5,6 +5,7 @@ import com.MOOC.OnlineLearningPlatfrom.Dto.AuthDtos.*;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.*;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
+import com.MOOC.OnlineLearningPlatfrom.Exception.ConflictException;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.*;
 import com.MOOC.OnlineLearningPlatfrom.Security.JwtService;
@@ -76,9 +77,16 @@ public class AuthServiceImpl implements AuthService {
         if (userAccountRepository.findByEmail(request.getEmail()) != null) {
             throw new BadRequestException("An account with this email already exists");
         }
-        String roleName = request.getRole() == null || request.getRole().isBlank()
-                ? RoleVocabulary.STUDENT
-                : RoleVocabulary.canonicalize(request.getRole());
+        if (request.getRole() != null && !request.getRole().isBlank()) {
+            String trimmedRole = request.getRole().trim();
+            if (RoleVocabulary.ADMIN.equalsIgnoreCase(trimmedRole)) {
+                throw new BadRequestException("ADMIN accounts cannot be self-registered");
+            }
+            if (!RoleVocabulary.isValid(trimmedRole)) {
+                throw new BadRequestException("Unknown role: " + trimmedRole);
+            }
+        }
+        String roleName = RoleVocabulary.STUDENT;
         Role role = roleRepository.findByName(roleName);
         if (role == null) {
             throw new BadRequestException("Unknown role: " + roleName);
@@ -91,6 +99,9 @@ public class AuthServiceImpl implements AuthService {
         if (request.getCollegeId() != null) {
             College college = collegeRepository.findById(request.getCollegeId())
                     .orElseThrow(() -> new ResourceNotFoundException("College not found with id: " + request.getCollegeId()));
+            if (college.getVerificationStatus() != College.VerificationStatus.VERIFIED) {
+                throw new BadRequestException("Only verified colleges can be linked");
+            }
             user.setCollege(college);
         }
         if (request.getDepartmentId() != null) {
@@ -180,16 +191,31 @@ public class AuthServiceImpl implements AuthService {
         if (user == null) {
             throw new ResourceNotFoundException("User not found");
         }
-        List<String> roles = rolesOf(user);
+        if (request == null || request.getCollegeId() == null) {
+            throw new BadRequestException("College id is required");
+        }
         College college = collegeRepository.findById(request.getCollegeId())
                 .orElseThrow(() -> new ResourceNotFoundException("College not found with id: " + request.getCollegeId()));
 
-        if (roles.contains("TEACHER")) {
+        if (college.getVerificationStatus() != College.VerificationStatus.VERIFIED) {
+            throw new BadRequestException("College must be verified to submit an affiliation request");
+        }
+
+        List<String> roles = rolesOf(user);
+        boolean isTeacherApplication = (request.getIdDocumentUrl() != null && !request.getIdDocumentUrl().isBlank())
+                || (request.getClaimedDepartment() != null && !request.getClaimedDepartment().isBlank())
+                || roles.contains(RoleVocabulary.TEACHER);
+
+        if (isTeacherApplication) {
+            if (affiliationRequestRepository.existsByTeacher_UserIdAndStatus(user.getUserId(), AffiliationRequest.Status.PENDING)) {
+                throw new ConflictException("You already have a pending affiliation request");
+            }
             AffiliationRequest affiliationRequest = new AffiliationRequest();
             affiliationRequest.setTeacher(user);
             affiliationRequest.setClaimedCollege(college);
             affiliationRequest.setClaimedDepartment(request.getClaimedDepartment());
             affiliationRequest.setIdDocumentUrl(request.getIdDocumentUrl());
+            affiliationRequest.setStatus(AffiliationRequest.Status.PENDING);
             affiliationRequestRepository.save(affiliationRequest);
         } else {
             user.setCollege(college);

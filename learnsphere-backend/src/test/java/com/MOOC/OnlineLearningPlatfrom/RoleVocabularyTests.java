@@ -66,8 +66,8 @@ class RoleVocabularyTests extends PostgresIntegrationTest {
     }
 
     @Test
-    @DisplayName("Registration with INSTRUCTOR alias maps to canonical TEACHER role")
-    void shouldMapInstructorToTeacherOnRegistration() throws Exception {
+    @DisplayName("Public registration with INSTRUCTOR alias creates STUDENT and is accepted as valid vocabulary")
+    void shouldAcceptInstructorAliasOnRegistrationCreatingStudent() throws Exception {
         String registerJson = """
                 {
                     "fullName": "Instructor Alias User",
@@ -81,7 +81,7 @@ class RoleVocabularyTests extends PostgresIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(registerJson))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.role").value("TEACHER"))
+                .andExpect(jsonPath("$.user.role").value("STUDENT"))
                 .andExpect(jsonPath("$.token").isString());
 
         UserAccount registered = userAccountRepository.findByEmail("instructor.alias@learnsphere.com");
@@ -89,7 +89,7 @@ class RoleVocabularyTests extends PostgresIntegrationTest {
 
         List<UserRole> roles = userRoleRepository.findByUser_UserId(registered.getUserId());
         assertThat(roles).hasSize(1);
-        assertThat(roles.get(0).getRole().getName()).isEqualTo("TEACHER");
+        assertThat(roles.get(0).getRole().getName()).isEqualTo("STUDENT");
     }
 
     @Test

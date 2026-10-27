@@ -4,13 +4,19 @@ import com.MOOC.OnlineLearningPlatfrom.Dto.AffiliationRequestResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.CollegeResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.AffiliationRequest;
 import com.MOOC.OnlineLearningPlatfrom.Entity.College;
+import com.MOOC.OnlineLearningPlatfrom.Entity.Role;
+import com.MOOC.OnlineLearningPlatfrom.Entity.RoleVocabulary;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserAccount;
+import com.MOOC.OnlineLearningPlatfrom.Entity.UserRole;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.AffiliationRequestRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CollegeRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.RoleRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserRoleRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.AdminService;
+import com.MOOC.OnlineLearningPlatfrom.Service.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,15 +29,24 @@ public class AdminServiceImpl implements AdminService {
     private final UserRoleRepository userRoleRepository;
     private final AffiliationRequestRepository affiliationRequestRepository;
     private final CourseRepository courseRepository;
+    private final RoleRepository roleRepository;
+    private final UserAccountRepository userAccountRepository;
+    private final AuditService auditService;
 
     public AdminServiceImpl(CollegeRepository collegeRepository,
                              UserRoleRepository userRoleRepository,
                              AffiliationRequestRepository affiliationRequestRepository,
-                             CourseRepository courseRepository) {
+                             CourseRepository courseRepository,
+                             RoleRepository roleRepository,
+                             UserAccountRepository userAccountRepository,
+                             AuditService auditService) {
         this.collegeRepository = collegeRepository;
         this.userRoleRepository = userRoleRepository;
         this.affiliationRequestRepository = affiliationRequestRepository;
         this.courseRepository = courseRepository;
+        this.roleRepository = roleRepository;
+        this.userAccountRepository = userAccountRepository;
+        this.auditService = auditService;
     }
 
     @Override
@@ -79,6 +94,23 @@ public class AdminServiceImpl implements AdminService {
         request.setStatus(AffiliationRequest.Status.APPROVED);
         UserAccount teacher = request.getTeacher();
         teacher.setCollege(request.getClaimedCollege());
+        userAccountRepository.save(teacher);
+
+        Role teacherRole = roleRepository.findByName(RoleVocabulary.TEACHER);
+        if (teacherRole != null && userRoleRepository.findByUser_UserIdAndRole_RoleId(teacher.getUserId(), teacherRole.getRoleId()).isEmpty()) {
+            UserRole userRole = new UserRole();
+            userRole.setUser(teacher);
+            userRole.setRole(teacherRole);
+            userRoleRepository.save(userRole);
+            auditService.record(
+                    AuditService.USER_ROLE_ASSIGNED,
+                    AuditService.RESOURCE_USER,
+                    teacher.getUserId(),
+                    AuditService.snapshot("role", "STUDENT"),
+                    AuditService.snapshot("role", "TEACHER", "affiliationRequestId", requestId)
+            );
+        }
+
         affiliationRequestRepository.save(request);
     }
 

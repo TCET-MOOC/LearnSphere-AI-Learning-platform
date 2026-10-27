@@ -19,8 +19,7 @@ public class AuthDtos {
         @Size(min = 8, max = 16, message = "Password must be 8-16 characters long")
         @Pattern(regexp = PASSWORD_REGEX, message = PASSWORD_ERROR_MSG)
         private String password;
-        @NotBlank
-        private String role; // STUDENT | TEACHER | ADMIN
+        private String role; // STUDENT | TEACHER | ADMIN (optional, public registration creates STUDENT)
         private Long collegeId;
         private Long departmentId;
 
