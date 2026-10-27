@@ -28,8 +28,10 @@ public class AuditService {
     public static final String USER_STATUS_CHANGED = "USER_STATUS_CHANGED";
     public static final String USER_ROLE_ASSIGNED = "USER_ROLE_ASSIGNED";
     public static final String USER_ROLE_REVOKED = "USER_ROLE_REVOKED";
+    public static final String COURSE_STATUS_CHANGED = "COURSE_STATUS_CHANGED";
 
     public static final String RESOURCE_USER = "USER";
+    public static final String RESOURCE_COURSE = "COURSE";
 
     private final AuditLogRepository auditLogRepository;
 

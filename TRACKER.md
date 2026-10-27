@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` complete and verified).** Wave 1 (Identity, session and authorization) is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK, Flyway V4 backfill from string labels, required department validation on course creation/update, `departmentId` in DTO, and public `GET /api/departments/{id}/courses` returning LIVE courses. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-02 Course state machine + isPublished projection` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` and `W2-02` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine (`DRAFT/PENDING/LIVE/ARCHIVED`), `isPublished` projection, admin-only approval, `audit_log` recording, and public catalog draft filtering. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-03 Course archive/soft delete + restore` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -300,7 +300,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 
 ### Wave 2 — Curriculum and authoring
 - [x] W2-01 Department FK + backfill
-- [~] W2-02 Course state machine + isPublished projection
+- [x] W2-02 Course state machine + isPublished projection
 - [ ] W2-03 Course archive/soft delete + restore
 
 **W2-01 evidence (2026-10-27) — Department FK + backfill:**
@@ -311,6 +311,14 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Public endpoint `GET /api/departments/{id}/courses` returns LIVE courses in that department as `List<CourseResponseDto>`, returning 404 Not Found for non-existent department.
 - Red: `CourseDepartmentFkTests` failed 5/7 (creation without department returned 200 instead of 400; non-existent department returned 200 instead of 404; GET courses by non-existent department returned 401 instead of 404; Course entity did not expose `departmentId`).
 - Green: `CourseDepartmentFkTests` passed 7/7. Full backend suite `.\mvnw.cmd test` -> `Tests run: 107, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet; Production build -> exit code 0 (`BUILD_EXIT=0`).
+
+**W2-02 evidence (2026-10-27) — Course state machine + isPublished projection:**
+- Contract: Course state machine `Course.Status` is canonical (`DRAFT`, `PENDING`, `LIVE`, `ARCHIVED`). Course creation (`POST /api/courses` and `POST /api/teacher/courses`) unconditionally enforces initial status `DRAFT`. `CourseResponseDto` projects `isPublished = (course.getStatus() == Course.Status.LIVE)`.
+- Teacher transitions: teachers can transition `DRAFT -> PENDING` (submit for review) and `PENDING -> DRAFT` (withdraw submission). Teachers attempting to set status to `LIVE` (or `isPublished = true`) are rejected with `403 FORBIDDEN` (code `FORBIDDEN` in problem+json), enforcing admin approval only (A-04).
+- Admin moderation: `PUT /api/admin/courses/{id}/status` is locked to `hasRole('ADMIN')`. Admin can approve `PENDING -> LIVE` or change status, validating enum values (invalid or blank status returns 400 Bad Request). Every admin status change writes an immutable audit record to `audit_log` with action `COURSE_STATUS_CHANGED`, resourceType `COURSE`, resourceId, and before/after status JSON snapshots.
+- Catalog filtering & draft hiding: `GET /api/courses` (public catalog) by default returns only `LIVE` courses, strictly excluding `DRAFT` and `PENDING` courses. Non-admin users cannot query non-LIVE courses via `/api/courses`. `GET /api/courses/{id}` returns `404 NOT_FOUND` for non-LIVE courses unless requested by course staff (owner teacher) or an admin, preventing draft existence discovery per IDOR rules.
+- Red: `CourseStateMachineTests` failed 7/9 (missing `isPublished` on DTO; teacher setting `LIVE` allowed with 200 instead of 403; public catalog returned drafts and pending courses; public GET `/api/courses/{id}` returned draft with 200 instead of 404).
+- Green: `CourseStateMachineTests` passed 9/9. Full backend suite `.\mvnw.cmd test` -> `Tests run: 116, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
 - [~] W2-04 Module/content ordering + delete renormalisation
 - [~] W2-05 Lecture → CourseContent migration
 - [~] W2-06 Assignment validation (create and update)

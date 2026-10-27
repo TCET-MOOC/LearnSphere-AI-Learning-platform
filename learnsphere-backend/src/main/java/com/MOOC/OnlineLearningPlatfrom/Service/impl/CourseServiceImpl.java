@@ -48,29 +48,59 @@ public class CourseServiceImpl implements CourseService {
         return getCourses(status, department, teacherId, null);
     }
 
+    private boolean isCurrentCallerAdmin() {
+        org.springframework.security.core.Authentication auth = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails cud) {
+            return cud.getRoles() != null && 
+                    (cud.getRoles().contains("ADMIN") || cud.getRoles().contains("ROLE_ADMIN"));
+        }
+        return false;
+    }
+
     @Override
     public List<CourseResponseDto> getCourses(String status, String department, Long teacherId, String search) {
         List<Course> courses;
+        boolean isAdmin = isCurrentCallerAdmin();
+
         if (teacherId != null) {
             courses = courseRepository.findByTeacher_UserId(teacherId);
         } else if (status != null && department != null) {
             Long deptId = tryParseLong(department);
+            Course.Status parsedStatus;
+            try {
+                parsedStatus = Course.Status.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return List.of();
+            }
+            if (parsedStatus != Course.Status.LIVE && !isAdmin) {
+                return List.of();
+            }
             if (deptId != null) {
-                courses = courseRepository.findByStatusAndDepartment_DepartmentId(Course.Status.valueOf(status.toUpperCase()), deptId);
+                courses = courseRepository.findByStatusAndDepartment_DepartmentId(parsedStatus, deptId);
             } else {
-                courses = courseRepository.findByStatusAndDepartmentLabel(Course.Status.valueOf(status.toUpperCase()), department);
+                courses = courseRepository.findByStatusAndDepartmentLabel(parsedStatus, department);
             }
         } else if (status != null) {
-            courses = courseRepository.findByStatus(Course.Status.valueOf(status.toUpperCase()));
+            Course.Status parsedStatus;
+            try {
+                parsedStatus = Course.Status.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return List.of();
+            }
+            if (parsedStatus != Course.Status.LIVE && !isAdmin) {
+                return List.of();
+            }
+            courses = courseRepository.findByStatus(parsedStatus);
         } else if (department != null) {
             Long deptId = tryParseLong(department);
             if (deptId != null) {
-                courses = courseRepository.findByDepartment_DepartmentId(deptId);
+                courses = courseRepository.findByStatusAndDepartment_DepartmentId(Course.Status.LIVE, deptId);
             } else {
-                courses = courseRepository.findByDepartmentLabel(department);
+                courses = courseRepository.findByStatusAndDepartmentLabel(Course.Status.LIVE, department);
             }
         } else {
-            courses = courseRepository.findAll();
+            courses = courseRepository.findByStatus(Course.Status.LIVE);
         }
         if (search != null && !search.isBlank()) {
             String[] tokens = search.toLowerCase().trim().split("\\s+");
@@ -101,6 +131,21 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponseDto getCourseById(Long id) {
         Course course = getCourseEntity(id);
+        if (course.getStatus() != Course.Status.LIVE) {
+            boolean isStaffOrAdmin = false;
+            org.springframework.security.core.Authentication auth = 
+                    org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof CustomUserDetails cud) {
+                boolean isAdmin = cud.getRoles() != null && 
+                        (cud.getRoles().contains("ADMIN") || cud.getRoles().contains("ROLE_ADMIN"));
+                boolean isOwner = course.getTeacher() != null && cud.getUser() != null &&
+                        course.getTeacher().getUserId() != null && course.getTeacher().getUserId().equals(cud.getUser().getUserId());
+                isStaffOrAdmin = isAdmin || isOwner;
+            }
+            if (!isStaffOrAdmin) {
+                throw new ResourceNotFoundException("Course not found with id: " + id);
+            }
+        }
         return CourseResponseDto.from(course, lectureRepository.countByCourse_Id(id));
     }
 
@@ -159,7 +204,14 @@ public class CourseServiceImpl implements CourseService {
 
         if (updates.getThumbnail() != null) course.setThumbnail(updates.getThumbnail());
         if (updates.getPrice() != null) course.setPrice(updates.getPrice());
-        if (updates.getStatus() != null) course.setStatus(updates.getStatus());
+        if (updates.getStatus() != null) {
+            boolean isAdmin = principal != null && principal.getRoles() != null &&
+                    (principal.getRoles().contains("ADMIN") || principal.getRoles().contains("ROLE_ADMIN"));
+            if (updates.getStatus() == Course.Status.LIVE && !isAdmin) {
+                throw new org.springframework.security.access.AccessDeniedException("Course publication requires administrator approval");
+            }
+            course.setStatus(updates.getStatus());
+        }
 
         Course saved = courseRepository.save(course);
         return CourseResponseDto.from(saved, lectureRepository.countByCourse_Id(id));

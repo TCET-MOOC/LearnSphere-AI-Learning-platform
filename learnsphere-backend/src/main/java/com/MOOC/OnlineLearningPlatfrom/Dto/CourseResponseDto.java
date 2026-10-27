@@ -15,6 +15,7 @@ public class CourseResponseDto {
     private String department;
     private String thumbnail;
     private String status;
+    private Boolean isPublished;
     private BigDecimal price;
     private LocalDateTime createdAt;
     private long lectureCount;
@@ -39,6 +40,7 @@ public class CourseResponseDto {
         }
         dto.thumbnail = course.getThumbnail();
         dto.status = course.getStatus() != null ? course.getStatus().name() : null;
+        dto.isPublished = course.getStatus() == Course.Status.LIVE;
         dto.price = course.getPrice();
         dto.createdAt = course.getCreatedAt();
         dto.lectureCount = lectureCount;
@@ -68,6 +70,9 @@ public class CourseResponseDto {
     public void setDepartment(String department) { this.department = department; }
     public String getThumbnail() { return thumbnail; }
     public String getStatus() { return status; }
+    @com.fasterxml.jackson.annotation.JsonProperty("isPublished")
+    public Boolean getIsPublished() { return isPublished; }
+    public void setIsPublished(Boolean isPublished) { this.isPublished = isPublished; }
     public BigDecimal getPrice() { return price; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public long getLectureCount() { return lectureCount; }

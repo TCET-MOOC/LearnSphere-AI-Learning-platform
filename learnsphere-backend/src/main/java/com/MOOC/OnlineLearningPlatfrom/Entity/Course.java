@@ -125,7 +125,7 @@ public class Course {
     }
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.DRAFT;
+    private Status status;
 
     public Boolean getIsPublished() {
         return status == Status.LIVE;
@@ -134,8 +134,10 @@ public class Course {
     public void setIsPublished(Boolean isPublished) {
         if (Boolean.TRUE.equals(isPublished)) {
             this.status = Status.LIVE;
-        } else if (this.status == Status.LIVE) {
-            this.status = Status.DRAFT;
+        } else if (Boolean.FALSE.equals(isPublished)) {
+            if (this.status == Status.LIVE) {
+                this.status = Status.DRAFT;
+            }
         }
     }
 
@@ -161,6 +163,9 @@ public class Course {
     protected void onCreate() {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
+        }
+        if (this.status == null) {
+            this.status = Status.DRAFT;
         }
     }
 
