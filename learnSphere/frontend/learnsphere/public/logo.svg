@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 100" fill="none" width="100%" height="100%">
+  <defs>
+    <!-- Foundation Ribbon: Deep Royal Indigo to Electric Indigo -->
+    <linearGradient id="hGradFoundation_light" x1="15" y1="85" x2="65" y2="15" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3730A3"/>
+      <stop offset="45%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+
+    <!-- Orbital Ascent Ribbon: Electric Cyan to Luminous Amethyst -->
+    <linearGradient id="hGradOrbit_light" x1="85" y1="15" x2="35" y2="85" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="35%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+
+    <!-- AI Pill Gradient -->
+    <linearGradient id="hAiGrad_light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4338CA"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+
+    <filter id="hSparkGlow_light" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#38BDF8" flood-opacity="0.7"/>
+    </filter>
+  </defs>
+
+  <!-- ICON (Centered at x=50, y=50, scale=0.8) -->
+  <g transform="translate(10, 10) scale(0.6667)">
+    <!-- Lower Foundation Arc -->
+    <path d="M 28 32 C 16 45 12 62 16 78 C 21 95 35 107 52 108 C 68 109 84 100 92 86 L 76 76 C 71 85 61 90 50 90 C 38 89 28 80 25 68 C 22 58 25 47 32 38 Z"
+          fill="url(#hGradFoundation_light)"/>
+
+    <!-- Upper Orbital Arc -->
+    <path d="M 92 88 C 104 75 108 58 104 42 C 99 25 85 13 68 12 C 52 11 36 20 28 34 L 44 44 C 49 35 59 30 70 30 C 82 31 92 40 95 52 C 98 62 95 73 88 82 Z"
+          fill="url(#hGradOrbit_light)"/>
+
+    <!-- AI Intelligence Core Spark -->
+    <path d="M 60 38 C 60 50 50 60 38 60 C 50 60 60 70 60 82 C 60 70 70 60 82 60 C 70 60 60 50 60 38 Z"
+          fill="#FFFFFF"
+          filter="url(#hSparkGlow_light)"/>
+  </g>
+
+  <!-- TYPOGRAPHY: LearnSphere -->
+  <text x="106" y="62" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="38" font-weight="800" letter-spacing="-0.8" fill="#0F172A">Learn<tspan font-weight="500">Sphere</tspan></text>
+
+  <!-- AI BADGE -->
+  <g transform="translate(358, 33)">
+    <rect width="48" height="32" rx="8" fill="url(#hAiGrad_light)"/>
+    <text x="24" y="21.5" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="800" letter-spacing="0.8" fill="#FFFFFF" text-anchor="middle">AI</text>
+  </g>
+</svg>

@@ -75,6 +75,13 @@ public class CourseController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping({"/courses/{id}/restore", "/teacher/courses/{id}/restore"})
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    public ResponseEntity<CourseResponseDto> restoreCourse(@PathVariable Long id,
+                                                           @AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(courseService.restoreCourse(id, principal));
+    }
+
 
     @PostMapping("/teacher/courses/{id}/lectures")
     public ResponseEntity<LectureResponseDto> addLecture(@PathVariable Long id,

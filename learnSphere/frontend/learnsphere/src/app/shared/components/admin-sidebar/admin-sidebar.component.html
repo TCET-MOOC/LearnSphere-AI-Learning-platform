@@ -4,12 +4,12 @@
   <div class="sidebar__brand" tabindex="0" role="button" [attr.aria-label]="(isCollapsed$ | async) ? 'Expand sidebar' : 'Collapse sidebar'" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()">
     <div class="brand-content">
       <div class="logo-box">
-        <span class="logo-letters">LS</span>
+        <img src="/logo-mark.svg" alt="LearnSphere AI" class="logo-mark" />
         <div class="logo-overlay">
           <lucide-icon [name]="(isCollapsed$ | async) ? 'chevron-right' : 'chevron-down'" [size]="18"></lucide-icon>
         </div>
       </div>
-      <h2 class="logo-text">LearnSphere</h2>
+      <h2 class="logo-text">LearnSphere <span class="ai-badge">AI</span></h2>
     </div>
   </div>
 

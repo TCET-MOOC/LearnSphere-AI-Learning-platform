@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="favBgGrad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#070A12"/>
+    </linearGradient>
+    <linearGradient id="favGrad1" x1="20" y1="100" x2="80" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4338CA"/>
+      <stop offset="50%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="favGrad2" x1="100" y1="20" x2="40" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="40%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Container Squircle -->
+  <rect width="120" height="120" rx="28" fill="url(#favBgGrad)"/>
+  <rect x="0.75" y="0.75" width="118.5" height="118.5" rx="27.25" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+
+  <!-- Lower Foundation Arc -->
+  <path d="M 31 35 C 20 47 17 62 20 76 C 25 91 37 101 52 102 C 67 103 81 95 88 83 L 74 74 C 70 81 61 86 51 86 C 40 85 32 77 29 67 C 27 58 29 48 35 41 Z"
+        fill="url(#favGrad1)"/>
+
+  <!-- Upper Orbital Arc -->
+  <path d="M 89 85 C 100 73 103 58 100 44 C 95 29 83 19 68 18 C 53 17 39 25 32 37 L 46 46 C 50 39 59 34 69 34 C 80 35 88 43 91 53 C 93 62 91 72 85 79 Z"
+        fill="url(#favGrad2)"/>
+
+  <!-- AI Intelligence Core Spark -->
+  <path d="M 60 40 C 60 50 51 59 40 60 C 51 61 60 70 60 80 C 60 70 69 61 80 60 C 69 59 60 50 60 40 Z"
+        fill="#FFFFFF"/>
+</svg>

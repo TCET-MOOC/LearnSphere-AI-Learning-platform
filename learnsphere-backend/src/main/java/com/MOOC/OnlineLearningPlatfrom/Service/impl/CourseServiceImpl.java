@@ -223,43 +223,23 @@ public class CourseServiceImpl implements CourseService {
         Course course = getCourseEntity(id);
         assertOwner(course, principal);
 
-        // 1. Clear note_tags and notes
-        jdbcTemplate.update("DELETE FROM note_tags WHERE note_id IN (SELECT id FROM notes WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?))", id, id);
-        jdbcTemplate.update("DELETE FROM notes WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id, id);
+        course.setStatus(Course.Status.ARCHIVED);
+        courseRepository.save(course);
+    }
 
-        // 2. Clear bookmarks (only has lecture_id)
-        jdbcTemplate.update("DELETE FROM bookmarks WHERE lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id);
+    @Override
+    @Transactional
+    public CourseResponseDto restoreCourse(Long id, CustomUserDetails principal) {
+        Course course = getCourseEntity(id);
+        assertOwner(course, principal);
 
-        // 3. Clear self-referential foreign keys in discussion_posts (parent_post_id), then delete discussion_posts
-        jdbcTemplate.update("UPDATE discussion_posts SET parent_post_id = NULL WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id, id);
-        jdbcTemplate.update("DELETE FROM discussion_posts WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id, id);
+        if (course.getStatus() != Course.Status.ARCHIVED) {
+            throw new com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException("Course is not archived");
+        }
 
-        // 4. Clear messages in conversations linked to this course, then conversations
-        jdbcTemplate.update("DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE course_id = ?)", id);
-        jdbcTemplate.update("DELETE FROM conversations WHERE course_id = ?", id);
-
-        // 5. Clear quizzes: student_answers -> test_attempts -> question_options -> questions -> tests
-        jdbcTemplate.update("DELETE FROM student_answers WHERE attempt_id IN (SELECT attempt_id FROM test_attempts WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?))) OR question_id IN (SELECT question_id FROM questions WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)))", id, id, id, id);
-        jdbcTemplate.update("DELETE FROM test_attempts WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?))", id, id);
-        jdbcTemplate.update("DELETE FROM question_options WHERE question_id IN (SELECT question_id FROM questions WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)))", id, id);
-        jdbcTemplate.update("DELETE FROM questions WHERE test_id IN (SELECT test_id FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?))", id, id);
-        jdbcTemplate.update("DELETE FROM tests WHERE course_id = ? OR lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id, id);
-
-        // 6. Clear user progress (only has lecture_id)
-        jdbcTemplate.update("DELETE FROM user_progress WHERE lecture_id IN (SELECT id FROM lectures WHERE course_id = ?)", id);
-
-        // 7. Clear certificates, royalties, payments, live_sessions, enrollments
-        jdbcTemplate.update("DELETE FROM certificates WHERE course_id = ?", id);
-        jdbcTemplate.update("DELETE FROM royalties WHERE course_id = ?", id);
-        jdbcTemplate.update("DELETE FROM payments WHERE course_id = ?", id);
-        jdbcTemplate.update("DELETE FROM live_sessions WHERE course_id = ?", id);
-        jdbcTemplate.update("DELETE FROM enrollments WHERE course_id = ?", id);
-
-        // 8. Delete lectures
-        jdbcTemplate.update("DELETE FROM lectures WHERE course_id = ?", id);
-
-        // 9. Finally delete the course
-        jdbcTemplate.update("DELETE FROM courses WHERE id = ?", id);
+        course.setStatus(Course.Status.DRAFT);
+        Course saved = courseRepository.save(course);
+        return CourseResponseDto.from(saved, lectureRepository.countByCourse_Id(id));
     }
 
     @Override

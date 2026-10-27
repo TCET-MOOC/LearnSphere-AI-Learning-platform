@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` and `W2-02` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine (`DRAFT/PENDING/LIVE/ARCHIVED`), `isPublished` projection, admin-only approval, `audit_log` recording, and public catalog draft filtering. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-03 Course archive/soft delete + restore` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced the hand-written hard cascade with soft-delete archiving (`DELETE /api/courses/{id}`) and restore (`POST /api/courses/{id}/restore`). |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-04 Module/content ordering + delete renormalisation` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -301,7 +301,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 ### Wave 2 — Curriculum and authoring
 - [x] W2-01 Department FK + backfill
 - [x] W2-02 Course state machine + isPublished projection
-- [ ] W2-03 Course archive/soft delete + restore
+- [x] W2-03 Course archive/soft delete + restore
 
 **W2-01 evidence (2026-10-27) — Department FK + backfill:**
 - Contract: `courses.department_id` is an FK to `department(department_id)` with `ON DELETE RESTRICT` and index `idx_courses_department_id`. Flyway migration `V4__course_department_fk.sql` backfills missing departments from legacy string labels, resolves any NULLs to the default department ("General"), and establishes the foreign key constraint.
@@ -319,6 +319,14 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Catalog filtering & draft hiding: `GET /api/courses` (public catalog) by default returns only `LIVE` courses, strictly excluding `DRAFT` and `PENDING` courses. Non-admin users cannot query non-LIVE courses via `/api/courses`. `GET /api/courses/{id}` returns `404 NOT_FOUND` for non-LIVE courses unless requested by course staff (owner teacher) or an admin, preventing draft existence discovery per IDOR rules.
 - Red: `CourseStateMachineTests` failed 7/9 (missing `isPublished` on DTO; teacher setting `LIVE` allowed with 200 instead of 403; public catalog returned drafts and pending courses; public GET `/api/courses/{id}` returned draft with 200 instead of 404).
 - Green: `CourseStateMachineTests` passed 9/9. Full backend suite `.\mvnw.cmd test` -> `Tests run: 116, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
+
+**W2-03 evidence (2026-10-27) — Course archive/soft delete + restore:**
+- Contract: Replaced the destructive hand-written JDBC hard cascade in `deleteCourse` with soft-delete archiving (`status = ARCHIVED`). All historical records—modules, lectures, content, notes, bookmarks, discussions, enrollments, payments, royalties, and certificates—are completely preserved.
+- Restoring a course (`POST /api/courses/{id}/restore` and `POST /api/teacher/courses/{id}/restore`): transitions status from `ARCHIVED` to `DRAFT`. Restoring an active (non-archived) course returns `400 BAD_REQUEST` ("Course is not archived").
+- IDOR security: foreign teachers attempting to delete or restore a course receive `404 NOT_FOUND`. Admins can archive and restore any course.
+- Visibility: archived courses are excluded from public catalog (`GET /api/courses`) and return `404 NOT_FOUND` on detail read (`GET /api/courses/{id}`) for public and students (course staff and admins bypass).
+- Red: `CourseArchiveSoftDeleteTests` failed 5/7 (deletion previously caused foreign key conflict on hard cascade or failed to archive; restore endpoints returned 404).
+- Green: `CourseArchiveSoftDeleteTests` passed 7/7. Full backend suite `.\mvnw.cmd test` -> `Tests run: 123, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
 - [~] W2-04 Module/content ordering + delete renormalisation
 - [~] W2-05 Lecture → CourseContent migration
 - [~] W2-06 Assignment validation (create and update)

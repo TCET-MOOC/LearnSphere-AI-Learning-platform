@@ -19,6 +19,7 @@ public interface CourseService {
     CourseResponseDto createCourse(Course course, CustomUserDetails principal);
     CourseResponseDto updateCourse(Long id, Course updates, CustomUserDetails principal);
     void deleteCourse(Long id, CustomUserDetails principal);
+    CourseResponseDto restoreCourse(Long id, CustomUserDetails principal);
 
     List<LectureResponseDto> getLectures(Long courseId);
     LectureResponseDto getLectureById(Long lectureId);
