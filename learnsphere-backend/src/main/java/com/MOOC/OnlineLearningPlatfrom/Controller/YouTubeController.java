@@ -1,14 +1,14 @@
 package com.MOOC.OnlineLearningPlatfrom.Controller;
 
+import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.YouTubeService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping({"/api/teacher/youtube", "/api/youtube"})
 public class YouTubeController {
-
-    public record PlaylistImportRequest(String playlistUrl) {}
 
     private final YouTubeService youtubeService;
 
@@ -17,8 +17,11 @@ public class YouTubeController {
     }
 
     @PostMapping("/import-playlist")
-    public ResponseEntity<YouTubeService.PlaylistImportResponse> importPlaylist(@RequestBody PlaylistImportRequest request) {
-        YouTubeService.PlaylistImportResponse response = youtubeService.importPlaylist(request.playlistUrl());
+    public ResponseEntity<YouTubeService.PlaylistImportResponse> importPlaylist(
+            @RequestBody YouTubeService.PlaylistImportRequest request,
+            @AuthenticationPrincipal CustomUserDetails principal
+    ) {
+        YouTubeService.PlaylistImportResponse response = youtubeService.importPlaylist(request, principal);
         return ResponseEntity.ok(response);
     }
 

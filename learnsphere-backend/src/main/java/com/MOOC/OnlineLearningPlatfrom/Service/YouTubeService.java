@@ -1,8 +1,27 @@
 package com.MOOC.OnlineLearningPlatfrom.Service;
 
+import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
+
+import java.util.Collections;
 import java.util.List;
 
 public interface YouTubeService {
+
+    record PlaylistImportRequest(
+            String playlistUrl,
+            Long courseId,
+            Long moduleId
+    ) {}
+
+    record ImportedContentDto(
+            Long contentId,
+            Long moduleId,
+            String title,
+            String contentType,
+            String filePath,
+            Integer durationSeconds,
+            Integer position
+    ) {}
 
     record YouTubeLectureItem(
             String videoId,
@@ -19,8 +38,19 @@ public interface YouTubeService {
             String playlistTitle,
             String channelTitle,
             List<YouTubeLectureItem> lectures,
-            int totalLectures
-    ) {}
+            int totalLectures,
+            List<ImportedContentDto> importedContents
+    ) {
+        public PlaylistImportResponse(
+                String playlistId,
+                String playlistTitle,
+                String channelTitle,
+                List<YouTubeLectureItem> lectures,
+                int totalLectures
+        ) {
+            this(playlistId, playlistTitle, channelTitle, lectures, totalLectures, Collections.emptyList());
+        }
+    }
 
     record TranscriptResponse(
             String videoId,
@@ -34,7 +64,12 @@ public interface YouTubeService {
     PlaylistImportResponse importPlaylist(String playlistUrlOrId);
 
     /**
-     * Retrieves video transcript/captions to feed into AI Question Extractor.
+     * Imports playlist or video, optionally creating canonical Module and CourseContent under courseId.
+     */
+    PlaylistImportResponse importPlaylist(PlaylistImportRequest request, CustomUserDetails principal);
+
+    /**
+     * Retrieves video transcript/captions to feed into AI Question Extractor, backed by in-memory cache.
      */
     TranscriptResponse getTranscript(String videoId);
 }

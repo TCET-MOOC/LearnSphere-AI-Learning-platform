@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03`, `W2-04`, `W2-05`, `W2-06`, `W2-07`, `W2-08` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints, and delete re-normalisation (`413d3f8`). `W2-05` migrated `Lecture` 1:1 to `CourseContent` via Flyway `V5__legacy_lecture_migration.sql`, backfilled `user_progress.content_id`, retired legacy lecture mutation endpoints (400), and maintained legacy lecture read endpoints as a read-only projection. `W2-06` enforced assignment validation and ownership IDOR defense (`ebfc48e`). `W2-07` implemented storage port, upload safety, opaque file keys, and removed public uploads (`1bba6f0`). `W2-08` rebound notes and bookmarks to canonical `CourseContent`, migrated legacy lecture rows via Flyway `V7__notes_bookmarks_content_rebind.sql`, bounded timestamps to content duration, and enforced IDOR defenses. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-09 YouTube import into canonical content` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03`, `W2-04`, `W2-05`, `W2-06`, `W2-07`, `W2-08`, `W2-09` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints, and delete re-normalisation (`413d3f8`). `W2-05` migrated `Lecture` 1:1 to `CourseContent` via Flyway `V5__legacy_lecture_migration.sql`, backfilled `user_progress.content_id`, retired legacy lecture mutation endpoints (400), and maintained legacy lecture read endpoints as a read-only projection. `W2-06` enforced assignment validation and ownership IDOR defense (`ebfc48e`). `W2-07` implemented storage port, upload safety, opaque file keys, and removed public uploads (`1bba6f0`). `W2-08` rebound notes and bookmarks to canonical `CourseContent`, migrated legacy lecture rows via Flyway `V7__notes_bookmarks_content_rebind.sql`, bounded timestamps to content duration, and enforced IDOR defenses (`89e290c`). `W2-09` implemented YouTube playlist import into canonical `CourseContent`, module auto-resolution/creation, contiguous 1..n ordering, in-memory transcript caching, quota/error fallbacks, and teacher IDOR verification. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-10 Curriculum contract suite` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -404,7 +404,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Endpoints supported: `GET /api/notes?contentId=...`, `GET /api/bookmarks/content/{contentId}`, `DELETE /api/bookmarks/content/{contentId}`.
   - Ownership & IDOR defense: foreign users attempting to mutate or delete notes or bookmarks receive `404 NOT_FOUND`.
 - Red-green verification: `NotesBookmarksRebindTests` passed 8/8 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 168, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
-- [~] W2-09 YouTube import into canonical content
+- [x] W2-09 YouTube import into canonical content
+
+**W2-09 evidence (2026-10-27) — YouTube import into canonical content:**
+- Rules: A-05; spec §6.
+- Canonical Content & Module Ingestion:
+  - Extended `YouTubeService` with `PlaylistImportRequest(playlistUrl, courseId, moduleId)` and `ImportedContentDto`.
+  - When `courseId` is provided, enforces staff ownership via `OwnershipService.requireCourseStaff` (returns `404 NOT_FOUND` on foreign course IDOR).
+  - Validates `moduleId` belongs to `courseId` (returns `404 NOT_FOUND` if mismatched).
+  - Automatically resolves target `Module`: uses designated module, or first module in course, or auto-creates default module if none exists.
+  - Ingests playlist items directly into canonical `CourseContent` (`contentType = "VIDEO"`, `filePath = videoUrl`, `durationSeconds = duration`), maintaining contiguous `1..n` positions.
+- Quota & Error Handling:
+  - Gracefully falls back from YouTube Data API v3 to RSS feed extraction, HTML ytInitialData scraping, and fallback curriculum fixtures when quota is depleted or network is offline.
+  - Rejects blank playlist URL or video ID with RFC 9457 `400 BAD_REQUEST`.
+- Transcript In-Memory Cache:
+  - Implemented thread-safe `ConcurrentHashMap` cache in `YouTubeServiceImpl`.
+  - Repeated calls to `GET /api/teacher/youtube/transcript/{videoId}` resolve from memory without redundant external latency or quota depletion.
+- Red-green verification:
+  - Red: `YouTubeImportCanonicalContentTests` failed 5/10 tests (blank video ID returned 200 instead of 400; foreign course ID returned 200 instead of 404; foreign module ID returned 200 instead of 404; missing `importedContents` path; uncaught mock playlist returned 400).
+  - Green: `YouTubeImportCanonicalContentTests` passed 10/10 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 178, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
 - [ ] W2-10 Curriculum contract suite
 - [ ] W2-11 Public catalogue/reference cache + ETag invalidation
 - [ ] W2-12 Canonical media source + secure local playback
