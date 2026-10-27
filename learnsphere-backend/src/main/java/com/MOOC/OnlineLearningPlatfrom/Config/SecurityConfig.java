@@ -91,7 +91,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**", "/ws-native/**").permitAll()
                         .requestMatchers("/internal/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/colleges").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/courses", "/api/courses/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/certificates/verify/**").permitAll()
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

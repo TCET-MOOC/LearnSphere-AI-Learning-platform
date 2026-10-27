@@ -6,6 +6,7 @@ import com.MOOC.OnlineLearningPlatfrom.Service.AuthService;
 import com.MOOC.OnlineLearningPlatfrom.Service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ public class AuthController {
         ResponseCookie cookie = refreshTokenService.buildRefreshCookie(response.getRefreshToken(),
                 httpRequest != null && httpRequest.isSecure());
         return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(response);
     }
@@ -45,6 +47,7 @@ public class AuthController {
         ResponseCookie cookie = refreshTokenService.buildRefreshCookie(response.getRefreshToken(),
                 httpRequest != null && httpRequest.isSecure());
         return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(response);
     }
@@ -68,6 +71,7 @@ public class AuthController {
         ResponseCookie cookie = refreshTokenService.buildRefreshCookie(response.getRefreshToken(),
                 httpRequest != null && httpRequest.isSecure());
         return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(response);
     }
@@ -85,13 +89,16 @@ public class AuthController {
         }
         ResponseCookie cookie = refreshTokenService.buildCleanRefreshCookie(httpRequest != null && httpRequest.isSecure());
         return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(Map.of("message", "Logged out successfully"));
     }
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> me(@AuthenticationPrincipal CustomUserDetails principal) {
-        return ResponseEntity.ok(authService.currentUser(principal.getUsername()));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(authService.currentUser(principal.getUsername()));
     }
 
 
@@ -105,18 +112,24 @@ public class AuthController {
         if (resetToken != null) {
             body.put("resetToken", resetToken);
         }
-        return ResponseEntity.ok(body);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(body);
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);
-        return ResponseEntity.ok(Map.of("message", "Password has been reset successfully."));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(Map.of("message", "Password has been reset successfully."));
     }
 
     @PostMapping("/verify-college")
     public ResponseEntity<UserResponseDto> verifyCollege(@AuthenticationPrincipal CustomUserDetails principal,
                                                            @RequestBody VerifyCollegeRequest request) {
-        return ResponseEntity.ok(authService.verifyCollege(principal.getUsername(), request));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(authService.verifyCollege(principal.getUsername(), request));
     }
 }

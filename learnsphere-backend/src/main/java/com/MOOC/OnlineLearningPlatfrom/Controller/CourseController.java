@@ -7,6 +7,7 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Lecture;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.CourseService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,17 +47,20 @@ public class CourseController {
     // --- Teacher-only course management ---
 
     @GetMapping("/teacher/courses")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<List<CourseResponseDto>> getMyCourses(@AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(courseService.getCourses(null, null, principal.getUser().getUserId()));
     }
 
     @PostMapping({"/courses", "/teacher/courses"})
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<CourseResponseDto> createCourse(@RequestBody Course course,
                                                             @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(courseService.createCourse(course, principal));
     }
 
     @PutMapping({"/courses/{id}", "/teacher/courses/{id}"})
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<CourseResponseDto> updateCourse(@PathVariable Long id,
                                                             @RequestBody Course course,
                                                             @AuthenticationPrincipal CustomUserDetails principal) {
@@ -64,6 +68,7 @@ public class CourseController {
     }
 
     @DeleteMapping({"/courses/{id}", "/teacher/courses/{id}"})
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id,
                                               @AuthenticationPrincipal CustomUserDetails principal) {
         courseService.deleteCourse(id, principal);
