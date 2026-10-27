@@ -1,35 +1,35 @@
 import { Injectable } from '@angular/core';
 import { User } from '@core/models/user.model';
-
-const TOKEN_KEY = 'ls_token';
-const USER_KEY = 'ls_user';
+import { AuthStore } from '@core/auth/auth.store';
 
 /**
- * StorageService wraps localStorage access for the JWT and current user snapshot.
+ * StorageService legacy compatibility wrapper.
+ * Under AUD-15 (W1-06), access tokens and user snapshots are strictly held in-memory
+ * inside AuthStore. Nothing is persisted to localStorage.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
+  constructor(private authStore: AuthStore) {}
+
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.authStore.accessToken;
   }
 
   setToken(token: string): void {
-    localStorage.setItem(TOKEN_KEY, token);
+    this.authStore.setAccessToken(token);
   }
 
   getUser(): User | null {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? (JSON.parse(raw) as User) : null;
+    return this.authStore.currentUser;
   }
 
   setUser(user: User): void {
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.authStore.setUser(user);
   }
 
   clear(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    this.authStore.clearSession();
   }
 }

@@ -1,21 +1,20 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { StorageService } from '@core/services/storage.service';
+import { AuthStore } from './auth.store';
 
 /**
- * Attaches the JWT (if present) as a Bearer token to every outgoing request.
+ * Attaches the in-memory JWT (if present) as a Bearer token and
+ * ensures withCredentials: true so the browser sends and receives
+ * the HttpOnly refresh token cookie on API requests (AUD-15 / W1-06).
  */
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
-  const storageService = inject(StorageService);
-  const token = storageService.getToken();
+  const authStore = inject(AuthStore);
+  const token = authStore.accessToken;
 
-  if (!token) {
-    return next(req);
-  }
+  const authReq = req.clone({
+    withCredentials: true,
+    ...(token ? { setHeaders: { Authorization: `Bearer ${token}` } } : {})
+  });
 
-  return next(
-    req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` }
-    })
-  );
+  return next(authReq);
 };

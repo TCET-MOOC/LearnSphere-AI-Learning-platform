@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Observable, catchError, finalize, of, tap } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
-import { StorageService } from '@core/services/storage.service';
+import { AuthStore } from './auth.store';
 import { User, UserRole } from '@core/models/user.model';
 import {
   AuthResponse,
@@ -13,59 +13,61 @@ import {
 } from './auth.models';
 
 /**
- * AuthService owns the authenticated session: login/register against the backend,
- * persisting the JWT + user snapshot, and exposing the current user as an observable
- * so guards/components can react to auth state changes.
+ * AuthService owns the authenticated session: login/register/refresh/logout against the backend,
+ * maintaining the JWT in memory via AuthStore (AUD-15 / W1-06), and exposing reactive auth state.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject: BehaviorSubject<User | null>;
-  currentUser$: Observable<User | null>;
+  readonly currentUser$: Observable<User | null>;
 
-  constructor(private apiService: ApiService, private storageService: StorageService) {
-    this.currentUserSubject = new BehaviorSubject<User | null>(this.storageService.getUser());
-    this.currentUser$ = this.currentUserSubject.asObservable();
+  constructor(
+    private apiService: ApiService,
+    private authStore: AuthStore
+  ) {
+    this.currentUser$ = this.authStore.currentUser$;
   }
 
   get currentUser(): User | null {
-    return this.currentUserSubject.value;
+    return this.authStore.currentUser;
   }
 
   get isAuthenticated(): boolean {
-    return !!this.storageService.getToken();
+    return this.authStore.isAuthenticated;
+  }
+
+  getAccessToken(): string | null {
+    return this.authStore.accessToken;
   }
 
   login(request: LoginRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/login', request).pipe(
-      tap((res) => this.persistSession(res))
+    return this.apiService.post<AuthResponse>('/auth/login', request, { withCredentials: true }).pipe(
+      tap((res) => this.authStore.setSession(res.token, res.user))
     );
   }
 
   register(request: RegisterRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/register', request).pipe(
-      tap((res) => this.persistSession(res))
+    return this.apiService.post<AuthResponse>('/auth/register', request, { withCredentials: true }).pipe(
+      tap((res) => this.authStore.setSession(res.token, res.user))
+    );
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    return this.apiService.post<AuthResponse>('/auth/refresh', {}, { withCredentials: true }).pipe(
+      tap((res) => this.authStore.setSession(res.token, res.user))
     );
   }
 
   fetchCurrentUser(): Observable<User> {
-    // Spec §2: GET /api/users/me — returns the authenticated user's own profile.
     return this.apiService.get<User>('/users/me').pipe(
-      tap((user) => {
-        this.storageService.setUser(user);
-        this.currentUserSubject.next(user);
-      })
+      tap((user) => this.authStore.setUser(user))
     );
   }
 
   updateProfile(patch: Partial<Pick<User, 'fullName' | 'bio' | 'avatarUrl'>>): Observable<User> {
-    // Spec §2: PUT /api/users/me — updates the authenticated user's own profile.
     return this.apiService.put<User>('/users/me', patch).pipe(
-      tap((user) => {
-        this.storageService.setUser(user);
-        this.currentUserSubject.next(user);
-      })
+      tap((user) => this.authStore.setUser(user))
     );
   }
 
@@ -79,16 +81,16 @@ export class AuthService {
 
   verifyCollege(request: VerifyCollegeRequest): Observable<User> {
     return this.apiService.post<User>('/auth/verify-college', request).pipe(
-      tap((user) => {
-        this.storageService.setUser(user);
-        this.currentUserSubject.next(user);
-      })
+      tap((user) => this.authStore.setUser(user))
     );
   }
 
   logout(): void {
-    this.storageService.clear();
-    this.currentUserSubject.next(null);
+    this.apiService.post('/auth/logout', {}, { withCredentials: true }).pipe(
+      catchError(() => of(null)),
+      finalize(() => this.authStore.clearSession())
+    ).subscribe();
+    this.authStore.clearSession();
   }
 
   hasRole(...roles: UserRole[]): boolean {
@@ -105,11 +107,5 @@ export class AuthService {
       default:
         return '/student/dashboard';
     }
-  }
-
-  private persistSession(res: AuthResponse): void {
-    this.storageService.setToken(res.token);
-    this.storageService.setUser(res.user);
-    this.currentUserSubject.next(res.user);
   }
 }
