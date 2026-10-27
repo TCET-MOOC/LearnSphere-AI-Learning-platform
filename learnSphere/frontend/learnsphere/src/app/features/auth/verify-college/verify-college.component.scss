@@ -1,34 +1,34 @@
-$brand-purple: #534AB7;
-$bg-color: #F5F5F8;
-$border: #E8E7EF;
-$text-primary: #1A1830;
-$text-secondary: #6B6880;
+$brand-purple: var(--brand-primary);
+$bg-color: var(--bg-app);
+$border: var(--border-color);
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
 
 .auth-layout {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $bg-color;
-  font-family: 'Inter', sans-serif;
+  background: var(--bg-app);
+  font-family: var(--font-body);
   padding: 20px;
 }
 
 .auth-card {
-  background: #ffffff;
+  background: var(--bg-surface);
   width: 100%;
   max-width: 420px;
   padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-  border: 1px solid $border;
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
 }
 
 .error-banner {
-  background: #FDECEC;
-  color: #B3261E;
-  border: 1px solid #F5C2C2;
-  border-radius: 8px;
+  background: var(--status-red-bg);
+  color: var(--status-red-text);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md, 8px);
   padding: 10px 14px;
   font-size: 13px;
   margin-bottom: 20px;
@@ -41,9 +41,9 @@ $text-secondary: #6B6880;
   .logo-box {
     width: 48px;
     height: 48px;
-    background: $brand-purple;
-    color: white;
-    border-radius: 12px;
+    background: var(--brand-primary);
+    color: var(--text-inverse);
+    border-radius: var(--border-radius-lg, 12px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -52,12 +52,12 @@ $text-secondary: #6B6880;
   }
 
   h2 {
-    color: $text-primary;
+    color: var(--text-primary);
     margin: 0 0 4px;
   }
 
   p {
-    color: $text-secondary;
+    color: var(--text-secondary);
     font-size: 14px;
     margin: 0;
   }
@@ -77,51 +77,63 @@ $text-secondary: #6B6880;
   label {
     font-size: 13px;
     font-weight: 600;
-    color: $text-primary;
+    color: var(--text-primary);
   }
 
   input, .custom-select {
     padding: 10px 12px;
-    border: 1px solid $border;
-    border-radius: 8px;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md, 8px);
     font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
 
     &:focus {
-      outline: none;
-      border-color: $brand-purple;
+      border-color: var(--brand-primary);
     }
   }
 }
 
 .btn-submit {
-  background: $brand-purple;
-  color: white;
+  background: var(--brand-primary);
+  color: var(--text-inverse, #ffffff);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md, 8px);
   padding: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   width: 100%;
+  transition: background 0.2s ease, opacity 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--brand-primary-hover);
+  }
 
   &:disabled {
-    opacity: 0.6;
+    background: var(--bg-surface-elevated);
+    color: var(--text-muted);
     cursor: not-allowed;
+    opacity: 0.8;
+    border: 1px solid var(--border-color);
   }
 }
 
 .btn-secondary {
   background: transparent;
-  color: $text-secondary;
+  color: var(--text-secondary);
   border: none;
   padding: 12px;
   font-size: 13px;
   cursor: pointer;
   width: 100%;
   text-align: center;
+  transition: color 0.2s ease;
 
   &:hover {
-    color: $text-primary;
+    color: var(--text-primary);
   }
 }
 
@@ -129,7 +141,7 @@ $text-secondary: #6B6880;
   text-align: center;
 
   p {
-    color: $text-secondary;
+    color: var(--text-secondary);
     font-size: 14px;
     margin-bottom: 20px;
   }

@@ -1,34 +1,34 @@
-$brand-purple: #534AB7;
-$bg-color: #F5F5F8;
-$border: #E8E7EF;
-$text-primary: #1A1830;
-$text-secondary: #6B6880;
+$brand-purple: var(--brand-primary);
+$bg-color: var(--bg-app);
+$border: var(--border-color);
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
 
 .auth-layout {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $bg-color;
-  font-family: 'Inter', sans-serif;
+  background: var(--bg-app);
+  font-family: var(--font-body);
   padding: 20px;
 }
 
 .auth-card {
-  background: #ffffff;
+  background: var(--bg-surface);
   width: 100%;
   max-width: 400px;
   padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-  border: 1px solid $border;
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
 }
 
 .error-banner {
-  background: #FDECEC;
-  color: #B3261E;
-  border: 1px solid #F5C2C2;
-  border-radius: 8px;
+  background: var(--status-red-bg);
+  color: var(--status-red-text);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md, 8px);
   padding: 10px 14px;
   font-size: 13px;
   margin-bottom: 20px;
@@ -41,9 +41,9 @@ $text-secondary: #6B6880;
   .logo-box {
     width: 48px;
     height: 48px;
-    background: $brand-purple;
-    color: white;
-    border-radius: 12px;
+    background: var(--brand-primary);
+    color: var(--text-inverse);
+    border-radius: var(--border-radius-lg, 12px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -54,13 +54,13 @@ $text-secondary: #6B6880;
 
   h2 {
     margin: 0 0 8px 0;
-    color: $text-primary;
+    color: var(--text-primary);
     font-size: 24px;
   }
 
   p {
     margin: 0;
-    color: $text-secondary;
+    color: var(--text-secondary);
     font-size: 14px;
   }
 }
@@ -78,35 +78,37 @@ $text-secondary: #6B6880;
     label {
       font-size: 13px;
       font-weight: 600;
-      color: $text-primary;
+      color: var(--text-primary);
     }
 
     input {
       padding: 12px 16px;
-      border: 1px solid $border;
-      border-radius: 8px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md, 8px);
       font-size: 14px;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s ease;
 
       &:focus {
-        border-color: $brand-purple;
+        border-color: var(--brand-primary);
       }
     }
 
     .field-hint {
       font-size: 12px;
-      color: $text-secondary;
+      color: var(--text-secondary);
       line-height: 1.4;
 
       &.field-error {
-        color: #B3261E;
+        color: var(--status-red-text);
       }
     }
 
     .error-text {
       font-size: 12px;
-      color: #B3261E;
+      color: var(--status-red-text);
       font-weight: 500;
     }
   }
@@ -121,12 +123,12 @@ $text-secondary: #6B6880;
       display: flex;
       align-items: center;
       gap: 8px;
-      color: $text-secondary;
+      color: var(--text-secondary);
       cursor: pointer;
     }
 
     .forgot-link {
-      color: $brand-purple;
+      color: var(--brand-primary);
       text-decoration: none;
       font-weight: 500;
       &:hover { text-decoration: underline; }
@@ -134,18 +136,24 @@ $text-secondary: #6B6880;
   }
 
   .btn-submit {
-    background: $brand-purple;
-    color: white;
+    background: var(--brand-primary);
+    color: var(--text-inverse, #ffffff);
     border: none;
     padding: 14px;
-    border-radius: 8px;
+    border-radius: var(--border-radius-md, 8px);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s ease, opacity 0.2s ease;
 
-    &:hover { background: var(--brand-primary-hover); }
-    &:disabled { background: #A09DB8; cursor: not-allowed; }
+    &:hover:not(:disabled) { background: var(--brand-primary-hover); }
+    &:disabled {
+      background: var(--bg-surface-elevated);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      opacity: 0.8;
+      border: 1px solid var(--border-color);
+    }
   }
 }
 
@@ -153,10 +161,10 @@ $text-secondary: #6B6880;
   margin-top: 24px;
   text-align: center;
   font-size: 14px;
-  color: $text-secondary;
+  color: var(--text-secondary);
 
   a {
-    color: $brand-purple;
+    color: var(--brand-primary);
     font-weight: 600;
     text-decoration: none;
     &:hover { text-decoration: underline; }
@@ -166,9 +174,9 @@ $text-secondary: #6B6880;
 .test-hint {
   margin-top: 24px;
   padding: 12px;
-  background: #EEEDFE;
-  color: $brand-purple;
-  border-radius: 8px;
+  background: var(--brand-surface);
+  color: var(--brand-primary);
+  border-radius: var(--border-radius-md, 8px);
   text-align: center;
   line-height: 1.4;
 }
@@ -182,45 +190,44 @@ $text-secondary: #6B6880;
   .role-btn {
     flex: 1;
     padding: 12px;
-    border: 1px solid $border;
-    background: #fff;
-    border-radius: 8px;
-    color: $text-secondary;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    border-radius: var(--border-radius-md, 8px);
+    color: var(--text-secondary);
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s ease, color 0.2s ease;
 
     &.active {
-      background: #EEEDFE;
-      border-color: $brand-purple;
-      color: $brand-purple;
+      background: var(--brand-surface);
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
     }
   }
 }
 
 /* Add this inside .auth-form > .form-group */
 select.custom-select {
-  appearance: none; /* Removes default browser styling */
+  appearance: none;
   -webkit-appearance: none;
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid $border;
-  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md, 8px);
   font-size: 14px;
   font-family: inherit;
-  color: $text-primary;
-  background-color: #fff;
+  color: var(--text-primary);
+  background-color: var(--bg-input);
   cursor: pointer;
   outline: none;
-  transition: border-color 0.2s;
-  
-  /* Custom SVG Chevron Arrow */
+  transition: border-color 0.2s ease;
+
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6880' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 16px center;
   background-size: 16px;
 
   &:focus {
-    border-color: $brand-purple;
+    border-color: var(--brand-primary);
   }
-}
+}
