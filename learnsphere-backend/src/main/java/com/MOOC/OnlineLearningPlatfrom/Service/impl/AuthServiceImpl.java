@@ -39,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.RefreshTokenService refreshTokenService;
 
     public AuthServiceImpl(UserAccountRepository userAccountRepository,
                             UserRoleRepository userRoleRepository,
@@ -50,6 +51,23 @@ public class AuthServiceImpl implements AuthService {
                             PasswordEncoder passwordEncoder,
                             JwtService jwtService,
                             AuthenticationManager authenticationManager) {
+        this(userAccountRepository, userRoleRepository, roleRepository, collegeRepository,
+                departmentRepository, affiliationRequestRepository, passwordResetTokenRepository,
+                passwordEncoder, jwtService, authenticationManager, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public AuthServiceImpl(UserAccountRepository userAccountRepository,
+                            UserRoleRepository userRoleRepository,
+                            RoleRepository roleRepository,
+                            CollegeRepository collegeRepository,
+                            DepartmentRepository departmentRepository,
+                            AffiliationRequestRepository affiliationRequestRepository,
+                            PasswordResetTokenRepository passwordResetTokenRepository,
+                            PasswordEncoder passwordEncoder,
+                            JwtService jwtService,
+                            AuthenticationManager authenticationManager,
+                            com.MOOC.OnlineLearningPlatfrom.Service.RefreshTokenService refreshTokenService) {
         this.userAccountRepository = userAccountRepository;
         this.userRoleRepository = userRoleRepository;
         this.roleRepository = roleRepository;
@@ -60,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.refreshTokenService = refreshTokenService;
     }
 
     private static final java.util.regex.Pattern PASSWORD_PATTERN =
@@ -119,7 +138,8 @@ public class AuthServiceImpl implements AuthService {
 
         Long deptId = user.getDepartment() != null ? user.getDepartment().getDepartmentId() : null;
         String token = jwtService.generateToken(user.getEmail(), user.getUserId(), List.of(roleName), deptId);
-        return new AuthResponse(token, UserResponseDto.from(user, List.of(roleName)));
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        return new AuthResponse(token, refreshToken.getToken(), UserResponseDto.from(user, List.of(roleName)));
     }
 
     @Override
@@ -142,7 +162,8 @@ public class AuthServiceImpl implements AuthService {
         List<String> roles = rolesOf(user);
         Long deptId = user.getDepartment() != null ? user.getDepartment().getDepartmentId() : null;
         String token = jwtService.generateToken(user.getEmail(), user.getUserId(), roles, deptId);
-        return new AuthResponse(token, UserResponseDto.from(user, roles));
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        return new AuthResponse(token, refreshToken.getToken(), UserResponseDto.from(user, roles));
     }
 
     @Override
@@ -235,17 +256,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse refreshToken(String token) {
-        String email = jwtService.extractEmail(token);
-        UserAccount user = userAccountRepository.findByEmail(email);
-        if (user == null || user.getStatus() == UserAccount.Status.BLACKLISTED) {
-            throw new BadCredentialsException("Invalid token or account is deactivated");
-        }
+        RefreshToken nextRefreshToken = refreshTokenService.rotateRefreshToken(token);
+        UserAccount user = nextRefreshToken.getUser();
         user.setLastActiveAt(LocalDateTime.now());
         userAccountRepository.save(user);
 
         List<String> roles = rolesOf(user);
-        String newToken = jwtService.generateToken(user.getEmail(), user.getUserId(), roles);
-        return new AuthResponse(newToken, newToken, UserResponseDto.from(user, roles));
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getDepartmentId() : null;
+        String newAccessToken = jwtService.generateToken(user.getEmail(), user.getUserId(), roles, deptId);
+        return new AuthResponse(newAccessToken, nextRefreshToken.getToken(), UserResponseDto.from(user, roles));
     }
 }
 
