@@ -117,7 +117,8 @@ public class AuthServiceImpl implements AuthService {
         userRole.setRole(role);
         userRoleRepository.save(userRole);
 
-        String token = jwtService.generateToken(user.getEmail(), user.getUserId(), List.of(roleName));
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getDepartmentId() : null;
+        String token = jwtService.generateToken(user.getEmail(), user.getUserId(), List.of(roleName), deptId);
         return new AuthResponse(token, UserResponseDto.from(user, List.of(roleName)));
     }
 
@@ -139,7 +140,8 @@ public class AuthServiceImpl implements AuthService {
         userAccountRepository.save(user);
 
         List<String> roles = rolesOf(user);
-        String token = jwtService.generateToken(user.getEmail(), user.getUserId(), roles);
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getDepartmentId() : null;
+        String token = jwtService.generateToken(user.getEmail(), user.getUserId(), roles, deptId);
         return new AuthResponse(token, UserResponseDto.from(user, roles));
     }
 
