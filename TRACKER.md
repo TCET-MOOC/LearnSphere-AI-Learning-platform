@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03`, `W2-04` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints (`PUT /api/modules/{id}/reorder`, `PUT /api/contents/{id}/reorder`, `PUT /api/courses/{courseId}/modules/reorder`), and delete re-normalisation (`1..n`). |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-05 Lecture → CourseContent migration` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03`, `W2-04`, `W2-05` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints, and delete re-normalisation (`413d3f8`). `W2-05` migrated `Lecture` 1:1 to `CourseContent` via Flyway `V5__legacy_lecture_migration.sql`, backfilled `user_progress.content_id`, retired legacy lecture mutation endpoints (400), and maintained legacy lecture read endpoints as a read-only projection. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-06 Assignment validation (create and update)` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -342,7 +342,20 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - IDOR security: All reorder and delete endpoints are protected by `OwnershipService` (`requireCourseStaff`, `requireModuleStaff`, `requireContentStaff`). Unauthorized foreign teachers or non-staff receive `404 NOT_FOUND`.
 - Red: `ModuleContentOrderingTests` failed 4/9 tests (content deletion did not re-normalise positions and returned gap `[1, 3]`; reorder endpoints returned 404).
 - Green: `ModuleContentOrderingTests` passed 9/9 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 132, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
-- [~] W2-05 Lecture → CourseContent migration
+- [x] W2-05 Lecture → CourseContent migration
+
+**W2-05 evidence (2026-10-27) — Lecture → CourseContent migration:**
+- Rules: A-05, [B-F1], M-02.
+- Schema Migration: Added Flyway `V5__legacy_lecture_migration.sql`:
+  - Added `legacy_lecture_id BIGINT` to `course_content` with unique partial index (`uq_course_content_legacy_lecture`).
+  - Auto-created default module for any course with legacy lectures lacking modules.
+  - Migrated `lectures` 1:1 into canonical `course_content` (`contentType = 'VIDEO'`).
+  - Backfilled `user_progress.content_id` for historical progress records from corresponding migrated `course_content`.
+- Legacy Mutation Surface Retired: `POST /api/teacher/courses/{id}/lectures`, `POST /api/teacher/courses/{id}/bulk-lectures`, `PUT /api/teacher/lectures/{id}`, and `DELETE /api/teacher/lectures/{id}` reject mutations with `400 BAD_REQUEST` ("Legacy lecture authoring/modification/deletion is retired (A-05). Please author curriculum via /api/courses/{id}/modules and /api/modules/{id}/contents."). Dual writes eliminated.
+- Read Surfaces & Playback: Legacy lecture read surfaces (`GET /api/courses/{id}/lectures` and `GET /api/student/courses/{courseId}/lectures/{lectureId}`) remain intact for playback compatibility.
+- Progress Integration: Marking lectures complete in `StudentController` (`POST /api/student/lectures/{id}/complete`) automatically resolves and links canonical `CourseContent` into `user_progress.content`.
+- Red: `LectureContentMigrationTests` failed compilation on missing `CourseContent.legacyLectureId`.
+- Green: `LectureContentMigrationTests` passed 6/6 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 138, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
 - [~] W2-06 Assignment validation (create and update)
 - [~] W2-07 Storage port + upload safety
 - [ ] W2-08 Notes/bookmarks rebind to CourseContent

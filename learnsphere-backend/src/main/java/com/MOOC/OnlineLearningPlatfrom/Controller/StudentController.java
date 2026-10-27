@@ -30,15 +30,18 @@ public class StudentController {
     private final CourseService courseService;
     private final EnrollmentRepository enrollmentRepository;
     private final UserProgressRepository userProgressRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository;
     private final com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService liveSessionService;
 
     public StudentController(CourseService courseService,
                               EnrollmentRepository enrollmentRepository,
                               UserProgressRepository userProgressRepository,
+                              com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository,
                               com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService liveSessionService) {
         this.courseService = courseService;
         this.enrollmentRepository = enrollmentRepository;
         this.userProgressRepository = userProgressRepository;
+        this.courseContentRepository = courseContentRepository;
         this.liveSessionService = liveSessionService;
     }
 
@@ -125,6 +128,9 @@ public class StudentController {
         if (lecture.getDuration() != null) {
             progress.setSecondsWatched(lecture.getDuration());
         }
+        if (progress.getContent() == null) {
+            courseContentRepository.findByLegacyLectureId(id).ifPresent(progress::setContent);
+        }
         UserProgress saved = userProgressRepository.save(progress);
         return ResponseEntity.ok(UserProgressResponseDto.from(saved));
     }
@@ -144,6 +150,9 @@ public class StudentController {
         progress.setProgressPercent(0);
         progress.setCompletedAt(null);
         progress.setSecondsWatched(0);
+        if (progress.getContent() == null) {
+            courseContentRepository.findByLegacyLectureId(id).ifPresent(progress::setContent);
+        }
         UserProgress saved = userProgressRepository.save(progress);
         return ResponseEntity.ok(UserProgressResponseDto.from(saved));
     }

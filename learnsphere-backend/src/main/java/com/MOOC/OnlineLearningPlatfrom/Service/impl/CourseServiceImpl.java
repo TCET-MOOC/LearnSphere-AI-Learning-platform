@@ -4,6 +4,7 @@ import com.MOOC.OnlineLearningPlatfrom.Dto.CourseResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.LectureResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Lecture;
+import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.LectureRepository;
@@ -264,58 +265,22 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public LectureResponseDto addLecture(Long courseId, Lecture lecture, CustomUserDetails principal) {
-        Course course = getCourseEntity(courseId);
-        assertOwner(course, principal);
-        lecture.setCourse(course);
-        if (lecture.getStatus() == null) {
-            lecture.setStatus(Lecture.Status.PUBLISHED);
-        }
-        Lecture saved = lectureRepository.save(lecture);
-        return LectureResponseDto.from(saved);
+        throw new BadRequestException("Legacy lecture authoring is retired (A-05). Please author curriculum via /api/courses/{id}/modules and /api/modules/{id}/contents.");
     }
 
     @Override
     public List<LectureResponseDto> addLecturesBulk(Long courseId, List<Lecture> lectures, CustomUserDetails principal) {
-        Course course = getCourseEntity(courseId);
-        assertOwner(course, principal);
-        long currentCount = lectureRepository.countByCourse_Id(courseId);
-        int startIndex = (int) currentCount + 1;
-
-        for (int i = 0; i < lectures.size(); i++) {
-            Lecture l = lectures.get(i);
-            l.setCourse(course);
-            if (l.getNumber() == null) {
-                l.setNumber(startIndex + i);
-            }
-            if (l.getStatus() == null) {
-                l.setStatus(Lecture.Status.PUBLISHED);
-            }
-        }
-        List<Lecture> saved = lectureRepository.saveAll(lectures);
-        return saved.stream().map(LectureResponseDto::from).toList();
+        throw new BadRequestException("Legacy bulk lecture authoring is retired (A-05). Please author curriculum via /api/courses/{id}/modules and /api/modules/{id}/contents.");
     }
 
     @Override
     public LectureResponseDto updateLecture(Long lectureId, Lecture updates, CustomUserDetails principal) {
-        Lecture lecture = getLectureEntity(lectureId);
-        assertOwner(lecture.getCourse(), principal);
-
-        if (updates.getTitle() != null) lecture.setTitle(updates.getTitle());
-        if (updates.getNumber() != null) lecture.setNumber(updates.getNumber());
-        if (updates.getVideoUrl() != null) lecture.setVideoUrl(updates.getVideoUrl());
-        if (updates.getDuration() != null) lecture.setDuration(updates.getDuration());
-        if (updates.getIsDownloadable() != null) lecture.setIsDownloadable(updates.getIsDownloadable());
-        if (updates.getStatus() != null) lecture.setStatus(updates.getStatus());
-
-        Lecture saved = lectureRepository.save(lecture);
-        return LectureResponseDto.from(saved);
+        throw new BadRequestException("Legacy lecture modification is retired (A-05). Please edit curriculum via /api/contents/{id}.");
     }
 
     @Override
     public void deleteLecture(Long lectureId, CustomUserDetails principal) {
-        Lecture lecture = getLectureEntity(lectureId);
-        assertOwner(lecture.getCourse(), principal);
-        lectureRepository.delete(lecture);
+        throw new BadRequestException("Legacy lecture deletion is retired (A-05). Please delete curriculum via /api/contents/{id}.");
     }
 
     private void assertOwner(Course course, CustomUserDetails principal) {

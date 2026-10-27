@@ -49,6 +49,9 @@ public class CourseContent {
     @Column(name = "uploaded_at", updatable = false)
     private LocalDateTime uploadedAt;
 
+    @Column(name = "legacy_lecture_id")
+    private Long legacyLectureId;
+
     @PrePersist
     protected void onCreate() {
         if (this.uploadedAt == null) {

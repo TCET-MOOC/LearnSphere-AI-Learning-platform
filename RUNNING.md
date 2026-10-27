@@ -13,8 +13,17 @@ Angular frontend. For the product/feature overview, see `README.md`.
 | PostgreSQL  | 16+          | Only needed for a bare-metal run; Compose provides it. |
 | Maven       | not required | Each service ships its own Maven wrapper. |
 
-## 1. Quick start with Docker Compose
+## 1. Quick start with PowerShell Runner or Docker Compose
 
+### Option A: 1-Click PowerShell Runner (Windows)
+```powershell
+.\run.ps1                  # Runs full stack via Docker Compose
+.\run.ps1 -Dev             # Runs services in separate live PowerShell terminal windows
+.\run.ps1 -Status          # Inspects service health & ports
+.\run.ps1 -Stop            # Stops all services cleanly
+```
+
+### Option B: Direct Docker Compose
 ```powershell
 Copy-Item .env.example .env
 # Edit .env and replace the local-development placeholders. Never commit .env.
