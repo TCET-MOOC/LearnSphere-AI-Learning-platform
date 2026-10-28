@@ -26,22 +26,34 @@ public class CourseServiceImpl implements CourseService {
     private final com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository departmentRepository;
     private final JdbcTemplate jdbcTemplate;
     private final com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService;
 
     @org.springframework.beans.factory.annotation.Autowired
     public CourseServiceImpl(CourseRepository courseRepository,
                              LectureRepository lectureRepository,
                              com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository departmentRepository,
                              JdbcTemplate jdbcTemplate,
-                             com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService) {
+                             com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService,
+                             @org.springframework.beans.factory.annotation.Autowired(required = false)
+                             com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService) {
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
         this.departmentRepository = departmentRepository;
         this.jdbcTemplate = jdbcTemplate;
         this.ownershipService = ownershipService;
+        this.publicCacheService = publicCacheService;
+    }
+
+    public CourseServiceImpl(CourseRepository courseRepository,
+                             LectureRepository lectureRepository,
+                             com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository departmentRepository,
+                             JdbcTemplate jdbcTemplate,
+                             com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService) {
+        this(courseRepository, lectureRepository, departmentRepository, jdbcTemplate, ownershipService, null);
     }
 
     public CourseServiceImpl(CourseRepository courseRepository, LectureRepository lectureRepository, JdbcTemplate jdbcTemplate) {
-        this(courseRepository, lectureRepository, null, jdbcTemplate, null);
+        this(courseRepository, lectureRepository, null, jdbcTemplate, null, null);
     }
 
     @Override
@@ -186,6 +198,9 @@ public class CourseServiceImpl implements CourseService {
         course.setDepartmentLabel(dept.getName());
 
         Course saved = courseRepository.save(course);
+        if (publicCacheService != null) {
+            publicCacheService.invalidateAllCourses();
+        }
         return CourseResponseDto.from(saved, 0);
     }
 
@@ -215,6 +230,9 @@ public class CourseServiceImpl implements CourseService {
         }
 
         Course saved = courseRepository.save(course);
+        if (publicCacheService != null) {
+            publicCacheService.invalidateCourse(id);
+        }
         return CourseResponseDto.from(saved, lectureRepository.countByCourse_Id(id));
     }
 
@@ -226,6 +244,9 @@ public class CourseServiceImpl implements CourseService {
 
         course.setStatus(Course.Status.ARCHIVED);
         courseRepository.save(course);
+        if (publicCacheService != null) {
+            publicCacheService.invalidateCourse(id);
+        }
     }
 
     @Override
@@ -240,6 +261,9 @@ public class CourseServiceImpl implements CourseService {
 
         course.setStatus(Course.Status.DRAFT);
         Course saved = courseRepository.save(course);
+        if (publicCacheService != null) {
+            publicCacheService.invalidateCourse(id);
+        }
         return CourseResponseDto.from(saved, lectureRepository.countByCourse_Id(id));
     }
 

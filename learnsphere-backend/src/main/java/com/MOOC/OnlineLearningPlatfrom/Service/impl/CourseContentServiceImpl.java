@@ -22,11 +22,21 @@ public class CourseContentServiceImpl implements CourseContentService {
 
     private final CourseContentRepository courseContentRepository;
     private final ModuleRepository moduleRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public CourseContentServiceImpl(CourseContentRepository courseContentRepository,
+                                    ModuleRepository moduleRepository,
+                                    @org.springframework.beans.factory.annotation.Autowired(required = false)
+                                    com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService) {
+        this.courseContentRepository = courseContentRepository;
+        this.moduleRepository = moduleRepository;
+        this.publicCacheService = publicCacheService;
+    }
 
     public CourseContentServiceImpl(CourseContentRepository courseContentRepository,
                                     ModuleRepository moduleRepository) {
-        this.courseContentRepository = courseContentRepository;
-        this.moduleRepository = moduleRepository;
+        this(courseContentRepository, moduleRepository, null);
     }
 
     @Override
@@ -34,6 +44,18 @@ public class CourseContentServiceImpl implements CourseContentService {
     public CourseContent getContentById(Long contentId) {
         return courseContentRepository.findById(contentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Content not found with id: " + contentId));
+    }
+
+    private void invalidateCourseForModule(Module module) {
+        if (publicCacheService != null && module != null && module.getCourse() != null) {
+            publicCacheService.invalidateCourse(module.getCourse().getId());
+        }
+    }
+
+    private void invalidateCourseForModuleId(Long moduleId) {
+        if (publicCacheService != null && moduleId != null) {
+            moduleRepository.findById(moduleId).ifPresent(this::invalidateCourseForModule);
+        }
     }
 
     @Override
@@ -53,7 +75,9 @@ public class CourseContentServiceImpl implements CourseContentService {
             content.setPosition(existing.size() + 1);
         }
 
-        return courseContentRepository.save(content);
+        CourseContent saved = courseContentRepository.save(content);
+        invalidateCourseForModule(module);
+        return saved;
     }
 
     @Override
@@ -81,13 +105,16 @@ public class CourseContentServiceImpl implements CourseContentService {
             return reorderContent(contentId, new ReorderRequest(updated.getPosition(), null));
         }
 
-        return courseContentRepository.save(existing);
+        CourseContent saved = courseContentRepository.save(existing);
+        invalidateCourseForModule(existing.getModule());
+        return saved;
     }
 
     @Override
     public void deleteContent(Long contentId) {
         CourseContent content = getContentById(contentId);
-        Long moduleId = content.getModule() != null ? content.getModule().getModuleId() : null;
+        Module module = content.getModule();
+        Long moduleId = module != null ? module.getModuleId() : null;
         courseContentRepository.delete(content);
         courseContentRepository.flush();
 
@@ -99,6 +126,7 @@ public class CourseContentServiceImpl implements CourseContentService {
             }
             courseContentRepository.saveAll(remaining);
         }
+        invalidateCourseForModule(module);
     }
 
     @Override
@@ -141,6 +169,7 @@ public class CourseContentServiceImpl implements CourseContentService {
             courseContentRepository.saveAll(contents);
         }
 
+        invalidateCourseForModule(content.getModule());
         return getContentById(contentId);
     }
 
@@ -171,6 +200,8 @@ public class CourseContentServiceImpl implements CourseContentService {
         for (int i = 0; i < result.size(); i++) {
             result.get(i).setPosition(i + 1);
         }
-        return courseContentRepository.saveAll(result);
+        List<CourseContent> saved = courseContentRepository.saveAll(result);
+        invalidateCourseForModuleId(moduleId);
+        return saved;
     }
 }

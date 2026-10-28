@@ -24,13 +24,24 @@ public class ModuleServiceImpl implements ModuleService {
     private final ModuleRepository moduleRepository;
     private final CourseRepository courseRepository;
     private final CourseContentRepository courseContentRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public ModuleServiceImpl(ModuleRepository moduleRepository,
+                             CourseRepository courseRepository,
+                             CourseContentRepository courseContentRepository,
+                             @org.springframework.beans.factory.annotation.Autowired(required = false)
+                             com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService) {
+        this.moduleRepository = moduleRepository;
+        this.courseRepository = courseRepository;
+        this.courseContentRepository = courseContentRepository;
+        this.publicCacheService = publicCacheService;
+    }
 
     public ModuleServiceImpl(ModuleRepository moduleRepository,
                              CourseRepository courseRepository,
                              CourseContentRepository courseContentRepository) {
-        this.moduleRepository = moduleRepository;
-        this.courseRepository = courseRepository;
-        this.courseContentRepository = courseContentRepository;
+        this(moduleRepository, courseRepository, courseContentRepository, null);
     }
 
     @Override
@@ -55,7 +66,11 @@ public class ModuleServiceImpl implements ModuleService {
             List<Module> existing = moduleRepository.findByCourse_IdOrderByPositionAsc(courseId);
             module.setPosition(existing.size() + 1);
         }
-        return moduleRepository.save(module);
+        Module saved = moduleRepository.save(module);
+        if (publicCacheService != null) {
+            publicCacheService.invalidateCourse(courseId);
+        }
+        return saved;
     }
 
     @Override
@@ -68,7 +83,11 @@ public class ModuleServiceImpl implements ModuleService {
             existing = moduleRepository.save(existing);
             return reorderModule(moduleId, new ReorderRequest(updatedModule.getPosition(), null));
         }
-        return moduleRepository.save(existing);
+        Module saved = moduleRepository.save(existing);
+        if (publicCacheService != null && saved.getCourse() != null) {
+            publicCacheService.invalidateCourse(saved.getCourse().getId());
+        }
+        return saved;
     }
 
     @Override
@@ -85,6 +104,9 @@ public class ModuleServiceImpl implements ModuleService {
                 remaining.get(i).setPosition(i + 1);
             }
             moduleRepository.saveAll(remaining);
+            if (publicCacheService != null) {
+                publicCacheService.invalidateCourse(courseId);
+            }
         }
     }
 
@@ -130,6 +152,10 @@ public class ModuleServiceImpl implements ModuleService {
             moduleRepository.saveAll(modules);
         }
 
+        if (publicCacheService != null) {
+            publicCacheService.invalidateCourse(courseId);
+        }
+
         return getModuleById(moduleId);
     }
 
@@ -160,7 +186,11 @@ public class ModuleServiceImpl implements ModuleService {
         for (int i = 0; i < result.size(); i++) {
             result.get(i).setPosition(i + 1);
         }
-        return moduleRepository.saveAll(result);
+        List<Module> saved = moduleRepository.saveAll(result);
+        if (publicCacheService != null) {
+            publicCacheService.invalidateCourse(courseId);
+        }
+        return saved;
     }
 
     @Override

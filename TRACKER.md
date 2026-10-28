@@ -5,9 +5,9 @@
 
 | | |
 |---|---|
-| Last updated | 2026-10-27 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01`, `W2-02`, `W2-03`, `W2-04`, `W2-05`, `W2-06`, `W2-07`, `W2-08`, `W2-09`, `W2-10` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints, and delete re-normalisation (`413d3f8`). `W2-05` migrated `Lecture` 1:1 to `CourseContent` via Flyway `V5__legacy_lecture_migration.sql`, backfilled `user_progress.content_id`, retired legacy lecture mutation endpoints (400), and maintained legacy lecture read endpoints as a read-only projection. `W2-06` enforced assignment validation and ownership IDOR defense (`ebfc48e`). `W2-07` implemented storage port, upload safety, opaque file keys, and removed public uploads (`1bba6f0`). `W2-08` rebound notes and bookmarks to canonical `CourseContent`, migrated legacy lecture rows via Flyway `V7__notes_bookmarks_content_rebind.sql`, bounded timestamps to content duration, and enforced IDOR defenses (`89e290c`). `W2-09` implemented YouTube playlist import into canonical `CourseContent`, module auto-resolution/creation, contiguous 1..n ordering, in-memory transcript caching, quota/error fallbacks, and teacher IDOR verification. `W2-10` landed the end-to-end curriculum contract suite locking ordering, state machine, archiving, validation, upload safety, and IDOR defenses. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-11 Public catalogue/reference cache + ETag invalidation` through `W2-17`). |
+| Last updated | 2026-10-28 |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-11` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints, and delete re-normalisation (`413d3f8`). `W2-05` migrated `Lecture` 1:1 to `CourseContent` via Flyway `V5__legacy_lecture_migration.sql`, backfilled `user_progress.content_id`, retired legacy lecture mutation endpoints (400), and maintained legacy lecture read endpoints as a read-only projection. `W2-06` enforced assignment validation and ownership IDOR defense (`ebfc48e`). `W2-07` implemented storage port, upload safety, opaque file keys, and removed public uploads (`1bba6f0`). `W2-08` rebound notes and bookmarks to canonical `CourseContent`, migrated legacy lecture rows via Flyway `V7__notes_bookmarks_content_rebind.sql`, bounded timestamps to content duration, and enforced IDOR defenses (`89e290c`). `W2-09` implemented YouTube playlist import into canonical `CourseContent`, module auto-resolution/creation, contiguous 1..n ordering, in-memory transcript caching, quota/error fallbacks, and teacher IDOR verification (`84a1e9c`). `W2-10` landed the end-to-end curriculum contract suite locking ordering, state machine, archiving, validation, upload safety, and IDOR defenses (`aa7c307`). `W2-11` implemented in-process Caffeine read caches for public catalogue, course details, departments, and department courses, generation-based ETags returning 304 Not Modified, strict private no-store bypass for drafts and staff views, and automatic cache invalidation on curriculum and reference mutations. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-12 Canonical media source + secure local playback` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -439,8 +439,44 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   8. IDOR Defense Across All Curriculum Entities: foreign mutations across course, module, content, and assignment return RFC 9457 `404 NOT_FOUND` (preventing resource existence probing).
 - Red-green verification:
   - Red: `CurriculumContractSuiteTests` initially failed 5/8 tests during authoring (course creation returned 200 rather than 201; assignment submission without prior enrollment returned 404 before validation; course deletion returned 204 rather than 200; upload endpoint was `/api/teacher/upload/resource` rather than `/api/upload`; response property was `id` rather than `courseId`).
-  - Green: `CurriculumContractSuiteTests` passed 8/8 tests. Full backend suite `.\mvnw.cmd test` -> `Tests run: 186, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Payments suite -> `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS`. Frontend Vitest -> `8 passed (8)` test files, `33 passed (33)` tests; Stylelint -> 100% passed ratchet.
-- [ ] W2-11 Public catalogue/reference cache + ETag invalidation
+- [x] W2-11 Public catalogue/reference cache + ETag invalidation
+
+**W2-11 evidence (2026-10-28) — Public catalogue/reference cache + ETag invalidation:**
+- Rules: NFR-02, NFR-03, A-04, W2-02, W2-03.
+- In-Process Caffeine Cache Architecture:
+  - Added `spring-boot-starter-cache` and `com.github.ben-manes.caffeine:caffeine` to `learnsphere-backend/pom.xml`.
+  - Created `CacheConfig.java` configuring `CaffeineCacheManager` with 60 s TTL, maximum 1000 items, and `.recordStats()`.
+  - Created `PublicCacheService` interface and `PublicCacheServiceImpl` implementation maintaining separate Caffeine DTO caches for:
+    1. Public catalogue (`getCoursesCatalogue`: key based on `status|department|search`, max 1000, TTL 60 s).
+    2. Course details (`getCourseDetail`: key `courseId`, max 1000, TTL 60 s).
+    3. Departments reference (`getDepartments`: key `"all"`, max 100, TTL 60 s).
+    4. Department details (`getDepartmentDetail`: key `departmentId`, max 100, TTL 60 s).
+    5. Department courses (`getDepartmentCourses`: key `departmentId`, max 500, TTL 60 s).
+  - Metrics tracking: hit and miss counts recorded across all in-process caches.
+- Deterministic Generation-Based ETags:
+  - Maintained thread-safe `ConcurrentHashMap<String, AtomicLong> generations`.
+  - Derived ETags from per-entity/per-namespace generation numbers (`"courses-cat-g..."`, `"course-{id}-g..."`, `"departments-g..."`, etc.).
+  - Cache mutations immediately bump the generation number, deterministically invalidating client ETags without requiring costly hashing of stale records.
+- HTTP Cache Headers & 304 Not Modified:
+  - Public endpoints (`GET /api/courses`, `GET /api/courses/{id}` for LIVE courses, `GET /api/departments`, `GET /api/departments/{id}`, `GET /api/departments/{id}/courses`) return:
+    `Cache-Control: max-age=60, public, stale-while-revalidate=30` and deterministic `ETag`.
+  - When incoming request sends matching `If-None-Match`, controllers return `304 Not Modified` with empty response body and matching `ETag` header (saving network transfer and DB bandwidth).
+- Strict Draft & Staff View Bypass:
+  - When `status != Course.Status.LIVE`, courses are NEVER stored in public Caffeine cache or served with public caching headers.
+  - Authorized course staff (teacher owner) and admins querying draft/pending/archived courses receive fresh data with `Cache-Control: private, no-store`.
+  - `/api/teacher/courses` serves with `Cache-Control: private, no-store`.
+- Multi-Tier Cache Invalidation:
+  - Course writes: `createCourse` triggers `invalidateAllCourses()`; `updateCourse`, `deleteCourse` (archive), and `restoreCourse` trigger `invalidateCourse(id)` in `CourseServiceImpl`.
+  - Admin moderation: `PUT /api/admin/courses/{id}/status` triggers `invalidateCourse(id)` in `CourseAdminController`.
+  - Module mutations: `createModule`, `updateModule`, `deleteModule`, `reorderModule`, and `reorderModules` trigger `invalidateCourse(courseId)` in `ModuleServiceImpl`.
+  - Content mutations: `addContentToModule`, `updateContent`, `deleteContent`, `reorderContent`, and `reorderContents` trigger `invalidateCourse(courseId)` in `CourseContentServiceImpl`.
+  - YouTube ingestion: `importPlaylist` with `courseId` triggers `invalidateCourse(courseId)` in `YouTubeServiceImpl`.
+  - Department mutations: `createDepartment`, `updateDepartment`, `deleteDepartment` trigger `invalidateDepartments()` / `invalidateDepartment(id)` in `DepartmentController`.
+- Red-green verification:
+  - Authored `PublicCacheAndEtagTests.java` covering public catalogue headers, 304 responses, live detail cache, draft/staff bypass, course mutation invalidations, module/content mutation invalidations, and department cache/invalidation.
+  - Red: initial run failed 2/6 tests with `AssertionError: Status expected:<200> but was:<304>` before cache invalidation wiring.
+  - Green: `PublicCacheAndEtagTests` passed 6/6 tests.
+  - Full regression: backend `192/192` passed, payments `10/10` passed, frontend `33/33` passed, stylelint ratchet 100% passed.
 - [ ] W2-12 Canonical media source + secure local playback
 - [ ] W2-13 Opt-in YouTube channel publish (OAuth + idempotent upload)
 - [ ] W2-14 Token consolidation + lint ratchet to zero-new (DS-06)

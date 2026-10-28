@@ -39,6 +39,7 @@ public class YouTubeServiceImpl implements YouTubeService {
     private final ModuleRepository moduleRepository;
     private final CourseContentRepository courseContentRepository;
     private final OwnershipService ownershipService;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService;
 
     private final Map<String, TranscriptResponse> transcriptCache = new ConcurrentHashMap<>();
 
@@ -68,14 +69,25 @@ public class YouTubeServiceImpl implements YouTubeService {
             .followRedirects(HttpClient.Redirect.ALWAYS)
             .build();
 
+    @org.springframework.beans.factory.annotation.Autowired
     public YouTubeServiceImpl(CourseRepository courseRepository,
                               ModuleRepository moduleRepository,
                               CourseContentRepository courseContentRepository,
-                              OwnershipService ownershipService) {
+                              OwnershipService ownershipService,
+                              @org.springframework.beans.factory.annotation.Autowired(required = false)
+                              com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService) {
         this.courseRepository = courseRepository;
         this.moduleRepository = moduleRepository;
         this.courseContentRepository = courseContentRepository;
         this.ownershipService = ownershipService;
+        this.publicCacheService = publicCacheService;
+    }
+
+    public YouTubeServiceImpl(CourseRepository courseRepository,
+                              ModuleRepository moduleRepository,
+                              CourseContentRepository courseContentRepository,
+                              OwnershipService ownershipService) {
+        this(courseRepository, moduleRepository, courseContentRepository, ownershipService, null);
     }
 
     @Override
@@ -207,6 +219,10 @@ public class YouTubeServiceImpl implements YouTubeService {
                     content.getDurationSeconds(),
                     content.getPosition()
             ));
+        }
+
+        if (publicCacheService != null) {
+            publicCacheService.invalidateCourse(request.courseId());
         }
 
         return new PlaylistImportResponse(

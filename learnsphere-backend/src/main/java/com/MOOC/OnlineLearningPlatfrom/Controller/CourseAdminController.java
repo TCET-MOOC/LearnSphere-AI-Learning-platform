@@ -26,13 +26,24 @@ public class CourseAdminController {
     private final CourseRepository courseRepository;
     private final CourseService courseService;
     private final AuditService auditService;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public CourseAdminController(CourseRepository courseRepository,
+                                 CourseService courseService,
+                                 AuditService auditService,
+                                 @org.springframework.beans.factory.annotation.Autowired(required = false)
+                                 com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService) {
+        this.courseRepository = courseRepository;
+        this.courseService = courseService;
+        this.auditService = auditService;
+        this.publicCacheService = publicCacheService;
+    }
 
     public CourseAdminController(CourseRepository courseRepository,
                                  CourseService courseService,
                                  AuditService auditService) {
-        this.courseRepository = courseRepository;
-        this.courseService = courseService;
-        this.auditService = auditService;
+        this(courseRepository, courseService, auditService, null);
     }
 
     @PutMapping("/{id}/status")
@@ -63,6 +74,10 @@ public class CourseAdminController {
                     Map.of("status", oldStatus != null ? oldStatus.name() : "UNKNOWN"),
                     Map.of("status", newStatus.name())
             );
+        }
+
+        if (publicCacheService != null) {
+            publicCacheService.invalidateCourse(id);
         }
 
         return ResponseEntity.ok(courseService.getCourseById(id));
