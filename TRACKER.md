@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-14` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-13` complete. `W2-14` consolidated palette, radius, elevation, type, and spacing scales in `_tokens.scss`, bound unified SCSS aliases in `_variables.scss`, eliminated 22+ local `$brand-*` redefinitions across components, migrated `footer.component.scss` to tokens, authored footer spec, tightened the stylelint ratchet (-58 hex, -4 radius, -4 transition), and achieved 35/35 passing frontend tests and clean production build. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-15 Icon unification: Lucide only (DS-07)` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-15` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-14` complete. `W2-15` eliminated all 10 `<mat-icon>` tags, removed the Material Icons font request from `index.html`, applied `aria-hidden="true"` to decorative Lucide icons, enforced `icon-families: 1` in stylelint ratchet, and verified with 35/35 passing frontend tests and clean production build. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-16 Identity direction + proof page (DS-08)` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -561,7 +561,28 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - `transition-all` fell from 117 to 113 (-4 reduction).
   - Re-baselined with `npm run lint:styles:update`; verified green against tightened baseline with 0 new violations.
 - Regression: frontend test suite `9 passed (9)` test files, `35 passed (35)` tests; production build exit code 0 (`BUILD_EXIT=0`).
-- [ ] W2-15 Icon unification: Lucide only (DS-07)
+- [x] W2-15 Icon unification: Lucide only (DS-07)
+
+**W2-15 evidence (2026-10-28) — Icon unification: Lucide only (DS-07):**
+- Rules: DS-07, NFR-04(c).
+- Material Font Request Removed:
+  - Removed `<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">` from `learnSphere/frontend/learnsphere/src/index.html`.
+- Eliminated all 10 `<mat-icon>` tags from templates:
+  - Migrated `teacher/dashboard/dashboard.component.html`: replaced `<mat-icon>{{ course.icon }}</mat-icon>` with `<lucide-icon [name]="course.icon" [size]="20" aria-hidden="true"></lucide-icon>`.
+  - Migrated `teacher/dashboard/dashboard.component.ts`: replaced `MatIconModule` with `LucideAngularModule`, mapped icon names to Lucide (`pencil`, `calculator`, `bar-chart-2`, `book-open`).
+  - Migrated `student/dashboard/dashboard.component.html`: replaced all 9 `<mat-icon>` occurrences (`waving_hand` -> `hand`, `search` -> `search`, `menu_book` -> `book-open`, `event_available` -> `check-circle`, `emoji_events` -> `trophy`, `workspace_premium` -> `award`, `description` -> `file-text`, `schedule` -> `clock`, `calendar_today` -> `calendar`, `smart_display` -> `play-circle`, `trending_up` -> `trending-up`, `star` -> `star`, `groups` -> `users`).
+  - Migrated `student/dashboard/dashboard.component.ts`: replaced `MatIconModule` with `LucideAngularModule`, updated icon names to Lucide icons.
+  - Zero `MatIconModule` imports and zero `<mat-icon>` tags remain anywhere in the project.
+- Accessibility & Sizing:
+  - Added `aria-hidden="true"` to all decorative Lucide icons across `topbar.component.html`, `student/dashboard/dashboard.component.html`, and `teacher/dashboard/dashboard.component.html`.
+  - Sizing standardized to canonical scales: 14px, 16px, 18px, 20px, 24px.
+- Stylelint Ratchet Tightened & Enforced:
+  - Set `enforced: true` for `icon-families` in `scripts/stylelint-ratchet.mjs` (`rule: 'NFR-04(c) / DS-07 — Lucide only'`).
+  - Re-baselined with `--update`: `icon-families` fell from 2 to 1 (Lucide only).
+  - Verified ratchet passes cleanly with `npm run lint:styles`.
+- Verification & Regression:
+  - Frontend Vitest suite: `9 passed (9)` test files, `35 passed (35)` tests.
+  - Frontend production build: exit code 0 (`BUILD_EXIT=0`).
 - [ ] W2-16 Identity direction + proof page (DS-08)
 - [ ] W2-17 Public surfaces rebuild on the approved direction (DS-09)
 
@@ -701,7 +722,7 @@ Findings `F24` were measured on the running app (Chromium, 1489×1000 and 390×8
 | DS-04 | P0 | Landing nav hidden, dead links, invented stats/courses/prices | W1-15 | Closed (W1-15) |
 | DS-05 | P1 | Auth inputs dark-on-white; disabled-button contrast | W1-16 | Closed (W1-16) |
 | DS-06 | P1 | Two palettes, 723 hex literals, 18 radii, 11 local `$brand-*` redefinitions | W2-14 | Closed (W2-14) |
-| DS-07 | P2 | Two icon families (Lucide vs `mat-icon` + Material Icons font) | W2-15 | Open |
+| DS-07 | P2 | Two icon families (Lucide vs `mat-icon` + Material Icons font) | W2-15 | Closed (W2-15) |
 | DS-08 | P1 | No identity decision; text-only hero, zero imagery | W2-16 | Open |
 | DS-09 | P1 | Public/auth surfaces not on the system | W2-17 | Open |
 | DS-10 | P1 | Student surfaces use four card styles, no token scale | W3-14 | Open |

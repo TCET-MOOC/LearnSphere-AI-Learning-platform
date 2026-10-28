@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
-import { MatIconModule } from '@angular/material/icon';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { StudentService } from '../services/student.service';
 import { CertificateService } from '../services/certificate.service';
@@ -65,7 +65,7 @@ interface RecommendedCourse {
   imports: [
     CommonModule, 
     DatePipe,
-    MatIconModule
+    LucideAngularModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
@@ -78,10 +78,10 @@ export class DashboardComponent implements OnInit {
   currentDate = new Date();
 
   kpiCards: KpiCard[] = [
-    { icon: 'menu_book', value: 0, label: 'Enrolled Courses', trend: 'up', trendValue: 'Active courses' },
-    { icon: 'event_available', value: '100%', label: 'Completion Rate', trend: 'up', trendValue: 'Across courses' },
-    { icon: 'emoji_events', value: '#1', label: 'Leaderboard Rank', trend: 'up', trendValue: 'Top quartile' },
-    { icon: 'workspace_premium', value: 0, label: 'Certificates Earned', trend: 'up', trendValue: 'Verified' },
+    { icon: 'book-open', value: 0, label: 'Enrolled Courses', trend: 'up', trendValue: 'Active courses' },
+    { icon: 'check-circle', value: '100%', label: 'Completion Rate', trend: 'up', trendValue: 'Across courses' },
+    { icon: 'trophy', value: '#1', label: 'Leaderboard Rank', trend: 'up', trendValue: 'Top quartile' },
+    { icon: 'award', value: 0, label: 'Certificates Earned', trend: 'up', trendValue: 'Verified' },
   ];
 
   continueLearning: CourseProgress[] = [];
@@ -89,8 +89,8 @@ export class DashboardComponent implements OnInit {
   pendingAssessments: PendingAssessment[] = [];
 
   notifications: Notification[] = [
-    { id: 'n1', icon: 'smart_display', message: 'Interactive transcript and live video sync available.', time: '1h ago', read: false },
-    { id: 'n2', icon: 'trending_up', message: 'You completed your latest lecture module.', time: '2h ago', read: false },
+    { id: 'n1', icon: 'play-circle', message: 'Interactive transcript and live video sync available.', time: '1h ago', read: false },
+    { id: 'n2', icon: 'trending-up', message: 'You completed your latest lecture module.', time: '2h ago', read: false },
   ];
 
   recommendedCourses: RecommendedCourse[] = [];

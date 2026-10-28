@@ -235,17 +235,17 @@
     "inline-style": {
       "enforced": false,
       "rule": "owned by the screen-conversion stories",
-      "total": 280,
+      "total": 272,
       "files": {
         "src/app/features/landing/landing.component.html": 232,
-        "src/app/features/student/dashboard/dashboard.component.html": 15,
+        "src/app/features/student/dashboard/dashboard.component.html": 8,
         "src/app/features/student/discussion/discussion.component.html": 6,
         "src/app/features/student/leaderboard/leaderboard.component.html": 1,
         "src/app/features/student/messages/messages.component.html": 8,
         "src/app/features/student/notes/components/note-editor.component.html": 4,
         "src/app/features/student/notes/notes.component.html": 1,
         "src/app/features/teacher/courses/course-management/components/lecture-list.component.html": 2,
-        "src/app/features/teacher/dashboard/dashboard.component.html": 2,
+        "src/app/features/teacher/dashboard/dashboard.component.html": 1,
         "src/app/features/teacher/students/students.component.html": 3,
         "src/app/features/teacher/trending/trending.component.html": 3,
         "src/app/shared/components/teacher-sidebar/teacher-sidebar.component.html": 2,
@@ -316,11 +316,11 @@
       }
     },
     "icon-families": {
-      "enforced": false,
-      "rule": "owned by DS-07",
-      "total": 2,
+      "enforced": true,
+      "rule": "NFR-04(c) / DS-07 — Lucide only",
+      "total": 1,
       "files": {
-        "app-wide": 2
+        "app-wide": 1
       }
     }
   },

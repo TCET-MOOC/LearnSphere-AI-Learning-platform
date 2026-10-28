@@ -21,7 +21,7 @@
       </div>
       
       <div class="course-row" *ngFor="let course of myCourses">
-        <div class="course-thumb" [style.background]="course.bg" style="display: flex; align-items: center; justify-content: center;"><mat-icon style="font-size: 20px; height: 20px; width: 20px;">{{ course.icon }}</mat-icon></div>
+        <div class="course-thumb" [style.background]="course.bg" style="display: flex; align-items: center; justify-content: center;"><lucide-icon [name]="course.icon" [size]="20" aria-hidden="true"></lucide-icon></div>
         <div class="course-info">
           <div class="course-title">{{ course.title }}</div>
           <div class="course-meta">{{ course.stats }}</div>

@@ -1,10 +1,10 @@
 <header class="topbar">
   <div class="topbar__left">
     <button class="icon-btn mobile-menu-btn" (click)="toggleMobileSidebar()" aria-label="Toggle navigation menu">
-      <lucide-icon name="menu" [size]="20"></lucide-icon>
+      <lucide-icon name="menu" [size]="20" aria-hidden="true"></lucide-icon>
     </button>
     <div class="search-box">
-      <lucide-icon name="search" [size]="16" class="search-icon"></lucide-icon>
+      <lucide-icon name="search" [size]="16" class="search-icon" aria-hidden="true"></lucide-icon>
       <input type="text" placeholder="Search courses, notes..." aria-label="Search courses"
         [(ngModel)]="searchQuery" (keydown.enter)="submitSearch()">
     </div>
@@ -17,20 +17,20 @@
       class="icon-btn theme-btn" 
       [title]="isDarkMode ? 'Switch to Light theme' : 'Switch to Dark theme'" 
       (click)="toggleTheme()">
-      <lucide-icon [name]="isDarkMode ? 'sun' : 'moon'" [size]="18"></lucide-icon>
+      <lucide-icon [name]="isDarkMode ? 'sun' : 'moon'" [size]="18" aria-hidden="true"></lucide-icon>
     </button>
   
     <button class="icon-btn" title="Messages" [routerLink]="getMessagesRoute()">
-      <lucide-icon name="message-square" [size]="18"></lucide-icon>
+      <lucide-icon name="message-square" [size]="18" aria-hidden="true"></lucide-icon>
     </button>
 
     <button class="icon-btn" title="Announcements" [routerLink]="getRoleRoute('announcements')" routerLinkActive="active">
-      <lucide-icon name="megaphone" [size]="18"></lucide-icon>
+      <lucide-icon name="megaphone" [size]="18" aria-hidden="true"></lucide-icon>
     </button>
 
     <div class="notification-container" style="position: relative;">
       <button class="icon-btn" title="Notifications" (click)="toggleNotifications()">
-        <lucide-icon name="bell" [size]="18"></lucide-icon>
+        <lucide-icon name="bell" [size]="18" aria-hidden="true"></lucide-icon>
         <span class="badge badge--count" *ngIf="unreadNotifications">{{ unreadNotifications > 9 ? '9+' : unreadNotifications }}</span>
       </button>
 
@@ -53,7 +53,7 @@
             (click)="onNotificationClick(n)">
             
             <div class="notification-icon" [attr.data-category]="n.category">
-              <lucide-icon [name]="getNotificationIcon(n.category)" [size]="16"></lucide-icon>
+              <lucide-icon [name]="getNotificationIcon(n.category)" [size]="16" aria-hidden="true"></lucide-icon>
             </div>
             
             <div class="notification-content">
@@ -68,7 +68,7 @@
 
           <div class="notification-item-empty" *ngIf="notifications.length === 0">
             <div class="empty-icon">
-              <lucide-icon name="bell" [size]="24"></lucide-icon>
+              <lucide-icon name="bell" [size]="24" aria-hidden="true"></lucide-icon>
             </div>
             <strong>All caught up!</strong>
             <p>You have no new notifications.</p>
@@ -78,7 +78,7 @@
         <div class="dropdown-footer">
           <button class="dropdown-item" [routerLink]="getRoleRoute('notifications')" (click)="closeNotifications()">
             <span>View all notifications</span>
-            <lucide-icon name="chevron-right" [size]="14"></lucide-icon>
+            <lucide-icon name="chevron-right" [size]="14" aria-hidden="true"></lucide-icon>
           </button>
         </div>
       </div>
@@ -102,24 +102,24 @@
         <div class="dropdown-divider"></div>
 
         <button class="dropdown-item" type="button" (click)="toggleTheme()">
-          <lucide-icon [name]="isDarkMode ? 'sun' : 'moon'" [size]="16"></lucide-icon>
+          <lucide-icon [name]="isDarkMode ? 'sun' : 'moon'" [size]="16" aria-hidden="true"></lucide-icon>
           <span>{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}</span>
         </button>
 
         <a class="dropdown-item" [routerLink]="getRoleRoute('profile')" (click)="closeMenu()">
-          <lucide-icon name="user" [size]="16"></lucide-icon>
+          <lucide-icon name="user" [size]="16" aria-hidden="true"></lucide-icon>
           <span>View profile</span>
         </a>
 
         <a class="dropdown-item" [routerLink]="getRoleRoute('settings')" (click)="closeMenu()">
-          <lucide-icon name="settings" [size]="16"></lucide-icon>
+          <lucide-icon name="settings" [size]="16" aria-hidden="true"></lucide-icon>
           <span>Settings</span>
         </a>
 
         <div class="dropdown-divider"></div>
         
         <button class="dropdown-item text-danger" (click)="signOut()">
-          <lucide-icon name="x" [size]="16"></lucide-icon>
+          <lucide-icon name="x" [size]="16" aria-hidden="true"></lucide-icon>
           <span>Sign out</span>
         </button>
         

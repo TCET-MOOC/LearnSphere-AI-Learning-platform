@@ -4,12 +4,12 @@
   <div class="dashboard__header">
     <div class="header__greeting">
       <span class="greeting__eyebrow">{{ getGreeting() }},</span>
-      <h1 class="greeting__name">{{ studentName }} <mat-icon style="vertical-align: bottom; font-size: 28px; height: 28px; width: 28px; color: #ffca28;">waving_hand</mat-icon></h1>
+      <h1 class="greeting__name">{{ studentName }} <lucide-icon name="hand" [size]="24" aria-hidden="true" style="vertical-align: bottom; color: #ffca28;"></lucide-icon></h1>
       <span class="greeting__date">{{ currentDate | date:'EEEE, d MMMM yyyy' }}</span>
     </div>
     <div class="header__actions">
       <button class="btn btn--ghost" (click)="navigateToAllCourses()" style="display: inline-flex; align-items: center; gap: 6px;">
-        <mat-icon style="font-size: 20px; height: 20px; width: 20px;">search</mat-icon> Explore Courses
+        <lucide-icon name="search" [size]="18" aria-hidden="true"></lucide-icon> Explore Courses
       </button>
     </div>
   </div>
@@ -19,7 +19,7 @@
     <div class="kpi-card" *ngFor="let card of kpiCards">
       <div class="kpi-card__icon-wrap">
         <span class="kpi-icon-emoji">
-          <mat-icon>{{ card.icon }}</mat-icon>
+          <lucide-icon [name]="card.icon" [size]="20" aria-hidden="true"></lucide-icon>
         </span>
       </div>
       <div class="kpi-card__body">
@@ -89,9 +89,9 @@
               <div class="assessment-item__title">{{ a.title }}</div>
               <div class="assessment-item__course">{{ a.course }}</div>
               <div class="assessment-item__meta">
-                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">description</mat-icon> {{ a.questions }} Qs</span>
-                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">schedule</mat-icon> {{ a.timeLimit }} min</span>
-                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">calendar_today</mat-icon> {{ a.dueDate }}</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><lucide-icon name="file-text" [size]="16" aria-hidden="true"></lucide-icon> {{ a.questions }} Qs</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><lucide-icon name="clock" [size]="16" aria-hidden="true"></lucide-icon> {{ a.timeLimit }} min</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><lucide-icon name="calendar" [size]="16" aria-hidden="true"></lucide-icon> {{ a.dueDate }}</span>
               </div>
             </div>
             <div class="assessment-item__right">
@@ -118,7 +118,7 @@
                *ngFor="let notif of notifications"
                [class.notif-item--unread]="!notif.read">
             <span class="notif-item__icon" style="display: flex; align-items: center; justify-content: center;">
-              <mat-icon style="font-size: 20px; height: 20px; width: 20px;">{{ notif.icon }}</mat-icon>
+              <lucide-icon [name]="notif.icon" [size]="20" aria-hidden="true"></lucide-icon>
             </span>
             <div class="notif-item__body">
               <p class="notif-item__text">{{ notif.message }}</p>
@@ -144,8 +144,8 @@
               <div class="rec-item__title">{{ rec.title }}</div>
               <div class="rec-item__teacher">{{ rec.teacher }} · {{ rec.department }}</div>
               <div class="rec-item__stats">
-                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">star</mat-icon> {{ rec.rating }}</span>
-                <span style="display: flex; align-items: center; gap: 4px;"><mat-icon style="font-size: 16px; height: 16px; width: 16px;">groups</mat-icon> {{ rec.students }} students</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><lucide-icon name="star" [size]="16" aria-hidden="true"></lucide-icon> {{ rec.rating }}</span>
+                <span style="display: flex; align-items: center; gap: 4px;"><lucide-icon name="users" [size]="16" aria-hidden="true"></lucide-icon> {{ rec.students }} students</span>
               </div>
             </div>
             <span class="rec-item__tag">{{ rec.tag }}</span>

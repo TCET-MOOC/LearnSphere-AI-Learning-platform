@@ -77,8 +77,8 @@ const METRICS = [
   {
     id: 'icon-families',
     label: 'icon families in use',
-    enforced: false,
-    rule: 'owned by DS-07',
+    enforced: true,
+    rule: 'NFR-04(c) / DS-07 — Lucide only',
   },
 ];
 
