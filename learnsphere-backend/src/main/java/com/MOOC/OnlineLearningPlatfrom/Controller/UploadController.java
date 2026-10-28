@@ -27,14 +27,17 @@ public class UploadController {
     }
 
     @PostMapping("/video")
-    public ResponseEntity<Map<String, String>> uploadVideo(
+    public ResponseEntity<Map<String, Object>> uploadVideo(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails principal) {
         Long ownerId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : 0L;
         StoredFile storedFile = storageService.storeVideo(file, ownerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "fileKey", storedFile.getFileKey(),
-                "url", "/api/files/" + storedFile.getFileKey()
+                "storageKey", storedFile.getFileKey(),
+                "url", "/api/files/" + storedFile.getFileKey(),
+                "mimeType", storedFile.getContentType() != null ? storedFile.getContentType() : "video/mp4",
+                "sizeBytes", storedFile.getSizeBytes() != null ? storedFile.getSizeBytes() : 0L
         ));
     }
 

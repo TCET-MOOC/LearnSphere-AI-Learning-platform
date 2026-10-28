@@ -52,6 +52,27 @@ public class CourseContent {
     @Column(name = "legacy_lecture_id")
     private Long legacyLectureId;
 
+    @Column(name = "source_type")
+    private String sourceType; // YOUTUBE, UPLOAD, EXTERNAL
+
+    @Column(name = "provider_video_id")
+    private String providerVideoId;
+
+    @Column(name = "storage_key")
+    private String storageKey;
+
+    @Column(name = "external_url", columnDefinition = "TEXT")
+    private String externalUrl;
+
+    @Column(name = "media_status")
+    private String mediaStatus = "READY"; // READY, PROCESSING, FAILED
+
+    @Column(name = "mime_type")
+    private String mimeType;
+
+    @Column(name = "size_bytes")
+    private Long sizeBytes;
+
     @PrePersist
     protected void onCreate() {
         if (this.uploadedAt == null) {

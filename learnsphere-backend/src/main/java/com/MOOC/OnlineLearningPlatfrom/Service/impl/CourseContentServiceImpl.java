@@ -22,21 +22,30 @@ public class CourseContentServiceImpl implements CourseContentService {
 
     private final CourseContentRepository courseContentRepository;
     private final ModuleRepository moduleRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Repository.StoredFileRepository storedFileRepository;
     private final com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService;
 
     @org.springframework.beans.factory.annotation.Autowired
     public CourseContentServiceImpl(CourseContentRepository courseContentRepository,
                                     ModuleRepository moduleRepository,
+                                    com.MOOC.OnlineLearningPlatfrom.Repository.StoredFileRepository storedFileRepository,
                                     @org.springframework.beans.factory.annotation.Autowired(required = false)
                                     com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService) {
         this.courseContentRepository = courseContentRepository;
         this.moduleRepository = moduleRepository;
+        this.storedFileRepository = storedFileRepository;
         this.publicCacheService = publicCacheService;
     }
 
     public CourseContentServiceImpl(CourseContentRepository courseContentRepository,
+                                    ModuleRepository moduleRepository,
+                                    com.MOOC.OnlineLearningPlatfrom.Repository.StoredFileRepository storedFileRepository) {
+        this(courseContentRepository, moduleRepository, storedFileRepository, null);
+    }
+
+    public CourseContentServiceImpl(CourseContentRepository courseContentRepository,
                                     ModuleRepository moduleRepository) {
-        this(courseContentRepository, moduleRepository, null);
+        this(courseContentRepository, moduleRepository, null, null);
     }
 
     @Override
@@ -70,6 +79,10 @@ public class CourseContentServiceImpl implements CourseContentService {
         content.setContentType(type);
         content.setModule(module);
 
+        if ("VIDEO".equals(type)) {
+            validateAndPopulateVideoSource(content);
+        }
+
         if (content.getPosition() == null || content.getPosition() <= 0) {
             List<CourseContent> existing = courseContentRepository.findByModule_ModuleIdOrderByPositionAsc(moduleId);
             content.setPosition(existing.size() + 1);
@@ -100,6 +113,30 @@ public class CourseContentServiceImpl implements CourseContentService {
         if (updated.getDurationSeconds() != null) {
             existing.setDurationSeconds(updated.getDurationSeconds());
         }
+        if (updated.getSourceType() != null) {
+            existing.setSourceType(updated.getSourceType());
+        }
+        if (updated.getStorageKey() != null) {
+            existing.setStorageKey(updated.getStorageKey());
+        }
+        if (updated.getProviderVideoId() != null) {
+            existing.setProviderVideoId(updated.getProviderVideoId());
+        }
+        if (updated.getExternalUrl() != null) {
+            existing.setExternalUrl(updated.getExternalUrl());
+        }
+        if (updated.getMediaStatus() != null) {
+            existing.setMediaStatus(updated.getMediaStatus());
+        }
+        if (updated.getMimeType() != null) {
+            existing.setMimeType(updated.getMimeType());
+        }
+        if (updated.getSizeBytes() != null) {
+            existing.setSizeBytes(updated.getSizeBytes());
+        }
+        if ("VIDEO".equalsIgnoreCase(existing.getContentType())) {
+            validateAndPopulateVideoSource(existing);
+        }
         if (updated.getPosition() != null && !updated.getPosition().equals(existing.getPosition())) {
             existing = courseContentRepository.save(existing);
             return reorderContent(contentId, new ReorderRequest(updated.getPosition(), null));
@@ -108,6 +145,84 @@ public class CourseContentServiceImpl implements CourseContentService {
         CourseContent saved = courseContentRepository.save(existing);
         invalidateCourseForModule(existing.getModule());
         return saved;
+    }
+
+    private void validateAndPopulateVideoSource(CourseContent content) {
+        String sourceType = content.getSourceType();
+        if (sourceType == null || sourceType.isBlank()) {
+            if (content.getStorageKey() != null && !content.getStorageKey().isBlank()) {
+                sourceType = "UPLOAD";
+            } else if (content.getProviderVideoId() != null && !content.getProviderVideoId().isBlank()) {
+                sourceType = "YOUTUBE";
+            } else if (content.getExternalUrl() != null && !content.getExternalUrl().isBlank()) {
+                sourceType = "EXTERNAL";
+            } else if (content.getFilePath() != null && (content.getFilePath().contains("youtu.be") || content.getFilePath().contains("youtube.com"))) {
+                sourceType = "YOUTUBE";
+            } else {
+                throw new BadRequestException("Video content must specify a valid source (UPLOAD, YOUTUBE, or EXTERNAL)");
+            }
+        }
+
+        sourceType = sourceType.toUpperCase(java.util.Locale.ROOT);
+        content.setSourceType(sourceType);
+
+        if ("UPLOAD".equals(sourceType)) {
+            if (content.getStorageKey() == null || content.getStorageKey().isBlank()) {
+                throw new BadRequestException("storageKey is required for UPLOAD video");
+            }
+            if (storedFileRepository != null) {
+                com.MOOC.OnlineLearningPlatfrom.Entity.StoredFile file = storedFileRepository.findByFileKey(content.getStorageKey())
+                        .orElseThrow(() -> new BadRequestException("Storage file not found with key: " + content.getStorageKey()));
+                if (content.getMimeType() == null || content.getMimeType().isBlank()) {
+                    content.setMimeType(file.getContentType());
+                }
+                if (content.getSizeBytes() == null) {
+                    content.setSizeBytes(file.getSizeBytes());
+                }
+            }
+            if (content.getMediaStatus() == null || content.getMediaStatus().isBlank()) {
+                content.setMediaStatus("READY");
+            }
+        } else if ("YOUTUBE".equals(sourceType)) {
+            if (content.getProviderVideoId() == null || content.getProviderVideoId().isBlank()) {
+                String vid = extractYoutubeId(content.getFilePath());
+                if (vid == null || vid.isBlank()) {
+                    vid = extractYoutubeId(content.getExternalUrl());
+                }
+                if (vid == null || vid.isBlank()) {
+                    throw new BadRequestException("providerVideoId is required for YOUTUBE video");
+                }
+                content.setProviderVideoId(vid);
+            }
+            if (content.getMediaStatus() == null || content.getMediaStatus().isBlank()) {
+                content.setMediaStatus("READY");
+            }
+        } else if ("EXTERNAL".equals(sourceType)) {
+            if (content.getExternalUrl() == null || content.getExternalUrl().isBlank()
+                    || (!content.getExternalUrl().startsWith("http://") && !content.getExternalUrl().startsWith("https://"))) {
+                throw new BadRequestException("A valid externalUrl (http:// or https://) is required for EXTERNAL video");
+            }
+            if (content.getMediaStatus() == null || content.getMediaStatus().isBlank()) {
+                content.setMediaStatus("READY");
+            }
+        } else {
+            throw new BadRequestException("Unsupported video sourceType: " + sourceType);
+        }
+    }
+
+    private String extractYoutubeId(String url) {
+        if (url == null || url.isBlank()) return "";
+        if (url.contains("v=")) {
+            int start = url.indexOf("v=") + 2;
+            int end = url.indexOf('&', start);
+            return end == -1 ? url.substring(start) : url.substring(start, end);
+        }
+        if (url.contains("youtu.be/")) {
+            int start = url.indexOf("youtu.be/") + 9;
+            int end = url.indexOf('?', start);
+            return end == -1 ? url.substring(start) : url.substring(start, end);
+        }
+        return url;
     }
 
     @Override

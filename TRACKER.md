@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-11` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` added `courses.department_id` FK and backfill (`73d7b92`). `W2-02` established the course state machine and catalog filtering (`e2dc073`). `W2-03` replaced hard deletion with soft-delete archiving and restore (`d587ce3`). `W2-04` implemented module and content contiguous ordering, reorder endpoints, and delete re-normalisation (`413d3f8`). `W2-05` migrated `Lecture` 1:1 to `CourseContent` via Flyway `V5__legacy_lecture_migration.sql`, backfilled `user_progress.content_id`, retired legacy lecture mutation endpoints (400), and maintained legacy lecture read endpoints as a read-only projection. `W2-06` enforced assignment validation and ownership IDOR defense (`ebfc48e`). `W2-07` implemented storage port, upload safety, opaque file keys, and removed public uploads (`1bba6f0`). `W2-08` rebound notes and bookmarks to canonical `CourseContent`, migrated legacy lecture rows via Flyway `V7__notes_bookmarks_content_rebind.sql`, bounded timestamps to content duration, and enforced IDOR defenses (`89e290c`). `W2-09` implemented YouTube playlist import into canonical `CourseContent`, module auto-resolution/creation, contiguous 1..n ordering, in-memory transcript caching, quota/error fallbacks, and teacher IDOR verification (`84a1e9c`). `W2-10` landed the end-to-end curriculum contract suite locking ordering, state machine, archiving, validation, upload safety, and IDOR defenses (`aa7c307`). `W2-11` implemented in-process Caffeine read caches for public catalogue, course details, departments, and department courses, generation-based ETags returning 304 Not Modified, strict private no-store bypass for drafts and staff views, and automatic cache invalidation on curriculum and reference mutations. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-12 Canonical media source + secure local playback` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-12` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-11` complete. `W2-12` implemented canonical media source union (`YOUTUBE`, `UPLOAD`, `EXTERNAL`), Flyway migration `V8__canonical_media_source.sql`, secure signed playback descriptors (`GET /api/contents/{id}/playback`) with HMAC-SHA256 signatures and strict zero-leakage of storage keys/paths, HTTP Range streaming (`206 Partial Content` on `GET /api/contents/{id}/stream`), upload MIME and magic byte safety with 200MB cap, and source union validation on content creation and updates. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-13 Opt-in YouTube channel publish` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -477,7 +477,39 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Red: initial run failed 2/6 tests with `AssertionError: Status expected:<200> but was:<304>` before cache invalidation wiring.
   - Green: `PublicCacheAndEtagTests` passed 6/6 tests.
   - Full regression: backend `192/192` passed, payments `10/10` passed, frontend `33/33` passed, stylelint ratchet 100% passed.
-- [ ] W2-12 Canonical media source + secure local playback
+- [x] W2-12 Canonical media source + secure local playback
+
+**W2-12 evidence (2026-10-28) — Canonical media source + secure local playback:**
+- Rules: A-25, BR-26, NFR-03, W2-05, W2-07, spec §6.
+- Canonical Media Source Schema (Flyway `V8__canonical_media_source.sql`):
+  - Added columns to `course_content`: `source_type` (VARCHAR(32)), `provider_video_id` (VARCHAR(128)), `storage_key` (VARCHAR(128)), `external_url` (TEXT), `media_status` (VARCHAR(32)), `mime_type` (VARCHAR(128)), `size_bytes` (BIGINT).
+  - Created indexes on `source_type` and `storage_key`.
+  - Backfilled existing content: set `source_type = 'YOUTUBE'` where `file_path` contains `youtu.be` or `youtube.com` with extracted video IDs, default fallback `source_type = 'YOUTUBE'`, and `media_status = 'READY'`.
+- Content Authoring Source Union Validation (`CourseContentServiceImpl`):
+  - When `contentType = 'VIDEO'`, validates source union across `UPLOAD`, `YOUTUBE`, and `EXTERNAL`.
+  - `UPLOAD`: requires `storageKey` existing in `stored_files` (rejects non-existent key with 400 Bad Request), auto-populating `mimeType` and `sizeBytes` from the stored file.
+  - `YOUTUBE`: requires `providerVideoId` (or extractable from `filePath`/`externalUrl`), rejecting missing ID with 400 Bad Request.
+  - `EXTERNAL`: requires valid URL starting with `http://` or `https://`.
+- Entitlement-Bound Playback Descriptors (`MediaPlaybackService` & `ContentController`):
+  - `GET /api/contents/{id}/playback`: verifies enrollment via `OwnershipService.requireEnrolled(courseId, principal)`.
+  - IDOR defense: non-enrolled students receive `404 NOT_FOUND` (preventing media existence probing). Course teachers and admins are granted access.
+  - Always returns `Cache-Control: private, no-store`.
+  - Response shape (`PlaybackDescriptorDto` with `@JsonInclude(NON_NULL)`):
+    - For `YOUTUBE`: returns `embedUrl` (`https://www.youtube-nocookie.com/embed/...`) and `providerVideoId`; `streamUrl` is omitted.
+    - For `UPLOAD`: computes a short-lived HMAC-SHA256 signature (`exp = now + 300s`) signed with JWT secret; returns `streamUrl = /api/contents/{id}/stream?exp=...&u=...&sig=...` and `expiresAt`; raw `storageKey`, `storagePath`, and `filePath` are strictly omitted from response.
+- Secure Video Streaming & HTTP Range Requests:
+  - `GET /api/contents/{id}/stream`: validates HMAC signature and expiry timestamp.
+  - Tampered or expired signatures are rejected with `403 FORBIDDEN`.
+  - Supports HTTP Range requests: when `Range: bytes=start-end` is supplied, reads the byte slice from disk and returns `206 Partial Content` with `Content-Range: bytes start-end/total`, `Accept-Ranges: bytes`, `Content-Length`, `Content-Type: video/mp4`, and `Cache-Control: private, no-store`.
+  - Requests without `Range` return `200 OK` with full stream and `Accept-Ranges: bytes`.
+- Upload Controller Hardening:
+  - `POST /api/teacher/upload/video` returns `fileKey`, `storageKey`, `url`, `mimeType`, and `sizeBytes`.
+  - Rejects files with executable headers (`MZ`, `#!`) and mislabelled non-video files with 400 Bad Request. Legacy public `/api/uploads/**` remains rejected (401/404).
+- Red-green verification:
+  - Authored `MediaPlaybackSecurityTests.java` with 14 comprehensive tests.
+  - Red: 9/14 tests failed before service implementation and controller wiring.
+  - Green: `MediaPlaybackSecurityTests` passed 14/14 tests.
+  - Full regression: backend `206/206` passed, payments `10/10` passed, frontend `33/33` passed, stylelint ratchet 100% passed.
 - [ ] W2-13 Opt-in YouTube channel publish (OAuth + idempotent upload)
 - [ ] W2-14 Token consolidation + lint ratchet to zero-new (DS-06)
 - [ ] W2-15 Icon unification: Lucide only (DS-07)
