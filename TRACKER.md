@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` through `W3-08` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-08` implemented same-college entitlement (migration V13 with `college_entitlements` table and unique `(student_id, course_id)`, verified same-college student free enrollment with 0 payment rows created, checkout blocked with 400 for entitled students, admin grant/revoke overrides with audit logging, and `GET /api/courses/{id}/entitlement` with `Cache-Control: private, no-store`). |
-| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-09 Learning regression suite`). |
+| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` through `W3-14` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-14` unified student surfaces on the design system (DS-10), tokenized CourseCardComponent, restructured Student Dashboard with a 3-tier card hierarchy, loading/error/empty states, and tokenized My Courses and Explore catalog. |
+| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-15 Player workspace typography + density (DS-11)`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -640,8 +640,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-11 Canonical player route + server enrolment check (AUD-08)
 - [x] W3-12 Course-surface polish (AUD-09)
 - [x] W3-13 Hot-path query optimization + private no-store
-- [~] W3-14 Student surfaces on the system (DS-10)
-- [ ] W3-15 Player workspace typography + density (DS-11)
+- [x] W3-14 Student surfaces on the system (DS-10)
+- [~] W3-15 Player workspace typography + density (DS-11)
 
 **W3-01 evidence (2026-10-28) — Enrolment unique, self-only, published check:**
 - Rules: AC-10, A-04, BR-08, [C-F1, C-F2].
@@ -948,6 +948,32 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `HotPathQueryOptimizationTests.java` covering 8 integration scenarios: batch course progress calculation, batch user progress summary, eager leaderboard user/course join, eager user leaderboard standings join, and private no-store headers across all leaderboard routes.
   - Green: 8/8 passed in `HotPathQueryOptimizationTests`. Full backend test suite `310/310` passed. Full payments suite `10/10` passed.
 
+**W3-14 evidence (2026-10-28) — Student surfaces on design system (DS-10):**
+- Rules: DS-10, NFR-04(c)(e)(f), A-28.
+- Tokenized Course Card (`course-card.component.ts`):
+  - Completely replaced hardcoded raw hex colors (`#6366f1`, `#8b5cf6`, `#10b981`, `#059669`, `#111827`, `#6b7280`, `#f3f4f6`) with design system tokens (`var(--brand-primary)`, `var(--brand-surface)`, `var(--status-green-text)`, `var(--status-green-bg)`, `var(--text-primary)`, `var(--text-secondary)`, `var(--bg-app)`).
+  - Replaced literal radii with tokens (`var(--border-radius-md)`, `var(--border-radius-full)`).
+  - Enforced `font-variant-numeric: tabular-nums;` on progress percentages and badges.
+- Student Dashboard Rebuild (`student/dashboard/**`):
+  - Card Hierarchy (DS-10): Replaced ambiguous card styling with a distinct 3-tier hierarchy:
+    1. Metric KPI cards (`.kpi-card`): lightweight elevation (`var(--shadow-xs)`), subtle border, icon pill, tabular numerals (`font-variant-numeric: tabular-nums`).
+    2. Structural container panels (`.panel`): standard surface (`var(--bg-surface)`), subtle border (`var(--border-color)`), elevated shadow (`var(--shadow-sm)`).
+    3. Content row items (`.course-item`, `.assessment-item`): row-based list items with hover transitions and tabular percentages.
+  - States & UX: Added dedicated loading state (`.dashboard-state--loading` with spinner), error state (`.dashboard-state--error` with retry action), and empty state (`.empty-state` with CTA to Explore Catalogue) when courses are empty.
+  - Zero Inline Styles & Clean Typography: Replaced all inline styles with semantic CSS classes; eliminated `→` suffixes from CTAs (`View All`).
+- My Courses Surface Polish (`student/courses/**`):
+  - Replaced raw colors and literal radii with design tokens across tabs, pills, and thumbnails.
+  - Added real loading, error (with retry button), and empty states (`.empty-enrolled` with Lucide `book-open` icon and explore CTA).
+- Explore Catalogue Surface Polish (`student/explore/**`):
+  - Tokenized catalog cards, prices, and filter pills.
+  - Added real loading, error (with retry button), and empty search states (`.empty-explore` with Lucide `search` icon).
+  - Formatted prices and progress with tabular numerals (`tabular-nums`).
+- TDD & Verification:
+  - Authored comprehensive unit test suite in `dashboard.component.spec.ts` (6 tests covering shell greeting, loading state with `NEVER`, error state with retry, empty state, populated card hierarchy, and navigation).
+  - Updated `courses.component.spec.ts` (6 tests) and `explore.component.spec.ts` (5 tests) for Lucide icon registration in TestBed.
+  - Full frontend suite: 16 test files passed, 74 tests passed.
+  - Stylelint ratchet: passed cleanly (color-no-hex decreased by 11, radius-literal decreased by 7, transition-all decreased by 1, inline-style decreased by 8). Production build succeeded (`BUILD_EXIT=0`).
+
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
 - [~] W4-02 Retire legacy `/api/tests` surface
@@ -1070,7 +1096,7 @@ Findings `F24` were measured on the running app (Chromium, 1489×1000 and 390×8
 | DS-07 | P2 | Two icon families (Lucide vs `mat-icon` + Material Icons font) | W2-15 | Closed (W2-15) |
 | DS-08 | P1 | No identity decision; text-only hero, zero imagery | W2-16 | Closed (W2-16) |
 | DS-09 | P1 | Public/auth surfaces not on the system | W2-17 | Closed (W2-17) |
-| DS-10 | P1 | Student surfaces use four card styles, no token scale | W3-14 | Open |
+| DS-10 | P1 | Student surfaces use four card styles, no token scale | W3-14 | Closed (W3-14) |
 | DS-11 | P1 | Player workspace shares generic card chrome | W3-15 | Open |
 | DS-12 | P2 | Teacher/admin consoles drift from shared components | W7-14 | Open |
 | DS-13 | P2 | 117 `transition: all`, 52 hover lifts, `→` suffixes, unverifiable superlatives | W7-15 | Open |

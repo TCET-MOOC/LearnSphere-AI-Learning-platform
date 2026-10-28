@@ -48,24 +48,26 @@ import { StudentService } from '../../services/student.service';
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 16px 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 16px 12px;
+      border-bottom: 1px solid var(--border-color);
       cursor: pointer;
       text-decoration: none;
       color: inherit;
-      transition: background 0.15s ease;
-      border-radius: 8px;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      border-radius: var(--border-radius-md);
+      background: var(--bg-surface);
     }
     .course-row:hover {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--bg-hover);
     }
     .course-row:last-child { border-bottom: none; }
     .course-thumb {
       width: 44px;
       height: 44px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: #ffffff;
+      border-radius: var(--border-radius-md);
+      background: var(--brand-surface);
+      color: var(--brand-primary);
+      border: 1px solid var(--brand-primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -75,35 +77,35 @@ import { StudentService } from '../../services/student.service';
     }
     .course-main { flex: 1; min-width: 0; }
     .course-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .course-title-row h3 { margin: 0; font-size: 14px; font-weight: 600; color: #f1f5f9; }
+    .course-title-row h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
     .badge-group { display: flex; align-items: center; gap: 6px; }
-    .course-main p { margin: 4px 0 8px; font-size: 12px; color: #94a3b8; }
-    .progress-track { height: 6px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
-    .progress-track span { display: block; height: 100%; background: #6366f1; border-radius: 4px; }
-    .progress-track span.is-completed-fill { background: #10b981; }
+    .course-main p { margin: 4px 0 8px; font-size: 12px; color: var(--text-secondary); }
+    .progress-track { height: 6px; border-radius: var(--border-radius-full); background: var(--bg-hover); overflow: hidden; }
+    .progress-track span { display: block; height: 100%; background: var(--brand-primary); border-radius: var(--border-radius-full); }
+    .progress-track span.is-completed-fill { background: var(--status-green-text); }
     .course-meta-end {
       display: flex;
       align-items: center;
       gap: 12px;
       flex: 0 0 auto;
     }
-    .course-progress { font-size: 13px; font-weight: 700; color: #818cf8; min-width: 48px; text-align: right; font-variant-numeric: tabular-nums; }
-    .course-progress.is-completed-text { color: #34d399; }
+    .course-progress { font-size: 13px; font-weight: 700; color: var(--brand-primary); min-width: 48px; text-align: right; font-variant-numeric: tabular-nums; }
+    .course-progress.is-completed-text { color: var(--status-green-text); }
     .btn-continue {
-      padding: 6px 12px;
-      border-radius: 6px;
+      padding: 6px 14px;
+      border-radius: var(--border-radius-sm);
       font-size: 12px;
       font-weight: 600;
-      background: rgba(99, 102, 241, 0.15);
-      color: #a5b4fc;
-      border: 1px solid rgba(99, 102, 241, 0.35);
+      background: var(--brand-surface);
+      color: var(--brand-primary);
+      border: 1px solid var(--brand-primary);
       cursor: pointer;
       transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
       white-space: nowrap;
 
       &:hover:not(:disabled) {
-        background: #6366f1;
-        color: #ffffff;
+        background: var(--brand-primary);
+        color: var(--text-on-brand, var(--bg-primary));
       }
 
       &:disabled {
@@ -111,13 +113,13 @@ import { StudentService } from '../../services/student.service';
         cursor: not-allowed;
       }
     }
-    .pill { font-size: 10.5px; padding: 2px 8px; border-radius: 20px; font-weight: 600; text-transform: capitalize; }
-    .pill--live { background: rgba(52, 211, 153, 0.15); color: #34d399; }
-    .pill--draft { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-    .pill--pending { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-    .pill--archived { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
-    .pill--progress { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; font-weight: 600; }
-    .pill--completed { background: rgba(52, 211, 153, 0.2); color: #34d399; font-weight: 700; }
+    .pill { font-size: 10.5px; padding: 2px 8px; border-radius: var(--border-radius-full); font-weight: 600; text-transform: capitalize; }
+    .pill--live { background: var(--status-green-bg); color: var(--status-green-text); border: 1px solid var(--status-green-bg); }
+    .pill--draft { background: var(--status-amber-bg); color: var(--status-amber-text); border: 1px solid var(--status-amber-bg); }
+    .pill--pending { background: var(--status-red-bg); color: var(--status-red-text); border: 1px solid var(--status-red-bg); }
+    .pill--archived { background: var(--status-grey-bg); color: var(--status-grey-text); border: 1px solid var(--status-grey-bg); }
+    .pill--progress { background: var(--brand-surface); color: var(--brand-primary); border: 1px solid var(--brand-surface); font-weight: 600; }
+    .pill--completed { background: var(--status-green-bg); color: var(--status-green-text); border: 1px solid var(--status-green-bg); font-weight: 700; }
   `]
 })
 export class CourseCardComponent {

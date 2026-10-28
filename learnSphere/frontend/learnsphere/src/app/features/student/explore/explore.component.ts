@@ -7,6 +7,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { StudentService } from '../services/student.service';
 import { Course } from '@core/models/course.model';
 import { NotificationService } from '@core/services/notification.service';
+import { LucideAngularModule } from 'lucide-angular';
 
 type ExploreFilterKey = 'ALL' | 'FREE' | 'PAID';
 
@@ -17,12 +18,13 @@ type ExploreFilterKey = 'ALL' | 'FREE' | 'PAID';
 @Component({
   selector: 'app-student-explore',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
   templateUrl: './explore.component.html',
   styleUrls: ['./explore.component.scss']
 })
 export class ExploreComponent implements OnInit, OnDestroy {
   loading = true;
+  errorMessage: string | null = null;
   courses: Course[] = [];
   enrolledCourseIds = new Set<number>();
   enrollingId: number | null = null;
@@ -79,6 +81,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
 
   loadCatalog(): void {
     this.loading = true;
+    this.errorMessage = null;
     const q = this.searchQuery.trim();
     forkJoin({
       explore: this.studentService.getExploreCourses({ status: 'LIVE', search: q || undefined }),
@@ -93,6 +96,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       error: () => {
         this.courses = [];
         this.loading = false;
+        this.errorMessage = 'Could not load course offerings. Please check connection and try again.';
         this.cdr.markForCheck();
       }
     });

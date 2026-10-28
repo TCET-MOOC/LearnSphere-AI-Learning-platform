@@ -3,6 +3,7 @@ import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { CoursesComponent } from './courses.component';
 import { StudentService } from '../services/student.service';
+import { LucideAngularModule, AlertTriangle, BookOpen } from 'lucide-angular';
 import { Course } from '@core/models/course.model';
 
 describe('CoursesComponent Polish & Enrolled Filters (W3-12 / AUD-09)', () => {
@@ -66,7 +67,10 @@ describe('CoursesComponent Polish & Enrolled Filters (W3-12 / AUD-09)', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [CoursesComponent],
+      imports: [
+        CoursesComponent,
+        LucideAngularModule.pick({ AlertTriangle, BookOpen })
+      ],
       providers: [
         provideRouter([]),
         { provide: StudentService, useValue: studentServiceSpy }

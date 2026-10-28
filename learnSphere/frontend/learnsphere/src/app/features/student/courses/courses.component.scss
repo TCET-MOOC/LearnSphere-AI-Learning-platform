@@ -144,31 +144,36 @@
 .tab,
 .link-btn {
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
   font: inherit;
   font-size: 12px;
   font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .btn {
-  padding: 8px 12px;
+  padding: 8px 14px;
 
   &--primary {
-    background: $brand;
-    color: #fff;
+    background: var(--brand-primary);
+    color: var(--text-on-brand, var(--bg-primary));
+
+    &:hover {
+      background: var(--brand-primary-hover);
+    }
   }
 
   &--soft {
-    background: $brand-soft;
-    color: $brand;
+    background: var(--brand-surface);
+    color: var(--brand-primary);
     padding: 6px 10px;
   }
 }
 
 .link-btn {
   background: transparent;
-  color: $brand;
+  color: var(--brand-primary);
   padding: 0;
 }
 
@@ -181,13 +186,13 @@
 
 .tab {
   background: transparent;
-  color: $muted;
-  padding: 6px 12px;
+  color: var(--text-secondary);
+  padding: 6px 14px;
 
   &--active {
-    background: $brand-soft;
-    border-color: #afa9ec;
-    color: #3c3489;
+    background: var(--brand-surface);
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
   }
 }
 
@@ -362,14 +367,14 @@
 }
 
 .course-thumb--purple,
-.mini-mark--purple { background: $brand-soft; color: $brand; }
+.mini-mark--purple { background: var(--brand-surface); color: var(--brand-primary); }
 .course-thumb--green,
-.mini-mark--green { background: $green-soft; color: #27500a; }
-.course-thumb--amber { background: $amber-soft; color: #633806; }
+.mini-mark--green { background: var(--status-green-bg); color: var(--status-green-text); }
+.course-thumb--amber { background: var(--status-amber-bg); color: var(--status-amber-text); }
 .course-thumb--blue,
-.mini-mark--blue { background: $blue-soft; color: $blue; }
-.course-thumb--rose { background: #fbeaf0; color: #8d2549; }
-.course-thumb--grey { background: $grey-soft; color: $muted; }
+.mini-mark--blue { background: var(--brand-surface); color: var(--brand-primary); }
+.course-thumb--rose { background: var(--status-red-bg); color: var(--status-red-text); }
+.course-thumb--grey { background: var(--status-grey-bg); color: var(--status-grey-text); }
 
 .course-main {
   flex: 1;
@@ -398,24 +403,74 @@
 
 .course-progress {
   min-width: 42px;
-  color: $brand;
+  color: var(--brand-primary);
   font-size: 14px;
   font-weight: 700;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
+  border-radius: var(--border-radius-full);
   font-size: 11px;
   font-weight: 600;
   padding: 3px 8px;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 
-  &--purple { background: $brand-soft; color: #3c3489; }
-  &--green { background: $green-soft; color: #27500a; }
-  &--grey { background: $grey-soft; color: $muted; }
+  &--purple { background: var(--brand-surface); color: var(--brand-primary); }
+  &--green { background: var(--status-green-bg); color: var(--status-green-text); }
+  &--grey { background: var(--status-grey-bg); color: var(--status-grey-text); }
+}
+
+.courses-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 16px;
+  text-align: center;
+  gap: 12px;
+
+  &--loading {
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--brand-primary);
+      border-radius: var(--border-radius-full);
+      animation: spin 0.8s linear infinite;
+    }
+  }
+
+  &--error {
+    .error-icon {
+      color: var(--status-red-text);
+    }
+    .error-msg {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 13.5px;
+    }
+  }
+}
+
+.empty-icon {
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.empty-title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .explore-grid {

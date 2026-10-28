@@ -1,14 +1,12 @@
 // ──────────────────────────────────────────────────────
 // Student Dashboard Component Styles
-// Uses variables from src/styles/_variables.scss
-// Brand purple: $brand-purple (#534AB7)
-// Status colours: $status-red, $status-amber, $status-green, $status-purple, $status-grey
+// Uses tokens from src/styles/_tokens.scss & _variables.scss
+// ──────────────────────────────────────────────────────
 
 @import 'variables';
 
- 
 // ── Layout ──────────────────────────────────────────
- 
+
 .dashboard {
   padding: 28px 32px 40px;
   max-width: 1360px;
@@ -18,15 +16,15 @@
   flex-direction: column;
   gap: 24px;
   font-family: inherit;
- 
+
   @media (max-width: 768px) {
     padding: 16px;
     gap: 16px;
   }
 }
- 
+
 // ── Header ──────────────────────────────────────────
- 
+
 .dashboard__header {
   display: flex;
   align-items: flex-end;
@@ -34,13 +32,13 @@
   flex-wrap: wrap;
   gap: 12px;
 }
- 
+
 .header__greeting {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
- 
+
 .greeting__eyebrow {
   font-size: 11px;
   font-weight: 700;
@@ -49,23 +47,31 @@
   color: var(--brand-primary);
   margin-bottom: 2px;
 }
- 
+
 .greeting__name {
   font-size: 26px;
   font-weight: 700;
   color: $text-primary;
   line-height: 1.2;
   letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
- 
+
+.greeting-hand {
+  vertical-align: bottom;
+  color: var(--brand-secondary, #ffca28);
+}
+
 .greeting__date {
   font-size: 13px;
   color: $text-secondary;
   margin-top: 2px;
 }
- 
+
 // ── Buttons ──────────────────────────────────────────
- 
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -73,102 +79,169 @@
   border: none;
   cursor: pointer;
   font-family: inherit;
-  font-weight: 500;
-  transition: all 0.15s ease;
-  border-radius: $radius-sm;
- 
+  font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  border-radius: var(--border-radius-sm);
+
   &--primary {
-    background: $brand-purple;
-    color: #fff;
+    background: var(--brand-primary);
+    color: var(--text-on-brand, var(--bg-primary));
     padding: 8px 16px;
     font-size: 13px;
- 
+
     &:hover { background: var(--brand-primary-hover); }
   }
- 
+
   &--sm {
     padding: 6px 12px;
     font-size: 12px;
   }
- 
+
   &--ghost {
     background: $surface;
     border: 1px solid $border;
     color: $text-primary;
     padding: 8px 14px;
     font-size: 13px;
- 
-    &:hover { border-color: $brand-purple; color: $brand-purple; }
+
+    &:hover {
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+      background: var(--bg-hover);
+    }
   }
- 
+
   &--link {
     background: none;
-    color: $brand-purple;
+    color: var(--brand-primary);
     padding: 0;
     font-size: 12px;
- 
+    font-weight: 600;
+
     &:hover { text-decoration: underline; }
   }
- 
+
   &__icon { font-size: 14px; }
 }
- 
-// ── KPI Cards ────────────────────────────────────────
- 
+
+.btn-explore-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mt-12 {
+  margin-top: 12px;
+}
+
+// ── Dashboard States (Loading & Error) ───────────────
+
+.dashboard-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+
+  &--loading {
+    gap: 16px;
+
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--brand-primary);
+      border-radius: var(--border-radius-full);
+      animation: spin 0.8s linear infinite;
+    }
+  }
+
+  &--error {
+    gap: 12px;
+
+    .error-icon {
+      color: var(--status-red-text);
+    }
+
+    .error-msg {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── Card Hierarchy 1: KPI Stat Cards ───────────────────
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
- 
+
   @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
   @media (max-width: 600px)  { grid-template-columns: 1fr 1fr; gap: 10px; }
 }
- 
+
 .kpi-card {
   background: $surface;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  padding: 20px;
+  border: 1px solid var(--border-subtle, $border);
+  border-radius: var(--border-radius-lg);
+  padding: 18px 20px;
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  transition: box-shadow 0.15s;
- 
-  &:hover { box-shadow: 0 4px 16px rgba($brand-purple, 0.08); }
- 
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--brand-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
   &__icon-wrap {
     width: 40px;
     height: 40px;
     min-width: 40px;
-    background: $brand-purple-lt;
-    border-radius: $radius-md;
+    background: var(--brand-surface);
+    color: var(--brand-primary);
+    border: 1px solid var(--brand-surface);
+    border-radius: var(--border-radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
- 
-    svg {
+
+    lucide-icon, svg {
       width: 18px;
       height: 18px;
-      color: $brand-purple;
     }
   }
- 
+
   &__body { flex: 1; min-width: 0; }
- 
+
   &__value {
     font-size: 24px;
     font-weight: 700;
     color: $text-primary;
     letter-spacing: -0.03em;
     line-height: 1;
+    font-variant-numeric: tabular-nums;
   }
- 
+
   &__label {
     font-size: 12px;
     color: $text-secondary;
-    margin-top: 3px;
+    margin-top: 4px;
   }
- 
+
   &__trend {
     display: flex;
     align-items: center;
@@ -176,51 +249,53 @@
     margin-top: 6px;
     font-size: 11px;
     color: $text-tertiary;
+    font-variant-numeric: tabular-nums;
   }
 }
- 
+
 .trend__arrow {
   font-weight: 700;
   font-size: 12px;
- 
-  &--up   { color: $status-green; }
-  &--down { color: $status-red; }
+
+  &--up   { color: var(--status-green-text); }
+  &--down { color: var(--status-red-text); }
 }
- 
+
 // ── Main Content Grid ─────────────────────────────────
- 
+
 .content-grid {
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: 20px;
   align-items: start;
- 
+
   @media (max-width: 1100px) {
     grid-template-columns: 1fr;
   }
- 
+
   &__left, &__right {
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
 }
- 
-// ── Panels ────────────────────────────────────────────
- 
+
+// ── Card Hierarchy 2: Structural Container Panels ─────
+
 .panel {
   background: $surface;
   border: 1px solid $border;
-  border-radius: $radius-lg;
-  padding: 20px;
- 
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 22px;
+
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
   }
- 
+
   &__title {
     font-size: 15px;
     font-weight: 600;
@@ -230,163 +305,187 @@
     gap: 8px;
   }
 }
- 
+
 .title-badge {
   font-size: 10px;
   font-weight: 700;
-  background: linear-gradient(135deg, $brand-purple, #7C6CE0);
-  color: #fff;
+  background: var(--brand-primary);
+  color: var(--text-on-brand, var(--bg-primary));
   padding: 2px 7px;
-  border-radius: 20px;
+  border-radius: var(--border-radius-full);
   letter-spacing: 0.05em;
 }
- 
-// ── Continue Learning ────────────────────────────────
- 
+
+// ── Card Hierarchy 3: Content List Items ──────────────
+
 .course-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
- 
+
 .course-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 8px;
-  border-radius: $radius-md;
+  padding: 12px 10px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.12s;
- 
-  &:hover { background: $bg; }
- 
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-color);
+  }
+
   &__avatar {
     width: 44px;
     height: 44px;
     min-width: 44px;
-    border-radius: $radius-sm;
+    border-radius: var(--border-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.04em;
   }
- 
+
   &__info { flex: 1; min-width: 0; }
- 
+
   &__meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2px;
   }
- 
+
   &__dept {
     font-size: 10px;
     color: $text-tertiary;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
- 
+
   &__time {
     font-size: 10px;
     color: $text-tertiary;
   }
- 
+
   &__title {
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 600;
     color: $text-primary;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
- 
+
   &__teacher {
     font-size: 11px;
     color: $text-secondary;
     margin-bottom: 6px;
   }
- 
+
   &__pct {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
-    min-width: 36px;
+    min-width: 40px;
     text-align: right;
+    color: var(--brand-primary);
+    font-variant-numeric: tabular-nums;
+
+    &.is-completed {
+      color: var(--status-green-text);
+    }
   }
 }
- 
+
+.course-avatar--brand {
+  background: var(--brand-surface);
+  color: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
+}
+
 .progress-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
 }
- 
+
 .progress-bar {
   flex: 1;
-  height: 4px;
-  background: $bg;
-  border-radius: 99px;
+  height: 5px;
+  background: var(--bg-hover);
+  border-radius: var(--border-radius-full);
   overflow: hidden;
- 
+
   &__fill {
     height: 100%;
-    border-radius: 99px;
+    background: var(--brand-primary);
+    border-radius: var(--border-radius-full);
     transition: width 0.4s ease;
+
+    &--completed {
+      background: var(--status-green-text);
+    }
   }
 }
- 
+
 .progress-label {
-  font-size: 10px;
+  font-size: 10.5px;
   color: $text-tertiary;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
- 
-// ── Assessments ───────────────────────────────────────
- 
+
+// ── Assessments Item ──────────────────────────────────
+
 .assessment-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
- 
+
 .assessment-item {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 14px;
   border: 1px solid $border;
-  border-radius: $radius-md;
-  transition: border-color 0.12s, box-shadow 0.12s;
- 
+  border-radius: var(--border-radius-md);
+  background: var(--bg-surface-elevated, $surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
   &:hover {
     border-color: var(--brand-primary);
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--shadow-xs);
   }
- 
+
   &__left { flex: 1; min-width: 0; }
- 
+
   &__title {
     font-size: 13px;
     font-weight: 600;
     color: $text-primary;
     margin-bottom: 2px;
   }
- 
+
   &__course {
     font-size: 11px;
     color: $text-secondary;
     margin-bottom: 6px;
   }
- 
+
   &__meta {
     display: flex;
     gap: 12px;
     font-size: 11px;
     color: $text-tertiary;
+    font-variant-numeric: tabular-nums;
   }
- 
+
   &__right {
     display: flex;
     flex-direction: column;
@@ -394,105 +493,116 @@
     gap: 8px;
   }
 }
- 
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 // ── Status Pills ──────────────────────────────────────
- 
+
 .pill {
   font-size: 10px;
   font-weight: 600;
   padding: 3px 9px;
-  border-radius: 20px;
+  border-radius: var(--border-radius-full);
   white-space: nowrap;
   letter-spacing: 0.02em;
- 
-  &--red    { background: $status-red-lt;    color: $status-red;    }
-  &--amber  { background: $status-amber-lt;  color: $status-amber;  }
-  &--purple { background: $brand-purple-lt;  color: $brand-purple;  }
-  &--green  { background: $status-green-lt;  color: $status-green;  }
-  &--grey   { background: $status-grey-lt;   color: $status-grey;   }
+
+  &--red    { background: var(--status-red-bg);    color: var(--status-red-text);    border: 1px solid var(--status-red-bg); }
+  &--amber  { background: var(--status-amber-bg);  color: var(--status-amber-text);  border: 1px solid var(--status-amber-bg); }
+  &--purple { background: var(--brand-surface);    color: var(--brand-primary);     border: 1px solid var(--brand-surface); }
+  &--green  { background: var(--status-green-bg);  color: var(--status-green-text);  border: 1px solid var(--status-green-bg); }
+  &--grey   { background: var(--status-grey-bg);   color: var(--status-grey-text);   border: 1px solid var(--status-grey-bg); }
 }
- 
+
 // ── Notifications ─────────────────────────────────────
- 
+
 .notif-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
- 
+
 .notif-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   padding: 10px 8px;
-  border-radius: $radius-sm;
+  border-radius: var(--border-radius-sm);
   position: relative;
-  transition: background 0.12s;
- 
-  &:hover { background: $bg; }
- 
-  &--unread { background: $brand-purple-lt; }
- 
+  transition: background 0.15s ease;
+
+  &:hover { background: var(--bg-hover); }
+
+  &--unread { background: var(--brand-surface); }
+
   &__icon {
     font-size: 16px;
     width: 24px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
     margin-top: 1px;
+    color: var(--brand-primary);
   }
- 
+
   &__body { flex: 1; min-width: 0; }
- 
+
   &__text {
     font-size: 12px;
     color: $text-primary;
     line-height: 1.45;
     margin: 0;
   }
- 
+
   &__time {
     font-size: 10px;
     color: $text-tertiary;
     display: block;
     margin-top: 3px;
+    font-variant-numeric: tabular-nums;
   }
- 
+
   &__dot {
     width: 7px;
     height: 7px;
     min-width: 7px;
-    background: $brand-purple;
-    border-radius: 50%;
+    background: var(--brand-primary);
+    border-radius: var(--border-radius-full);
     margin-top: 5px;
   }
 }
- 
+
 // ── Recommended Courses ───────────────────────────────
- 
+
 .rec-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
- 
+
 .rec-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 8px;
-  border-radius: $radius-md;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: background 0.12s;
- 
-  &:hover { background: $bg; }
- 
+  transition: background 0.15s ease;
+
+  &:hover { background: var(--bg-hover); }
+
   &__avatar {
     width: 40px;
     height: 40px;
     min-width: 40px;
-    background: $brand-purple-lt;
-    color: $brand-purple;
-    border-radius: $radius-sm;
+    background: var(--brand-surface);
+    color: var(--brand-primary);
+    border: 1px solid var(--brand-primary);
+    border-radius: var(--border-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -500,9 +610,9 @@
     font-weight: 700;
     letter-spacing: 0.04em;
   }
- 
+
   &__info { flex: 1; min-width: 0; }
- 
+
   &__title {
     font-size: 12.5px;
     font-weight: 600;
@@ -511,7 +621,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
- 
+
   &__teacher {
     font-size: 11px;
     color: $text-secondary;
@@ -520,24 +630,74 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
- 
+
   &__stats {
     display: flex;
     gap: 10px;
     font-size: 10px;
     color: $text-tertiary;
     margin-top: 4px;
+    font-variant-numeric: tabular-nums;
   }
- 
+
   &__tag {
     font-size: 10px;
     font-weight: 600;
-    background: $brand-purple-lt;
-    color: $brand-purple;
+    background: var(--brand-surface);
+    color: var(--brand-primary);
     padding: 3px 8px;
-    border-radius: 20px;
+    border-radius: var(--border-radius-full);
     white-space: nowrap;
     flex-shrink: 0;
   }
+}
+
+// ── Empty States ──────────────────────────────────────
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 36px 16px;
+  gap: 8px;
+
+  &__icon {
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    max-width: 380px;
+    line-height: 1.45;
+  }
+}
+
+.empty-state--compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+
+  p { margin: 0; }
+  lucide-icon { color: var(--status-green-text); flex-shrink: 0; }
+}
+
+.hint {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 0;
 }
  

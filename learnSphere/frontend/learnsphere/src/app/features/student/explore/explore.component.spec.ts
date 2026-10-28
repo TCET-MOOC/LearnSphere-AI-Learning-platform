@@ -5,6 +5,7 @@ import { ExploreComponent } from './explore.component';
 import { StudentService } from '../services/student.service';
 import { NotificationService } from '@core/services/notification.service';
 import { Course } from '@core/models/course.model';
+import { LucideAngularModule, AlertTriangle, Search } from 'lucide-angular';
 
 describe('ExploreComponent Standalone Course Catalogue (W3-10 / AUD-07)', () => {
   let component: ExploreComponent;
@@ -76,7 +77,10 @@ describe('ExploreComponent Standalone Course Catalogue (W3-10 / AUD-07)', () => 
     };
 
     await TestBed.configureTestingModule({
-      imports: [ExploreComponent],
+      imports: [
+        ExploreComponent,
+        LucideAngularModule.pick({ AlertTriangle, Search })
+      ],
       providers: [
         provideRouter([]),
         { provide: StudentService, useValue: studentServiceSpy },

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -27,7 +29,7 @@ interface CourseProgress {
   lecturesWatched: number;
   totalLectures: number;
   lastWatched: string;
-  color: string;
+  completed?: boolean;
 }
 
 interface PendingAssessment {
@@ -77,6 +79,9 @@ export class DashboardComponent implements OnInit {
   }
   currentDate = new Date();
 
+  loading = true;
+  errorMessage: string | null = null;
+
   kpiCards: KpiCard[] = [
     { icon: 'book-open', value: 0, label: 'Enrolled Courses', trend: 'up', trendValue: 'Active courses' },
     { icon: 'check-circle', value: '100%', label: 'Completion Rate', trend: 'up', trendValue: 'Across courses' },
@@ -107,19 +112,42 @@ export class DashboardComponent implements OnInit {
     this.loadDashboardData();
   }
 
-  private loadDashboardData(): void {
-    const colors = ['#534AB7', '#1D9E75', '#BA7517', '#3B82F6', '#EC4899'];
+  loadDashboardData(): void {
+    this.loading = true;
+    this.errorMessage = null;
 
-    this.studentService.getEnrolledCourses().subscribe({
-      next: (courses: Course[]) => {
-        this.kpiCards[0].value = courses.length;
+    forkJoin({
+      enrolled: this.studentService.getEnrolledCourses().pipe(
+        catchError(() => {
+          this.errorMessage = 'Unable to load your courses. Please check connection and try again.';
+          return of([]);
+        })
+      ),
+      certs: this.certificateService.getCertificates().pipe(
+        catchError(() => of([]))
+      ),
+      explore: this.studentService.getExploreCourses({ status: 'LIVE' }).pipe(
+        catchError(() => of([]))
+      ),
+      assessments: this.assessmentService.getAssessments().pipe(
+        catchError(() => of([]))
+      )
+    }).subscribe({
+      next: ({ enrolled, certs, explore, assessments }) => {
+        this.loading = false;
+
+        // KPI cards
+        this.kpiCards[0].value = enrolled.length;
 
         let totalProgress = 0;
-        courses.forEach(c => totalProgress += (c.progressPercent || 0));
-        const avgProgress = courses.length > 0 ? Math.round(totalProgress / courses.length) : 100;
+        enrolled.forEach(c => totalProgress += (c.progressPercent || 0));
+        const avgProgress = enrolled.length > 0 ? Math.round(totalProgress / enrolled.length) : 100;
         this.kpiCards[1].value = `${avgProgress}%`;
 
-        this.continueLearning = courses.map((c, index) => ({
+        this.kpiCards[3].value = certs.length;
+
+        // Continue Learning
+        this.continueLearning = enrolled.map(c => ({
           id: c.id,
           title: c.title,
           teacher: c.teacherName ? `Prof. ${c.teacherName}` : 'Faculty Board',
@@ -129,22 +157,26 @@ export class DashboardComponent implements OnInit {
           lecturesWatched: c.completedLecturesCount || 0,
           totalLectures: c.lectureCount || 0,
           lastWatched: 'Recently Active',
-          color: colors[index % colors.length]
+          completed: !!(c.completed || (c.progressPercent != null && c.progressPercent >= 100))
         }));
-      },
-      error: () => {}
-    });
 
-    this.certificateService.getCertificates().subscribe({
-      next: (certs) => {
-        this.kpiCards[3].value = certs.length;
-      },
-      error: () => {}
-    });
+        // Pending Assessments
+        if (assessments && assessments.length > 0) {
+          this.pendingAssessments = assessments.slice(0, 3).map((a, idx) => ({
+            id: a.id,
+            title: a.title,
+            course: a.courseTitle || 'Curriculum Assessment',
+            questions: a.questionCount || 10,
+            timeLimit: a.durationMinutes || 30,
+            dueDate: 'Scheduled',
+            urgency: idx === 0 ? 'URGENT' : 'UPCOMING'
+          }));
+        } else {
+          this.pendingAssessments = [];
+        }
 
-    this.studentService.getExploreCourses({ status: 'LIVE' }).subscribe({
-      next: (courses: Course[]) => {
-        this.recommendedCourses = courses.slice(0, 3).map(c => ({
+        // Recommended Courses
+        this.recommendedCourses = (explore || []).slice(0, 3).map(c => ({
           id: c.id,
           title: c.title,
           teacher: c.teacherName ? `Prof. ${c.teacherName}` : 'Faculty Board',
@@ -155,7 +187,10 @@ export class DashboardComponent implements OnInit {
           tag: 'Popular'
         }));
       },
-      error: () => {}
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'Unable to load dashboard data. Please check connection and try again.';
+      }
     });
   }
 

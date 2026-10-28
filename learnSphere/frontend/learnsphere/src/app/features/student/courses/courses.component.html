@@ -34,18 +34,35 @@
 
   <section class="card">
     <div class="card-head">
-      <h2>Enrolled courses</h2>
+      <h2>Enrolled Courses</h2>
       <span class="pill pill--purple">{{ filteredCourses.length }}</span>
     </div>
 
-    <p *ngIf="loading" class="hint">Loading your enrolled courses…</p>
+    <!-- Loading State -->
+    <div class="courses-state courses-state--loading" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p class="hint">Loading your enrolled courses…</p>
+    </div>
 
-    <div class="course-list" *ngIf="!loading">
+    <!-- Error State -->
+    <div class="courses-state courses-state--error" *ngIf="!loading && errorMessage">
+      <lucide-icon name="alert-triangle" [size]="32" aria-hidden="true" class="error-icon"></lucide-icon>
+      <p class="error-msg">{{ errorMessage }}</p>
+      <button class="btn btn--primary mt-12" (click)="loadCourses()" type="button">Retry</button>
+    </div>
+
+    <!-- Course List -->
+    <div class="course-list" *ngIf="!loading && !errorMessage">
       <app-course-card *ngFor="let course of filteredCourses" [course]="course"></app-course-card>
 
+      <!-- Empty State -->
       <div class="empty-enrolled" *ngIf="filteredCourses.length === 0">
-        <p class="hint">
-          {{ searchQuery ? ('No enrolled courses match "' + searchQuery + '".') : 'You are not enrolled in any courses in this filter.' }}
+        <lucide-icon name="book-open" [size]="36" aria-hidden="true" class="empty-icon"></lucide-icon>
+        <p class="empty-title">
+          {{ searchQuery ? ('No enrolled courses match "' + searchQuery + '".') : 'No courses found in this filter category.' }}
+        </p>
+        <p class="hint" *ngIf="!searchQuery">
+          Discover university-accredited curriculum and begin expanding your knowledge.
         </p>
         <a routerLink="/student/explore" class="btn btn--primary mt-12">
           Explore Course Catalog

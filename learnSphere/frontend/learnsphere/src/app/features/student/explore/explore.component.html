@@ -33,9 +33,21 @@
       <span class="pill pill--purple">{{ filteredCourses.length }}</span>
     </div>
 
-    <p *ngIf="loading" class="hint">Loading catalog offerings…</p>
+    <!-- Loading State -->
+    <div class="explore-state explore-state--loading" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p class="hint">Loading catalog offerings…</p>
+    </div>
 
-    <div class="explore-grid" *ngIf="!loading">
+    <!-- Error State -->
+    <div class="explore-state explore-state--error" *ngIf="!loading && errorMessage">
+      <lucide-icon name="alert-triangle" [size]="32" aria-hidden="true" class="error-icon"></lucide-icon>
+      <p class="error-msg">{{ errorMessage }}</p>
+      <button class="btn btn--explore btn--fit mt-12" (click)="loadCatalog()" type="button">Retry</button>
+    </div>
+
+    <!-- Explore Grid -->
+    <div class="explore-grid" *ngIf="!loading && !errorMessage">
       <article
         class="explore-card"
         *ngFor="let course of filteredCourses"
@@ -77,9 +89,19 @@
         </div>
       </article>
 
-      <p class="hint" *ngIf="filteredCourses.length === 0">
-        {{ searchQuery ? ('No catalog courses match "' + searchQuery + '".') : 'No courses found in this filter category.' }}
-      </p>
+      <!-- Empty State -->
+      <div class="empty-explore" *ngIf="filteredCourses.length === 0">
+        <lucide-icon name="search" [size]="36" aria-hidden="true" class="empty-icon"></lucide-icon>
+        <p class="empty-title">
+          {{ searchQuery ? ('No catalog courses match "' + searchQuery + '".') : 'No courses found in this filter category.' }}
+        </p>
+        <p class="hint" *ngIf="searchQuery">
+          Try checking for typos or searching by department or faculty name.
+        </p>
+        <button class="btn btn--explore btn--fit mt-12" *ngIf="searchQuery" (click)="clearSearch()" type="button">
+          Clear Search Filter
+        </button>
+      </div>
     </div>
   </section>
 </div>

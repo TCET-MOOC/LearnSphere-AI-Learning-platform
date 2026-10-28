@@ -6,6 +6,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { StudentService } from '../services/student.service';
 import { Course } from '@core/models/course.model';
+import { LucideAngularModule } from 'lucide-angular';
 import { CourseCardComponent } from './components/course-card.component';
 
 type CourseFilterKey = 'ALL' | 'IN_PROGRESS' | 'COMPLETED';
@@ -18,12 +19,13 @@ type CourseFilterKey = 'ALL' | 'IN_PROGRESS' | 'COMPLETED';
 @Component({
   selector: 'app-student-courses',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CourseCardComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, CourseCardComponent],
   templateUrl: './courses.component.html',
   styleUrls: ['./courses.component.scss']
 })
 export class CoursesComponent implements OnInit, OnDestroy {
   loading = true;
+  errorMessage: string | null = null;
   enrolledCourses: Course[] = [];
   searchQuery = '';
   private searchSubject = new Subject<string>();
@@ -75,6 +77,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   loadCourses(): void {
     this.loading = true;
+    this.errorMessage = null;
     this.studentService.getEnrolledCourses().subscribe({
       next: (courses) => {
         this.enrolledCourses = courses || [];
@@ -84,6 +87,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       error: () => {
         this.enrolledCourses = [];
         this.loading = false;
+        this.errorMessage = 'Could not load your enrolled courses. Please check connection and try again.';
         this.cdr.markForCheck();
       }
     });
