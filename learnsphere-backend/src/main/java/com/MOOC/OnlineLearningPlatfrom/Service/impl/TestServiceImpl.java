@@ -21,15 +21,18 @@ public class TestServiceImpl implements TestService {
     private final QuestionRepository questionRepository;
     private final TestAttemptRepository testAttemptRepository;
     private final StudentAnswerRepository studentAnswerRepository;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     public TestServiceImpl(TestRepository testRepository,
                            QuestionRepository questionRepository,
                            TestAttemptRepository testAttemptRepository,
-                           StudentAnswerRepository studentAnswerRepository) {
+                           StudentAnswerRepository studentAnswerRepository,
+                           org.springframework.context.ApplicationEventPublisher eventPublisher) {
         this.testRepository = testRepository;
         this.questionRepository = questionRepository;
         this.testAttemptRepository = testAttemptRepository;
         this.studentAnswerRepository = studentAnswerRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -107,7 +110,10 @@ public class TestServiceImpl implements TestService {
     public TestAttempt calculateAndFinalizeScore(Long attemptId) {
         TestAttempt attempt = testAttemptRepository.findById(attemptId)
                 .orElseThrow(() -> new RuntimeException("Attempt not found with id: " + attemptId));
-        List<StudentAnswer> answers = attempt.getStudentAnswers();
+        List<StudentAnswer> answers = studentAnswerRepository.findByAttempt_AttemptId(attemptId);
+        if (answers == null || answers.isEmpty()) {
+            answers = attempt.getStudentAnswers() != null ? attempt.getStudentAnswers() : java.util.List.of();
+        }
         int totalScore = 0;
         for (StudentAnswer answer : answers) {
             Question question = answer.getQuestion();
@@ -136,6 +142,17 @@ public class TestServiceImpl implements TestService {
         }
         attempt.setScore(totalScore);
         attempt.setStatus("COMPLETED");
-        return testAttemptRepository.save(attempt);
+        TestAttempt saved = testAttemptRepository.save(attempt);
+
+        if (saved.getTest() != null && saved.getTest().getCourse() != null) {
+            eventPublisher.publishEvent(new com.MOOC.OnlineLearningPlatfrom.Event.TestAttemptCompletedEvent(
+                    saved.getAttemptId(),
+                    saved.getTest().getTestId(),
+                    saved.getTest().getCourse().getId(),
+                    saved.getUserId()
+            ));
+        }
+
+        return saved;
     }
 }

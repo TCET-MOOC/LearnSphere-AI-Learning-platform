@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface LeaderboardRepository extends JpaRepository<Leaderboard, Long> {
+    List<Leaderboard> findByCourse_IdOrderByGlobalRankAsc(Long courseId);
     List<Leaderboard> findByCourse_IdOrderByAvgScoreDesc(Long courseId);
     List<Leaderboard> findByUser_UserId(Long userId);
     Optional<Leaderboard> findByUser_UserIdAndCourse_Id(Long userId, Long courseId);

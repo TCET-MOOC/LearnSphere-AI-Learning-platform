@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` through `W3-04` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-04` implemented the 90 % completion rule (`completedAt` set at `progressPercent >= 90.00`, un-complete on regression below 90 %, timestamp preservation on advance, `POST /api/student/lectures/{id}/complete` setting 100 % with scale 2, `uncomplete` resetting to 0.00 and null `completedAt`, course completion detail calculating completion at >= 90 %, and `Cache-Control: private, no-store` on student progress endpoints). |
-| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-05 Content-based course completion aggregation`). |
+| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` through `W3-07` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-07` implemented event-driven leaderboard materialisation after test attempt completion (calculating average score percentages across course tests, global ranks 1..N, department ranks 1..M, updating `leaderboard` table, exposing `/api/courses/{id}/leaderboard` and `/api/leaderboard/me`, with `Cache-Control: private, no-store`). |
+| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-08 Same-college entitlement`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -633,8 +633,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-04 90 % completion rule
 - [x] W3-05 Content-based course completion
 - [x] W3-06 Certificate eligibility + real grade
-- [~] W3-07 Leaderboard materialisation
-- [ ] W3-08 Same-college entitlement
+- [x] W3-07 Leaderboard materialisation
+- [~] W3-08 Same-college entitlement
 - [ ] W3-09 Learning regression suite (course surfaces, resume, player auth)
 - [ ] W3-10 My Courses enrolled-only + Explore catalogue + resume (AUD-07)
 - [ ] W3-11 Canonical player route + server enrolment check (AUD-08)
@@ -777,6 +777,29 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `CertificateEligibilityAndVerificationTests.java` covering content-based completion requirement, incomplete rejection, unenrolled rejection, repeated idempotent issuance, real score/grade computation from tests, public unauthenticated verification, invalid code handling, and private no-store headers.
   - Red: 4 failures proving missing content-based completion check, missing private no-store headers, hardcoded grades, and 400 status.
   - Green: 8/8 tests passed in `CertificateEligibilityAndVerificationTests`. Full backend suite `269/269` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
+
+**W3-07 evidence (2026-10-28) — Materialise leaderboard after attempt completion:**
+- Rules: AC-22, BR-16, [C-F10, C-F11], AG §8, NFR-03.
+- Event-driven recalculation:
+  - Created `TestAttemptCompletedEvent` carrying `attemptId`, `userId`, and `courseId`.
+  - In `TestServiceImpl`: published `TestAttemptCompletedEvent` when attempts complete via `submitTest` or `autoGradeTestAttempt`. Resolved potential lazy/null answers NPE by querying `studentAnswerRepository.findByAttempt_AttemptId(attemptId)`.
+  - Created `LeaderboardEventListener` with `@EventListener` to asynchronously trigger `recalculateCourseLeaderboard(event.getCourseId())` upon attempt completion.
+- Course Assessment Materialised Leaderboard (`leaderboard` table):
+  - In `LeaderboardRepository.java`: added `findByCourse_IdOrderByGlobalRankAsc` and `findByUser_UserId(userId)`.
+  - In `LeaderboardServiceImpl.java`: implemented `recalculateCourseLeaderboard`:
+    - Aggregates student test performance across all course tests.
+    - Computes average percentage score `avgScore` (0.00% to 100.00%) with `BigDecimal(6, 2)`.
+    - Computes `globalRank` (1..N) across all students ordered by `avgScore DESC, updatedAt ASC`.
+    - Computes `deptRank` (1..M) partitioned by `user.department.departmentId` so highest scorers in each department receive top departmental rank.
+    - Upserts/persists rankings to the `leaderboard` table (`leaderboard_id`, `user_id`, `course_id`, `avg_score`, `global_rank`, `dept_rank`, `updated_at`).
+  - In `LeaderboardController.java`:
+    - `GET /api/courses/{id}/leaderboard`: returns ranked leaderboard entries for the course with `Cache-Control: private, no-store`.
+    - `GET /api/leaderboard/me`: returns authenticated user's leaderboard standings across all enrolled courses with `Cache-Control: private, no-store`.
+    - Preserved gamification XP endpoints (`GET /api/leaderboard?scope=global|college`) as strictly distinct from the course assessment materialised leaderboard.
+- Red-green verification:
+  - Authored `LeaderboardMaterialisationTests.java` covering event publishing on attempt submission, rank recalculation, global rank 1..N order, department rank 1..M partitioning, `/api/courses/{id}/leaderboard` response, `/api/leaderboard/me` response, and `Cache-Control: private, no-store`.
+  - Red: 4 failures proving missing recalculation, missing rankings, missing event propagation, and missing private no-store headers.
+  - Green: 4/4 tests passed in `LeaderboardMaterialisationTests`. Full backend suite `273/273` passed, payments suite `10/10` passed, frontend suite `40/40` passed.
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
