@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` through `W3-14` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-14` unified student surfaces on the design system (DS-10), tokenized CourseCardComponent, restructured Student Dashboard with a 3-tier card hierarchy, loading/error/empty states, and tokenized My Courses and Explore catalog. |
-| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-15 Player workspace typography + density (DS-11)`). |
+| Current phase | **Wave 3 — Enrolment, progress and credentials 100% complete (`W3-01` through `W3-15` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-15` delivered player workspace typography and density (DS-11), quieted surrounding card chrome, tokenized video player and interactive transcript, eliminated nested card wrappers, and enforced tabular numerals across all time displays. |
+| Next milestone | **Wave 4 — Assessment integrity** (`W4-01 Hide correctAnswer in all student DTOs`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -641,7 +641,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-12 Course-surface polish (AUD-09)
 - [x] W3-13 Hot-path query optimization + private no-store
 - [x] W3-14 Student surfaces on the system (DS-10)
-- [~] W3-15 Player workspace typography + density (DS-11)
+- [x] W3-15 Player workspace typography + density (DS-11)
 
 **W3-01 evidence (2026-10-28) — Enrolment unique, self-only, published check:**
 - Rules: AC-10, A-04, BR-08, [C-F1, C-F2].
@@ -974,6 +974,32 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Full frontend suite: 16 test files passed, 74 tests passed.
   - Stylelint ratchet: passed cleanly (color-no-hex decreased by 11, radius-literal decreased by 7, transition-all decreased by 1, inline-style decreased by 8). Production build succeeded (`BUILD_EXIT=0`).
 
+**W3-15 evidence (2026-10-28) — Player workspace typography + density (DS-11):**
+- Rules: DS-11, NFR-01, NFR-04(a)(b)(c)(e).
+- 2-Column Flagship Workspace Layout & Quieted Surrounding Chrome (DS-11):
+  - Preserved the flagship 2-column video + transcript + notes asymmetric workspace layout (`.workspace-grid` with `minmax(0, 1fr) 440px`), making it the one bold element while quieting surrounding chrome:
+    - Central video canvas (`.video-canvas-box`): Elevated cinema frame (`border-radius: var(--border-radius-lg); background: #000; box-shadow: var(--shadow-md); border: 1px solid var(--border-color);`).
+    - Video Player Component (`video-player.component.scss`): Eliminated duplicate nested card borders and shadows from `.video-player-root` (`background: transparent; box-shadow: none; border: none;`); tokenized all error card and resume pill states.
+    - Metadata Header (`.lecture-meta-card`): Quieted to a clean contextual header (`box-shadow: var(--shadow-xs); padding: 20px 24px; border-radius: var(--border-radius-lg);`); editorial display title (`font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.01em;`).
+    - Bottom Tabbed Workspace (`.bottom-tabbed-card`): Quieted container (`box-shadow: var(--shadow-xs); border-radius: var(--border-radius-lg);`); quiet header with subtle active pill state; eliminated nested card wrappers from `NotesDrawerComponent` and `LectureDiscussionComponent`.
+    - Right Column Sidebar: Quieted switcher segmented control (`.sidebar-switcher` with `box-shadow: none; border-radius: var(--border-radius-md); padding: 3px;`); quieted playlist card (`.playlist-card` with `box-shadow: var(--shadow-xs); border-radius: var(--border-radius-lg);`).
+- Interactive Transcript Workspace Refinement (`interactive-transcript.component.scss`):
+  - Quieted transcript panel (`box-shadow: var(--shadow-xs); border-radius: var(--border-radius-lg);`).
+  - Active cue line: High-contrast crisp highlight (`background: var(--brand-surface); border-left: 3px solid var(--brand-primary); font-weight: 600; color: var(--text-primary);`).
+  - Tokenized language dropdown, auto-scroll toggle pill, and AI study engine modal.
+- Tabular Numerals & Typography Polish:
+  - Enforced `font-variant-numeric: tabular-nums;` across all time and counter displays: transcript `.mono-time`, video `.resume-info strong`, lecture `.item-duration`, `.item-num`, `.playlist-meta`, `.tab-count`, `.badge-tag`, `.grade-pill`, `.assign-card-meta`, `.assign-meta-sub`, and `.post-time`.
+- Stylelint Ratchet Tightened:
+  - `color-no-hex` fell from baseline 579 to **468** (-111 reduction across player, quiz, transcript, and lecture).
+  - `radius-literal` fell from baseline 403 to **329** (-74 reduction).
+  - `transition-all` fell from baseline 111 to **94** (-17 reduction).
+  - `hover-lift` fell from baseline 58 to **55** (-3 reduction).
+  - Enforced and updated baseline via `npm run lint:styles:update`; verified green with 0 errors.
+- TDD & Verification:
+  - Authored comprehensive unit test suite in `lecture.component.spec.ts` (8 tests passed covering duration formatting, 2-column workspace layout, metadata typography and quiet action buttons, bottom tab switching across discussion/notes/assignments/resources, dynamic sidebar switching between playlist and transcript with `.is-split`, and empty workspace state).
+  - Full frontend suite: 16 test files passed, 79 tests passed.
+  - Production build: exit code 0 (`BUILD_EXIT=0`).
+
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
 - [~] W4-02 Retire legacy `/api/tests` surface
@@ -1097,7 +1123,7 @@ Findings `F24` were measured on the running app (Chromium, 1489×1000 and 390×8
 | DS-08 | P1 | No identity decision; text-only hero, zero imagery | W2-16 | Closed (W2-16) |
 | DS-09 | P1 | Public/auth surfaces not on the system | W2-17 | Closed (W2-17) |
 | DS-10 | P1 | Student surfaces use four card styles, no token scale | W3-14 | Closed (W3-14) |
-| DS-11 | P1 | Player workspace shares generic card chrome | W3-15 | Open |
+| DS-11 | P1 | Player workspace shares generic card chrome | W3-15 | Closed (W3-15) |
 | DS-12 | P2 | Teacher/admin consoles drift from shared components | W7-14 | Open |
 | DS-13 | P2 | 117 `transition: all`, 52 hover lifts, `→` suffixes, unverifiable superlatives | W7-15 | Open |
 

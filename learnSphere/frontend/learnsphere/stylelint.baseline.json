@@ -5,7 +5,7 @@
     "color-no-hex": {
       "enforced": true,
       "rule": "NFR-04(a)",
-      "total": 579,
+      "total": 468,
       "files": {
         "src/app/features/admin/colleges/colleges.component.scss": 9,
         "src/app/features/admin/courses/courses.component.scss": 1,
@@ -24,11 +24,10 @@
         "src/app/features/student/bookmarks/bookmarks.component.scss": 1,
         "src/app/features/student/certificates/certificates.component.scss": 17,
         "src/app/features/student/courses/course-details/course-detail.component.scss": 19,
-        "src/app/features/student/courses/courses.component.scss": 9,
-        "src/app/features/student/courses/lecture/components/interactive-transcript.component.scss": 5,
-        "src/app/features/student/courses/lecture/components/post-video-quiz.component.scss": 59,
-        "src/app/features/student/courses/lecture/lecture.component.scss": 25,
-        "src/app/features/student/dashboard/dashboard.component.scss": 3,
+        "src/app/features/student/courses/lecture/components/interactive-transcript.component.scss": 3,
+        "src/app/features/student/courses/lecture/components/post-video-quiz.component.scss": 3,
+        "src/app/features/student/courses/lecture/lecture.component.scss": 7,
+        "src/app/features/student/dashboard/dashboard.component.scss": 1,
         "src/app/features/student/discussion/discussion.component.scss": 10,
         "src/app/features/student/leaderboard/leaderboard.component.scss": 5,
         "src/app/features/student/live/live-room.component.scss": 54,
@@ -51,7 +50,7 @@
         "src/app/shared/components/ai-chatbot/ai-chatbot.component.scss": 5,
         "src/app/shared/components/certificate-modal/certificate-modal.component.scss": 46,
         "src/app/shared/components/topbar/topbar.component.scss": 8,
-        "src/app/shared/components/video-player/video-player.component.scss": 29,
+        "src/app/shared/components/video-player/video-player.component.scss": 5,
         "src/styles/_portal-pages.scss": 1,
         "src/styles/styles.scss": 22
       }
@@ -59,7 +58,7 @@
     "radius-literal": {
       "enforced": true,
       "rule": "NFR-04(c)",
-      "total": 403,
+      "total": 329,
       "files": {
         "src/app/features/admin/announcements/announcements.component.scss": 5,
         "src/app/features/admin/colleges/colleges.component.scss": 9,
@@ -80,11 +79,8 @@
         "src/app/features/student/bookmarks/bookmarks.component.scss": 2,
         "src/app/features/student/certificates/certificates.component.scss": 10,
         "src/app/features/student/courses/course-details/course-detail.component.scss": 20,
-        "src/app/features/student/courses/courses.component.scss": 9,
-        "src/app/features/student/courses/lecture/components/interactive-transcript.component.scss": 21,
-        "src/app/features/student/courses/lecture/components/post-video-quiz.component.scss": 11,
-        "src/app/features/student/courses/lecture/lecture.component.scss": 30,
-        "src/app/features/student/dashboard/dashboard.component.scss": 5,
+        "src/app/features/student/courses/courses.component.scss": 7,
+        "src/app/features/student/courses/lecture/lecture.component.scss": 1,
         "src/app/features/student/discussion/discussion.component.scss": 3,
         "src/app/features/student/live/live-room.component.scss": 17,
         "src/app/features/student/live/live.component.scss": 7,
@@ -109,7 +105,6 @@
         "src/app/shared/components/sidebar/sidebar.component.scss": 2,
         "src/app/shared/components/stat-cards/stat-card.component.scss": 2,
         "src/app/shared/components/topbar/topbar.component.scss": 8,
-        "src/app/shared/components/video-player/video-player.component.scss": 6,
         "src/styles/_portal-pages.scss": 9,
         "src/styles/styles.scss": 5
       }
@@ -117,7 +112,7 @@
     "transition-all": {
       "enforced": true,
       "rule": "NFR-04(e)",
-      "total": 111,
+      "total": 94,
       "files": {
         "src/app/features/admin/colleges/colleges.component.scss": 7,
         "src/app/features/admin/courses/courses.component.scss": 1,
@@ -135,10 +130,6 @@
         "src/app/features/student/bookmarks/bookmarks.component.scss": 1,
         "src/app/features/student/certificates/certificates.component.scss": 1,
         "src/app/features/student/courses/course-details/course-detail.component.scss": 2,
-        "src/app/features/student/courses/lecture/components/interactive-transcript.component.scss": 6,
-        "src/app/features/student/courses/lecture/components/post-video-quiz.component.scss": 4,
-        "src/app/features/student/courses/lecture/lecture.component.scss": 6,
-        "src/app/features/student/dashboard/dashboard.component.scss": 1,
         "src/app/features/student/discussion/discussion.component.scss": 3,
         "src/app/features/student/leaderboard/leaderboard.component.scss": 3,
         "src/app/features/student/live/live-room.component.scss": 4,
@@ -169,7 +160,7 @@
     "uppercase": {
       "enforced": false,
       "rule": "NFR-04(b) — owned by DS-13",
-      "total": 91,
+      "total": 92,
       "files": {
         "src/app/features/admin/announcements/announcements.component.scss": 2,
         "src/app/features/admin/colleges/colleges.component.scss": 3,
@@ -195,6 +186,7 @@
         "src/app/features/student/courses/lecture/lecture.component.scss": 3,
         "src/app/features/student/dashboard/dashboard.component.scss": 2,
         "src/app/features/student/discussion/discussion.component.scss": 1,
+        "src/app/features/student/explore/explore.component.scss": 1,
         "src/app/features/student/leaderboard/leaderboard.component.scss": 1,
         "src/app/features/student/live/live.component.scss": 1,
         "src/app/features/student/messages/messages.component.scss": 1,
@@ -222,10 +214,9 @@
     "inline-style": {
       "enforced": false,
       "rule": "owned by the screen-conversion stories",
-      "total": 273,
+      "total": 265,
       "files": {
         "src/app/features/landing/landing.component.html": 233,
-        "src/app/features/student/dashboard/dashboard.component.html": 8,
         "src/app/features/student/discussion/discussion.component.html": 6,
         "src/app/features/student/leaderboard/leaderboard.component.html": 1,
         "src/app/features/student/messages/messages.component.html": 8,
@@ -242,7 +233,7 @@
     "hover-lift": {
       "enforced": false,
       "rule": "owned by DS-13",
-      "total": 58,
+      "total": 55,
       "files": {
         "src/app/features/admin/dashboard/dashboard.component.scss": 2,
         "src/app/features/admin/flagged/flagged.component.scss": 1,
@@ -253,9 +244,9 @@
         "src/app/features/public/verify-certificate/verify-certificate.component.scss": 3,
         "src/app/features/student/courses/courses.component.scss": 1,
         "src/app/features/student/courses/lecture/components/interactive-transcript.component.scss": 2,
-        "src/app/features/student/courses/lecture/components/post-video-quiz.component.scss": 2,
-        "src/app/features/student/courses/lecture/lecture.component.scss": 5,
+        "src/app/features/student/courses/lecture/lecture.component.scss": 2,
         "src/app/features/student/discussion/discussion.component.scss": 2,
+        "src/app/features/student/explore/explore.component.scss": 2,
         "src/app/features/student/leaderboard/leaderboard.component.scss": 1,
         "src/app/features/student/live/live.component.scss": 2,
         "src/app/features/student/messages/messages.component.scss": 1,

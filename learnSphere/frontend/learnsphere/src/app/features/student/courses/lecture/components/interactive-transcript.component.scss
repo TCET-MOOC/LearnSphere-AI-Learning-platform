@@ -5,10 +5,10 @@
   max-height: 480px;
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: var(--border-radius-lg);
   overflow: hidden;
   position: relative;
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--shadow-xs);
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background: var(--bg-surface-elevated);
   border-bottom: 1px solid var(--border-color);
 
@@ -56,12 +56,12 @@
     font-size: 11px;
     font-weight: 600;
     padding: 4px 8px;
-    border-radius: 10px;
+    border-radius: var(--border-radius-full);
     display: flex;
     align-items: center;
     gap: 5px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
     lucide-icon {
       color: var(--brand-primary);
@@ -81,7 +81,7 @@
     right: 0;
     background: var(--bg-dropdown);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--border-radius-md);
     padding: 6px;
     width: 200px;
     box-shadow: var(--dropdown-shadow);
@@ -109,10 +109,10 @@
       border: none;
       color: var(--text-secondary);
       padding: 6px 8px;
-      border-radius: 6px;
+      border-radius: var(--border-radius-sm);
       cursor: pointer;
       text-align: left;
-      transition: background 0.15s ease;
+      transition: background-color 0.15s ease;
 
       .item-name {
         font-size: 12px;
@@ -148,17 +148,17 @@
   font-size: 11px;
   font-weight: 600;
   padding: 4px 8px;
-  border-radius: 10px;
+  border-radius: var(--border-radius-full);
   display: flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
   .dot {
     width: 6px;
     height: 6px;
-    border-radius: 50%;
+    border-radius: var(--border-radius-full);
     background: var(--text-muted);
   }
 
@@ -174,7 +174,7 @@
   }
 }
 
-/* Vertical Ellipsis (⋮) Trigger & Menu */
+/* Vertical Ellipsis Trigger & Menu */
 .ai-dropdown-wrapper {
   position: relative;
 
@@ -184,12 +184,12 @@
     color: var(--text-secondary);
     width: 28px;
     height: 28px;
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
 
     &:hover,
     &.is-active {
@@ -204,7 +204,7 @@
     right: 0;
     background: var(--bg-dropdown);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--border-radius-md);
     padding: 6px;
     width: 230px;
     box-shadow: var(--dropdown-shadow);
@@ -237,10 +237,10 @@
       border: none;
       color: var(--text-secondary);
       padding: 7px 10px;
-      border-radius: 6px;
+      border-radius: var(--border-radius-sm);
       cursor: pointer;
       text-align: left;
-      transition: background 0.15s ease;
+      transition: background-color 0.15s ease;
 
       .item-icon-purple {
         color: var(--brand-primary);
@@ -248,7 +248,7 @@
       }
 
       .item-icon-indigo {
-        color: #818cf8;
+        color: var(--brand-primary);
         margin-top: 2px;
       }
 
@@ -324,7 +324,7 @@
   }
   &::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 4px;
+    border-radius: var(--border-radius-xs);
   }
 }
 
@@ -335,7 +335,7 @@
   padding: 8px 16px;
   cursor: pointer;
   border-left: 3px solid transparent;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 
   .row-timestamp {
     display: flex;
@@ -344,14 +344,15 @@
     min-width: 48px;
 
     .mono-time {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-family: inherit;
+      font-variant-numeric: tabular-nums;
       font-size: 11px;
       font-weight: 700;
       color: var(--text-muted);
       background: var(--bg-hover);
       padding: 2px 6px;
-      border-radius: 4px;
-      transition: color 0.15s ease;
+      border-radius: var(--border-radius-xs);
+      transition: color 0.15s ease, background-color 0.15s ease;
     }
   }
 
@@ -395,7 +396,7 @@
 
     .mono-time {
       background: var(--brand-primary);
-      color: #ffffff;
+      color: var(--text-inverse, #ffffff);
     }
 
     .cue-text {
@@ -432,8 +433,8 @@
     color: var(--brand-primary);
     cursor: pointer;
     padding: 4px 8px;
-    border-radius: 6px;
-    transition: background 0.15s ease;
+    border-radius: var(--border-radius-sm);
+    transition: background-color 0.15s ease;
 
     &:hover {
       background: var(--brand-surface);
@@ -446,11 +447,11 @@
     color: var(--text-secondary);
     cursor: pointer;
     padding: 6px;
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
 
     &:hover {
       background: var(--bg-hover);
@@ -502,14 +503,14 @@
       padding: 8px 12px;
       font-size: 12px;
       font-weight: 600;
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       cursor: pointer;
       border: none;
-      transition: all 0.15s ease;
+      transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
       &--soft {
         background: var(--bg-hover);
@@ -525,7 +526,7 @@
 
       &--primary {
         background: var(--brand-primary);
-        color: #ffffff;
+        color: var(--text-inverse, #ffffff);
 
         &:hover {
           background: var(--brand-primary-hover);
@@ -555,13 +556,13 @@
 .ai-modal-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: var(--border-radius-lg);
   width: 100%;
   max-width: 520px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
   position: relative;
   z-index: 1000000;
@@ -586,7 +587,7 @@
       .icon-wrap-purple {
         width: 36px;
         height: 36px;
-        border-radius: 8px;
+        border-radius: var(--border-radius-sm);
         background: var(--brand-surface);
         color: var(--brand-primary);
         display: flex;
@@ -597,7 +598,7 @@
       .icon-wrap-indigo {
         width: 36px;
         height: 36px;
-        border-radius: 8px;
+        border-radius: var(--border-radius-sm);
         background: var(--brand-surface);
         color: var(--brand-primary);
         display: flex;
@@ -644,7 +645,7 @@
   .takeaway-card {
     background: var(--bg-hover);
     border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: var(--border-radius-md);
     padding: 12px 14px;
 
     .point-badge {
@@ -656,8 +657,9 @@
       color: var(--brand-primary);
       background: var(--brand-surface);
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: var(--border-radius-xs);
       margin-bottom: 6px;
+      font-variant-numeric: tabular-nums;
     }
 
     .point-text {
@@ -688,20 +690,20 @@
     .formula-box {
       background: var(--bg-hover);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
       padding: 10px 14px;
 
       code {
         font-family: ui-monospace, monospace;
         font-size: 12.5px;
-        color: #eab308;
+        color: var(--status-amber-text);
       }
     }
 
     .code-box {
       background: var(--bg-hover);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
       padding: 12px;
       margin: 0;
       overflow-x: auto;
@@ -735,17 +737,17 @@
       padding: 7px 14px;
       font-size: 12px;
       font-weight: 600;
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       border: none;
-      transition: all 0.15s ease;
+      transition: background-color 0.15s ease, color 0.15s ease;
 
       &--primary {
         background: var(--brand-primary);
-        color: #fff;
+        color: var(--text-inverse, #ffffff);
 
         &:hover {
           background: var(--brand-primary-hover);

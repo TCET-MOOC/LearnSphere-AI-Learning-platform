@@ -73,31 +73,31 @@ import { timeAgo } from '@core/utils/time.util';
     </section>
   `,
   styles: [`
-    .card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; color: var(--text-primary); }
+    .card { background: transparent; border: none; border-radius: 0; padding: 0; color: var(--text-primary); }
     .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .card-head h2 { margin: 0; font-size: 14px; color: var(--text-primary); font-weight: 600; }
     .hint { font-size: 12px; color: var(--text-muted); }
     .new-post { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-    .new-post textarea { border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); border-radius: 8px; padding: 8px 10px; font: 400 12.5px inherit; resize: vertical; outline: none; }
+    .new-post textarea { border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); border-radius: var(--border-radius-md); padding: 8px 10px; font: 400 12.5px inherit; resize: vertical; outline: none; }
     .new-post textarea:focus { border-color: var(--brand-primary); }
-    .post-btn { align-self: flex-end; border: none; background: var(--brand-primary); color: #fff; font: 600 11.5px inherit; padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: background 0.15s ease; }
+    .post-btn { align-self: flex-end; border: none; background: var(--brand-primary); color: var(--text-inverse, #fff); font: 600 11.5px inherit; padding: 6px 14px; border-radius: var(--border-radius-md); cursor: pointer; transition: background-color 0.15s ease; }
     .post-btn:hover:not(:disabled) { background: var(--brand-primary-hover); }
     .post-btn:disabled { opacity: .5; cursor: not-allowed; }
     .posts { display: flex; flex-direction: column; gap: 14px; }
     .post { display: flex; gap: 10px; }
-    .post-ava { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 700 11px inherit; flex-shrink: 0; }
+    .post-ava { width: 30px; height: 30px; border-radius: var(--border-radius-full); display: flex; align-items: center; justify-content: center; font: 700 11px inherit; flex-shrink: 0; }
     .post-ava--sm { width: 24px; height: 24px; font-size: 10px; }
     .post-body { flex: 1; }
     .post-head { display: flex; align-items: center; gap: 8px; }
     .post-author { font: 600 12.5px inherit; color: var(--text-primary); }
-    .post-time { font-size: 11px; color: var(--text-muted); }
+    .post-time { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
     .del-btn { margin-left: auto; border: none; background: transparent; color: var(--status-red-text); font-size: 11px; cursor: pointer; }
     .post-text { margin: 4px 0 6px; font: 400 12.5px inherit; color: var(--text-secondary); line-height: 1.45; }
     .link-btn { border: none; background: transparent; color: var(--brand-primary); font: 600 11px inherit; cursor: pointer; padding: 0; }
     .replies { margin: 8px 0 8px 10px; padding-left: 10px; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
     .reply { display: flex; gap: 8px; }
     .reply-input { display: flex; gap: 8px; margin-top: 8px; }
-    .reply-input input { flex: 1; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); border-radius: 8px; padding: 6px 10px; font: 400 12px inherit; outline: none; }
+    .reply-input input { flex: 1; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); border-radius: var(--border-radius-md); padding: 6px 10px; font: 400 12px inherit; outline: none; }
     .reply-input input:focus { border-color: var(--brand-primary); }
   `]
 })

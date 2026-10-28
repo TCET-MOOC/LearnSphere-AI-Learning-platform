@@ -14,12 +14,32 @@ import { StudentService } from '../../services/student.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="player-resolver-shell" style="min-height: 60vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;">
-      <div class="player-spinner" style="width: 40px; height: 40px; border: 3px solid var(--border, #e2e8f0); border-top-color: var(--brand, #4f46e5); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-      <p style="color: var(--text-muted, #64748b); font-size: 0.95rem;">Resuming course playback...</p>
+    <div class="player-resolver-shell">
+      <div class="player-spinner"></div>
+      <p class="player-resolver-msg">Resuming course playback...</p>
     </div>
   `,
   styles: [`
+    .player-resolver-shell {
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .player-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--brand-primary);
+      border-radius: var(--border-radius-full);
+      animation: spin 0.8s linear infinite;
+    }
+    .player-resolver-msg {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
     @keyframes spin {
       to { transform: rotate(360deg); }
     }

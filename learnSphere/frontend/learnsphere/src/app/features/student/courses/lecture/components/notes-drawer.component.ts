@@ -30,11 +30,11 @@ import { NoteEditorComponent } from '../../../notes/components/note-editor.compo
     </section>
   `,
   styles: [`
-    .card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; color: var(--text-primary); }
+    .card { background: transparent; border: none; border-radius: 0; padding: 0; color: var(--text-primary); }
     .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .card-head h2 { margin: 0; font-size: 14px; color: var(--text-primary); font-weight: 600; }
-    .link-btn { border: none; background: var(--brand-surface); color: var(--brand-primary); padding: 4px 10px; border-radius: 6px; font: 600 11.5px inherit; cursor: pointer; transition: all 0.15s ease; }
-    .link-btn:hover { background: var(--brand-primary); color: #fff; }
+    .link-btn { border: none; background: var(--brand-surface); color: var(--brand-primary); padding: 5px 12px; border-radius: var(--border-radius-sm); font: 600 11.5px inherit; cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease; font-variant-numeric: tabular-nums; }
+    .link-btn:hover { background: var(--brand-primary); color: var(--text-inverse, #fff); }
     .notes-list { display: flex; flex-direction: column; gap: 10px; }
     .hint { font-size: 12px; color: var(--text-muted); }
   `]
