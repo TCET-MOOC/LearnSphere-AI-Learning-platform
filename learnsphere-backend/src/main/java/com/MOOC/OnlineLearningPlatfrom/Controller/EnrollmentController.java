@@ -127,14 +127,12 @@ public class EnrollmentController {
     }
 
     @GetMapping("/progress/course/{courseId}/summary")
-    public ResponseEntity<Map<String, Object>> getCourseProgressSummary(
+    public ResponseEntity<com.MOOC.OnlineLearningPlatfrom.Dto.CourseProgressSummaryDto> getCourseProgressSummary(
             @PathVariable Long courseId,
             @AuthenticationPrincipal CustomUserDetails principal) {
         ownershipService.requireCourseStaff(courseId, principal);
-        long enrollmentCount = enrollmentRepository.countByCourse_Id(courseId);
-        return ResponseEntity.ok(Map.of(
-                "courseId", courseId,
-                "totalEnrolled", enrollmentCount
-        ));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(enrollmentService.getCourseProgressSummary(courseId));
     }
 }

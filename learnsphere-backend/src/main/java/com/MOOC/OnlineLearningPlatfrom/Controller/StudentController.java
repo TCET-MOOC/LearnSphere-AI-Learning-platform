@@ -36,17 +36,20 @@ public class StudentController {
     private final UserProgressRepository userProgressRepository;
     private final com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository;
     private final com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService liveSessionService;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService enrollmentService;
 
     public StudentController(CourseService courseService,
                               EnrollmentRepository enrollmentRepository,
                               UserProgressRepository userProgressRepository,
                               com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository,
-                              com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService liveSessionService) {
+                              com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService liveSessionService,
+                              com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService enrollmentService) {
         this.courseService = courseService;
         this.enrollmentRepository = enrollmentRepository;
         this.userProgressRepository = userProgressRepository;
         this.courseContentRepository = courseContentRepository;
         this.liveSessionService = liveSessionService;
+        this.enrollmentService = enrollmentService;
     }
 
     @GetMapping("/live-sessions")
@@ -69,11 +72,8 @@ public class StudentController {
                 .map(Enrollment::getCourse)
                 .filter(c -> c != null)
                 .map(c -> {
-                    long lectureCount = courseService.getLectures(c.getId()).size();
-                    long completedCount = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, c.getId()).stream()
-                            .filter(p -> p.getCompletedAt() != null || (p.getProgressPercent() != null && p.getProgressPercent().compareTo(BigDecimal.valueOf(90)) >= 0))
-                            .count();
-                    return CourseResponseDto.from(c, lectureCount, completedCount);
+                    var calc = enrollmentService.calculateCourseProgress(c.getId(), userId);
+                    return CourseResponseDto.from(c, calc.getTotalContents(), calc.getCompletedContents());
                 })
                 .toList();
         return ResponseEntity.ok()
@@ -87,13 +87,10 @@ public class StudentController {
         Long userId = requireUserId(principal);
         assertEnrolled(userId, id);
         Course c = courseService.getCourseEntity(id);
-        long lectureCount = courseService.getLectures(id).size();
-        long completedCount = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, id).stream()
-                .filter(p -> p.getCompletedAt() != null || (p.getProgressPercent() != null && p.getProgressPercent().compareTo(BigDecimal.valueOf(90)) >= 0))
-                .count();
+        var calc = enrollmentService.calculateCourseProgress(id, userId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
-                .body(CourseResponseDto.from(c, lectureCount, completedCount));
+                .body(CourseResponseDto.from(c, calc.getTotalContents(), calc.getCompletedContents()));
     }
 
     @GetMapping("/courses/{courseId}/progress")
@@ -101,9 +98,7 @@ public class StudentController {
                                                                             @AuthenticationPrincipal CustomUserDetails principal) {
         Long userId = requireUserId(principal);
         assertEnrolled(userId, courseId);
-        List<UserProgressResponseDto> progressList = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, courseId).stream()
-                .map(UserProgressResponseDto::from)
-                .toList();
+        List<UserProgressResponseDto> progressList = enrollmentService.getStudentCourseProgress(courseId, userId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
                 .body(progressList);

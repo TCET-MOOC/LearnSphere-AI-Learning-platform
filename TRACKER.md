@@ -630,8 +630,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-01 Enrolment unique, self-only, published check
 - [x] W3-02 Roster/unenrol authorization
 - [x] W3-03 Progress unique + upsert + BigDecimal
-- [~] W3-04 90 % completion rule
-- [~] W3-05 Content-based course completion
+- [x] W3-04 90 % completion rule
+- [x] W3-05 Content-based course completion
 - [~] W3-06 Certificate eligibility + real grade
 - [~] W3-07 Leaderboard materialisation
 - [ ] W3-08 Same-college entitlement
@@ -712,6 +712,38 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `UserProgressUniqueAndUpsertTests.java` with 7 integration tests covering BigDecimal precision insert, upsert updating existing record, clamp below zero, clamp above 100, completedAt on 100%, private no-store headers, and database unique constraint rejection on duplicate insert.
   - Red: compilation failure due to integer vs BigDecimal types, and 415 error on conflicting Jackson setters.
   - Green: 7/7 tests passed in `UserProgressUniqueAndUpsertTests`. Full backend suite `248/248` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
+
+**W3-04 evidence (2026-10-28) — 90 % completion rule:**
+- Rules: AC-12, A-08, BR-07, NFR-03.
+- Completion threshold & semantics:
+  - In `EnrollmentServiceImpl`: implemented the 90 % threshold rule (`completedAt` set when `progressPercent >= 90.00`).
+  - Progress regression handling: if progress regresses below 90.00 %, `completedAt` is cleared to `null`.
+  - Idempotency & timestamp preservation: if progress advances further while already >= 90 %, the existing `completedAt` timestamp is preserved.
+  - In `StudentController`: updated `markLectureComplete` (sets `100.00` with scale 2 and `completedAt`), `unmarkLectureComplete` (clears to `0.00`, sets `completedAt` to null, `secondsWatched` to 0), and added `Cache-Control: private, no-store` headers.
+  - Updated completion check in `StudentController`, `TeacherStudentsController`, and `CertificateServiceImpl` to count items as completed when `completedAt != null` or `progressPercent >= 90.00`.
+- Red-green verification:
+  - Authored `CompletionRuleNinetyPercentTests.java` with 8 integration tests covering 90% threshold triggering completion, 89.99% remaining incomplete, advancement preserving timestamp, regression clearing timestamp, unmarkLectureComplete clearing, and private no-store headers.
+  - Green: 8/8 tests passed. Full backend suite `256/256` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
+
+**W3-05 evidence (2026-10-28) — Content-based course completion aggregation; dashboard/roster use the same query:**
+- Rules: AC-13, spec §5, [C-F7, C-F8], NFR-02, NFR-03.
+- Content-based aggregation & single query logic:
+  - Added `CourseProgressCalculation.java` representing calculated course content totals, completed contents, completion percent (scale 2), and boolean `completed`.
+  - Added `CourseProgressSummaryDto.java` containing course-level aggregated analytics: `totalEnrolled`, `totalContents`, `completedCount`, `inProgressCount`, `notStartedCount`, `averageProgress`, and per-student progress breakdown (`StudentProgressItem`).
+  - Added `findByUserIdAndCourseId` and `findByCourseId` to `UserProgressRepository` mapping progress directly to `CourseContent` (and legacy `Lecture`).
+  - In `EnrollmentServiceImpl`:
+    - Implemented `calculateCourseProgress(courseId, userId)`: resolves all canonical `CourseContent` items for the course (falling back to legacy `Lecture` if none); matches against student `UserProgress` records; computes completion according to the 90% rule.
+    - Implemented `getStudentCourseProgress(courseId, userId)`: returns per-content progress list (`List<UserProgressResponseDto>`) populated with all course contents (with 0% empty placeholders for unstarted items).
+    - Implemented `getCourseProgressSummary(courseId, principal)`: enforces course teacher or admin authorization (returning 404 for foreign access); executes single set-based query for all enrollments and all course progress records, aggregating in-memory without N+1 queries.
+  - In `StudentController`:
+    - Updated `getEnrolledCourses` (`GET /api/student/courses`) and `getEnrolledCourseDetail` (`GET /api/student/courses/{id}`) to use `enrollmentService.calculateCourseProgress(...)`, ensuring identical completion metrics on dashboard and detail surfaces.
+    - Updated `getCourseProgress` (`GET /api/student/courses/{courseId}/progress`) to return content-based progress items with `Cache-Control: private, no-store`.
+  - In `EnrollmentController`:
+    - Updated `GET /api/progress/course/{courseId}/summary` returning `CourseProgressSummaryDto` with `Cache-Control: private, no-store`.
+- Red-green verification:
+  - Authored `ContentBasedProgressAggregationTests.java` covering content-based progress list, dashboard/detail consistency, comprehensive roster summary metrics, admin access, and foreign access 404 masking.
+  - Red: 4 failures proving missing content-based resolution, missing summary calculation, and missing `Cache-Control: private, no-store`.
+  - Green: 5/5 tests passed in `ContentBasedProgressAggregationTests`. Full backend suite `261/261` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
