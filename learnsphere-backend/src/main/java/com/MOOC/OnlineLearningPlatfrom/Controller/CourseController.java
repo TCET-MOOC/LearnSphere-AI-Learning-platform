@@ -24,10 +24,14 @@ public class CourseController {
 
     private final CourseService courseService;
     private final PublicCacheService publicCacheService;
+    private final com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService;
 
-    public CourseController(CourseService courseService, PublicCacheService publicCacheService) {
+    public CourseController(CourseService courseService,
+                            PublicCacheService publicCacheService,
+                            com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService) {
         this.courseService = courseService;
         this.publicCacheService = publicCacheService;
+        this.ownershipService = ownershipService;
     }
 
     private boolean matchesEtag(String ifNoneMatch, String serverEtag) {
@@ -103,8 +107,12 @@ public class CourseController {
     }
 
     @GetMapping("/courses/{id}/lectures")
-    public ResponseEntity<List<LectureResponseDto>> getLectures(@PathVariable Long id) {
-        return ResponseEntity.ok(courseService.getLectures(id));
+    public ResponseEntity<List<LectureResponseDto>> getLectures(@PathVariable Long id,
+                                                                @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireEnrolled(id, principal);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(courseService.getLectures(id));
     }
 
     // --- Teacher-only course management ---

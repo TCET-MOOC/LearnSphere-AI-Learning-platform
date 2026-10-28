@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
-import { Course, Lecture, LectureProgress, Note, ResumeTarget } from '@core/models/course.model';
+import { Course, Lecture, LectureProgress, Note, PlaybackDescriptor, ResumeTarget } from '@core/models/course.model';
 
 export interface ExploreCourseFilters {
   status?: string;
@@ -74,6 +74,11 @@ export class StudentService {
 
   getLecture(courseId: number, lectureId: number): Observable<Lecture> {
     return this.apiService.get<Lecture>(`/student/courses/${courseId}/lectures/${lectureId}`);
+  }
+
+  /** Resolves signed media playback descriptor for content (W2-12). */
+  getPlaybackDescriptor(contentId: number): Observable<PlaybackDescriptor> {
+    return this.apiService.get<PlaybackDescriptor>(`/contents/${contentId}/playback`);
   }
 
   markLectureComplete(lectureId: number): Observable<LectureProgress> {

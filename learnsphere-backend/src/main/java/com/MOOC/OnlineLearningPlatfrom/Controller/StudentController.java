@@ -123,7 +123,9 @@ public class StudentController {
         if (lecture.getCourseId() == null || !lecture.getCourseId().equals(courseId)) {
             throw new ResourceNotFoundException("Lecture not found in course " + courseId);
         }
-        return ResponseEntity.ok(lecture);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(lecture);
     }
 
     @PostMapping("/lectures/{id}/complete")

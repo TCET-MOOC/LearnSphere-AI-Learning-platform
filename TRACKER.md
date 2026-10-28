@@ -637,8 +637,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-08 Same-college entitlement
 - [x] W3-09 Learning regression suite (course surfaces, resume, player auth)
 - [x] W3-10 My Courses enrolled-only + Explore catalogue + resume (AUD-07)
-- [~] W3-11 Canonical player route + server enrolment check (AUD-08)
-- [ ] W3-12 Course-surface polish (AUD-09)
+- [x] W3-11 Canonical player route + server enrolment check (AUD-08)
+- [~] W3-12 Course-surface polish (AUD-09)
 - [ ] W3-13 Hot-path query optimization + private no-store
 - [ ] W3-14 Student surfaces on the system (DS-10)
 - [ ] W3-15 Player workspace typography + density (DS-11)
@@ -884,6 +884,26 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
     - Added `getResumeTarget` test in `student.service.spec.ts` (8 tests passed).
     - Full frontend test suite: 12 test files passed, 53 tests passed.
     - Stylelint token ratchet passed cleanly. Production build succeeded (`BUILD_EXIT=0`).
+
+**W3-11 evidence (2026-10-28) — Canonical player route + server enrolment check (AUD-08):**
+- Rules: `audit.md` C2, C4, C5, C7 (`AUD-08`); BR-23, BR-26; A-05; AC-10; W2-12; NFR-03.
+- Server-Side Enrolment Check & IDOR Stealth Defense:
+  - In `CourseController.java`: hardened `GET /api/courses/{id}/lectures` by enforcing `ownershipService.requireEnrolled(id, principal)`. Unauthenticated callers, un-enrolled students, and foreign teachers receive RFC 9457 `404 NOT_FOUND` (stealth IDOR masking existence), while enrolled students, course teacher, and admin receive `200 OK` with `Cache-Control: private, no-store`.
+  - In `StudentController.java`: `GET /api/student/courses/{courseId}/lectures/{lectureId}` asserts course enrolment, verifies lecture course association (404 on foreign course mismatch), and returns `Cache-Control: private, no-store`.
+  - In `LectureResponseDto.java`: mapped canonical `contentId` and sanitized `videoUrl` so raw server filesystem paths (e.g. `uploads/`, `disk_storage`) are never leaked in metadata. Playback strictly delegates to the W2-12 signed descriptor.
+- Canonical Player Entry Route & Resolution:
+  - Registered canonical course-scoped player entry route in `app.routes.ts`: `{ path: 'student/courses/:courseId/player', component: PlayerResolverComponent, canActivate: [authGuard, roleGuard] }`.
+  - Created `PlayerResolverComponent`: calls `studentService.getResumeTarget(courseId)` and deep-links directly to `/student/courses/:courseId/lectures/:lectureId` (or falls back to first lecture / course landing if 100% complete or un-enrolled).
+  - Maintained canonical playback at `/student/courses/:courseId/lectures/:lectureId`.
+  - Eliminated duplicate route aliases: mapped `/student/courses/:courseId/lecture/:lectureId` to redirect to `/student/courses/:courseId/player`, and redirected legacy `/student/lectures` to `/student/explore`.
+  - In `course-detail.component.html`: updated "Continue Learning" button to point directly to `/student/courses/:courseId/player` (eliminating client-side hardcoded `lectures[0]` fallback).
+  - In `LectureComponent`: eliminated the legacy `loadDefaultContext()` method that previously fell back to the first enrolled course in the database; un-enrolled access safely returns to course details; loaded lectures dynamically query `studentService.getPlaybackDescriptor(contentId)` for signed streaming.
+- TDD & Red-Green Verification:
+  - Authored `PlayerEnrolmentSecurityTests.java` covering 10 integration scenarios: unauthenticated 404, un-enrolled 404, foreign teacher 404, enrolled student 200 with `private, no-store`, course teacher 200 with `private, no-store`, admin 200 with `private, no-store`, un-enrolled lecture detail 404, lecture detail 200 with `private, no-store`, course mismatch 404, and signed playback descriptor delegation.
+  - Red: 7/10 tests failed before implementation.
+  - Green: 10/10 passed in `PlayerEnrolmentSecurityTests`. Full backend test suite 254/254 passed.
+  - Frontend: authored `player-resolver.component.spec.ts` (4/4 passed), added `getLecture` and `getPlaybackDescriptor` specs in `student.service.spec.ts` (10/10 passed); full frontend test suite 13 files, 59 tests passed.
+  - Stylelint ratchet: passed cleanly (0 errors). Production build: exit code 0 (`BUILD_EXIT=0`).
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs

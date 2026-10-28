@@ -16,6 +16,7 @@ import { MessagesComponent as AdminMessages } from './features/admin/messages/me
 import { CoursesComponent as StudentCourses } from './features/student/courses/courses.component';
 import { ExploreComponent as StudentExplore } from './features/student/explore/explore.component';
 import { LectureComponent as StudentLectures } from './features/student/courses/lecture/lecture.component';
+import { PlayerResolverComponent } from './features/student/courses/lecture/player-resolver.component';
 import { CourseDetailComponent as StudentCourseDetail } from './features/student/courses/course-details/course-detail.component';
 import { NotesComponent as StudentNotes } from './features/student/notes/notes.component';
 import { BookmarksComponent as StudentBookmarks } from './features/student/bookmarks/bookmarks.component';
@@ -81,9 +82,10 @@ export const routes: Routes = [
   { path: 'student/courses', component: StudentCourses, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/explore', component: StudentExplore, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/courses/:id', component: StudentCourseDetail, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/courses/:courseId/player', component: PlayerResolverComponent, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/courses/:courseId/lectures/:lectureId', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
-  { path: 'student/courses/:courseId/lecture/:lectureId', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
-  { path: 'student/lectures', component: StudentLectures, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
+  { path: 'student/courses/:courseId/lecture/:lectureId', redirectTo: 'student/courses/:courseId/player' },
+  { path: 'student/lectures', redirectTo: 'student/explore', pathMatch: 'full' },
   { path: 'student/notes', component: StudentNotes, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/bookmarks', component: StudentBookmarks, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'student/messages', component: StudentMessages, canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },

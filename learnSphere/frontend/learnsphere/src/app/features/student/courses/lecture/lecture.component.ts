@@ -138,8 +138,10 @@ export class LectureComponent implements OnInit, OnDestroy {
       const lectureIdParam = params.get('lectureId');
       if (courseIdParam && lectureIdParam) {
         this.loadCourseContext(Number(courseIdParam), Number(lectureIdParam));
+      } else if (courseIdParam) {
+        this.router.navigate(['/student/courses', courseIdParam, 'player'], { replaceUrl: true });
       } else {
-        this.loadDefaultContext();
+        this.router.navigate(['/student/courses'], { replaceUrl: true });
       }
     });
   }
@@ -148,41 +150,6 @@ export class LectureComponent implements OnInit, OnDestroy {
     if (this.routeSub) this.routeSub.unsubscribe();
     if (this.querySub) this.querySub.unsubscribe();
     this.lectureContext.reset();
-  }
-
-  private loadDefaultContext(): void {
-    this.loading = true;
-    this.studentService.getEnrolledCourses().subscribe({
-      next: (courses) => {
-        const candidate = courses.find(c => (c.lectureCount || 0) > 0) || courses[0];
-        if (!candidate) {
-          this.loading = false;
-          this.cdr.markForCheck();
-          return;
-        }
-        this.studentService.getCourseLectures(candidate.id).subscribe({
-          next: (lectures) => {
-            if (lectures.length === 0) {
-              this.courseId = candidate.id;
-              this.course = candidate;
-              this.lectures = [];
-              this.loading = false;
-              this.cdr.markForCheck();
-              return;
-            }
-            this.loadCourseContext(candidate.id, lectures[0].id);
-          },
-          error: () => {
-            this.loading = false;
-            this.cdr.markForCheck();
-          }
-        });
-      },
-      error: () => {
-        this.loading = false;
-        this.cdr.markForCheck();
-      }
-    });
   }
 
   private loadCourseContext(courseId: number, lectureId: number): void {
@@ -243,11 +210,29 @@ export class LectureComponent implements OnInit, OnDestroy {
           this.loadLectureProgress(target.id);
           this.loadLectureBookmarks(target.id);
           this.checkLectureQuiz(target.id);
+
+          // Delegate playback to W2-12 descriptor if canonical content exists
+          if (target.contentId) {
+            this.studentService.getPlaybackDescriptor(target.contentId).subscribe({
+              next: (desc) => {
+                if (desc) {
+                  const mediaUrl = desc.streamUrl || desc.embedUrl || target.videoUrl;
+                  if (mediaUrl) {
+                    target.videoUrl = mediaUrl;
+                  }
+                  this.cdr.markForCheck();
+                }
+              },
+              error: () => {}
+            });
+          }
         }
         this.loadCourseAssignments(courseId);
       },
       error: () => {
         this.loading = false;
+        // If un-enrolled or course not found, return to course details
+        this.router.navigate(['/student/courses', courseId]);
         this.cdr.markForCheck();
       }
     });

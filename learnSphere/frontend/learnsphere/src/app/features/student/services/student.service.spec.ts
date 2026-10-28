@@ -140,4 +140,32 @@ describe('StudentService (W3-09 Learning regression suite)', () => {
 
     expect(apiServiceSpy.get).toHaveBeenCalledWith('/student/courses/101/progress');
   });
+
+  it('should fetch individual lecture metadata from /student/courses/:courseId/lectures/:lectureId', () => {
+    const mockLecture = { id: 5, courseId: 101, contentId: 205, title: 'Consensus', number: 1, videoUrl: '', duration: 120, isDownloadable: true, status: 'PUBLISHED' as const };
+    apiServiceSpy.get.mockReturnValue(of(mockLecture));
+
+    service.getLecture(101, 5).subscribe((res) => {
+      expect(res).toEqual(mockLecture);
+    });
+
+    expect(apiServiceSpy.get).toHaveBeenCalledWith('/student/courses/101/lectures/5');
+  });
+
+  it('should fetch playback descriptor from /contents/:contentId/playback', () => {
+    const mockDescriptor = {
+      contentId: 205,
+      title: 'Consensus',
+      contentType: 'VIDEO',
+      sourceType: 'UPLOAD' as const,
+      streamUrl: '/api/contents/205/stream?exp=123&u=1&sig=abc'
+    };
+    apiServiceSpy.get.mockReturnValue(of(mockDescriptor));
+
+    service.getPlaybackDescriptor(205).subscribe((res) => {
+      expect(res).toEqual(mockDescriptor);
+    });
+
+    expect(apiServiceSpy.get).toHaveBeenCalledWith('/contents/205/playback');
+  });
 });

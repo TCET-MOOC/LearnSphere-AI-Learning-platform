@@ -27,6 +27,7 @@ public class CourseServiceImpl implements CourseService {
     private final JdbcTemplate jdbcTemplate;
     private final com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService;
     private final com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService;
+    private final com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository;
 
     @org.springframework.beans.factory.annotation.Autowired
     public CourseServiceImpl(CourseRepository courseRepository,
@@ -35,13 +36,25 @@ public class CourseServiceImpl implements CourseService {
                              JdbcTemplate jdbcTemplate,
                              com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService,
                              @org.springframework.beans.factory.annotation.Autowired(required = false)
-                             com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService) {
+                             com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService,
+                             @org.springframework.beans.factory.annotation.Autowired(required = false)
+                             com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository) {
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
         this.departmentRepository = departmentRepository;
         this.jdbcTemplate = jdbcTemplate;
         this.ownershipService = ownershipService;
         this.publicCacheService = publicCacheService;
+        this.courseContentRepository = courseContentRepository;
+    }
+
+    public CourseServiceImpl(CourseRepository courseRepository,
+                             LectureRepository lectureRepository,
+                             com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository departmentRepository,
+                             JdbcTemplate jdbcTemplate,
+                             com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService,
+                             com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService) {
+        this(courseRepository, lectureRepository, departmentRepository, jdbcTemplate, ownershipService, publicCacheService, null);
     }
 
     public CourseServiceImpl(CourseRepository courseRepository,
@@ -49,11 +62,11 @@ public class CourseServiceImpl implements CourseService {
                              com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository departmentRepository,
                              JdbcTemplate jdbcTemplate,
                              com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService) {
-        this(courseRepository, lectureRepository, departmentRepository, jdbcTemplate, ownershipService, null);
+        this(courseRepository, lectureRepository, departmentRepository, jdbcTemplate, ownershipService, null, null);
     }
 
     public CourseServiceImpl(CourseRepository courseRepository, LectureRepository lectureRepository, JdbcTemplate jdbcTemplate) {
-        this(courseRepository, lectureRepository, null, jdbcTemplate, null, null);
+        this(courseRepository, lectureRepository, null, jdbcTemplate, null, null, null);
     }
 
     @Override
@@ -272,13 +285,28 @@ public class CourseServiceImpl implements CourseService {
         // ensure course exists
         getCourseEntity(courseId);
         return lectureRepository.findByCourse_IdOrderByNumberAsc(courseId).stream()
-                .map(LectureResponseDto::from)
+                .map(lecture -> {
+                    Long contentId = null;
+                    if (courseContentRepository != null) {
+                        contentId = courseContentRepository.findByLegacyLectureId(lecture.getId())
+                                .map(com.MOOC.OnlineLearningPlatfrom.Entity.CourseContent::getContentId)
+                                .orElse(null);
+                    }
+                    return LectureResponseDto.from(lecture, contentId);
+                })
                 .toList();
     }
 
     @Override
     public LectureResponseDto getLectureById(Long lectureId) {
-        return LectureResponseDto.from(getLectureEntity(lectureId));
+        Lecture lecture = getLectureEntity(lectureId);
+        Long contentId = null;
+        if (courseContentRepository != null) {
+            contentId = courseContentRepository.findByLegacyLectureId(lecture.getId())
+                    .map(com.MOOC.OnlineLearningPlatfrom.Entity.CourseContent::getContentId)
+                    .orElse(null);
+        }
+        return LectureResponseDto.from(lecture, contentId);
     }
 
     @Override

@@ -31,12 +31,26 @@ export interface Course {
 export interface Lecture {
   id: number;
   courseId: number;
+  contentId?: number;
   title: string;
   number: number;
   videoUrl: string;
   duration: number; // in seconds
   isDownloadable: boolean;
   status: 'PUBLISHED' | 'DRAFT' | 'PROCESSING';
+}
+
+export interface PlaybackDescriptor {
+  contentId: number;
+  title: string;
+  contentType: string;
+  sourceType: 'YOUTUBE' | 'UPLOAD' | 'EXTERNAL';
+  durationSeconds?: number;
+  mimeType?: string;
+  providerVideoId?: string;
+  embedUrl?: string;
+  streamUrl?: string;
+  expiresAt?: string;
 }
 
 /**

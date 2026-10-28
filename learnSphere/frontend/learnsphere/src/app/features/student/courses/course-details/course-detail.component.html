@@ -41,7 +41,7 @@
         <a
           *ngIf="isEnrolled && (lectures.length > 0 || modules.length > 0)"
           class="btn btn--play"
-          [routerLink]="['/student/courses', courseId, 'lectures', lectures[0]?.id || 1]">
+          [routerLink]="['/student/courses', courseId, 'player']">
           <lucide-icon name="book-open" [size]="16"></lucide-icon>
           <span>Continue Learning</span>
         </a>
