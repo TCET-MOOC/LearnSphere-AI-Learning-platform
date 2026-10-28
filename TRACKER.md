@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-12` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-11` complete. `W2-12` implemented canonical media source union (`YOUTUBE`, `UPLOAD`, `EXTERNAL`), Flyway migration `V8__canonical_media_source.sql`, secure signed playback descriptors (`GET /api/contents/{id}/playback`) with HMAC-SHA256 signatures and strict zero-leakage of storage keys/paths, HTTP Range streaming (`206 Partial Content` on `GET /api/contents/{id}/stream`), upload MIME and magic byte safety with 200MB cap, and source union validation on content creation and updates. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-13 Opt-in YouTube channel publish` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-13` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-12` complete. `W2-13` implemented opt-in YouTube channel publish (OAuth + idempotent upload) with Flyway `V9__youtube_publish.sql`, signed single-use state tokens, encrypted refresh tokens, atomic publish jobs, 409 CONFLICT on concurrent duplicates, and zero token leakage. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-14 Token consolidation + lint ratchet to zero-new (DS-06)` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -510,7 +510,32 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Red: 9/14 tests failed before service implementation and controller wiring.
   - Green: `MediaPlaybackSecurityTests` passed 14/14 tests.
   - Full regression: backend `206/206` passed, payments `10/10` passed, frontend `33/33` passed, stylelint ratchet 100% passed.
-- [ ] W2-13 Opt-in YouTube channel publish (OAuth + idempotent upload)
+- [x] W2-13 Opt-in YouTube channel publish (OAuth + idempotent upload)
+
+**W2-13 evidence (2026-10-28) — Opt-in YouTube channel publish (OAuth + idempotent upload):**
+- Rules: A-25, BR-26, AUD-15, NFR-03, spec §6.
+- Database Schema & Migration (Flyway `V9__youtube_publish.sql`):
+  - Created table `youtube_channel_connections`: `connection_id` (PK), `user_id` (FK to `users(user_id)` cascade delete, UNIQUE constraint `uq_youtube_channel_user`), `channel_id`, `channel_title`, `encrypted_refresh_token` (TEXT), `scope`, `connected_at`, `updated_at`.
+  - Created table `media_publish_jobs`: `job_id` (PK), `content_id` (FK to `course_content(content_id)` cascade delete), `publisher_id` (FK to `users(user_id)` cascade delete), `status` (`PENDING`, `UPLOADING`, `COMPLETED`, `FAILED`), `privacy_status` (`PRIVATE`, `UNLISTED`, `PUBLIC`), `youtube_video_id`, `error_message`, `idempotency_key` (UNIQUE constraint `uq_publish_job_idempotency`), `started_at`, `completed_at`, `created_at`.
+  - Created indexes on `user_id`, `content_id`, `publisher_id`, and `status`.
+- Security & OAuth Flow Architecture (`YouTubePublishService` & `YouTubePublishServiceImpl`):
+  - State token security: `GET /api/teacher/media/youtube/connect/url` generates an HMAC-SHA256 signed single-use state token carrying `userId`, random nonce, and 10-minute expiry (`exp`).
+  - Replay protection: state tokens can only be consumed once via a thread-safe `ConcurrentHashMap` nonce cache. Expired, invalid, or replayed state tokens are rejected with `400 BAD_REQUEST`.
+  - Token encryption at rest: refresh tokens are encrypted with AES-128-CBC before persistence and decrypted in memory only when exchanging for short-lived access tokens.
+  - Zero token leakage: API responses strictly return sanitized connection metadata (`channelId`, `channelTitle`, `connectedAt`). Refresh tokens and access tokens are NEVER exposed in DTOs.
+  - Disconnect endpoint: `DELETE /api/teacher/media/youtube/connection` securely revokes and deletes the stored credentials.
+- Idempotent Publish & Source Transition Guard:
+  - `POST /api/teacher/contents/{contentId}/youtube-publish`: initiates video publishing for teacher's own content.
+  - Authorization & IDOR: only course staff (or admin) can initiate publish (`OwnershipService.requireContentStaff`). Unauthorized users receive `404 NOT_FOUND`.
+  - Content validation: requires `contentType = 'VIDEO'` and local `sourceType = 'UPLOAD'` with valid `storageKey`.
+  - Concurrency & Idempotency: if an active publish job (`PENDING` or `UPLOADING`) already exists for the content, returns `409 CONFLICT` (RFC 9457 `CONFLICT`).
+  - Safe source transition: upon completion of upload job, `providerVideoId` is attached to `CourseContent`, but `sourceType` remains `'UPLOAD'` until the teacher explicitly switches it, preserving local playback fallback at all times.
+  - Job failure handling: upload errors (e.g. YouTube quota exhaustion) transition job to `FAILED` with detailed `errorMessage` without disrupting local streaming.
+- Red-green verification:
+  - Authored `YouTubePublishSecurityTests.java` covering 14 security and idempotency scenarios.
+  - Red: 13/14 tests failed before implementation.
+  - Green: `YouTubePublishSecurityTests` passed 14/14 tests.
+  - Full regression: backend `220/220` passed, payments `10/10` passed, frontend `33/33` passed, stylelint ratchet 100% passed.
 - [ ] W2-14 Token consolidation + lint ratchet to zero-new (DS-06)
 - [ ] W2-15 Icon unification: Lucide only (DS-07)
 - [ ] W2-16 Identity direction + proof page (DS-08)
