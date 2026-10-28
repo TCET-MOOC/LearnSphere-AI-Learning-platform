@@ -287,6 +287,85 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     @Transactional(readOnly = true)
+    public Map<Long, CourseProgressCalculation> calculateCoursesProgressBatch(List<Long> courseIds, Long userId) {
+        if (courseIds == null || courseIds.isEmpty() || userId == null) {
+            return Collections.emptyMap();
+        }
+
+        List<CourseContent> allContents = courseContentRepository.findByModule_Course_IdInOrderByModule_PositionAscPositionAsc(courseIds);
+        Map<Long, List<CourseContent>> contentsByCourse = allContents.stream()
+                .filter(c -> c.getModule() != null && c.getModule().getCourse() != null)
+                .collect(Collectors.groupingBy(c -> c.getModule().getCourse().getId()));
+
+        Set<Long> missingCourseIds = courseIds.stream()
+                .filter(cid -> !contentsByCourse.containsKey(cid) || contentsByCourse.get(cid).isEmpty())
+                .collect(Collectors.toSet());
+
+        Map<Long, List<com.MOOC.OnlineLearningPlatfrom.Entity.Lecture>> legacyLecturesByCourse = missingCourseIds.isEmpty()
+                ? Collections.emptyMap()
+                : lectureRepository.findByCourse_IdInOrderByNumberAsc(missingCourseIds).stream()
+                        .filter(l -> l.getCourse() != null)
+                        .collect(Collectors.groupingBy(l -> l.getCourse().getId()));
+
+        List<UserProgress> userProgressList = userProgressRepository.findByUserId(userId);
+        Map<Long, UserProgress> byContentId = new HashMap<>();
+        Map<Long, UserProgress> byLectureId = new HashMap<>();
+        for (UserProgress p : userProgressList) {
+            if (p.getContent() != null && p.getContent().getContentId() != null) {
+                byContentId.put(p.getContent().getContentId(), p);
+            }
+            if (p.getLecture() != null && p.getLecture().getId() != null) {
+                byLectureId.put(p.getLecture().getId(), p);
+            }
+        }
+
+        Map<Long, CourseProgressCalculation> result = new HashMap<>();
+        for (Long courseId : courseIds) {
+            List<CourseContent> contents = contentsByCourse.getOrDefault(courseId, Collections.emptyList());
+            List<com.MOOC.OnlineLearningPlatfrom.Entity.Lecture> legacyLectures = legacyLecturesByCourse.getOrDefault(courseId, Collections.emptyList());
+            long total = contents.isEmpty() ? legacyLectures.size() : contents.size();
+            long completed = 0;
+            LocalDateTime lastActivity = null;
+
+            if (!contents.isEmpty()) {
+                for (CourseContent c : contents) {
+                    UserProgress p = byContentId.get(c.getContentId());
+                    if (p == null && c.getLegacyLectureId() != null) {
+                        p = byLectureId.get(c.getLegacyLectureId());
+                    }
+                    if (isProgressComplete(p)) {
+                        completed++;
+                    }
+                    if (p != null && p.getCompletedAt() != null) {
+                        if (lastActivity == null || p.getCompletedAt().isAfter(lastActivity)) {
+                            lastActivity = p.getCompletedAt();
+                        }
+                    }
+                }
+            } else {
+                for (com.MOOC.OnlineLearningPlatfrom.Entity.Lecture l : legacyLectures) {
+                    UserProgress p = byLectureId.get(l.getId());
+                    if (isProgressComplete(p)) {
+                        completed++;
+                    }
+                    if (p != null && p.getCompletedAt() != null) {
+                        if (lastActivity == null || p.getCompletedAt().isAfter(lastActivity)) {
+                            lastActivity = p.getCompletedAt();
+                        }
+                    }
+                }
+            }
+
+            double percent = total > 0 ? Math.min(100.0, Math.round(((double) completed / total) * 100.0)) : 0.0;
+            boolean isAllCompleted = total > 0 && completed >= total;
+            result.put(courseId, new CourseProgressCalculation(total, completed, percent, isAllCompleted, lastActivity));
+        }
+
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public CourseProgressSummaryDto getCourseProgressSummary(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + courseId));
@@ -304,6 +383,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Map<Long, List<UserProgress>> progressByUser = allProgress.stream()
                 .collect(Collectors.groupingBy(UserProgress::getUserId));
 
+        Set<Long> studentIds = enrollments.stream()
+                .map(Enrollment::getUserId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, UserAccount> studentsById = userAccountRepository.findAllById(studentIds).stream()
+                .collect(Collectors.toMap(UserAccount::getUserId, u -> u));
+
         List<CourseProgressSummaryDto.StudentProgressItemDto> studentItems = new ArrayList<>();
         long completedCount = 0;
         long inProgressCount = 0;
@@ -312,7 +398,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         for (Enrollment enrollment : enrollments) {
             Long studentId = enrollment.getUserId();
-            UserAccount student = userAccountRepository.findById(studentId).orElse(null);
+            UserAccount student = studentsById.get(studentId);
 
             List<UserProgress> userProgs = progressByUser.getOrDefault(studentId, Collections.emptyList());
             Map<Long, UserProgress> byContentId = new HashMap<>();

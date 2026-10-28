@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface LectureRepository extends JpaRepository<Lecture, Long> {
     List<Lecture> findByCourse_IdOrderByNumberAsc(Long courseId);
+    List<Lecture> findByCourse_IdInOrderByNumberAsc(java.util.Collection<Long> courseIds);
     long countByCourse_Id(Long courseId);
 }

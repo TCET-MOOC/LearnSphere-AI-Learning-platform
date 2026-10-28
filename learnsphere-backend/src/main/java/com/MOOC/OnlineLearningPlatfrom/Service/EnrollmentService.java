@@ -14,5 +14,6 @@ public interface EnrollmentService {
     CourseProgressSummaryDto getCourseProgressSummary(Long courseId);
     List<UserProgressResponseDto> getStudentCourseProgress(Long courseId, Long userId);
     CourseProgressCalculation calculateCourseProgress(Long courseId, Long userId);
+    java.util.Map<Long, CourseProgressCalculation> calculateCoursesProgressBatch(List<Long> courseIds, Long userId);
     com.MOOC.OnlineLearningPlatfrom.Dto.ResumeTargetDto getResumeTarget(Long courseId, Long userId);
 }

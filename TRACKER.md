@@ -639,8 +639,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-10 My Courses enrolled-only + Explore catalogue + resume (AUD-07)
 - [x] W3-11 Canonical player route + server enrolment check (AUD-08)
 - [x] W3-12 Course-surface polish (AUD-09)
-- [~] W3-13 Hot-path query optimization + private no-store
-- [ ] W3-14 Student surfaces on the system (DS-10)
+- [x] W3-13 Hot-path query optimization + private no-store
+- [~] W3-14 Student surfaces on the system (DS-10)
 - [ ] W3-15 Player workspace typography + density (DS-11)
 
 **W3-01 evidence (2026-10-28) — Enrolment unique, self-only, published check:**
@@ -924,6 +924,29 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `lecture.component.spec.ts` (3 tests passed) testing `totalCourseDuration` on empty lists, multi-lecture real duration summation, and sub-hour minute formatting.
   - Full frontend test suite: 15 test files passed, 68 tests passed.
   - Stylelint token ratchet passed cleanly. Production build succeeded (`BUILD_EXIT=0`).
+
+**W3-13 evidence (2026-10-28) — Hot-path query optimization + private no-store (NFR-02, NFR-03):**
+- Rules: NFR-02, NFR-03, BR-08, BR-16, AC-13, spec §5, spec §8.
+- Hot-Path Query Indexes (Flyway `V14__hot_path_query_indexes.sql`):
+  - Created indexes on `enrollments(user_id)` and `enrollments(course_id)` to optimize student course lookups and teacher roster queries.
+  - Created indexes on `user_progress(user_id)`, `user_progress(user_id, completed_at)`, and `user_progress(lecture_id)` for high-frequency progress polling and completion aggregation.
+  - Created composite index on `leaderboard(course_id, avg_score DESC)` and index on `leaderboard(user_id)` for high-throughput course assessment leaderboard queries.
+  - Created indexes on `test_attempts(user_id)`, `test_attempts(test_id)`, and composite index on `test_attempts(user_id, test_id)`.
+  - Created composite index on `course_content(module_id, position)` for deterministic ordered traversal.
+- Batch Query Optimization:
+  - In `CourseContentRepository.java`: added `findByModule_Course_IdInOrderByModule_PositionAscPositionAsc(Collection<Long> courseIds)`.
+  - In `LectureRepository.java`: added `findByCourse_IdInOrderByNumberAsc(Collection<Long> courseIds)`.
+  - In `EnrollmentService` & `EnrollmentServiceImpl`:
+    - Implemented `calculateCoursesProgressBatch(List<Long> courseIds, Long userId)` resolving all course content and user progress across all enrolled courses in 2-3 queries total instead of `2 * N` sequential database round-trips.
+    - In `getCourseProgressSummary(Long courseId)`: eliminated N+1 user account queries using `userAccountRepository.findAllById(studentIds)` in batch.
+  - In `StudentController.java`: `getEnrolledCourses` (`GET /api/student/courses`) now delegates directly to `calculateCoursesProgressBatch`, drastically cutting latency on the student dashboard.
+- Eager Entity Fetching on Hot Paths:
+  - In `LeaderboardRepository.java`: updated `findByCourse_IdOrderByGlobalRankAsc`, `findByCourse_IdOrderByAvgScoreDesc`, and `findByUser_UserId` to `JOIN FETCH lb.user JOIN FETCH lb.course`, eliminating N+1 lazy-load queries during leaderboard DTO serialization.
+- Cache-Control Conformance:
+  - Added `Cache-Control: private, no-store` header to `GET /api/leaderboard` (joining `/courses/{id}/leaderboard` and `/leaderboard/me`), guaranteeing non-stale personalized XP rankings and preventing private data retention in shared proxies (NFR-03).
+- Red-green verification:
+  - Authored `HotPathQueryOptimizationTests.java` covering 8 integration scenarios: batch course progress calculation, batch user progress summary, eager leaderboard user/course join, eager user leaderboard standings join, and private no-store headers across all leaderboard routes.
+  - Green: 8/8 passed in `HotPathQueryOptimizationTests`. Full backend test suite `310/310` passed. Full payments suite `10/10` passed.
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs

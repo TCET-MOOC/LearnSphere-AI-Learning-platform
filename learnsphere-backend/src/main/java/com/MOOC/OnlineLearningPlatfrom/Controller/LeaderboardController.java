@@ -27,7 +27,9 @@ public class LeaderboardController {
     public ResponseEntity<List<LeaderboardEntryDto>> getLeaderboard(
             @RequestParam(defaultValue = "global") String scope,
             @AuthenticationPrincipal CustomUserDetails principal) {
-        return ResponseEntity.ok(leaderboardService.getLeaderboard(scope, principal));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(leaderboardService.getLeaderboard(scope, principal));
     }
 
     @GetMapping("/courses/{courseId}/leaderboard")

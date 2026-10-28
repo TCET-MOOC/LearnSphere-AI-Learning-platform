@@ -68,11 +68,21 @@ public class StudentController {
     @GetMapping("/courses")
     public ResponseEntity<List<CourseResponseDto>> getEnrolledCourses(@AuthenticationPrincipal CustomUserDetails principal) {
         Long userId = requireUserId(principal);
-        List<CourseResponseDto> courses = enrollmentRepository.findByUserId(userId).stream()
+        List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
+        List<Long> courseIds = enrollments.stream()
+                .map(e -> e.getCourse() != null ? e.getCourse().getId() : null)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
+        java.util.Map<Long, com.MOOC.OnlineLearningPlatfrom.Dto.CourseProgressCalculation> progressByCourse =
+                enrollmentService.calculateCoursesProgressBatch(courseIds, userId);
+
+        List<CourseResponseDto> courses = enrollments.stream()
                 .map(Enrollment::getCourse)
-                .filter(c -> c != null)
+                .filter(java.util.Objects::nonNull)
                 .map(c -> {
-                    var calc = enrollmentService.calculateCourseProgress(c.getId(), userId);
+                    var calc = progressByCourse.getOrDefault(c.getId(),
+                            new com.MOOC.OnlineLearningPlatfrom.Dto.CourseProgressCalculation(0, 0, 0.0, false, null));
                     return CourseResponseDto.from(c, calc.getTotalContents(), calc.getCompletedContents());
                 })
                 .toList();
