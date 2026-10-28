@@ -10,6 +10,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.UserProgressRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService;
 import com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -61,21 +62,16 @@ public class EnrollmentController {
     @GetMapping("/enrollments/me")
     public ResponseEntity<List<Enrollment>> getMyEnrollments(@AuthenticationPrincipal CustomUserDetails principal) {
         Long userId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : 0L;
-        return ResponseEntity.ok(enrollmentRepository.findByUserId(userId));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(enrollmentRepository.findByUserId(userId));
     }
 
     @DeleteMapping("/enrollments/{id}")
     public ResponseEntity<Void> unenrollFromCourse(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails principal) {
-        Enrollment enrollment = enrollmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found with id: " + id));
-        boolean isSelf = principal != null && principal.getUser() != null
-                && principal.getUser().getUserId().equals(enrollment.getUserId());
-        boolean isStaff = enrollment.getCourse() != null && ownershipService.isCourseStaff(enrollment.getCourse(), principal);
-        if (!isSelf && !isStaff && !ownershipService.isAdmin(principal)) {
-            throw new ResourceNotFoundException("Enrollment not found with id: " + id);
-        }
+        Enrollment enrollment = ownershipService.requireEnrollmentSelfOrAdmin(id, principal);
         enrollmentRepository.delete(enrollment);
         return ResponseEntity.noContent().build();
     }
@@ -85,7 +81,9 @@ public class EnrollmentController {
             @PathVariable Long courseId,
             @AuthenticationPrincipal CustomUserDetails principal) {
         ownershipService.requireCourseStaff(courseId, principal);
-        return ResponseEntity.ok(enrollmentRepository.findByCourse_Id(courseId));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(enrollmentRepository.findByCourse_Id(courseId));
     }
 
     @PostMapping("/progress")

@@ -242,6 +242,23 @@ public class OwnershipService {
         }
     }
 
+    public Enrollment requireEnrollmentSelfOrAdmin(Long enrollmentId, CustomUserDetails principal) {
+        if (enrollmentId == null) {
+            throw new ResourceNotFoundException("Enrollment not found with id: null");
+        }
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found with id: " + enrollmentId));
+        if (isAdmin(principal)) {
+            return enrollment;
+        }
+        if (principal != null && principal.getUser() != null
+                && principal.getUser().getUserId() != null
+                && principal.getUser().getUserId().equals(enrollment.getUserId())) {
+            return enrollment;
+        }
+        throw new ResourceNotFoundException("Enrollment not found with id: " + enrollmentId);
+    }
+
     public void requireAdmin(CustomUserDetails principal) {
         if (!isAdmin(principal)) {
             throw new AccessDeniedException("Admin access required");

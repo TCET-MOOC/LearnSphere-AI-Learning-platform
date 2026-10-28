@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` complete, verified and green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-01` enforced unique (user_id, course_id, role) via Flyway V10, self-only enrollment check (foreign enrollment attempts rejected with 403), and LIVE-only course requirement (rejects DRAFT/PENDING/ARCHIVED with 400). |
-| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-02 Roster/unenrol authorization`). |
+| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` and `W3-02` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-02` locked down course roster reads to course staff and admin with `Cache-Control: private, no-store`, masked foreign course roster probes as 404 per IDOR rules, and restricted unenrolment strictly to the enrolled student (self) or admin (foreign/teacher attempts return 404). |
+| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-03 Progress unique + upsert + BigDecimal`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -628,7 +628,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 
 ### Wave 3 — Enrolment, progress and credentials
 - [x] W3-01 Enrolment unique, self-only, published check
-- [~] W3-02 Roster/unenrol authorization
+- [x] W3-02 Roster/unenrol authorization
 - [~] W3-03 Progress unique + upsert + BigDecimal
 - [~] W3-04 90 % completion rule
 - [~] W3-05 Content-based course completion
@@ -668,6 +668,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `EnrollmentUniquenessAndPublishTests.java` with 9 integration tests covering LIVE course self-enrollment, non-existent course 404, non-LIVE status rejection (DRAFT, PENDING, ARCHIVED), foreign user 403, admin foreign user 200, duplicate enrollment 409 conflict, and DB unique constraint enforcement.
   - Red: 8/9 tests failed before changes.
   - Green: 9/9 tests passed. Full backend suite `229/229` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
+
+**W3-02 evidence (2026-10-28) — Roster and unenrol authorization:**
+- Rules: [C-F3], spec §5, NFR-03, BR-04.
+- Roster Authorization (`GET /api/courses/{courseId}/enrollments`):
+  - Enforced via `OwnershipService.requireCourseStaff(courseId, principal)`.
+  - Course creator teacher (owner) and system `ADMIN` are authorized and receive the course enrollment roster with `Cache-Control: private, no-store`.
+  - Foreign teachers, students, and unauthenticated requests are masked as `404 NOT_FOUND` (preventing IDOR probing).
+  - Non-existent courses return `404 NOT_FOUND`.
+- Unenrol Authorization (`DELETE /api/enrollments/{id}`):
+  - Enforced via `OwnershipService.requireEnrollmentSelfOrAdmin(id, principal)`.
+  - Only the enrolled student (`self`) or a system `ADMIN` can unenroll.
+  - Foreign students, course teachers, foreign teachers, and unauthorized users attempting to delete an enrollment receive `404 NOT_FOUND` per IDOR rules.
+  - Non-existent enrollment records return `404 NOT_FOUND`.
+- Cache Control & Privacy:
+  - Added `Cache-Control: private, no-store` header to `GET /api/courses/{courseId}/enrollments` and `GET /api/enrollments/me`.
+- Red-green verification:
+  - Authored `RosterAndUnenrollAuthorizationTests.java` with 12 integration tests covering teacher owner roster read, admin roster read, foreign teacher roster 404, student roster 404, unauthenticated roster 404, non-existent course 404, self unenrol 204, admin unenrol 204, foreign student unenrol 404, course teacher unenrol 404 (self/admin only), foreign teacher unenrol 404, and non-existent enrollment 404.
+  - Red: 3/12 tests failed before changes (teacher could unenroll student with 204 instead of 404; missing `Cache-Control: private, no-store` on roster reads).
+  - Green: 12/12 tests passed in `RosterAndUnenrollAuthorizationTests`. Full backend suite `241/241` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
