@@ -15,7 +15,7 @@
   width: 100%;
   max-width: 420px;
   padding: 40px;
-  border-radius: var(--border-radius-lg, 12px);
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border-color);
 }
@@ -24,7 +24,7 @@
   background: var(--status-red-bg);
   color: var(--status-red-text);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md, 8px);
+  border-radius: var(--border-radius-md);
   padding: 10px 14px;
   font-size: 13px;
   margin-bottom: 20px;
@@ -45,7 +45,7 @@
     height: 48px;
     background: var(--brand-surface);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg, 12px);
+    border-radius: var(--border-radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -98,7 +98,7 @@
     background-color: var(--bg-input);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md, 8px);
+    border-radius: var(--border-radius-md);
     font-size: 14px;
     outline: none;
     transition: border-color 0.2s ease;
@@ -111,9 +111,9 @@
 
 .btn-submit {
   background: var(--brand-primary);
-  color: var(--text-inverse, #ffffff);
+  color: var(--text-inverse);
   border: none;
-  border-radius: var(--border-radius-md, 8px);
+  border-radius: var(--border-radius-md);
   padding: 12px;
   font-size: 14px;
   font-weight: 600;

@@ -5,7 +5,7 @@
     "color-no-hex": {
       "enforced": true,
       "rule": "NFR-04(a)",
-      "total": 588,
+      "total": 579,
       "files": {
         "src/app/features/admin/colleges/colleges.component.scss": 9,
         "src/app/features/admin/courses/courses.component.scss": 1,
@@ -19,11 +19,6 @@
         "src/app/features/admin/sentiment/sentiment.component.scss": 12,
         "src/app/features/admin/settings/settings.component.scss": 1,
         "src/app/features/admin/users/users.component.scss": 15,
-        "src/app/features/auth/forgot-password/forgot-password.component.scss": 1,
-        "src/app/features/auth/login/login.component.scss": 1,
-        "src/app/features/auth/register/register.component.scss": 1,
-        "src/app/features/auth/verify-college/verify-college.component.scss": 1,
-        "src/app/features/landing/landing.component.scss": 5,
         "src/app/features/student/assessments/assessments.component.scss": 1,
         "src/app/features/student/assessments/quiz/quiz.component.scss": 1,
         "src/app/features/student/bookmarks/bookmarks.component.scss": 1,
@@ -64,7 +59,7 @@
     "radius-literal": {
       "enforced": true,
       "rule": "NFR-04(c)",
-      "total": 433,
+      "total": 403,
       "files": {
         "src/app/features/admin/announcements/announcements.component.scss": 5,
         "src/app/features/admin/colleges/colleges.component.scss": 9,
@@ -80,11 +75,6 @@
         "src/app/features/admin/sentiment/sentiment.component.scss": 14,
         "src/app/features/admin/settings/settings.component.scss": 1,
         "src/app/features/admin/users/users.component.scss": 9,
-        "src/app/features/auth/forgot-password/forgot-password.component.scss": 6,
-        "src/app/features/auth/login/login.component.scss": 8,
-        "src/app/features/auth/register/register.component.scss": 7,
-        "src/app/features/auth/verify-college/verify-college.component.scss": 5,
-        "src/app/features/landing/landing.component.scss": 4,
         "src/app/features/student/assessments/assessments.component.scss": 2,
         "src/app/features/student/assessments/quiz/quiz.component.scss": 3,
         "src/app/features/student/bookmarks/bookmarks.component.scss": 2,
@@ -232,9 +222,9 @@
     "inline-style": {
       "enforced": false,
       "rule": "owned by the screen-conversion stories",
-      "total": 272,
+      "total": 273,
       "files": {
-        "src/app/features/landing/landing.component.html": 232,
+        "src/app/features/landing/landing.component.html": 233,
         "src/app/features/student/dashboard/dashboard.component.html": 8,
         "src/app/features/student/discussion/discussion.component.html": 6,
         "src/app/features/student/leaderboard/leaderboard.component.html": 1,

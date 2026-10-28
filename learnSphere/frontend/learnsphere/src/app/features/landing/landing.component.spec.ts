@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
-import { LucideAngularModule, GraduationCap, Globe, FileText, Monitor, Ruler, Search, User, Play, Settings, Menu, X } from 'lucide-angular';
+import { LucideAngularModule, GraduationCap, Globe, FileText, Monitor, Ruler, Search, User, Play, Settings, Menu, X, ShieldCheck } from 'lucide-angular';
 import { LandingComponent } from './landing.component';
 
 describe('LandingComponent Surface & Token Conformance (DS-02 / W1-13)', () => {
@@ -15,7 +15,7 @@ describe('LandingComponent Surface & Token Conformance (DS-02 / W1-13)', () => {
         provideRouter([]),
         importProvidersFrom(
           LucideAngularModule.pick({
-            GraduationCap, Globe, FileText, Monitor, Ruler, Search, User, Play, Settings, Menu, X
+            GraduationCap, Globe, FileText, Monitor, Ruler, Search, User, Play, Settings, Menu, X, ShieldCheck
           })
         )
       ]
@@ -123,5 +123,20 @@ describe('LandingComponent Surface & Token Conformance (DS-02 / W1-13)', () => {
       expect(text).not.toContain('85+');
       expect(text).not.toContain('40k+');
     });
+
+    it('should display the institutional verified seal badge in the hero section (DS-08 / DS-09)', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const badge = compiled.querySelector('.hero-section .verified-seal-badge');
+      expect(badge).toBeTruthy();
+      expect(badge?.textContent).toContain('Institutional Verification Standard');
+    });
+
+    it('should link to certificate verification in the footer', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const verifyLink = compiled.querySelector('footer a[routerLink="/verify-certificate"]');
+      expect(verifyLink).toBeTruthy();
+      expect(verifyLink?.textContent).toContain('Verify Certificate');
+    });
   });
 });
+

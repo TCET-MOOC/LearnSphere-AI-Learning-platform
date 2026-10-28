@@ -15,7 +15,7 @@
   width: 100%;
   max-width: 420px;
   padding: 40px;
-  border-radius: var(--border-radius-lg, 12px);
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border-color);
 }
@@ -24,7 +24,7 @@
   background: var(--status-red-bg);
   color: var(--status-red-text);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md, 8px);
+  border-radius: var(--border-radius-md);
   padding: 10px 14px;
   font-size: 13px;
   margin-bottom: 20px;
@@ -45,7 +45,7 @@
     height: 48px;
     background: var(--brand-surface);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg, 12px);
+    border-radius: var(--border-radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -82,7 +82,7 @@
   display: flex;
   background: var(--bg-app);
   padding: 4px;
-  border-radius: var(--border-radius-md, 8px);
+  border-radius: var(--border-radius-md);
   margin-bottom: 24px;
   border: 1px solid var(--border-color);
 
@@ -91,7 +91,7 @@
     padding: 10px 0;
     border: none;
     background: transparent;
-    border-radius: var(--border-radius-md, 8px);
+    border-radius: var(--border-radius-md);
     color: var(--text-secondary);
     font-weight: 600;
     font-size: 13px;
@@ -132,7 +132,7 @@
       background: var(--bg-input);
       color: var(--text-primary);
       border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-md, 8px);
+      border-radius: var(--border-radius-md);
       font-size: 14px;
       outline: none;
       transition: border-color 0.2s ease;
@@ -161,10 +161,10 @@
 
   .btn-submit {
     background: var(--brand-primary);
-    color: var(--text-inverse, #ffffff);
+    color: var(--text-inverse);
     border: none;
     padding: 14px;
-    border-radius: var(--border-radius-md, 8px);
+    border-radius: var(--border-radius-md);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;

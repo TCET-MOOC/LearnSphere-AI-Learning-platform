@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-16` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-15` complete. `W2-16` selected the **"verified"** identity direction (academic stamp/seal motif, ink/paper/seal palette, Plus Jakarta Sans + Inter type pairing, tabular numerals), delivered tokens and utilities, rebuilt the proof screen `verify-certificate.component.scss` to tokens (-23 hex, -11 radius, -2 transition), authored spec (38/38 frontend tests pass), and verified clean build. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-17 Public surfaces rebuild on the approved direction (DS-09)`). |
+| Current phase | **Wave 2 — Curriculum and authoring COMPLETE (`W2-01` through `W2-17` 100% complete, verified and pushed).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`). `W2-17` rebuilt public/auth surfaces on the approved "verified" academic direction (DS-09), added public landing hero tokens, cleaned up variable fallback literals across auth screens and landing, integrated the institutional verified seal badge in the landing hero, authored tests (40/40 tests pass), verified ratchet (`color-no-hex` fell to 579, `radius-literal` fell to 403), and verified clean build. |
+| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-01 Enrolment unique, self-only, published check`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -608,7 +608,23 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Verification & Regression:
   - Frontend Vitest suite: `10 passed (10)` test files, `38 passed (38)` tests.
   - Frontend production build: exit code 0 (`BUILD_EXIT=0`).
-- [ ] W2-17 Public surfaces rebuild on the approved direction (DS-09)
+- [x] W2-17 Public surfaces rebuild on the approved direction (DS-09)
+
+**W2-17 evidence (2026-10-28) — Public surfaces rebuild on approved direction (DS-09):**
+- Contract & Alignment:
+  - Rebuilt public landing and auth surfaces (`landing`, `login`, `register`, `forgot-password`, `verify-college`) on the approved "verified" academic identity direction (A-28 / ADR-16 / DS-09).
+  - Added public landing hero design tokens to `_tokens.scss` (`--bg-landing-hero: #12102e`, `--bg-landing-hero-elevated: #1e1a4a`, `--bg-landing-footer: #0d0b1e`, `--text-landing-highlight: #afa9ec`, `--text-landing-white: #ffffff`) across both light and dark theme blocks.
+  - Replaced CSS fallback arguments with canonical token variables across all auth screens (`login.component.scss`, `register.component.scss`, `forgot-password.component.scss`, `verify-college.component.scss`): `var(--border-radius-lg)`, `var(--border-radius-md)`, and `var(--text-inverse)`, completely eliminating literal fallback bans.
+  - Tokenized `landing.component.scss` to design tokens (`var(--bg-landing-hero)`, `var(--text-landing-white)`, `var(--text-landing-highlight)`, `var(--border-radius-full)`, `var(--border-radius-md)`, `var(--text-inverse)`).
+  - Integrated institutional verified seal badge (`.verified-seal-badge` with Lucide `shield-check` icon) into the landing page hero, emphasizing LearnSphere's college-verified institutional accreditation standard.
+- Stylelint Ratchet:
+  - `color-no-hex` fell from 588 to 579 (-9 reduction).
+  - `radius-literal` fell from 433 to 403 (-30 reduction).
+  - Enforced and updated baseline via `node scripts/stylelint-ratchet.mjs --update`. Ratchet passes cleanly with `npm run lint:styles`.
+- Verification & Regression:
+  - Authored verified identity unit tests in `landing.component.spec.ts` asserting the hero verified seal badge and footer certificate verification link.
+  - Frontend Vitest suite: `10 passed (10)` test files, `40 passed (40)` tests.
+  - Frontend production build: exit code 0 (`BUILD_EXIT=0`).
 
 ### Wave 3 — Enrolment, progress and credentials
 - [~] W3-01 Enrolment unique, self-only, published check
@@ -748,7 +764,7 @@ Findings `F24` were measured on the running app (Chromium, 1489×1000 and 390×8
 | DS-06 | P1 | Two palettes, 723 hex literals, 18 radii, 11 local `$brand-*` redefinitions | W2-14 | Closed (W2-14) |
 | DS-07 | P2 | Two icon families (Lucide vs `mat-icon` + Material Icons font) | W2-15 | Closed (W2-15) |
 | DS-08 | P1 | No identity decision; text-only hero, zero imagery | W2-16 | Closed (W2-16) |
-| DS-09 | P1 | Public/auth surfaces not on the system | W2-17 | Open |
+| DS-09 | P1 | Public/auth surfaces not on the system | W2-17 | Closed (W2-17) |
 | DS-10 | P1 | Student surfaces use four card styles, no token scale | W3-14 | Open |
 | DS-11 | P1 | Player workspace shares generic card chrome | W3-15 | Open |
 | DS-12 | P2 | Teacher/admin consoles drift from shared components | W7-14 | Open |
