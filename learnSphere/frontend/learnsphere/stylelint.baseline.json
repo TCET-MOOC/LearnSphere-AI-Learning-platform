@@ -5,7 +5,7 @@
     "color-no-hex": {
       "enforced": true,
       "rule": "NFR-04(a)",
-      "total": 611,
+      "total": 588,
       "files": {
         "src/app/features/admin/colleges/colleges.component.scss": 9,
         "src/app/features/admin/courses/courses.component.scss": 1,
@@ -24,7 +24,6 @@
         "src/app/features/auth/register/register.component.scss": 1,
         "src/app/features/auth/verify-college/verify-college.component.scss": 1,
         "src/app/features/landing/landing.component.scss": 5,
-        "src/app/features/public/verify-certificate/verify-certificate.component.scss": 23,
         "src/app/features/student/assessments/assessments.component.scss": 1,
         "src/app/features/student/assessments/quiz/quiz.component.scss": 1,
         "src/app/features/student/bookmarks/bookmarks.component.scss": 1,
@@ -65,7 +64,7 @@
     "radius-literal": {
       "enforced": true,
       "rule": "NFR-04(c)",
-      "total": 444,
+      "total": 433,
       "files": {
         "src/app/features/admin/announcements/announcements.component.scss": 5,
         "src/app/features/admin/colleges/colleges.component.scss": 9,
@@ -86,7 +85,6 @@
         "src/app/features/auth/register/register.component.scss": 7,
         "src/app/features/auth/verify-college/verify-college.component.scss": 5,
         "src/app/features/landing/landing.component.scss": 4,
-        "src/app/features/public/verify-certificate/verify-certificate.component.scss": 11,
         "src/app/features/student/assessments/assessments.component.scss": 2,
         "src/app/features/student/assessments/quiz/quiz.component.scss": 3,
         "src/app/features/student/bookmarks/bookmarks.component.scss": 2,
@@ -129,7 +127,7 @@
     "transition-all": {
       "enforced": true,
       "rule": "NFR-04(e)",
-      "total": 113,
+      "total": 111,
       "files": {
         "src/app/features/admin/colleges/colleges.component.scss": 7,
         "src/app/features/admin/courses/courses.component.scss": 1,
@@ -142,7 +140,6 @@
         "src/app/features/admin/sentiment/sentiment.component.scss": 2,
         "src/app/features/admin/settings/settings.component.scss": 1,
         "src/app/features/admin/users/users.component.scss": 1,
-        "src/app/features/public/verify-certificate/verify-certificate.component.scss": 2,
         "src/app/features/student/assessments/assessments.component.scss": 1,
         "src/app/features/student/assessments/quiz/quiz.component.scss": 2,
         "src/app/features/student/bookmarks/bookmarks.component.scss": 1,
@@ -182,7 +179,7 @@
     "uppercase": {
       "enforced": false,
       "rule": "NFR-04(b) — owned by DS-13",
-      "total": 89,
+      "total": 91,
       "files": {
         "src/app/features/admin/announcements/announcements.component.scss": 2,
         "src/app/features/admin/colleges/colleges.component.scss": 3,
@@ -228,7 +225,7 @@
         "src/app/shared/components/certificate-modal/certificate-modal.component.scss": 3,
         "src/app/shared/components/footer/footer.component.scss": 1,
         "src/styles/_portal-pages.scss": 2,
-        "src/styles/_typography.scss": 2,
+        "src/styles/_typography.scss": 4,
         "src/styles/styles.scss": 2
       }
     },

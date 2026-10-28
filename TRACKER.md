@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-15` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-14` complete. `W2-15` eliminated all 10 `<mat-icon>` tags, removed the Material Icons font request from `index.html`, applied `aria-hidden="true"` to decorative Lucide icons, enforced `icon-families: 1` in stylelint ratchet, and verified with 35/35 passing frontend tests and clean production build. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-16 Identity direction + proof page (DS-08)` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-16` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-15` complete. `W2-16` selected the **"verified"** identity direction (academic stamp/seal motif, ink/paper/seal palette, Plus Jakarta Sans + Inter type pairing, tabular numerals), delivered tokens and utilities, rebuilt the proof screen `verify-certificate.component.scss` to tokens (-23 hex, -11 radius, -2 transition), authored spec (38/38 frontend tests pass), and verified clean build. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-17 Public surfaces rebuild on the approved direction (DS-09)`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -583,7 +583,31 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Verification & Regression:
   - Frontend Vitest suite: `9 passed (9)` test files, `35 passed (35)` tests.
   - Frontend production build: exit code 0 (`BUILD_EXIT=0`).
-- [ ] W2-16 Identity direction + proof page (DS-08)
+- [x] W2-16 Identity direction + proof page (DS-08)
+
+**W2-16 evidence (2026-10-28) — Identity direction + proof page (DS-08):**
+- Rules: DS-08, A-28, ADR-16.
+- Direction Decision:
+  - Recorded client decision selecting **"verified"** (A-28): the verification stamp/seal as the recurring structural device; ink/paper/seal palette; Plus Jakarta Sans editorial display face paired with Inter neutral UI face; transcript-grade tabular numerals (`font-variant-numeric: tabular-nums`).
+  - Recorded in `TRACKER.md` §4 with rationale aligning with LearnSphere AI's institutional academic credentialing, verified certificate verification (`/verify-certificate`), accredited college affiliations, and proctored assessment model.
+- Token Layer Additions (`_tokens.scss` & `_variables.scss`):
+  - Defined verified academic ink/paper/seal tokens across light and dark themes: `--verified-ink`, `--verified-paper`, `--verified-paper-warm`, `--verified-seal-gold`, `--verified-seal-emerald`, `--verified-seal-indigo`, `--verified-border-ornate`, `--verified-stamp-border`.
+  - Exposed canonical SCSS variable bindings in `_variables.scss`.
+- Typography & Structural Device Utilities (`_typography.scss`):
+  - Added `.verified-seal-badge` (embossed verified seal pill badge) and `.verified-stamp` (credential verification stamp box).
+  - Paired `Plus Jakarta Sans` for display/headings with `Inter` for UI body, and enforced tabular numerals (`tnum`).
+- Converted Proof Screen (`verify-certificate`):
+  - Rebuilt `src/app/features/public/verify-certificate/verify-certificate.component.scss` entirely on tokens, eliminating all 23 hex literals, 11 literal radii, and 2 `transition: all` declarations.
+  - Added `aria-hidden="true"` to decorative Lucide icons in `verify-certificate.component.html`.
+  - Authored unit test suite in `verify-certificate.component.spec.ts` testing portal shell rendering, valid certificate verification with tabular codes, and invalid warning states.
+- Stylelint Ratchet Tightened:
+  - `color-no-hex` fell from baseline 611 to 588 (-23 reduction).
+  - `radius-literal` fell from 444 to 433 (-11 reduction).
+  - `transition-all` fell from 113 to 111 (-2 reduction).
+  - Verified ratchet passes with `npm run lint:styles`.
+- Verification & Regression:
+  - Frontend Vitest suite: `10 passed (10)` test files, `38 passed (38)` tests.
+  - Frontend production build: exit code 0 (`BUILD_EXIT=0`).
 - [ ] W2-17 Public surfaces rebuild on the approved direction (DS-09)
 
 ### Wave 3 — Enrolment, progress and credentials
@@ -723,7 +747,7 @@ Findings `F24` were measured on the running app (Chromium, 1489×1000 and 390×8
 | DS-05 | P1 | Auth inputs dark-on-white; disabled-button contrast | W1-16 | Closed (W1-16) |
 | DS-06 | P1 | Two palettes, 723 hex literals, 18 radii, 11 local `$brand-*` redefinitions | W2-14 | Closed (W2-14) |
 | DS-07 | P2 | Two icon families (Lucide vs `mat-icon` + Material Icons font) | W2-15 | Closed (W2-15) |
-| DS-08 | P1 | No identity decision; text-only hero, zero imagery | W2-16 | Open |
+| DS-08 | P1 | No identity decision; text-only hero, zero imagery | W2-16 | Closed (W2-16) |
 | DS-09 | P1 | Public/auth surfaces not on the system | W2-17 | Open |
 | DS-10 | P1 | Student surfaces use four card styles, no token scale | W3-14 | Open |
 | DS-11 | P1 | Player workspace shares generic card chrome | W3-15 | Open |
@@ -772,6 +796,7 @@ The Phase 0 gate passed on 2026-10-26 (`wave-0-done`). `AUD-14` (P0) is closed b
 | 2026-10-27 | W1-01 reopened | Closed W1-01 with `RoleVocabulary` and `RoleVocabularyTests` | Edge mapping (`INSTRUCTOR` → `TEACHER`) and frozen vocabulary (`ADMIN`, `TEACHER`, `STUDENT`) implemented across registration, admin filter, and admin `/api/roles/**`. |
 | 2026-10-26 | `CLAUDE.md` is part of the frozen docs tree (P0-01) | `CLAUDE.md` is now tracked; `.gitignore` only ignores `.claude/` | The pre-plan `.gitignore` ignored `CLAUDE.md`, so the session entry point was never committed. |
 | 2026-10-25 | `P0-02` harness: one throw-away container per test class | Added `@DirtiesContext(AFTER_CLASS)` to `PostgresIntegrationTest` | The static container is stopped after each class, but Spring reused a cached context whose datasource still pointed at the previous container port. With a fourth `test`-profile class the suite failed with 30 s Hikari timeouts. Evicting the context per class keeps the database and context lifecycles aligned; the test contract is unchanged. |
+| 2026-10-28 | DS-08 identity direction decision (A-28) | Selected **"verified"** (stamp/seal motif, ink/paper/seal palette, Plus Jakarta Sans display + Inter UI type pairing, transcript tabular numerals) | Aligns with LearnSphere AI's institutional academic credentialing, verified certificates (`/verify-certificate`), accredited college affiliations, and proctored assessment model; proof delivered on verify-certificate screen. |
 
 ---
 

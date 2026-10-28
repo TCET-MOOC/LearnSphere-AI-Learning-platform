@@ -94,3 +94,37 @@ body, p, span, input, select, textarea, button,
   margin: 0;
 }
 
+// ── Verified Identity Structural Device (DS-08) ────────────
+.verified-seal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--verified-seal-emerald);
+  background: var(--verified-seal-emerald-bg);
+  border: 1px solid var(--verified-seal-emerald);
+  border-radius: var(--border-radius-full);
+}
+
+.verified-stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--verified-seal-emerald);
+  border: 2px dashed var(--verified-seal-emerald);
+  border-radius: var(--border-radius-md);
+  padding: var(--space-2) var(--space-4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transform: rotate(-1deg);
+}
+

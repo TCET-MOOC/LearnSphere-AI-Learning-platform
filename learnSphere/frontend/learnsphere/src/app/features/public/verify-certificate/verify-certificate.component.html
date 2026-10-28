@@ -7,7 +7,7 @@
         <span class="brand-name">LearnSphere<span class="brand-ai">.AI</span></span>
       </a>
       <div class="header-tag">
-        <lucide-icon name="shield-alert" [size]="15"></lucide-icon>
+        <lucide-icon name="shield-alert" [size]="15" aria-hidden="true"></lucide-icon>
         <span>Official Verification Registry</span>
       </div>
     </div>
@@ -16,7 +16,7 @@
   <main class="portal-main">
     <div class="portal-hero">
       <div class="hero-badge">
-        <lucide-icon name="award" [size]="14"></lucide-icon>
+        <lucide-icon name="award" [size]="14" aria-hidden="true"></lucide-icon>
         <span>Credential Verification</span>
       </div>
       <h1 class="hero-title">Verify Official Academic Certificate</h1>
@@ -27,7 +27,7 @@
       <!-- Search Box -->
       <form class="search-box" (ngSubmit)="onSearch()">
         <div class="search-input-wrapper">
-          <lucide-icon name="search" [size]="20" class="search-icon"></lucide-icon>
+          <lucide-icon name="search" [size]="20" class="search-icon" aria-hidden="true"></lucide-icon>
           <input 
             type="text" 
             [(ngModel)]="searchCode" 
@@ -56,7 +56,7 @@
       <div class="cert-card-valid" *ngIf="result.valid">
         <div class="status-banner valid-banner">
           <div class="banner-icon">
-            <lucide-icon name="check-circle-2" [size]="24"></lucide-icon>
+            <lucide-icon name="check-circle-2" [size]="24" aria-hidden="true"></lucide-icon>
           </div>
           <div class="banner-text">
             <h2>Authentic Certificate Verified</h2>
@@ -117,7 +117,7 @@
             </div>
 
             <button class="btn-print" (click)="printCertificate()">
-              <lucide-icon name="download" [size]="16"></lucide-icon>
+              <lucide-icon name="download" [size]="16" aria-hidden="true"></lucide-icon>
               <span>Download / Print Verification</span>
             </button>
           </div>
@@ -128,7 +128,7 @@
       <div class="cert-card-invalid" *ngIf="!result.valid">
         <div class="status-banner invalid-banner">
           <div class="banner-icon">
-            <lucide-icon name="shield-alert" [size]="24"></lucide-icon>
+            <lucide-icon name="shield-alert" [size]="24" aria-hidden="true"></lucide-icon>
           </div>
           <div class="banner-text">
             <h2>Certificate Not Recognized</h2>

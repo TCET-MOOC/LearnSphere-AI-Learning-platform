@@ -71,6 +71,19 @@
   --shadow-xl: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   --card-shadow: var(--shadow-md);
   --dropdown-shadow: var(--shadow-xl);
+
+  // Verified Academic Identity (DS-08 Direction: "Verified")
+  --verified-ink: #0f172a;
+  --verified-paper: #ffffff;
+  --verified-paper-warm: #fcfbf9;
+  --verified-seal-gold: #b45309;
+  --verified-seal-gold-bg: #fef3c7;
+  --verified-seal-emerald: #047857;
+  --verified-seal-emerald-bg: #d1fae5;
+  --verified-seal-indigo: #4338ca;
+  --verified-seal-indigo-bg: #eeedfe;
+  --verified-border-ornate: #cbd5e1;
+  --verified-stamp-border: #047857;
 }
 
 [data-theme="dark"],
@@ -137,6 +150,19 @@
   --shadow-xl: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
   --card-shadow: var(--shadow-md);
   --dropdown-shadow: var(--shadow-xl);
+
+  // Verified Academic Identity (DS-08 Direction: "Verified")
+  --verified-ink: #f8fafc;
+  --verified-paper: #0f172a;
+  --verified-paper-warm: #111827;
+  --verified-seal-gold: #f59e0b;
+  --verified-seal-gold-bg: rgba(245, 158, 11, 0.15);
+  --verified-seal-emerald: #10b981;
+  --verified-seal-emerald-bg: rgba(16, 185, 129, 0.15);
+  --verified-seal-indigo: #818cf8;
+  --verified-seal-indigo-bg: rgba(99, 102, 241, 0.18);
+  --verified-border-ornate: #334155;
+  --verified-stamp-border: #10b981;
 }
 
 // Typography faces, sizes, line heights and weights
