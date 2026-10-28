@@ -2,6 +2,7 @@ package com.MOOC.OnlineLearningPlatfrom.Controller;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.NotificationResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.StudentStandingDto;
+import java.math.BigDecimal;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Enrollment;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Lecture;
@@ -101,7 +102,7 @@ public class TeacherStudentsController {
 
             long lecturesWatched = userProgressRepository.findByUserId(studentId).stream()
                     .filter(p -> p.getLecture() != null && lectureIds.contains(p.getLecture().getId()))
-                    .filter(p -> p.getProgressPercentAsInt() != null && p.getProgressPercentAsInt() >= 100)
+                    .filter(p -> p.getCompletedAt() != null || (p.getProgressPercent() != null && p.getProgressPercent().compareTo(BigDecimal.valueOf(90)) >= 0))
                     .count();
 
             double scoreSum = 0;

@@ -110,6 +110,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 if (userProgress.getSecondsWatched() != null) {
                     target.setSecondsWatched(userProgress.getSecondsWatched());
                 }
+                if (content.getLegacyLectureId() != null && target.getLecture() == null) {
+                    lectureRepository.findById(content.getLegacyLectureId()).ifPresent(target::setLecture);
+                }
             } else {
                 target = userProgress;
                 target.setContent(content);
@@ -136,10 +139,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             target.setProgressPercent(percent);
         }
 
-        if (target.getProgressPercent() != null && target.getProgressPercent().compareTo(BigDecimal.valueOf(100)) >= 0) {
+        // AC-12 / A-08: completion at >= 90 %, un-complete on regression (< 90 %)
+        if (target.getProgressPercent() != null && target.getProgressPercent().compareTo(BigDecimal.valueOf(90)) >= 0) {
             if (target.getCompletedAt() == null) {
                 target.setCompletedAt(LocalDateTime.now());
             }
+        } else {
+            target.setCompletedAt(null);
         }
         return userProgressRepository.save(target);
     }

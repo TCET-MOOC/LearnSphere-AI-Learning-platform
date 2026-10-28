@@ -4,6 +4,7 @@ import com.MOOC.OnlineLearningPlatfrom.Dto.CourseResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.LectureResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserProgressResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
+import com.MOOC.OnlineLearningPlatfrom.Entity.CourseContent;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Enrollment;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Lecture;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserProgress;
@@ -13,6 +14,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.EnrollmentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserProgressRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.CourseService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,8 +22,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/student")
@@ -67,12 +71,14 @@ public class StudentController {
                 .map(c -> {
                     long lectureCount = courseService.getLectures(c.getId()).size();
                     long completedCount = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, c.getId()).stream()
-                            .filter(p -> p.getProgressPercentAsInt() != null && p.getProgressPercentAsInt() >= 100)
+                            .filter(p -> p.getCompletedAt() != null || (p.getProgressPercent() != null && p.getProgressPercent().compareTo(BigDecimal.valueOf(90)) >= 0))
                             .count();
                     return CourseResponseDto.from(c, lectureCount, completedCount);
                 })
                 .toList();
-        return ResponseEntity.ok(courses);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(courses);
     }
 
     @GetMapping("/courses/{id}")
@@ -83,9 +89,11 @@ public class StudentController {
         Course c = courseService.getCourseEntity(id);
         long lectureCount = courseService.getLectures(id).size();
         long completedCount = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, id).stream()
-                .filter(p -> p.getProgressPercentAsInt() != null && p.getProgressPercentAsInt() >= 100)
+                .filter(p -> p.getCompletedAt() != null || (p.getProgressPercent() != null && p.getProgressPercent().compareTo(BigDecimal.valueOf(90)) >= 0))
                 .count();
-        return ResponseEntity.ok(CourseResponseDto.from(c, lectureCount, completedCount));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(CourseResponseDto.from(c, lectureCount, completedCount));
     }
 
     @GetMapping("/courses/{courseId}/progress")
@@ -96,7 +104,9 @@ public class StudentController {
         List<UserProgressResponseDto> progressList = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, courseId).stream()
                 .map(UserProgressResponseDto::from)
                 .toList();
-        return ResponseEntity.ok(progressList);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(progressList);
     }
 
     @GetMapping("/courses/{courseId}/lectures/{lectureId}")
@@ -116,54 +126,86 @@ public class StudentController {
                                                                          @AuthenticationPrincipal CustomUserDetails principal) {
         Lecture lecture = courseService.getLectureEntity(id);
         Long userId = requireUserId(principal);
-        UserProgress progress = userProgressRepository.findByUserIdAndLecture_Id(userId, id)
-                .orElseGet(() -> {
-                    UserProgress p = new UserProgress();
-                    p.setUserId(userId);
-                    p.setLecture(lecture);
-                    return p;
-                });
-        progress.setProgressPercent(java.math.BigDecimal.valueOf(100));
-        progress.setCompletedAt(LocalDateTime.now());
+        CourseContent content = courseContentRepository.findByLegacyLectureId(id).orElse(null);
+        UserProgress progress = null;
+        if (content != null) {
+            progress = userProgressRepository.findByUserIdAndContent_ContentId(userId, content.getContentId()).orElse(null);
+        }
+        if (progress == null) {
+            progress = userProgressRepository.findByUserIdAndLecture_Id(userId, id).orElseGet(() -> {
+                UserProgress p = new UserProgress();
+                p.setUserId(userId);
+                p.setLecture(lecture);
+                return p;
+            });
+        }
+        progress.setProgressPercent(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP));
+        if (progress.getCompletedAt() == null) {
+            progress.setCompletedAt(LocalDateTime.now());
+        }
         if (lecture.getDuration() != null) {
             progress.setSecondsWatched(lecture.getDuration());
         }
-        if (progress.getContent() == null) {
-            courseContentRepository.findByLegacyLectureId(id).ifPresent(progress::setContent);
+        if (progress.getContent() == null && content != null) {
+            progress.setContent(content);
+        }
+        if (progress.getLecture() == null) {
+            progress.setLecture(lecture);
         }
         UserProgress saved = userProgressRepository.save(progress);
-        return ResponseEntity.ok(UserProgressResponseDto.from(saved));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(UserProgressResponseDto.from(saved));
     }
 
     @PostMapping("/lectures/{id}/uncomplete")
     public ResponseEntity<UserProgressResponseDto> unmarkLectureComplete(@PathVariable Long id,
                                                                              @AuthenticationPrincipal CustomUserDetails principal) {
         Long userId = requireUserId(principal);
-        UserProgress progress = userProgressRepository.findByUserIdAndLecture_Id(userId, id)
-                .orElseGet(() -> {
-                    Lecture lecture = courseService.getLectureEntity(id);
-                    UserProgress p = new UserProgress();
-                    p.setUserId(userId);
-                    p.setLecture(lecture);
-                    return p;
-                });
-        progress.setProgressPercent(java.math.BigDecimal.ZERO);
+        Lecture lecture = courseService.getLectureEntity(id);
+        CourseContent content = courseContentRepository.findByLegacyLectureId(id).orElse(null);
+        UserProgress progress = null;
+        if (content != null) {
+            progress = userProgressRepository.findByUserIdAndContent_ContentId(userId, content.getContentId()).orElse(null);
+        }
+        if (progress == null) {
+            progress = userProgressRepository.findByUserIdAndLecture_Id(userId, id).orElseGet(() -> {
+                UserProgress p = new UserProgress();
+                p.setUserId(userId);
+                p.setLecture(lecture);
+                return p;
+            });
+        }
+        progress.setProgressPercent(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
         progress.setCompletedAt(null);
         progress.setSecondsWatched(0);
-        if (progress.getContent() == null) {
-            courseContentRepository.findByLegacyLectureId(id).ifPresent(progress::setContent);
+        if (progress.getContent() == null && content != null) {
+            progress.setContent(content);
+        }
+        if (progress.getLecture() == null) {
+            progress.setLecture(lecture);
         }
         UserProgress saved = userProgressRepository.save(progress);
-        return ResponseEntity.ok(UserProgressResponseDto.from(saved));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(UserProgressResponseDto.from(saved));
     }
 
     @GetMapping("/lectures/{id}/progress")
     public ResponseEntity<UserProgressResponseDto> getProgress(@PathVariable Long id,
                                                                  @AuthenticationPrincipal CustomUserDetails principal) {
         Long userId = requireUserId(principal);
-        return ResponseEntity.ok(userProgressRepository.findByUserIdAndLecture_Id(userId, id)
-                .map(UserProgressResponseDto::from)
-                .orElseGet(() -> UserProgressResponseDto.empty(id)));
+        CourseContent content = courseContentRepository.findByLegacyLectureId(id).orElse(null);
+        Optional<UserProgress> progressOpt = Optional.empty();
+        if (content != null) {
+            progressOpt = userProgressRepository.findByUserIdAndContent_ContentId(userId, content.getContentId());
+        }
+        if (progressOpt.isEmpty()) {
+            progressOpt = userProgressRepository.findByUserIdAndLecture_Id(userId, id);
+        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(progressOpt.map(UserProgressResponseDto::from).orElseGet(() -> UserProgressResponseDto.empty(id)));
     }
 
     @PostMapping("/courses/{id}/enroll")

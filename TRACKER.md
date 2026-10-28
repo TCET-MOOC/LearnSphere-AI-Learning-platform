@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01`, `W3-02`, and `W3-03` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-03` enforced unique `(user_id, content_id)` on `user_progress` via Flyway V11, migrated `progress_percent` to `NUMERIC(5,2)`, implemented upsert semantics (update existing row vs insert), clamped progress to `[0.00, 100.00]`, and added `Cache-Control: private, no-store` headers on progress endpoints. |
-| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-04 90 % completion rule`). |
+| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` through `W3-04` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-04` implemented the 90 % completion rule (`completedAt` set at `progressPercent >= 90.00`, un-complete on regression below 90 %, timestamp preservation on advance, `POST /api/student/lectures/{id}/complete` setting 100 % with scale 2, `uncomplete` resetting to 0.00 and null `completedAt`, course completion detail calculating completion at >= 90 %, and `Cache-Control: private, no-store` on student progress endpoints). |
+| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-05 Content-based course completion aggregation`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |

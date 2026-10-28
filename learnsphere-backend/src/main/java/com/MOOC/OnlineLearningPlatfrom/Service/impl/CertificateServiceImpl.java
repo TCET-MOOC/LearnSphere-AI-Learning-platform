@@ -89,7 +89,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         for (Lecture lecture : lectures) {
             Optional<UserProgress> progress = userProgressRepository.findByUserIdAndLecture_Id(userId, lecture.getId());
-            if (progress.isEmpty() || progress.get().getProgressPercent() == null || progress.get().getProgressPercent().compareTo(java.math.BigDecimal.valueOf(100)) < 0) {
+            if (progress.isEmpty() || progress.get().getProgressPercent() == null || progress.get().getProgressPercent().compareTo(java.math.BigDecimal.valueOf(90)) < 0) {
                 throw new BadRequestException("You have not completed all lectures in this course yet.");
             }
         }
