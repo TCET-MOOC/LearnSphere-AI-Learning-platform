@@ -20,19 +20,28 @@ public class CertificateServiceImpl implements CertificateService {
     private final UserProgressRepository userProgressRepository;
     private final TestRepository testRepository;
     private final TestAttemptRepository testAttemptRepository;
+    private final EnrollmentRepository enrollmentRepository;
+    private final QuestionRepository questionRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService enrollmentService;
 
     public CertificateServiceImpl(CertificateRepository certificateRepository,
                                    CourseRepository courseRepository,
                                    LectureRepository lectureRepository,
                                    UserProgressRepository userProgressRepository,
                                    TestRepository testRepository,
-                                   TestAttemptRepository testAttemptRepository) {
+                                   TestAttemptRepository testAttemptRepository,
+                                   EnrollmentRepository enrollmentRepository,
+                                   QuestionRepository questionRepository,
+                                   com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService enrollmentService) {
         this.certificateRepository = certificateRepository;
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
         this.userProgressRepository = userProgressRepository;
         this.testRepository = testRepository;
         this.testAttemptRepository = testAttemptRepository;
+        this.enrollmentRepository = enrollmentRepository;
+        this.questionRepository = questionRepository;
+        this.enrollmentService = enrollmentService;
     }
 
     @Override
@@ -47,16 +56,107 @@ public class CertificateServiceImpl implements CertificateService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + courseId));
 
+        if (!enrollmentRepository.existsByUserIdAndCourse_Id(user.getUserId(), courseId)) {
+            throw new BadRequestException("You are not enrolled in this course.");
+        }
+
         Optional<Certificate> existing = certificateRepository
                 .findByUser_UserIdAndCourse_IdAndType(user.getUserId(), courseId, type);
         if (existing.isPresent()) {
             return CertificateResponseDto.from(existing.get());
         }
 
+        Double realScore;
+        String realGrade;
+
         if (type == Certificate.Type.STANDARD) {
-            assertStandardEligibility(user.getUserId(), course);
+            var calc = enrollmentService.calculateCourseProgress(courseId, user.getUserId());
+            if (calc.getTotalContents() == 0) {
+                throw new BadRequestException("This course has no contents or lectures yet, so it cannot be certified.");
+            }
+            if (!calc.isCompleted()) {
+                throw new BadRequestException("You have not completed all contents in this course yet (≥ 90% required). Current progress: " + calc.getProgressPercent() + "%");
+            }
+
+            // Check if course has tests and if user took any
+            List<Test> courseTests = testRepository.findByCourse_Id(courseId).stream()
+                    .filter(t -> t.getIsRemedial() == null || !t.getIsRemedial())
+                    .toList();
+
+            int totalMaxMarks = 0;
+            int totalScored = 0;
+            boolean hasAttempt = false;
+
+            for (Test t : courseTests) {
+                int testMax = 0;
+                List<Question> questions = questionRepository.findByTest_TestId(t.getTestId());
+                for (Question q : questions) {
+                    testMax += q.getMarks() != null ? q.getMarks() : 0;
+                }
+                if (testMax <= 0) continue;
+                totalMaxMarks += testMax;
+
+                List<TestAttempt> attempts = testAttemptRepository.findByUserIdAndTest_TestId(user.getUserId(), t.getTestId());
+                int best = 0;
+                for (TestAttempt a : attempts) {
+                    if ("COMPLETED".equalsIgnoreCase(a.getStatus()) && a.getScore() != null) {
+                        hasAttempt = true;
+                        if (a.getScore() > best) {
+                            best = a.getScore();
+                        }
+                    }
+                }
+                totalScored += best;
+            }
+
+            if (totalMaxMarks > 0 && hasAttempt) {
+                double percent = (totalScored * 100.0) / totalMaxMarks;
+                realScore = Math.round(percent * 10.0) / 10.0;
+            } else {
+                realScore = Math.round(calc.getProgressPercent() * 10.0) / 10.0;
+            }
+
+            if (realScore >= 90.0) {
+                realGrade = "Distinction (" + Math.round(realScore) + "%)";
+            } else if (realScore >= 75.0) {
+                realGrade = "Merit (" + Math.round(realScore) + "%)";
+            } else if (realScore >= 60.0) {
+                realGrade = "Credit (" + Math.round(realScore) + "%)";
+            } else {
+                realGrade = "Pass (" + Math.round(realScore) + "%)";
+            }
         } else {
-            assertRemedialEligibility(user.getUserId(), course);
+            List<Test> remedialTests = testRepository.findByCourse_IdAndIsRemedial(course.getId(), true);
+            if (remedialTests.isEmpty()) {
+                throw new BadRequestException("This course has no remedial test configured.");
+            }
+            Double bestRemedialPercent = null;
+            for (Test test : remedialTests) {
+                int maxMarks = 0;
+                List<Question> questions = questionRepository.findByTest_TestId(test.getTestId());
+                for (Question q : questions) {
+                    maxMarks += q.getMarks() != null ? q.getMarks() : 0;
+                }
+                if (maxMarks <= 0) {
+                    continue;
+                }
+                List<TestAttempt> attempts = testAttemptRepository.findByUserIdAndTest_TestId(user.getUserId(), test.getTestId());
+                for (TestAttempt attempt : attempts) {
+                    if ("COMPLETED".equalsIgnoreCase(attempt.getStatus()) && attempt.getScore() != null) {
+                        double percent = (attempt.getScore() * 100.0) / maxMarks;
+                        if (percent >= 40.0) {
+                            if (bestRemedialPercent == null || percent > bestRemedialPercent) {
+                                bestRemedialPercent = percent;
+                            }
+                        }
+                    }
+                }
+            }
+            if (bestRemedialPercent == null) {
+                throw new BadRequestException("You have not yet passed a remedial test for this course (40% required).");
+            }
+            realScore = Math.round(bestRemedialPercent * 10.0) / 10.0;
+            realGrade = "Remedial Pass (" + Math.round(realScore) + "%)";
         }
 
         Certificate certificate = new Certificate();
@@ -65,11 +165,20 @@ public class CertificateServiceImpl implements CertificateService {
         certificate.setType(type);
         certificate.setStudentName(user.getFullName());
         certificate.setInstructorName(course.getTeacher() != null ? course.getTeacher().getFullName() : "Faculty Board");
-        certificate.setGrade(type == Certificate.Type.REMEDIAL ? "Passing Grade" : "Distinction");
+        certificate.setGrade(realGrade);
+        certificate.setScore(realScore);
         certificate.setVerificationCode("LS-" + java.time.Year.now().getValue() + "-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         certificate.setTitle((type == Certificate.Type.REMEDIAL ? "Remedial Certificate - " : "Certificate of Completion - ") + course.getTitle());
-        Certificate saved = certificateRepository.save(certificate);
-        return CertificateResponseDto.from(saved);
+
+        try {
+            Certificate saved = certificateRepository.save(certificate);
+            return CertificateResponseDto.from(saved);
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            // Concurrent race: record was already created
+            return certificateRepository.findByUser_UserIdAndCourse_IdAndType(user.getUserId(), courseId, type)
+                    .map(CertificateResponseDto::from)
+                    .orElseThrow(() -> ex);
+        }
     }
 
     @Override
@@ -80,46 +189,5 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateRepository.findByVerificationCode(verificationCode.trim().toUpperCase())
                 .map(com.MOOC.OnlineLearningPlatfrom.Dto.CertificateVerificationDto::valid)
                 .orElseGet(() -> com.MOOC.OnlineLearningPlatfrom.Dto.CertificateVerificationDto.invalid(verificationCode));
-    }
-
-    private void assertStandardEligibility(Long userId, Course course) {
-        List<Lecture> lectures = lectureRepository.findByCourse_IdOrderByNumberAsc(course.getId());
-        if (lectures.isEmpty()) {
-            throw new BadRequestException("This course has no lectures yet, so it cannot be certified.");
-        }
-        for (Lecture lecture : lectures) {
-            Optional<UserProgress> progress = userProgressRepository.findByUserIdAndLecture_Id(userId, lecture.getId());
-            if (progress.isEmpty() || progress.get().getProgressPercent() == null || progress.get().getProgressPercent().compareTo(java.math.BigDecimal.valueOf(90)) < 0) {
-                throw new BadRequestException("You have not completed all lectures in this course yet.");
-            }
-        }
-    }
-
-    private void assertRemedialEligibility(Long userId, Course course) {
-        List<Test> remedialTests = testRepository.findByCourse_IdAndIsRemedial(course.getId(), true);
-        if (remedialTests.isEmpty()) {
-            throw new BadRequestException("This course has no remedial test configured.");
-        }
-        for (Test test : remedialTests) {
-            int maxMarks = 0;
-            if (test.getQuestions() != null) {
-                for (Question q : test.getQuestions()) {
-                    maxMarks += q.getMarks() != null ? q.getMarks() : 0;
-                }
-            }
-            if (maxMarks <= 0) {
-                continue;
-            }
-            List<TestAttempt> attempts = testAttemptRepository.findByUserIdAndTest_TestId(userId, test.getTestId());
-            for (TestAttempt attempt : attempts) {
-                if ("COMPLETED".equalsIgnoreCase(attempt.getStatus()) && attempt.getScore() != null) {
-                    double percent = (attempt.getScore() * 100.0) / maxMarks;
-                    if (percent >= 40.0) {
-                        return;
-                    }
-                }
-            }
-        }
-        throw new BadRequestException("You have not yet passed a remedial test for this course (40% required).");
     }
 }

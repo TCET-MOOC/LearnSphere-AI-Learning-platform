@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "certificates")
+@Table(name = "certificates", uniqueConstraints = {
+        @UniqueConstraint(name = "uq_certificates_user_course_type", columnNames = {"user_id", "course_id", "type"})
+})
 @Data
 @NoArgsConstructor
 public class Certificate {

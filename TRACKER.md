@@ -632,7 +632,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-03 Progress unique + upsert + BigDecimal
 - [x] W3-04 90 % completion rule
 - [x] W3-05 Content-based course completion
-- [~] W3-06 Certificate eligibility + real grade
+- [x] W3-06 Certificate eligibility + real grade
 - [~] W3-07 Leaderboard materialisation
 - [ ] W3-08 Same-college entitlement
 - [ ] W3-09 Learning regression suite (course surfaces, resume, player auth)
@@ -744,6 +744,39 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `ContentBasedProgressAggregationTests.java` covering content-based progress list, dashboard/detail consistency, comprehensive roster summary metrics, admin access, and foreign access 404 masking.
   - Red: 4 failures proving missing content-based resolution, missing summary calculation, and missing `Cache-Control: private, no-store`.
   - Green: 5/5 tests passed in `ContentBasedProgressAggregationTests`. Full backend suite `261/261` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
+
+**W3-06 evidence (2026-10-28) — Certificate eligibility + real grade/score; idempotent issuance; public verification:**
+- Rules: AC-24, BR-18, [C-F9], spec §5, NFR-03.
+- Database constraint & migration:
+  - Added Flyway migration `V12__unique_certificate.sql`:
+    - Deduplicates existing duplicate certificate rows partitioned by `(user_id, course_id, type)`, keeping earliest issued row.
+    - Adds unique constraint `uq_certificates_user_course_type` on `(user_id, course_id, type)` for database-level idempotency guarantee.
+    - Creates index `idx_certificates_user_course_type`.
+  - Updated `Certificate.java`: added `uq_certificates_user_course_type` unique constraint to `@Table`.
+- Eligibility & content-based completion:
+  - In `CertificateServiceImpl.java`:
+    - Validates course existence (`404 NOT_FOUND`) and student course enrollment (`400 BAD_REQUEST` "You are not enrolled in this course.").
+    - Validates course content completion via `EnrollmentService.calculateCourseProgress`: requires `totalContents > 0` and all contents completed (each item ≥ 90.00% or `completedAt != null`).
+    - Standard certificates reject incomplete courses with 400.
+    - Remedial certificates require passed remedial test attempt (≥ 40% of max marks).
+- Real grade and score computation (`[C-F9]`):
+  - Updated `QuestionRepository.java`: added `findByTest_TestId(testId)`.
+  - For courses with assessments: calculates actual score across course tests by matching student's completed test attempts against question max marks.
+  - For courses without assessments: computes real score from content completion progress.
+  - Generates authentic academic grade strings reflecting real performance:
+    - `≥ 90.0%`: `Distinction (<score>%)`
+    - `≥ 75.0%`: `Merit (<score>%)`
+    - `≥ 60.0%`: `Credit (<score>%)`
+    - `< 60.0%`: `Pass (<score>%)`
+    - Remedial: `Remedial Pass (<score>%)`
+  - Populates real `score` (Double) and `grade` on `Certificate`, `CertificateResponseDto`, and `CertificateVerificationDto`.
+- Public verification & cache control:
+  - `GET /api/certificates/verify/{code}` is publicly accessible without authentication, returning valid verification metadata with `Cache-Control: public, max-age=60` for authentic certificates, and `no-store` for invalid codes.
+  - Added `Cache-Control: private, no-store` to `GET /api/certificates` and `POST /api/certificates/issue`.
+- Red-green verification:
+  - Authored `CertificateEligibilityAndVerificationTests.java` covering content-based completion requirement, incomplete rejection, unenrolled rejection, repeated idempotent issuance, real score/grade computation from tests, public unauthenticated verification, invalid code handling, and private no-store headers.
+  - Red: 4 failures proving missing content-based completion check, missing private no-store headers, hardcoded grades, and 400 status.
+  - Green: 8/8 tests passed in `CertificateEligibilityAndVerificationTests`. Full backend suite `269/269` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
