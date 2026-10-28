@@ -1,8 +1,4 @@
-$brand-purple: var(--brand-primary);
-$bg-color: var(--bg-app);
-$border: var(--border-color);
-$text-primary: var(--text-primary);
-$text-secondary: var(--text-secondary);
+@import 'variables';
 
 .auth-layout {
   min-height: 100vh;

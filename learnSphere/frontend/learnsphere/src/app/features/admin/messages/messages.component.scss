@@ -1,7 +1,4 @@
-$text-primary: var(--text-primary);
-$text-secondary: var(--text-secondary);
-$border: var(--border-color);
-$brand: var(--brand-primary);
+@import 'variables';
 
 :host {
   display: block;

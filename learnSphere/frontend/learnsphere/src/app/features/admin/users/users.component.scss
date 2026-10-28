@@ -1,19 +1,4 @@
-$brand: var(--brand-primary);
-$brand-soft: var(--brand-surface);
-$text: var(--text-primary);
-$muted: var(--text-secondary);
-$faint: var(--text-muted);
-$border: var(--border-color);
-$bg: var(--bg-app);
-$surface: var(--bg-surface);
-$green: var(--status-green-text);
-$green-soft: var(--status-green-bg);
-$red: var(--status-red-text);
-$red-soft: var(--status-red-bg);
-$amber-soft: var(--status-amber-bg);
-$blue: var(--status-blue-text);
-$blue-soft: var(--status-blue-bg);
-$grey-soft: var(--bg-hover);
+@import 'variables';
 
 :host {
   display: block;

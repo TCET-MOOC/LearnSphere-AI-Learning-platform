@@ -1,16 +1,4 @@
-$brand-purple: var(--brand-primary);
-$brand-purple-lt: var(--brand-surface);
-$status-red: var(--status-red-text);
-$status-amber: var(--status-amber-text);
-$status-green: var(--status-green-text);
-$surface: var(--bg-surface);
-$bg: var(--bg-app);
-$border: var(--border-color);
-$text-primary: var(--text-primary);
-$text-secondary: var(--text-secondary);
-$radius-sm: 6px;
-$radius-md: 10px;
-$radius-lg: 14px;
+@import 'variables';
 
 .discussion-page {
   padding: 28px 32px 40px;

@@ -1,10 +1,7 @@
 // ============================================================================
-// Design tokens (DS-01 / W1-12)
+// Design tokens (DS-01 / W1-12, consolidated in DS-06 / W2-14)
 //
-// This is the only file allowed to hold raw colour and radius literals. Values
-// are moved verbatim from `styles.scss` and `_typography.scss`; this story is a
-// pure extraction, so the compiled CSS must not change.
-//
+// This is the only file allowed to hold raw colour and radius literals.
 // The stylelint ratchet scans every other SCSS/HTML file and fails when a
 // violation count rises above `stylelint.baseline.json`.
 // ============================================================================
@@ -12,6 +9,7 @@
 :root,
 [data-theme="light"],
 .light-theme {
+  // Base Surface Palette
   --bg-app: #f8fafc;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #f1f5f9;
@@ -22,20 +20,24 @@
   --bg-topbar: #ffffff;
   --bg-video-root: #ffffff;
 
+  // Borders
   --border-color: #e2e8f0;
   --border-color-subtle: #f1f5f9;
   --border-color-focus: #6366f1;
 
+  // Text
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
   --text-inverse: #ffffff;
 
+  // Brand Palette
   --brand-primary: #534ab7;
   --brand-primary-hover: #4338ca;
   --brand-surface: #eeedfe;
   --brand-surface-hover: #e0e7ff;
 
+  // Semantic Status Pairs (bg + text)
   --status-green-bg: #eaf3de;
   --status-green-text: #27500a;
   --status-amber-bg: #faeeda;
@@ -49,14 +51,31 @@
   --status-grey-bg: #f1efe8;
   --status-grey-text: #444441;
 
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --dropdown-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  // Radius Scale
+  --border-radius-none: 0px;
+  --border-radius-xs: 2px;
+  --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-2xl: 24px;
+  --border-radius-round: 20px;
+  --border-radius-full: 9999px;
+
+  // Elevation Scale
+  --shadow-none: none;
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --card-shadow: var(--shadow-md);
+  --dropdown-shadow: var(--shadow-xl);
 }
 
 [data-theme="dark"],
 .dark-theme {
+  // Base Surface Palette
   --bg-app: #070a12;
   --bg-surface: #111827;
   --bg-surface-elevated: #1e293b;
@@ -67,20 +86,24 @@
   --bg-topbar: #0b0f19;
   --bg-video-root: #09090b;
 
+  // Borders
   --border-color: #1f2937;
   --border-color-subtle: rgba(255, 255, 255, 0.06);
   --border-color-focus: #818cf8;
 
+  // Text
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
   --text-inverse: #0f172a;
 
+  // Brand Palette
   --brand-primary: #6366f1;
   --brand-primary-hover: #4f46e5;
   --brand-surface: rgba(99, 102, 241, 0.18);
   --brand-surface-hover: rgba(99, 102, 241, 0.28);
 
+  // Semantic Status Pairs (bg + text)
   --status-green-bg: rgba(16, 185, 129, 0.15);
   --status-green-text: #34d399;
   --status-amber-bg: rgba(245, 158, 11, 0.15);
@@ -94,14 +117,62 @@
   --status-grey-bg: rgba(255, 255, 255, 0.06);
   --status-grey-text: #94a3b8;
 
-  --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --dropdown-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  // Radius Scale
+  --border-radius-none: 0px;
+  --border-radius-xs: 2px;
+  --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-2xl: 24px;
+  --border-radius-round: 20px;
+  --border-radius-full: 9999px;
+
+  // Elevation Scale
+  --shadow-none: none;
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  --card-shadow: var(--shadow-md);
+  --dropdown-shadow: var(--shadow-xl);
 }
 
-// Typography faces (moved from `_typography.scss`; values unchanged).
+// Typography faces, sizes, line heights and weights
 :root {
   --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --font-size-2xs: 10px;
+  --font-size-xs: 11px;
+  --font-size-sm: 13.5px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 26px;
+  --font-size-4xl: 32px;
+  --font-size-5xl: 40px;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+
+  // Spacing Scale
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
 }

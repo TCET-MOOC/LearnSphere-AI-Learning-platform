@@ -1,10 +1,4 @@
-$brand: var(--brand-primary);
-$amber: var(--status-amber-text);
-$amber-soft: var(--status-amber-bg);
-$text: var(--text-primary);
-$muted: var(--text-muted);
-$border: var(--border-color);
-$bg: var(--bg-app);
+@import 'variables';
 
 :host {
   display: block;

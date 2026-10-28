@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-13` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-12` complete. `W2-13` implemented opt-in YouTube channel publish (OAuth + idempotent upload) with Flyway `V9__youtube_publish.sql`, signed single-use state tokens, encrypted refresh tokens, atomic publish jobs, 409 CONFLICT on concurrent duplicates, and zero token leakage. |
-| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-14 Token consolidation + lint ratchet to zero-new (DS-06)` through `W2-17`). |
+| Current phase | **Wave 2 — Curriculum and authoring in progress (`W2-01` through `W2-14` complete and verified).** Wave 1 is 100% complete and pushed to `tcet/main` (`38f5597`). `W2-01` through `W2-13` complete. `W2-14` consolidated palette, radius, elevation, type, and spacing scales in `_tokens.scss`, bound unified SCSS aliases in `_variables.scss`, eliminated 22+ local `$brand-*` redefinitions across components, migrated `footer.component.scss` to tokens, authored footer spec, tightened the stylelint ratchet (-58 hex, -4 radius, -4 transition), and achieved 35/35 passing frontend tests and clean production build. |
+| Next milestone | **Wave 2 — Curriculum and authoring** (`W2-15 Icon unification: Lucide only (DS-07)` through `W2-17`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -536,7 +536,31 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Red: 13/14 tests failed before implementation.
   - Green: `YouTubePublishSecurityTests` passed 14/14 tests.
   - Full regression: backend `220/220` passed, payments `10/10` passed, frontend `33/33` passed, stylelint ratchet 100% passed.
-- [ ] W2-14 Token consolidation + lint ratchet to zero-new (DS-06)
+- [x] W2-14 Token consolidation + lint ratchet to zero-new (DS-06)
+
+**W2-14 evidence (2026-10-28) — Token consolidation + lint ratchet to zero-new (DS-06):**
+- Rules: DS-06, NFR-04(a)(c), A-28.
+- Token Scales Consolidated in `src/styles/_tokens.scss`:
+  1. Base surface palette (`--bg-app`, `--bg-surface`, `--bg-surface-elevated`, `--bg-hover`, `--bg-input`, `--bg-dropdown`, `--bg-sidebar`, `--bg-topbar`, `--bg-video-root`).
+  2. Semantic status pairs (green, amber, red, purple, blue, grey with distinct text + background pairs across light and dark themes).
+  3. One unified radius scale: `--border-radius-none: 0px`, `--border-radius-xs: 2px`, `--border-radius-sm: 4px`, `--border-radius-md: 8px`, `--border-radius-lg: 12px`, `--border-radius-xl: 16px`, `--border-radius-2xl: 24px`, `--border-radius-round: 20px`, `--border-radius-full: 9999px`.
+  4. One unified elevation scale: `--shadow-none`, `--shadow-xs`, `--shadow-sm`, `--shadow-md` (aliasing `--card-shadow`), `--shadow-lg`, `--shadow-xl` (aliasing `--dropdown-shadow`), adapting between light and dark themes.
+  5. One unified type scale: `--font-display`, `--font-body`, sizes 2xs (10px) through 5xl (40px), weights 400..700, and line heights.
+  6. One spacing scale: `--space-1` (4px) through `--space-12` (48px).
+- SCSS Token Aliases in `src/styles/_variables.scss`:
+  - Updated all SCSS variables (`$brand`, `$brand-purple`, `$brand-soft`, `$brand-hover`, `$surface`, `$border`, `$text`, `$muted`, `$radius-sm`, `$radius-md`, `$radius-lg`) to map directly to CSS custom properties.
+- Deletion of Local Variable Redefinitions:
+  - Completely eliminated all 22+ local `$brand-*` variable definitions across components (`teacher/trending`, `student/leaderboard`, `student/discussion`, `teacher/discussion`, `student/dashboard`, `student/purchases`, `admin/users`, `student/courses`, `teacher/courses`, `student/bookmarks`, `student/course-details`, `teacher/course-management`, `student/assessments`, `student/quiz`, `admin/messages`, `student/messages`, `teacher/messages`, and all auth screens).
+  - Replaced duplicate local blocks with canonical `@import 'variables';`.
+- Footer Component Migration & Spec:
+  - Migrated `footer.component.scss` to tokens, eliminating all 10 raw hex literals, literal radii, and generic `transition: all`.
+  - Authored `src/app/shared/components/footer/footer.component.spec.ts` testing rendering, dynamic copyright year, and navigation links.
+- Stylelint Ratchet Tightened:
+  - `color-no-hex` fell from baseline 669 to 611 (-58 reduction).
+  - `radius-literal` fell from 448 to 444 (-4 reduction).
+  - `transition-all` fell from 117 to 113 (-4 reduction).
+  - Re-baselined with `npm run lint:styles:update`; verified green against tightened baseline with 0 new violations.
+- Regression: frontend test suite `9 passed (9)` test files, `35 passed (35)` tests; production build exit code 0 (`BUILD_EXIT=0`).
 - [ ] W2-15 Icon unification: Lucide only (DS-07)
 - [ ] W2-16 Identity direction + proof page (DS-08)
 - [ ] W2-17 Public surfaces rebuild on the approved direction (DS-09)
@@ -672,11 +696,11 @@ Findings `F24` were measured on the running app (Chromium, 1489×1000 and 390×8
 | DS | Priority | Finding | Owner | Status |
 |---|---|---|---|---|
 | DS-01 | P0 | No visual baseline; no styling lint; token counts unmeasured | W1-12 | Closed (W1-12) |
-| DS-02 | P0 | Default dark theme + hardcoded light sections → invisible landing text | W1-13 | Open |
-| DS-03 | P0 | `.h2/.sec-label/.sub/.divider` undefined; headings are `div`s at 16px/400 | W1-14 | Open |
-| DS-04 | P0 | Landing nav hidden, dead links, invented stats/courses/prices | W1-15 | Open |
-| DS-05 | P1 | Auth inputs dark-on-white; disabled-button contrast | W1-16 | Open |
-| DS-06 | P1 | Two palettes, 723 hex literals, 18 radii, 11 local `$brand-*` redefinitions | W2-14 | Open |
+| DS-02 | P0 | Default dark theme + hardcoded light sections → invisible landing text | W1-13 | Closed (W1-13) |
+| DS-03 | P0 | `.h2/.sec-label/.sub/.divider` undefined; headings are `div`s at 16px/400 | W1-14 | Closed (W1-14) |
+| DS-04 | P0 | Landing nav hidden, dead links, invented stats/courses/prices | W1-15 | Closed (W1-15) |
+| DS-05 | P1 | Auth inputs dark-on-white; disabled-button contrast | W1-16 | Closed (W1-16) |
+| DS-06 | P1 | Two palettes, 723 hex literals, 18 radii, 11 local `$brand-*` redefinitions | W2-14 | Closed (W2-14) |
 | DS-07 | P2 | Two icon families (Lucide vs `mat-icon` + Material Icons font) | W2-15 | Open |
 | DS-08 | P1 | No identity decision; text-only hero, zero imagery | W2-16 | Open |
 | DS-09 | P1 | Public/auth surfaces not on the system | W2-17 | Open |

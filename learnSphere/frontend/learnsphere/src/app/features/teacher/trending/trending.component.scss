@@ -1,13 +1,4 @@
-$brand-purple: var(--brand-primary);
-$brand-purple-lt: var(--brand-surface);
-$status-green: var(--status-green-text);
-$status-amber: var(--status-amber-text);
-$status-red: var(--status-red-text);
-$surface: var(--bg-surface);
-$bg: var(--bg-app);
-$border: var(--border-color);
-$text-primary: var(--text-primary);
-$text-secondary: var(--text-secondary);
+@import 'variables';
 
 .trending-page {
   padding: 28px 32px 40px;

@@ -1,12 +1,4 @@
-$brand: var(--brand-primary);
-$brand-hover: var(--brand-primary-hover);
-$text: var(--text-primary);
-$text-sub: var(--text-secondary);
-$muted: var(--text-muted);
-$border: var(--border-color);
-$bg: var(--bg-app);
-$surface: var(--bg-surface);
-$hover-bg: var(--bg-hover);
+@import 'variables';
 
 :host {
   display: block;

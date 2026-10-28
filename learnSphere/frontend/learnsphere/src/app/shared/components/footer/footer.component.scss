@@ -1,10 +1,4 @@
-$brand-purple: #534AB7;
-$brand-purple-lt: #EEEDFE;
-$bg-color: #ffffff; 
-$border-color: #E8E7EF;
-$text-primary: #1A1830;
-$text-secondary: #6B6880;
-$text-tertiary: #A09DB8;
+@import 'variables';
 
 :host {
   display: block;
@@ -12,8 +6,8 @@ $text-tertiary: #A09DB8;
 }
 
 .footer {
-  background: $bg-color;
-  border-top: 1px solid $border-color;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
   padding: 48px 32px 24px 32px;
   flex-shrink: 0;
   margin-top: auto;
@@ -39,32 +33,32 @@ $text-tertiary: #A09DB8;
     flex-direction: column;
 
     .col-title {
-      font-size: 14px;
+      font-size: var(--font-size-base, 14px);
       font-weight: 700;
-      color: $text-primary;
+      color: var(--text-primary);
       margin: 0 0 16px 0;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .footer-link {
-      color: $text-secondary;
+      color: var(--text-secondary);
       text-decoration: none;
-      font-size: 13.5px;
+      font-size: var(--font-size-sm, 13.5px);
       margin-bottom: 12px;
       transition: color 0.2s ease, transform 0.2s ease;
       display: inline-block;
       width: fit-content;
 
       &:hover {
-        color: $brand-purple;
+        color: var(--brand-primary);
         transform: translateX(4px);
       }
     }
 
     .contact-email {
       font-weight: 600;
-      color: $brand-purple;
+      color: var(--brand-primary);
       
       &:hover {
         text-decoration: underline;
@@ -88,15 +82,15 @@ $text-tertiary: #A09DB8;
       }
 
       .brand-name {
-        font-size: 18px;
+        font-size: var(--font-size-lg, 18px);
         font-weight: 700;
-        color: $text-primary;
+        color: var(--text-primary);
         display: flex;
         align-items: center;
         gap: 6px;
 
         .ai-badge {
-          font-size: 10px;
+          font-size: var(--font-size-2xs, 10px);
           font-weight: 700;
           padding: 2px 6px;
           border-radius: var(--border-radius-sm);
@@ -108,8 +102,8 @@ $text-tertiary: #A09DB8;
     }
 
     .brand-tagline {
-      font-size: 13.5px;
-      color: $text-secondary;
+      font-size: var(--font-size-sm, 13.5px);
+      color: var(--text-secondary);
       line-height: 1.5;
       margin: 0 0 20px 0;
       max-width: 280px;
@@ -122,13 +116,13 @@ $text-tertiary: #A09DB8;
       .social-btn {
         width: 36px;
         height: 36px;
-        border-radius: 50%;
-        background: #F5F5F8;
-        color: $text-secondary;
+        border-radius: var(--border-radius-full);
+        background: var(--bg-surface-elevated);
+        color: var(--text-secondary);
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s ease;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 
         svg {
           width: 16px;
@@ -136,8 +130,8 @@ $text-tertiary: #A09DB8;
         }
 
         &:hover {
-          background: $brand-purple-lt;
-          color: $brand-purple;
+          background: var(--brand-surface);
+          color: var(--brand-primary);
         }
       }
     }
@@ -155,16 +149,16 @@ $text-tertiary: #A09DB8;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      background: #F5F5F8;
+      background: var(--bg-surface-elevated);
       border: 1px solid transparent;
-      color: $text-primary;
+      color: var(--text-primary);
       padding: 10px 16px;
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       font-family: inherit;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
       width: 160px;
 
       svg {
@@ -173,9 +167,9 @@ $text-tertiary: #A09DB8;
       }
 
       &:hover {
-        background: #ffffff;
-        border-color: $border-color;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        background: var(--bg-surface);
+        border-color: var(--border-color);
+        box-shadow: var(--shadow-sm);
       }
     }
   }
@@ -186,9 +180,9 @@ $text-tertiary: #A09DB8;
     justify-content: space-between;
     align-items: center;
     padding-top: 24px;
-    border-top: 1px solid $border-color;
+    border-top: 1px solid var(--border-color);
     font-size: 13px;
-    color: $text-tertiary;
+    color: var(--text-muted);
 
     @media (max-width: 768px) {
       flex-direction: column-reverse;
@@ -202,12 +196,12 @@ $text-tertiary: #A09DB8;
     gap: 24px;
 
     a {
-      color: $text-tertiary;
+      color: var(--text-muted);
       text-decoration: none;
       transition: color 0.2s ease;
 
       &:hover {
-        color: $text-primary;
+        color: var(--text-primary);
       }
     }
   }

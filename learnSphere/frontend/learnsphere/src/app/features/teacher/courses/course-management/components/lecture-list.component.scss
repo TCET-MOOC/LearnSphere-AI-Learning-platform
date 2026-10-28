@@ -1,10 +1,4 @@
-$brand: var(--brand-primary);
-$brand-soft: var(--brand-surface);
-$text: var(--text-primary);
-$muted: var(--text-muted);
-$border: var(--border-color);
-$bg: var(--bg-app);
-$red: var(--status-red-text);
+@import 'variables';
 
 .lecture-list-wrap {
   display: flex;

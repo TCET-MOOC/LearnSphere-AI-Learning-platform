@@ -1,7 +1,11 @@
 // ── Color Palette Design Tokens (Theme-Reactive via CSS Variables) ──
+$brand: var(--brand-primary);
 $brand-purple: var(--brand-primary);
 $brand-purple-light: var(--brand-surface);
+$brand-purple-lt: var(--brand-surface);
 $brand-purple-dark: var(--brand-primary-hover);
+$brand-soft: var(--brand-surface);
+$brand-hover: var(--brand-primary-hover);
 
 // Admin Backgrounds
 $admin-sidebar-bg: var(--bg-sidebar);
@@ -11,35 +15,84 @@ $admin-sidebar-active: var(--brand-surface);
 // Status Color Mappings (Background & Foreground pairs)
 $status-green-bg: var(--status-green-bg);
 $status-green-text: var(--status-green-text);
+$status-green: var(--status-green-text);
+$status-green-lt: var(--status-green-bg);
+$green: var(--status-green-text);
+$green-soft: var(--status-green-bg);
 
 $status-amber-bg: var(--status-amber-bg);
 $status-amber-text: var(--status-amber-text);
+$status-amber: var(--status-amber-text);
+$status-amber-lt: var(--status-amber-bg);
+$amber: var(--status-amber-text);
+$amber-soft: var(--status-amber-bg);
 
 $status-red-bg: var(--status-red-bg);
 $status-red-text: var(--status-red-text);
+$status-red: var(--status-red-text);
+$status-red-lt: var(--status-red-bg);
+$red: var(--status-red-text);
+$red-soft: var(--status-red-bg);
 
 $status-purple-bg: var(--status-purple-bg);
 $status-purple-text: var(--status-purple-text);
+$status-purple: var(--status-purple-text);
+$status-purple-lt: var(--status-purple-bg);
+$purple: var(--status-purple-text);
+$purple-soft: var(--status-purple-bg);
 
 $status-grey-bg: var(--status-grey-bg);
 $status-grey-text: var(--status-grey-text);
+$status-grey: var(--status-grey-text);
+$status-grey-lt: var(--status-grey-bg);
+$grey: var(--status-grey-text);
+$grey-soft: var(--bg-hover);
 
 $status-teal-bg: var(--status-green-bg);
 $status-teal-text: var(--status-green-text);
 
 $status-blue-bg: var(--status-blue-bg);
 $status-blue-text: var(--status-blue-text);
+$status-blue: var(--status-blue-text);
+$status-blue-lt: var(--status-blue-bg);
+$blue: var(--status-blue-text);
+$blue-soft: var(--status-blue-bg);
+
+// Common Surfaces & Texts
+$surface: var(--bg-surface);
+$bg: var(--bg-app);
+$bg-color: var(--bg-app);
+$border: var(--border-color);
+$border-color: var(--border-color);
+$hover-bg: var(--bg-hover);
+
+$text: var(--text-primary);
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-sub: var(--text-secondary);
+$text-tertiary: var(--text-muted);
+$text-muted: var(--text-muted);
+$muted: var(--text-secondary);
+$faint: var(--text-muted);
 
 // Layout spacing scale tokens
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-md: 12px;
-$spacing-lg: 16px;
-$spacing-xl: 24px;
+$spacing-xs: var(--space-1);
+$spacing-sm: var(--space-2);
+$spacing-md: var(--space-3);
+$spacing-lg: var(--space-4);
+$spacing-xl: var(--space-6);
 
 // Border Radius Tokens
-$border-radius-sm: 4px;
-$border-radius-md: 6px;
-$border-radius-lg: 8px;
-$border-radius-xl: 12px;
-$border-radius-round: 20px;
+$border-radius-none: var(--border-radius-none);
+$border-radius-xs: var(--border-radius-xs);
+$border-radius-sm: var(--border-radius-sm);
+$border-radius-md: var(--border-radius-md);
+$border-radius-lg: var(--border-radius-lg);
+$border-radius-xl: var(--border-radius-xl);
+$border-radius-round: var(--border-radius-round);
+$border-radius-full: var(--border-radius-full);
+
+$radius-sm: var(--border-radius-sm);
+$radius-md: var(--border-radius-md);
+$radius-lg: var(--border-radius-lg);
+$radius-xl: var(--border-radius-xl);

@@ -1,22 +1,4 @@
-$brand-purple:    var(--brand-primary);
-$brand-purple-lt: var(--brand-surface);
-$status-red:      var(--status-red-text);
-$status-red-lt:   var(--status-red-bg);
-$status-amber:    var(--status-amber-text);
-$status-amber-lt: var(--status-amber-bg);
-$status-green:    var(--status-green-text);
-$status-green-lt: var(--status-green-bg);
-$status-grey:     var(--text-muted);
-$status-grey-lt:  var(--bg-hover);
-$surface:         var(--bg-surface);
-$bg:              var(--bg-app);
-$border:          var(--border-color);
-$text-primary:    var(--text-primary);
-$text-secondary:  var(--text-secondary);
-$text-tertiary:   var(--text-muted);
-$radius-sm:       6px;
-$radius-md:       10px;
-$radius-lg:       14px;
+@import 'variables';
 
 // ── Page wrapper ────────────────────────────────────────
 .leaderboard-page {
