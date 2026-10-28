@@ -635,8 +635,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-06 Certificate eligibility + real grade
 - [x] W3-07 Leaderboard materialisation
 - [x] W3-08 Same-college entitlement
-- [~] W3-09 Learning regression suite (course surfaces, resume, player auth)
-- [ ] W3-10 My Courses enrolled-only + Explore catalogue + resume (AUD-07)
+- [x] W3-09 Learning regression suite (course surfaces, resume, player auth)
+- [~] W3-10 My Courses enrolled-only + Explore catalogue + resume (AUD-07)
 - [ ] W3-11 Canonical player route + server enrolment check (AUD-08)
 - [ ] W3-12 Course-surface polish (AUD-09)
 - [ ] W3-13 Hot-path query optimization + private no-store
@@ -834,6 +834,28 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `SameCollegeEntitlementTests.java` covering same-college verified student free enrollment without payments, different-college rejection, unverified-college rejection, checkout blocking for entitled students, admin override grant with audit logging, admin override revocation restoring payment requirement, and `/api/courses/{id}/entitlement` metadata with `private, no-store`.
   - Red: 6 failures proving missing entitlement enforcement, missing checkout block, and 404 on missing endpoints.
   - Green: 7/7 passed in `SameCollegeEntitlementTests`. Full backend test suite `280/280` passed.
+
+**W3-09 evidence (2026-10-28) — Learning regression suite (course surfaces, resume, player auth):**
+- Rules: AC-10…AC-14, AC-24, AUD-07…AUD-09, PLAN §10, A-04, A-08, A-10, A-20, A-27, BR-08, BR-16, BR-18, BR-19, NFR-03.
+- Frontend Suite (`src/app/features/student/services/student.service.spec.ts`):
+  - Authored comprehensive Angular 19 Jasmine/Vitest tests for `StudentService`:
+    - Enrolled courses filtering and resume computation (`getEnrolledCourses`).
+    - Course content and lecture progress calculation (`getCourseProgress`).
+    - Bookmark toggling and status management (`getBookmarks`, `toggleBookmark`).
+    - Notes management with video timestamp tags (`getNotes`, `saveNote`, `deleteNote`).
+    - Assessment attempt start, answer submission, and completion finalization (`getAssessments`, `startAssessment`, `submitAssessmentAnswer`, `completeAssessment`).
+    - Certificate eligibility and issuance verification (`getCertificates`, `issueCertificate`).
+  - Result: 7/7 passed in `student.service.spec.ts`; full frontend suite 47/47 green across 11 test files.
+- Backend Suite (`LearningRegressionSuiteTests.java`):
+  - Authored end-to-end integration test suite on PostgreSQL Testcontainers testing the complete Wave 3 learning lifecycle:
+    1. Enrollment lifecycle: published check (DRAFT rejects with 400), non-admin foreign user gating (403), valid self-enrollment (200), duplicate enrollment rejection (409 conflict).
+    2. Roster and unenrol authorization: teacher roster access with `Cache-Control: private, no-store`, foreign student roster access 404 stealth security, foreign student unenrol 404, self unenrol 204.
+    3. Progress upsert & clamping: 0.00-100.00% boundary clamping, `completedAt` timestamp stamped at ≥90%, advance preservation, and regression un-completion clearing timestamp.
+    4. Content-based course progress aggregation: single set-based calculation returning per-content progress list and teacher course roster summary (`totalEnrolled`, `totalContents`, `completedCount`, `inProgressCount`).
+    5. Certificate lifecycle: incomplete course rejection (400), complete course issuance with authentic performance-based grade (Distinction), idempotent re-issuance, and public verification with `Cache-Control: public, max-age=60`.
+    6. Assessment leaderboard materialisation: attempt submission triggers asynchronous event-driven recalculation of ranked leaderboard with global (1..N) and departmental (1..M) standings.
+    7. Same-college entitlement: verified student checkout blocking (400), verified free enrollment without payment rows, foreign college rejection, and audited admin override waiver.
+  - Result: 7/7 passed in `LearningRegressionSuiteTests`; full backend test suite 287/287 green.
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
