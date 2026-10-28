@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 2 — Curriculum and authoring COMPLETE (`W2-01` through `W2-17` 100% complete, verified and pushed).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`). `W2-17` rebuilt public/auth surfaces on the approved "verified" academic direction (DS-09), added public landing hero tokens, cleaned up variable fallback literals across auth screens and landing, integrated the institutional verified seal badge in the landing hero, authored tests (40/40 tests pass), verified ratchet (`color-no-hex` fell to 579, `radius-literal` fell to 403), and verified clean build. |
-| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-01 Enrolment unique, self-only, published check`). |
+| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` complete, verified and green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-01` enforced unique (user_id, course_id, role) via Flyway V10, self-only enrollment check (foreign enrollment attempts rejected with 403), and LIVE-only course requirement (rejects DRAFT/PENDING/ARCHIVED with 400). |
+| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-02 Roster/unenrol authorization`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -627,7 +627,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Frontend production build: exit code 0 (`BUILD_EXIT=0`).
 
 ### Wave 3 — Enrolment, progress and credentials
-- [~] W3-01 Enrolment unique, self-only, published check
+- [x] W3-01 Enrolment unique, self-only, published check
 - [~] W3-02 Roster/unenrol authorization
 - [~] W3-03 Progress unique + upsert + BigDecimal
 - [~] W3-04 90 % completion rule
@@ -642,6 +642,32 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [ ] W3-13 Hot-path query optimization + private no-store
 - [ ] W3-14 Student surfaces on the system (DS-10)
 - [ ] W3-15 Player workspace typography + density (DS-11)
+
+**W3-01 evidence (2026-10-28) — Enrolment unique, self-only, published check:**
+- Rules: AC-10, A-04, BR-08, [C-F1, C-F2].
+- Database constraint & migration:
+  - Added Flyway migration `V10__unique_enrollment.sql`:
+    - Normalizes null or empty `role` values to `'STUDENT'`.
+    - Deduplicates existing duplicate enrollment rows partitioned by `(user_id, course_id, COALESCE(role, 'STUDENT'))`, keeping earliest row by `enrolled_at, id`.
+    - Adds unique constraint `uq_enrollments_user_course_role` on `(user_id, course_id, role)`.
+    - Creates index `idx_enrollments_user_course_role`.
+- Entity & Repository:
+  - Updated `Enrollment.java`: added `uniqueConstraints` on `(user_id, course_id, role)` in `@Table`, added `@PrePersist` setting `role = "STUDENT"` if null and `enrolledAt = LocalDateTime.now()` if null.
+  - Updated `EnrollmentRepository.java`: added `existsByUserIdAndCourse_IdAndRole` and `findByUserIdAndCourse_IdAndRole`.
+- Service & Controller logic:
+  - Updated `EnrollmentServiceImpl.java`:
+    - Validates course existence (`404 NOT_FOUND`).
+    - Validates course status: requires `status == Course.Status.LIVE`. Courses with `DRAFT`, `PENDING`, or `ARCHIVED` reject enrollment with `400 BAD_REQUEST` ("Cannot enroll in course that is not LIVE").
+    - Role defaults to `"STUDENT"`.
+    - Rejects duplicate enrollment with `ConflictException` (`409 CONFLICT`).
+  - Updated `EnrollmentController.java`:
+    - Requires authenticated principal (`@AuthenticationPrincipal UserDetails`).
+    - Checks user authorization: non-admin users cannot enroll foreign users (`userId != principal.userId` throws `AccessDeniedException` -> `403 FORBIDDEN`).
+    - Allows admin users to enroll other users.
+- Red-green verification:
+  - Authored `EnrollmentUniquenessAndPublishTests.java` with 9 integration tests covering LIVE course self-enrollment, non-existent course 404, non-LIVE status rejection (DRAFT, PENDING, ARCHIVED), foreign user 403, admin foreign user 200, duplicate enrollment 409 conflict, and DB unique constraint enforcement.
+  - Red: 8/9 tests failed before changes.
+  - Green: 9/9 tests passed. Full backend suite `229/229` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs

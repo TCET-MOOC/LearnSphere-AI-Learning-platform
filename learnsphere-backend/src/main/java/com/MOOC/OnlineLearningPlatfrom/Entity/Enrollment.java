@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "enrollments")
+@Table(name = "enrollments", uniqueConstraints = {
+        @UniqueConstraint(name = "uq_enrollments_user_course_role", columnNames = {"user_id", "course_id", "role"})
+})
 public class Enrollment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +19,19 @@ public class Enrollment {
     private Course course;
 
     private LocalDateTime enrolledAt;
-    private String role; // e.g., "STUDENT", "INSTRUCTOR"
+
+    @Column(name = "role", nullable = false)
+    private String role = "STUDENT";
+
+    @PrePersist
+    public void prePersist() {
+        if (enrolledAt == null) {
+            enrolledAt = LocalDateTime.now();
+        }
+        if (role == null || role.isBlank()) {
+            role = "STUDENT";
+        }
+    }
 
     // --- Getters and Setters ---
 

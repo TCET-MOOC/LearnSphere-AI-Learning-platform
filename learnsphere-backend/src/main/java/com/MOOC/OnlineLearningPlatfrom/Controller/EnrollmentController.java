@@ -11,6 +11,7 @@ import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService;
 import com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,10 +44,16 @@ public class EnrollmentController {
     public ResponseEntity<Enrollment> enrollInCourse(
             @RequestBody Enrollment enrollment,
             @AuthenticationPrincipal CustomUserDetails principal) {
-        if (enrollment.getUserId() == null && principal != null && principal.getUser() != null) {
-            enrollment.setUserId(principal.getUser().getUserId());
-        } else if (enrollment.getUserId() != null) {
-            ownershipService.requireSelf(enrollment.getUserId(), principal);
+        if (principal == null || principal.getUser() == null) {
+            throw new AccessDeniedException("Authentication required to enroll");
+        }
+        Long currentUserId = principal.getUser().getUserId();
+        if (enrollment.getUserId() != null && !enrollment.getUserId().equals(currentUserId)) {
+            if (!ownershipService.isAdmin(principal)) {
+                throw new AccessDeniedException("Cannot enroll other users");
+            }
+        } else {
+            enrollment.setUserId(currentUserId);
         }
         return ResponseEntity.ok(enrollmentService.enrollUser(enrollment));
     }
