@@ -638,8 +638,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-09 Learning regression suite (course surfaces, resume, player auth)
 - [x] W3-10 My Courses enrolled-only + Explore catalogue + resume (AUD-07)
 - [x] W3-11 Canonical player route + server enrolment check (AUD-08)
-- [~] W3-12 Course-surface polish (AUD-09)
-- [ ] W3-13 Hot-path query optimization + private no-store
+- [x] W3-12 Course-surface polish (AUD-09)
+- [~] W3-13 Hot-path query optimization + private no-store
 - [ ] W3-14 Student surfaces on the system (DS-10)
 - [ ] W3-15 Player workspace typography + density (DS-11)
 
@@ -905,6 +905,26 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Frontend: authored `player-resolver.component.spec.ts` (4/4 passed), added `getLecture` and `getPlaybackDescriptor` specs in `student.service.spec.ts` (10/10 passed); full frontend test suite 13 files, 59 tests passed.
   - Stylelint ratchet: passed cleanly (0 errors). Production build: exit code 0 (`BUILD_EXIT=0`).
 
+**W3-12 evidence (2026-10-28) — Course-surface polish (AUD-09):**
+- Rules: `audit.md` C6, C8 (`AUD-09`); NFR-04(e)(f).
+- Real Course Duration Summation:
+  - In `LectureComponent` (`lecture.component.ts`): replaced the fake estimate (`lectures.length * 15`) with a real summation of `lecture.duration` (in seconds) converted to hours and minutes (`${hrs}h ${mins}m` or `${mins}m`), cleanly defaulting to `'0m'` when empty or 0.
+- Student-Relevant Enrolled Filter Tabs:
+  - In `CoursesComponent` (`courses.component.ts`): retired irrelevant `LIVE` and `ARCHIVED` status tabs on the student's enrolled courses surface. Student filters now represent learning progress states: `ALL` ("All Courses"), `IN_PROGRESS` ("In Progress"), and `COMPLETED` ("Completed").
+  - Updated `filteredCourses` logic:
+    - `IN_PROGRESS`: `!course.completed && (course.progressPercent == null || course.progressPercent < 100)`
+    - `COMPLETED`: `course.completed || (course.progressPercent != null && course.progressPercent >= 100)`
+- Course Card State Polish:
+  - In `CourseCardComponent` (`course-card.component.ts`): replaced the raw `LIVE` backend status badge with a student-facing `In Progress` pill (`.pill--progress`) for active courses, and `Completed` pill (`.pill--completed`) for finished courses.
+  - Formatted progress percentage with `font-variant-numeric: tabular-nums;` to prevent layout jitter.
+  - Eliminated `→` suffix from `Continue →` button to adhere to NFR-04(f) verb + object CTA vocabulary (`Continue` / `Review`).
+  - Removed `→` suffix from `Browse Catalog` button in `courses.component.html` and `Go to Course` button in `explore.component.html`.
+- Specs & Conformance:
+  - Authored `courses.component.spec.ts` (6 tests passed) testing shell rendering, filter options (`ALL`, `IN_PROGRESS`, `COMPLETED`), filtering logic, search matching, and card badges.
+  - Authored `lecture.component.spec.ts` (3 tests passed) testing `totalCourseDuration` on empty lists, multi-lecture real duration summation, and sub-hour minute formatting.
+  - Full frontend test suite: 15 test files passed, 68 tests passed.
+  - Stylelint token ratchet passed cleanly. Production build succeeded (`BUILD_EXIT=0`).
+
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
 - [~] W4-02 Retire legacy `/api/tests` surface
@@ -999,9 +1019,9 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 | AUD-04 | P0 | Simulation/order lookup unauthenticated or replayable | W6-02, W6-04 | Open |
 | AUD-05 | P0 | Internal enrol trusts amount and is non-idempotent | W6-05 | Open |
 | AUD-06 | P1/P2 | Two payment rails; simulated checkout reachable | W6-01 | Open |
-| AUD-07 | P1/P2 | My Courses/catalogue conflated; no resume surface | W3-10 | Open |
-| AUD-08 | P1/P2 | Player fallback/client-only enrolment/duplicate aliases | W3-11 | Open |
-| AUD-09 | P3 | Course UI currency/mojibake/duration/filter defects | W3-12 | Open |
+| AUD-07 | P1/P2 | My Courses/catalogue conflated; no resume surface | W3-10 | Closed (W3-10) |
+| AUD-08 | P1/P2 | Player fallback/client-only enrolment/duplicate aliases | W3-11 | Closed (W3-11) |
+| AUD-09 | P3 | Course UI currency/mojibake/duration/filter defects | W3-12 | Closed (W3-12) |
 | AUD-10 | P2 | Student profile mojibake/error-toast gaps | W7-12 | Open |
 | AUD-11 | P1 | Teacher profile static/fake save | W7-11 | Open |
 | AUD-12 | P1/P2 | Admin profile fake saves/metrics/inspect | W7-11, W7-12 | Open |

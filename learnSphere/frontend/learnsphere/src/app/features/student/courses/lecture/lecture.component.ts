@@ -506,7 +506,11 @@ export class LectureComponent implements OnInit, OnDestroy {
   }
 
   get totalCourseDuration(): string {
-    const totalMinutes = this.lectures.length * 15;
+    const totalSeconds = (this.lectures || []).reduce((acc, l) => acc + (l.duration || 0), 0);
+    if (totalSeconds <= 0) {
+      return '0m';
+    }
+    const totalMinutes = Math.max(1, Math.round(totalSeconds / 60));
     const hrs = Math.floor(totalMinutes / 60);
     const mins = totalMinutes % 60;
     return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;

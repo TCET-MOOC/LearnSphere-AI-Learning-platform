@@ -8,10 +8,10 @@ import { StudentService } from '../services/student.service';
 import { Course } from '@core/models/course.model';
 import { CourseCardComponent } from './components/course-card.component';
 
-type CourseFilterKey = 'ALL' | 'IN_PROGRESS' | 'COMPLETED' | 'LIVE' | 'ARCHIVED';
+type CourseFilterKey = 'ALL' | 'IN_PROGRESS' | 'COMPLETED';
 
 /**
- * W3-10 / AUD-07: Enrolled-only My Courses surface.
+ * W3-10 / AUD-07 / W3-12 / AUD-09: Enrolled-only My Courses surface.
  * Shows active and completed course enrollments with progress and resume targets.
  * Catalogue browsing has moved to standalone /student/explore.
  */
@@ -32,11 +32,9 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   activeFilter: CourseFilterKey = 'ALL';
   filters: { key: CourseFilterKey; label: string }[] = [
-    { key: 'ALL', label: 'All' },
+    { key: 'ALL', label: 'All Courses' },
     { key: 'IN_PROGRESS', label: 'In Progress' },
-    { key: 'COMPLETED', label: 'Completed' },
-    { key: 'LIVE', label: 'Live' },
-    { key: 'ARCHIVED', label: 'Archived' }
+    { key: 'COMPLETED', label: 'Completed' }
   ];
 
   constructor(
@@ -117,7 +115,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     if (this.activeFilter === 'COMPLETED') {
       return searched.filter(c => c.completed || (c.progressPercent != null && c.progressPercent >= 100));
     }
-    return searched.filter(c => c.status === this.activeFilter);
+    return searched;
   }
 
   setFilter(filter: CourseFilterKey): void {

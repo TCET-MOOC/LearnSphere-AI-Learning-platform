@@ -21,7 +21,7 @@ import { StudentService } from '../../services/student.service';
           <h3>{{ course.title }}</h3>
           <div class="badge-group">
             <span class="pill pill--completed" *ngIf="isCompleted">Completed</span>
-            <span class="pill" [ngClass]="statusClass" *ngIf="!isCompleted">{{ course.status }}</span>
+            <span class="pill pill--progress" *ngIf="!isCompleted">In Progress</span>
           </div>
         </div>
         <p>{{ course.teacherName || 'Instructor' }} · {{ course.department }} · {{ course.lectureCount || 0 }} lectures</p>
@@ -38,7 +38,7 @@ import { StudentService } from '../../services/student.service';
           type="button"
           [disabled]="resuming"
           (click)="onContinue($event)">
-          {{ resuming ? '…' : (isCompleted ? 'Review' : 'Continue →') }}
+          {{ resuming ? '…' : (isCompleted ? 'Review' : 'Continue') }}
         </button>
       </div>
     </article>
@@ -87,7 +87,7 @@ import { StudentService } from '../../services/student.service';
       gap: 12px;
       flex: 0 0 auto;
     }
-    .course-progress { font-size: 13px; font-weight: 700; color: #818cf8; min-width: 48px; text-align: right; }
+    .course-progress { font-size: 13px; font-weight: 700; color: #818cf8; min-width: 48px; text-align: right; font-variant-numeric: tabular-nums; }
     .course-progress.is-completed-text { color: #34d399; }
     .btn-continue {
       padding: 6px 12px;
@@ -116,6 +116,7 @@ import { StudentService } from '../../services/student.service';
     .pill--draft { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
     .pill--pending { background: rgba(239, 68, 68, 0.15); color: #f87171; }
     .pill--archived { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+    .pill--progress { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; font-weight: 600; }
     .pill--completed { background: rgba(52, 211, 153, 0.2); color: #34d399; font-weight: 700; }
   `]
 })
