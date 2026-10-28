@@ -1,11 +1,13 @@
 package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
+import com.MOOC.OnlineLearningPlatfrom.Dto.CollegeEntitlementStatusDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.CourseProgressCalculation;
 import com.MOOC.OnlineLearningPlatfrom.Dto.CourseProgressSummaryDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserProgressResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.CourseContent;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Enrollment;
+import com.MOOC.OnlineLearningPlatfrom.Entity.Payment;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserAccount;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserProgress;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
@@ -15,8 +17,10 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.EnrollmentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.LectureRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.PaymentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserProgressRepository;
+import com.MOOC.OnlineLearningPlatfrom.Service.CollegeEntitlementService;
 import com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,19 +40,25 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final CourseContentRepository courseContentRepository;
     private final LectureRepository lectureRepository;
     private final UserAccountRepository userAccountRepository;
+    private final PaymentRepository paymentRepository;
+    private final CollegeEntitlementService collegeEntitlementService;
 
     public EnrollmentServiceImpl(EnrollmentRepository enrollmentRepository,
                                  UserProgressRepository userProgressRepository,
                                  CourseRepository courseRepository,
                                  CourseContentRepository courseContentRepository,
                                  LectureRepository lectureRepository,
-                                 UserAccountRepository userAccountRepository) {
+                                 UserAccountRepository userAccountRepository,
+                                 PaymentRepository paymentRepository,
+                                 CollegeEntitlementService collegeEntitlementService) {
         this.enrollmentRepository = enrollmentRepository;
         this.userProgressRepository = userProgressRepository;
         this.courseRepository = courseRepository;
         this.courseContentRepository = courseContentRepository;
         this.lectureRepository = lectureRepository;
         this.userAccountRepository = userAccountRepository;
+        this.paymentRepository = paymentRepository;
+        this.collegeEntitlementService = collegeEntitlementService;
     }
 
     @Override
@@ -72,6 +82,24 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         if (enrollment.getUserId() != null && enrollmentRepository.existsByUserIdAndCourse_IdAndRole(enrollment.getUserId(), courseId, role)) {
             throw new ConflictException("User is already enrolled in course " + courseId + " with role: " + role);
+        }
+
+        // Paid course check: requires payment or verified same-college entitlement
+        if (course.getPrice() != null && course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            Long userId = enrollment.getUserId();
+            boolean hasPaid = userId != null && paymentRepository.existsByUser_UserIdAndCourse_IdAndStatus(userId, courseId, Payment.Status.SUCCESS);
+            if (!hasPaid) {
+                CollegeEntitlementStatusDto entitlementStatus = collegeEntitlementService.checkEntitlement(userId, courseId);
+                if (entitlementStatus != null && entitlementStatus.isEligible()) {
+                    if ("SAME_COLLEGE".equalsIgnoreCase(entitlementStatus.getReason())) {
+                        collegeEntitlementService.grantSameCollegeEntitlement(userId, courseId);
+                    }
+                    // Entitled for free enrollment - no payment row created
+                } else {
+                    throw new BadRequestException("Payment required: this course is not free (price: INR "
+                            + course.getPrice() + ") and you do not have same-college entitlement. Please complete checkout.");
+                }
+            }
         }
 
         enrollment.setCourse(course);

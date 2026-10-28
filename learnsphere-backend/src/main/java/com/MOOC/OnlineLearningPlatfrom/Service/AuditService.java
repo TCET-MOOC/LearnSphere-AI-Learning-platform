@@ -29,9 +29,12 @@ public class AuditService {
     public static final String USER_ROLE_ASSIGNED = "USER_ROLE_ASSIGNED";
     public static final String USER_ROLE_REVOKED = "USER_ROLE_REVOKED";
     public static final String COURSE_STATUS_CHANGED = "COURSE_STATUS_CHANGED";
+    public static final String ENTITLEMENT_GRANTED = "ENTITLEMENT_GRANTED";
+    public static final String ENTITLEMENT_REVOKED = "ENTITLEMENT_REVOKED";
 
     public static final String RESOURCE_USER = "USER";
     public static final String RESOURCE_COURSE = "COURSE";
+    public static final String RESOURCE_ENTITLEMENT = "COLLEGE_ENTITLEMENT";
 
     private final AuditLogRepository auditLogRepository;
 

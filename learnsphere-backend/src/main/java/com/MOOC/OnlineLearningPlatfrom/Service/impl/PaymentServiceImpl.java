@@ -42,17 +42,20 @@ public class PaymentServiceImpl implements PaymentService {
     private final EnrollmentRepository enrollmentRepository;
     private final RoyaltyRepository royaltyRepository;
     private final UserAccountRepository userAccountRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.CollegeEntitlementService collegeEntitlementService;
 
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                                CourseRepository courseRepository,
                                EnrollmentRepository enrollmentRepository,
                                RoyaltyRepository royaltyRepository,
-                               UserAccountRepository userAccountRepository) {
+                               UserAccountRepository userAccountRepository,
+                               com.MOOC.OnlineLearningPlatfrom.Service.CollegeEntitlementService collegeEntitlementService) {
         this.paymentRepository = paymentRepository;
         this.courseRepository = courseRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.royaltyRepository = royaltyRepository;
         this.userAccountRepository = userAccountRepository;
+        this.collegeEntitlementService = collegeEntitlementService;
     }
 
     @Override
@@ -67,6 +70,11 @@ public class PaymentServiceImpl implements PaymentService {
         }
         if (enrollmentRepository.existsByUserIdAndCourse_Id(userId, courseId)) {
             throw new BadRequestException("You are already enrolled in this course.");
+        }
+
+        com.MOOC.OnlineLearningPlatfrom.Dto.CollegeEntitlementStatusDto entitlementStatus = collegeEntitlementService.checkEntitlement(userId, courseId);
+        if (entitlementStatus != null && entitlementStatus.isEligible()) {
+            throw new BadRequestException("This course is included by your college — use the direct enroll endpoint instead of checkout.");
         }
 
         Payment payment = new Payment();

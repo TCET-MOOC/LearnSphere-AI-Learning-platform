@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` through `W3-07` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-07` implemented event-driven leaderboard materialisation after test attempt completion (calculating average score percentages across course tests, global ranks 1..N, department ranks 1..M, updating `leaderboard` table, exposing `/api/courses/{id}/leaderboard` and `/api/leaderboard/me`, with `Cache-Control: private, no-store`). |
-| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-08 Same-college entitlement`). |
+| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` through `W3-08` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-08` implemented same-college entitlement (migration V13 with `college_entitlements` table and unique `(student_id, course_id)`, verified same-college student free enrollment with 0 payment rows created, checkout blocked with 400 for entitled students, admin grant/revoke overrides with audit logging, and `GET /api/courses/{id}/entitlement` with `Cache-Control: private, no-store`). |
+| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-09 Learning regression suite`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -634,8 +634,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-05 Content-based course completion
 - [x] W3-06 Certificate eligibility + real grade
 - [x] W3-07 Leaderboard materialisation
-- [~] W3-08 Same-college entitlement
-- [ ] W3-09 Learning regression suite (course surfaces, resume, player auth)
+- [x] W3-08 Same-college entitlement
+- [~] W3-09 Learning regression suite (course surfaces, resume, player auth)
 - [ ] W3-10 My Courses enrolled-only + Explore catalogue + resume (AUD-07)
 - [ ] W3-11 Canonical player route + server enrolment check (AUD-08)
 - [ ] W3-12 Course-surface polish (AUD-09)
@@ -800,6 +800,40 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `LeaderboardMaterialisationTests.java` covering event publishing on attempt submission, rank recalculation, global rank 1..N order, department rank 1..M partitioning, `/api/courses/{id}/leaderboard` response, `/api/leaderboard/me` response, and `Cache-Control: private, no-store`.
   - Red: 4 failures proving missing recalculation, missing rankings, missing event propagation, and missing private no-store headers.
   - Green: 4/4 tests passed in `LeaderboardMaterialisationTests`. Full backend suite `273/273` passed, payments suite `10/10` passed, frontend suite `40/40` passed.
+
+**W3-08 evidence (2026-10-28) — Same-college entitlement:**
+- Rules: A-20, BR-19, M-09, `[F-F15]`, NFR-03.
+- Database migration & schema:
+  - Added Flyway migration `V13__college_entitlements.sql`:
+    - Created `college_entitlements` table with columns: `id`, `student_id`, `course_id`, `college_id`, `grant_type`, `granted_at`, `granted_by`, `revoked`, `revoked_at`, `revoked_by`, `reason`.
+    - Added unique constraint `uq_college_entitlements_student_course` on `(student_id, course_id)`.
+    - Added foreign keys with cascade/set null rules to `users`, `courses`, and `colleges`.
+    - Added indexes `idx_college_entitlements_student_course`, `idx_college_entitlements_college`, and `idx_affiliation_requests_status`.
+- Entity & Repository:
+  - Created `CollegeEntitlement.java` mapped to `college_entitlements` with `@Table` unique constraint and `GrantType { SAME_COLLEGE, ADMIN_OVERRIDE }`.
+  - Created `CollegeEntitlementRepository.java` declaring `findByStudent_UserIdAndCourse_Id`, `existsByStudent_UserIdAndCourse_IdAndRevokedFalse`, and queries by student/course.
+- Service & Entitlement Enforcement:
+  - Created `CollegeEntitlementService` and `CollegeEntitlementServiceImpl`:
+    - `checkEntitlement`: checks active entitlement in database or verified same-college alignment (`student.college == teacher.college && both verified`).
+    - `grantSameCollegeEntitlement`: auto-records `SAME_COLLEGE` entitlement upon enrollment and records `ENTITLEMENT_GRANTED` in `audit_log`.
+    - `grantAdminOverride`: enables admin to grant waiver override (`ADMIN_OVERRIDE`) for students and records `ENTITLEMENT_GRANTED` in `audit_log`.
+    - `revokeEntitlement`: enables admin to revoke waiver and records `ENTITLEMENT_REVOKED` in `audit_log`.
+  - Updated `EnrollmentServiceImpl.java`:
+    - For paid courses (`price > 0`), checks whether student has paid.
+    - If not paid, verifies same-college entitlement or active waiver. Entitled students are enrolled with `role = STUDENT` and **0 payment rows created**.
+    - Unentitled, unpaid students are rejected with `400 BAD_REQUEST` ("Payment required: this course is not free...").
+  - Updated `PaymentServiceImpl.java`:
+    - `POST /api/payments/checkout`: blocks checkout with `400 BAD_REQUEST` ("This course is included by your college — use the direct enroll endpoint instead of checkout.") for students entitled to free college access.
+- Controller Endpoints:
+  - Created `CollegeEntitlementController.java`:
+    - `GET /api/courses/{courseId}/entitlement`: returns entitlement status (`eligible`, `reason`, `collegeName`, `courseId`) with `Cache-Control: private, no-store`.
+    - `POST /api/admin/entitlements`: admin grant override (`studentId`, `courseId`, `reason`) with audit logging.
+    - `DELETE /api/admin/entitlements/{id}`: admin revoke override with audit logging.
+    - `GET /api/admin/entitlements/student/{studentId}` & `/course/{courseId}`: list entitlements with `Cache-Control: private, no-store`.
+- Red-green verification:
+  - Authored `SameCollegeEntitlementTests.java` covering same-college verified student free enrollment without payments, different-college rejection, unverified-college rejection, checkout blocking for entitled students, admin override grant with audit logging, admin override revocation restoring payment requirement, and `/api/courses/{id}/entitlement` metadata with `private, no-store`.
+  - Red: 6 failures proving missing entitlement enforcement, missing checkout block, and 404 on missing endpoints.
+  - Green: 7/7 passed in `SameCollegeEntitlementTests`. Full backend test suite `280/280` passed.
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
