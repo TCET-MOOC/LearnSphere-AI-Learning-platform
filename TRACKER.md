@@ -636,8 +636,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W3-07 Leaderboard materialisation
 - [x] W3-08 Same-college entitlement
 - [x] W3-09 Learning regression suite (course surfaces, resume, player auth)
-- [~] W3-10 My Courses enrolled-only + Explore catalogue + resume (AUD-07)
-- [ ] W3-11 Canonical player route + server enrolment check (AUD-08)
+- [x] W3-10 My Courses enrolled-only + Explore catalogue + resume (AUD-07)
+- [~] W3-11 Canonical player route + server enrolment check (AUD-08)
 - [ ] W3-12 Course-surface polish (AUD-09)
 - [ ] W3-13 Hot-path query optimization + private no-store
 - [ ] W3-14 Student surfaces on the system (DS-10)
@@ -856,6 +856,34 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
     6. Assessment leaderboard materialisation: attempt submission triggers asynchronous event-driven recalculation of ranked leaderboard with global (1..N) and departmental (1..M) standings.
     7. Same-college entitlement: verified student checkout blocking (400), verified free enrollment without payment rows, foreign college rejection, and audited admin override waiver.
   - Result: 7/7 passed in `LearningRegressionSuiteTests`; full backend test suite 287/287 green.
+
+**W3-10 evidence (2026-10-28) — My Courses enrolled-only + Explore catalogue + resume (AUD-07):**
+- Rules: `audit.md` C1–C3, C6 (`AUD-07`); BR-23; AC-10, AC-12, AC-13; NFR-03.
+- Backend Resume Target API (`GET /api/student/courses/{courseId}/resume`):
+  - Created `ResumeTargetDto.java` (`courseId`, `contentId`, `lectureId`, `moduleId`, `moduleTitle`, `title`, `contentType`, `position`, `progressPercent`, `secondsWatched`, `completed`).
+  - In `EnrollmentService` & `EnrollmentServiceImpl`:
+    - Enforced enrollment check: un-enrolled students reject with `404 NOT_FOUND` (stealth security).
+    - Traverses ordered contents (`courseContentRepository.findByModule_Course_IdOrderByModule_PositionAscPositionAsc`) with legacy lecture fallback.
+    - Resolves student progress and identifies the **first incomplete content** (`completedAt == null` and `progressPercent < 90.00`).
+    - If all contents are completed, returns `404 NOT_FOUND` ("Course is complete — no remaining content to resume.") per API contract.
+  - In `StudentController.java`:
+    - Exposed `GET /api/student/courses/{courseId}/resume` returning `ResumeTargetDto` with `Cache-Control: private, no-store`.
+  - Authored `ResumeCourseTargetTests.java` with 5 integration tests covering un-enrolled rejection, first content on no progress, next incomplete content progression across modules, partially completed content details, all completed 404, and `no-store` cache headers. All 5 passed.
+- Frontend Surface Separation:
+  - Enrolled-only My Courses (`CoursesComponent` at `/student/courses`):
+    - Removed inline "Explore more courses" bottom section that previously conflated enrolled and public catalog surfaces.
+    - Enrolled cards in `CourseCardComponent` now include a dedicated `Continue →` (or `Review` when completed) button that queries `StudentService.getResumeTarget` to deep-link directly to the incomplete lecture, eliminating any client-side hardcoded lecture 1 fallbacks.
+  - Standalone Explore Catalogue (`ExploreComponent` at `/student/explore`):
+    - Created dedicated catalog route and component (`/student/explore`) with category tabs ("All Catalog", "Free", "Premium / Paid"), debounced search sync with `?search=`, and clear visual distinction of already-enrolled courses via `.pill--enrolled`.
+    - Un-enrolled courses allow direct one-click enrollment or view/checkout navigation.
+  - Navigation & Sidebar:
+    - Updated `SidebarComponent` navigation to replace "Video Lectures" (`/student/lectures`) with "Explore Courses" (`/student/explore`).
+    - Added `/student/explore` route to `app.routes.ts` protected by `authGuard` and `roleGuard(STUDENT)`.
+  - Frontend Specs & Conformance:
+    - Authored `explore.component.spec.ts` (5 tests passed).
+    - Added `getResumeTarget` test in `student.service.spec.ts` (8 tests passed).
+    - Full frontend test suite: 12 test files passed, 53 tests passed.
+    - Stylelint token ratchet passed cleanly. Production build succeeded (`BUILD_EXIT=0`).
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs

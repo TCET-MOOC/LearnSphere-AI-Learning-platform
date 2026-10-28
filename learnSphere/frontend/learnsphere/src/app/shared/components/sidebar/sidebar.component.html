@@ -29,11 +29,11 @@
       <span class="nav-label">My Courses</span>
     </a>
 
-    <a routerLink="/student/lectures" routerLinkActive="active" class="nav-item" [title]="(isCollapsed$ | async) ? 'Video Lectures' : ''">
+    <a routerLink="/student/explore" routerLinkActive="active" class="nav-item" [title]="(isCollapsed$ | async) ? 'Explore Courses' : ''">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><polygon points="10 8 16 10 10 12 10 8"></polygon><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>
+        <circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
       </svg>
-      <span class="nav-label">Video Lectures</span>
+      <span class="nav-label">Explore Courses</span>
     </a>
 
     <a routerLink="/student/notes" routerLinkActive="active" class="nav-item" [title]="(isCollapsed$ | async) ? 'Notes' : ''">

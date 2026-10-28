@@ -104,6 +104,16 @@ public class StudentController {
                 .body(progressList);
     }
 
+    @GetMapping("/courses/{courseId}/resume")
+    public ResponseEntity<com.MOOC.OnlineLearningPlatfrom.Dto.ResumeTargetDto> getResumeTarget(
+            @PathVariable Long courseId,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        Long userId = requireUserId(principal);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(enrollmentService.getResumeTarget(courseId, userId));
+    }
+
     @GetMapping("/courses/{courseId}/lectures/{lectureId}")
     public ResponseEntity<LectureResponseDto> getLecture(@PathVariable Long courseId,
                                                            @PathVariable Long lectureId,

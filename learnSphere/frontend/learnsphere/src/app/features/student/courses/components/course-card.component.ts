@@ -1,11 +1,13 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { Course } from '@core/models/course.model';
+import { RouterModule, Router } from '@angular/router';
+import { Course, ResumeTarget } from '@core/models/course.model';
+import { StudentService } from '../../services/student.service';
 
 /**
  * CourseCardComponent renders a single enrolled course row for the student
- * "My Courses" list, including progress and a link into the course detail page.
+ * "My Courses" list, including progress, Continue/resume target navigation,
+ * and a link into the course detail page.
  */
 @Component({
   selector: 'app-course-card',
@@ -27,8 +29,17 @@ import { Course } from '@core/models/course.model';
           <span [style.width.%]="displayProgress" [class.is-completed-fill]="isCompleted"></span>
         </div>
       </div>
-      <div class="course-progress" [class.is-completed-text]="isCompleted">
-        <span *ngIf="isCompleted">🏆 </span>{{ displayProgress }}%
+      <div class="course-meta-end">
+        <div class="course-progress" [class.is-completed-text]="isCompleted">
+          <span *ngIf="isCompleted">🏆 </span>{{ displayProgress }}%
+        </div>
+        <button
+          class="btn-continue"
+          type="button"
+          [disabled]="resuming"
+          (click)="onContinue($event)">
+          {{ resuming ? '…' : (isCompleted ? 'Review' : 'Continue →') }}
+        </button>
       </div>
     </article>
   `,
@@ -70,8 +81,36 @@ import { Course } from '@core/models/course.model';
     .progress-track { height: 6px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
     .progress-track span { display: block; height: 100%; background: #6366f1; border-radius: 4px; }
     .progress-track span.is-completed-fill { background: #10b981; }
-    .course-progress { font-size: 13px; font-weight: 700; color: #818cf8; flex: 0 0 auto; }
+    .course-meta-end {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 0 0 auto;
+    }
+    .course-progress { font-size: 13px; font-weight: 700; color: #818cf8; min-width: 48px; text-align: right; }
     .course-progress.is-completed-text { color: #34d399; }
+    .btn-continue {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      white-space: nowrap;
+
+      &:hover:not(:disabled) {
+        background: #6366f1;
+        color: #ffffff;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
     .pill { font-size: 10.5px; padding: 2px 8px; border-radius: 20px; font-weight: 600; text-transform: capitalize; }
     .pill--live { background: rgba(52, 211, 153, 0.15); color: #34d399; }
     .pill--draft { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
@@ -83,6 +122,13 @@ import { Course } from '@core/models/course.model';
 export class CourseCardComponent {
   @Input() course: Course | null = null;
   @Input() progressPercent = 0;
+
+  resuming = false;
+
+  constructor(
+    private studentService: StudentService,
+    private router: Router
+  ) {}
 
   get initials(): string {
     if (!this.course?.title) return '?';
@@ -104,5 +150,25 @@ export class CourseCardComponent {
 
   get isCompleted(): boolean {
     return !!(this.course?.completed || this.displayProgress >= 100);
+  }
+
+  onContinue(event: Event): void {
+    event.stopPropagation();
+    if (!this.course) return;
+    this.resuming = true;
+    this.studentService.getResumeTarget(this.course.id).subscribe({
+      next: (target: ResumeTarget) => {
+        this.resuming = false;
+        if (target.lectureId) {
+          this.router.navigate(['/student/courses', this.course!.id, 'lectures', target.lectureId]);
+        } else {
+          this.router.navigate(['/student/courses', this.course!.id]);
+        }
+      },
+      error: () => {
+        this.resuming = false;
+        this.router.navigate(['/student/courses', this.course!.id]);
+      }
+    });
   }
 }

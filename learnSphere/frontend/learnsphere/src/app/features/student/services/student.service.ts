@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
-import { Course, Lecture, LectureProgress, Note } from '@core/models/course.model';
+import { Course, Lecture, LectureProgress, Note, ResumeTarget } from '@core/models/course.model';
 
 export interface ExploreCourseFilters {
   status?: string;
@@ -24,6 +24,11 @@ export class StudentService {
   /** Courses the current student is enrolled in. */
   getEnrolledCourses(): Observable<Course[]> {
     return this.apiService.get<Course[]>('/student/courses');
+  }
+
+  /** Resolves the next incomplete content target for Continue/resume. */
+  getResumeTarget(courseId: number): Observable<ResumeTarget> {
+    return this.apiService.get<ResumeTarget>(`/student/courses/${courseId}/resume`);
   }
 
   /** Enrolled course detail (404s if not enrolled) — used to confirm access. */

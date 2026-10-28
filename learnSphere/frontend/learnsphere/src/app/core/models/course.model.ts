@@ -159,3 +159,17 @@ export interface CourseRatingSummary {
   totalReviews: number;
 }
 
+export interface ResumeTarget {
+  courseId: number;
+  contentId?: number;
+  lectureId?: number;
+  moduleId?: number;
+  moduleTitle?: string;
+  title: string;
+  contentType: string;
+  position: number;
+  progressPercent: number;
+  secondsWatched: number;
+  completed: boolean;
+}
+

@@ -1,18 +1,23 @@
 <div class="student-courses">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Enrolled Syllabus & Catalog</p>
+      <p class="eyebrow">Enrolled University Curriculum</p>
       <h1>My Courses</h1>
-      <p class="subtitle">Access your semester modules, lecture playback, progress trackers, and syllabus materials.</p>
+      <p class="subtitle">Access your active semester modules, lecture playback, progress trackers, and resume targets.</p>
     </div>
-    <div class="search-box">
-      <input
-        type="text"
-        placeholder="Search courses by title, faculty, department..."
-        aria-label="Search courses"
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="onSearchChange($event)">
-      <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()" title="Clear search" type="button">×</button>
+    <div class="head-actions">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Filter enrolled courses..."
+          aria-label="Filter enrolled courses"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange($event)">
+        <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()" title="Clear search" type="button">×</button>
+      </div>
+      <a routerLink="/student/explore" class="btn btn--explore-nav">
+        Browse Catalog →
+      </a>
     </div>
   </header>
 
@@ -33,26 +38,19 @@
       <span class="pill pill--purple">{{ filteredCourses.length }}</span>
     </div>
 
-    <p *ngIf="loading" class="hint">Loading your courses…</p>
+    <p *ngIf="loading" class="hint">Loading your enrolled courses…</p>
 
     <div class="course-list" *ngIf="!loading">
       <app-course-card *ngFor="let course of filteredCourses" [course]="course"></app-course-card>
-      <p class="hint" *ngIf="filteredCourses.length === 0">
-        {{ searchQuery ? ('No courses match "' + searchQuery + '". Try a different keyword.') : 'No courses in this filter yet. Explore the catalog below to get started.' }}
-      </p>
-    </div>
-  </section>
 
-  <section class="card">
-    <div class="card-head">
-      <h2>Explore more courses</h2>
-      <span class="pill pill--purple">Live catalog</span>
+      <div class="empty-enrolled" *ngIf="filteredCourses.length === 0">
+        <p class="hint">
+          {{ searchQuery ? ('No enrolled courses match "' + searchQuery + '".') : 'You are not enrolled in any courses in this filter.' }}
+        </p>
+        <a routerLink="/student/explore" class="btn btn--primary mt-12">
+          Explore Course Catalog
+        </a>
+      </div>
     </div>
-
-    <app-explore-section
-      [courses]="exploreCourses"
-      [enrollingId]="enrollingId"
-      (enroll)="onEnroll($event)">
-    </app-explore-section>
   </section>
 </div>

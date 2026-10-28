@@ -1,30 +1,30 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { StudentService } from '../services/student.service';
 import { Course } from '@core/models/course.model';
 import { CourseCardComponent } from './components/course-card.component';
-import { ExploreSectionComponent } from './components/explore-section.component';
-import { NotificationService } from '@core/services/notification.service';
 
 type CourseFilterKey = 'ALL' | 'IN_PROGRESS' | 'COMPLETED' | 'LIVE' | 'ARCHIVED';
 
+/**
+ * W3-10 / AUD-07: Enrolled-only My Courses surface.
+ * Shows active and completed course enrollments with progress and resume targets.
+ * Catalogue browsing has moved to standalone /student/explore.
+ */
 @Component({
   selector: 'app-student-courses',
   standalone: true,
-  imports: [CommonModule, FormsModule, CourseCardComponent, ExploreSectionComponent],
+  imports: [CommonModule, FormsModule, RouterModule, CourseCardComponent],
   templateUrl: './courses.component.html',
   styleUrls: ['./courses.component.scss']
 })
 export class CoursesComponent implements OnInit, OnDestroy {
   loading = true;
   enrolledCourses: Course[] = [];
-  exploreCourses: Course[] = [];
-  enrollingId: number | null = null;
-  exploring = false;
   searchQuery = '';
   private searchSubject = new Subject<string>();
   private searchSub?: Subscription;
@@ -43,7 +43,6 @@ export class CoursesComponent implements OnInit, OnDestroy {
     private studentService: StudentService,
     private router: Router,
     private route: ActivatedRoute,
-    private notificationService: NotificationService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -58,16 +57,16 @@ export class CoursesComponent implements OnInit, OnDestroy {
         queryParamsHandling: 'merge',
         replaceUrl: true
       });
-      this.loadExplore();
     });
-    // Honor ?search= (e.g. from the global topbar search box).
+
     this.queryParamSub = this.route.queryParamMap.subscribe((params) => {
       const q = params.get('search') || '';
       if (q !== this.searchQuery) {
         this.searchQuery = q;
-        this.loadExplore();
+        this.cdr.markForCheck();
       }
     });
+
     this.loadCourses();
   }
 
@@ -80,31 +79,13 @@ export class CoursesComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.studentService.getEnrolledCourses().subscribe({
       next: (courses) => {
-        this.enrolledCourses = courses;
+        this.enrolledCourses = courses || [];
         this.loading = false;
-        this.cdr.markForCheck();
-        this.loadExplore();
-      },
-      error: () => {
-        this.loading = false;
-        this.cdr.markForCheck();
-      }
-    });
-  }
-
-  loadExplore(): void {
-    this.exploring = true;
-    const q = this.searchQuery.trim();
-    this.studentService.getExploreCourses({ status: 'LIVE', search: q || undefined }).subscribe({
-      next: (courses) => {
-        const enrolledIds = new Set(this.enrolledCourses.map(c => c.id));
-        this.exploreCourses = courses.filter(c => !enrolledIds.has(c.id));
-        this.exploring = false;
         this.cdr.markForCheck();
       },
       error: () => {
-        this.exploreCourses = [];
-        this.exploring = false;
+        this.enrolledCourses = [];
+        this.loading = false;
         this.cdr.markForCheck();
       }
     });
@@ -141,22 +122,5 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   setFilter(filter: CourseFilterKey): void {
     this.activeFilter = filter;
-  }
-
-  onEnroll(courseId: number): void {
-    this.enrollingId = courseId;
-    this.studentService.enrollInCourse(courseId).subscribe({
-      next: () => {
-        this.notificationService.success('Enrolled! The course now appears in your list.');
-        this.enrollingId = null;
-        this.loadCourses();
-      },
-      error: (err) => {
-        this.enrollingId = null;
-        const message = err?.error?.message || 'Could not enroll in this course.';
-        this.notificationService.error(message);
-        this.router.navigate(['/student/courses', courseId]);
-      }
-    });
   }
 }

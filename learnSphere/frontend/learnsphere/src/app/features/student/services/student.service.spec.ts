@@ -59,6 +59,28 @@ describe('StudentService (W3-09 Learning regression suite)', () => {
     expect(apiServiceSpy.get).toHaveBeenCalledWith('/student/courses/101');
   });
 
+  it('should fetch resume target from /student/courses/:id/resume', () => {
+    const mockResume = {
+      courseId: 101,
+      contentId: 501,
+      lectureId: 201,
+      title: '1.2 Logical Clocks',
+      contentType: 'VIDEO',
+      position: 2,
+      progressPercent: 45.0,
+      secondsWatched: 540,
+      completed: false,
+    };
+    apiServiceSpy.get.mockReturnValue(of(mockResume));
+
+    service.getResumeTarget(101).subscribe((target) => {
+      expect(target.contentId).toBe(501);
+      expect(target.title).toBe('1.2 Logical Clocks');
+    });
+
+    expect(apiServiceSpy.get).toHaveBeenCalledWith('/student/courses/101/resume');
+  });
+
   it('should fetch public course catalogue from /courses with query parameters', () => {
     apiServiceSpy.get.mockReturnValue(of(mockCourses));
 

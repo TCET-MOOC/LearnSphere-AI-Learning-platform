@@ -396,6 +396,87 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         );
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public com.MOOC.OnlineLearningPlatfrom.Dto.ResumeTargetDto getResumeTarget(Long courseId, Long userId) {
+        if (!enrollmentRepository.existsByUserIdAndCourse_Id(userId, courseId)) {
+            throw new ResourceNotFoundException("Course not found or not enrolled: " + courseId);
+        }
+
+        List<CourseContent> contents = courseContentRepository.findByModule_Course_IdOrderByModule_PositionAscPositionAsc(courseId);
+        List<com.MOOC.OnlineLearningPlatfrom.Entity.Lecture> legacyLectures = contents.isEmpty()
+                ? lectureRepository.findByCourse_IdOrderByNumberAsc(courseId)
+                : Collections.emptyList();
+
+        if (contents.isEmpty() && legacyLectures.isEmpty()) {
+            throw new ResourceNotFoundException("No contents found in course: " + courseId);
+        }
+
+        List<UserProgress> studentProgress = userProgressRepository.findByUserIdAndCourseId(userId, courseId);
+        Map<Long, UserProgress> byContentId = new HashMap<>();
+        Map<Long, UserProgress> byLectureId = new HashMap<>();
+        for (UserProgress p : studentProgress) {
+            if (p.getContent() != null && p.getContent().getContentId() != null) {
+                byContentId.put(p.getContent().getContentId(), p);
+            }
+            if (p.getLecture() != null && p.getLecture().getId() != null) {
+                byLectureId.put(p.getLecture().getId(), p);
+            }
+        }
+
+        if (!contents.isEmpty()) {
+            for (CourseContent c : contents) {
+                UserProgress p = byContentId.get(c.getContentId());
+                if (p == null && c.getLegacyLectureId() != null) {
+                    p = byLectureId.get(c.getLegacyLectureId());
+                }
+                if (!isProgressComplete(p)) {
+                    Long moduleId = c.getModule() != null ? c.getModule().getModuleId() : null;
+                    String moduleTitle = c.getModule() != null ? c.getModule().getTitle() : null;
+                    BigDecimal percent = p != null && p.getProgressPercent() != null ? p.getProgressPercent() : BigDecimal.ZERO;
+                    Integer seconds = p != null && p.getSecondsWatched() != null ? p.getSecondsWatched() : 0;
+                    return new com.MOOC.OnlineLearningPlatfrom.Dto.ResumeTargetDto(
+                            courseId,
+                            c.getContentId(),
+                            c.getLegacyLectureId(),
+                            moduleId,
+                            moduleTitle,
+                            c.getTitle(),
+                            c.getContentType(),
+                            c.getPosition(),
+                            percent,
+                            seconds,
+                            false
+                    );
+                }
+            }
+        } else {
+            for (com.MOOC.OnlineLearningPlatfrom.Entity.Lecture l : legacyLectures) {
+                UserProgress p = byLectureId.get(l.getId());
+                if (!isProgressComplete(p)) {
+                    BigDecimal percent = p != null && p.getProgressPercent() != null ? p.getProgressPercent() : BigDecimal.ZERO;
+                    Integer seconds = p != null && p.getSecondsWatched() != null ? p.getSecondsWatched() : 0;
+                    return new com.MOOC.OnlineLearningPlatfrom.Dto.ResumeTargetDto(
+                            courseId,
+                            null,
+                            l.getId(),
+                            null,
+                            null,
+                            l.getTitle(),
+                            "VIDEO",
+                            l.getNumber(),
+                            percent,
+                            seconds,
+                            false
+                    );
+                }
+            }
+        }
+
+        // All contents completed
+        throw new ResourceNotFoundException("Course is complete — no remaining content to resume for course: " + courseId);
+    }
+
     private boolean isProgressComplete(UserProgress p) {
         return p != null && (p.getCompletedAt() != null || (p.getProgressPercent() != null && p.getProgressPercent().compareTo(BigDecimal.valueOf(90)) >= 0));
     }

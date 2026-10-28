@@ -1,0 +1,85 @@
+<div class="student-explore">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Academic Course Catalogue</p>
+      <h1>Explore Courses</h1>
+      <p class="subtitle">Discover university-accredited curriculum, faculty-led modules, and specialized computing certifications.</p>
+    </div>
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search catalog by title, faculty, subject..."
+        aria-label="Search course catalog"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange($event)">
+      <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()" title="Clear search" type="button">×</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Catalog filters">
+    <button
+      class="tab"
+      *ngFor="let filter of filters"
+      [class.tab--active]="filter.key === activeFilter"
+      (click)="setFilter(filter.key)"
+      type="button">
+      {{ filter.label }}
+    </button>
+  </nav>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Published Courses</h2>
+      <span class="pill pill--purple">{{ filteredCourses.length }}</span>
+    </div>
+
+    <p *ngIf="loading" class="hint">Loading catalog offerings…</p>
+
+    <div class="explore-grid" *ngIf="!loading">
+      <article
+        class="explore-card"
+        *ngFor="let course of filteredCourses"
+        [routerLink]="['/student/courses', course.id]">
+        <div class="explore-card__top">
+          <div class="mini-mark">
+            {{ course.title ? course.title.slice(0, 2).toUpperCase() : 'LS' }}
+          </div>
+          <div class="tags-group">
+            <span class="pill pill--enrolled" *ngIf="isEnrolled(course.id)">Enrolled</span>
+            <span class="price-tag" [class.is-free]="!course.price || course.price === 0">
+              {{ (!course.price || course.price === 0) ? 'Free' : ('₹' + course.price) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="explore-card__body">
+          <h3 class="course-title">{{ course.title }}</h3>
+          <p class="course-meta">{{ course.teacherName || 'Faculty Instructor' }} · {{ course.department || 'General' }}</p>
+          <p class="course-desc" *ngIf="course.description">{{ course.description }}</p>
+        </div>
+
+        <div class="explore-card__footer" (click)="$event.stopPropagation()">
+          <button
+            *ngIf="isEnrolled(course.id)"
+            class="btn btn--view"
+            type="button"
+            [routerLink]="['/student/courses', course.id]">
+            Go to Course →
+          </button>
+          <button
+            *ngIf="!isEnrolled(course.id)"
+            class="btn btn--explore"
+            type="button"
+            [disabled]="enrollingId === course.id"
+            (click)="onAction(course, $event)">
+            {{ enrollingId === course.id ? 'Processing…' : (course.price > 0 ? 'View & Enroll' : 'Enroll Free') }}
+          </button>
+        </div>
+      </article>
+
+      <p class="hint" *ngIf="filteredCourses.length === 0">
+        {{ searchQuery ? ('No catalog courses match "' + searchQuery + '".') : 'No courses found in this filter category.' }}
+      </p>
+    </div>
+  </section>
+</div>
