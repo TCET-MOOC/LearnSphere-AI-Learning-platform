@@ -67,7 +67,7 @@ public class StudentController {
                 .map(c -> {
                     long lectureCount = courseService.getLectures(c.getId()).size();
                     long completedCount = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, c.getId()).stream()
-                            .filter(p -> p.getProgressPercent() != null && p.getProgressPercent() >= 100)
+                            .filter(p -> p.getProgressPercentAsInt() != null && p.getProgressPercentAsInt() >= 100)
                             .count();
                     return CourseResponseDto.from(c, lectureCount, completedCount);
                 })
@@ -83,7 +83,7 @@ public class StudentController {
         Course c = courseService.getCourseEntity(id);
         long lectureCount = courseService.getLectures(id).size();
         long completedCount = userProgressRepository.findByUserIdAndLecture_Course_Id(userId, id).stream()
-                .filter(p -> p.getProgressPercent() != null && p.getProgressPercent() >= 100)
+                .filter(p -> p.getProgressPercentAsInt() != null && p.getProgressPercentAsInt() >= 100)
                 .count();
         return ResponseEntity.ok(CourseResponseDto.from(c, lectureCount, completedCount));
     }
@@ -123,7 +123,7 @@ public class StudentController {
                     p.setLecture(lecture);
                     return p;
                 });
-        progress.setProgressPercent(100);
+        progress.setProgressPercent(java.math.BigDecimal.valueOf(100));
         progress.setCompletedAt(LocalDateTime.now());
         if (lecture.getDuration() != null) {
             progress.setSecondsWatched(lecture.getDuration());
@@ -147,7 +147,7 @@ public class StudentController {
                     p.setLecture(lecture);
                     return p;
                 });
-        progress.setProgressPercent(0);
+        progress.setProgressPercent(java.math.BigDecimal.ZERO);
         progress.setCompletedAt(null);
         progress.setSecondsWatched(0);
         if (progress.getContent() == null) {

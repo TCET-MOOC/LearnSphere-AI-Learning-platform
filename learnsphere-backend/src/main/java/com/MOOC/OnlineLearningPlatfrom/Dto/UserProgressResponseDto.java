@@ -2,12 +2,13 @@ package com.MOOC.OnlineLearningPlatfrom.Dto;
 
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserProgress;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class UserProgressResponseDto {
     private Long id;
     private Long lectureId;
-    private Integer progressPercent;
+    private BigDecimal progressPercent;
     private Integer secondsWatched;
     private LocalDateTime completedAt;
 
@@ -24,7 +25,7 @@ public class UserProgressResponseDto {
     public static UserProgressResponseDto empty(Long lectureId) {
         UserProgressResponseDto dto = new UserProgressResponseDto();
         dto.lectureId = lectureId;
-        dto.progressPercent = 0;
+        dto.progressPercent = BigDecimal.ZERO;
         dto.secondsWatched = 0;
         dto.completedAt = null;
         return dto;
@@ -32,7 +33,8 @@ public class UserProgressResponseDto {
 
     public Long getId() { return id; }
     public Long getLectureId() { return lectureId; }
-    public Integer getProgressPercent() { return progressPercent; }
+    public BigDecimal getProgressPercent() { return progressPercent; }
+    public Integer getProgressPercentAsInt() { return progressPercent != null ? progressPercent.intValue() : null; }
     public Integer getSecondsWatched() { return secondsWatched; }
     public LocalDateTime getCompletedAt() { return completedAt; }
 }

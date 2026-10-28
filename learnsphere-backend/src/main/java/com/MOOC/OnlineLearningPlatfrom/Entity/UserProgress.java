@@ -1,10 +1,13 @@
 package com.MOOC.OnlineLearningPlatfrom.Entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_progress")
+@Table(name = "user_progress", uniqueConstraints = {
+        @UniqueConstraint(name = "uq_user_progress_user_content", columnNames = {"user_id", "content_id"})
+})
 public class UserProgress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +26,8 @@ public class UserProgress {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @Column(name = "progress_percent")
-    private Integer progressPercent;
+    @Column(name = "progress_percent", precision = 5, scale = 2)
+    private BigDecimal progressPercent;
 
     @Column(name = "seconds_watched")
     private Integer secondsWatched;
@@ -73,12 +76,16 @@ public class UserProgress {
         this.completedAt = completedAt;
     }
 
-    public Integer getProgressPercent() {
+    public BigDecimal getProgressPercent() {
         return progressPercent;
     }
 
-    public void setProgressPercent(Integer progressPercent) {
+    public void setProgressPercent(BigDecimal progressPercent) {
         this.progressPercent = progressPercent;
+    }
+
+    public Integer getProgressPercentAsInt() {
+        return progressPercent != null ? progressPercent.intValue() : null;
     }
 
     public Integer getSecondsWatched() {

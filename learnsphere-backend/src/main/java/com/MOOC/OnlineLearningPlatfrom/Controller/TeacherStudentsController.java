@@ -101,7 +101,7 @@ public class TeacherStudentsController {
 
             long lecturesWatched = userProgressRepository.findByUserId(studentId).stream()
                     .filter(p -> p.getLecture() != null && lectureIds.contains(p.getLecture().getId()))
-                    .filter(p -> p.getProgressPercent() != null && p.getProgressPercent() >= 100)
+                    .filter(p -> p.getProgressPercentAsInt() != null && p.getProgressPercentAsInt() >= 100)
                     .count();
 
             double scoreSum = 0;

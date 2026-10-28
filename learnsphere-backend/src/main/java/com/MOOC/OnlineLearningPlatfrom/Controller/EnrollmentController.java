@@ -101,13 +101,17 @@ public class EnrollmentController {
                 ownershipService.requireEnrolled(content.getModule().getCourse().getId(), principal);
             }
         }
-        return ResponseEntity.ok(enrollmentService.updateUserProgress(userProgress));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(enrollmentService.updateUserProgress(userProgress));
     }
 
     @GetMapping("/progress/me")
     public ResponseEntity<List<UserProgress>> getMyProgress(@AuthenticationPrincipal CustomUserDetails principal) {
         Long userId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : 0L;
-        return ResponseEntity.ok(userProgressRepository.findByUserId(userId));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(userProgressRepository.findByUserId(userId));
     }
 
     @GetMapping("/progress/content/{contentId}")
@@ -117,7 +121,9 @@ public class EnrollmentController {
         Long userId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : 0L;
         UserProgress progress = userProgressRepository.findByUserIdAndContent_ContentId(userId, contentId)
                 .orElse(null);
-        return ResponseEntity.ok(progress);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(progress);
     }
 
     @GetMapping("/progress/course/{courseId}/summary")

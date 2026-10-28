@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-28 |
-| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01` and `W3-02` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-02` locked down course roster reads to course staff and admin with `Cache-Control: private, no-store`, masked foreign course roster probes as 404 per IDOR rules, and restricted unenrolment strictly to the enrolled student (self) or admin (foreign/teacher attempts return 404). |
-| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-03 Progress unique + upsert + BigDecimal`). |
+| Current phase | **Wave 3 — Enrolment, progress and credentials in progress (`W3-01`, `W3-02`, and `W3-03` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-03` enforced unique `(user_id, content_id)` on `user_progress` via Flyway V11, migrated `progress_percent` to `NUMERIC(5,2)`, implemented upsert semantics (update existing row vs insert), clamped progress to `[0.00, 100.00]`, and added `Cache-Control: private, no-store` headers on progress endpoints. |
+| Next milestone | **Wave 3 — Enrolment, progress and credentials** (`W3-04 90 % completion rule`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -629,7 +629,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 ### Wave 3 — Enrolment, progress and credentials
 - [x] W3-01 Enrolment unique, self-only, published check
 - [x] W3-02 Roster/unenrol authorization
-- [~] W3-03 Progress unique + upsert + BigDecimal
+- [x] W3-03 Progress unique + upsert + BigDecimal
 - [~] W3-04 90 % completion rule
 - [~] W3-05 Content-based course completion
 - [~] W3-06 Certificate eligibility + real grade
@@ -687,6 +687,31 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `RosterAndUnenrollAuthorizationTests.java` with 12 integration tests covering teacher owner roster read, admin roster read, foreign teacher roster 404, student roster 404, unauthenticated roster 404, non-existent course 404, self unenrol 204, admin unenrol 204, foreign student unenrol 404, course teacher unenrol 404 (self/admin only), foreign teacher unenrol 404, and non-existent enrollment 404.
   - Red: 3/12 tests failed before changes (teacher could unenroll student with 204 instead of 404; missing `Cache-Control: private, no-store` on roster reads).
   - Green: 12/12 tests passed in `RosterAndUnenrollAuthorizationTests`. Full backend suite `241/241` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
+
+**W3-03 evidence (2026-10-28) — Progress unique + upsert + BigDecimal:**
+- Rules: AC-11, AC-12, A-08, A-10, NFR-03.
+- Database constraint & migration:
+  - Added Flyway migration `V11__user_progress_unique_and_decimal.sql`:
+    - Backfills `content_id` for legacy rows missing it.
+    - Deduplicates existing duplicate rows partitioned by `(user_id, content_id)`, retaining the latest progress record.
+    - Clamps existing progress values to `0..100`.
+    - Alters column `progress_percent` from integer to `NUMERIC(5,2)`.
+    - Creates unique constraint `uq_user_progress_user_content` on `(user_id, content_id)`.
+    - Creates index `idx_user_progress_user_content` on `(user_id, content_id)`.
+- Entity & Model:
+  - Updated `UserProgress.java`: added `uq_user_progress_user_content` unique constraint to `@Table`, changed `progressPercent` to `BigDecimal(precision = 5, scale = 2)`, added `getProgressPercentAsInt()` for backward compatibility with integer callers.
+  - Updated `UserProgressResponseDto.java`: changed `progressPercent` to `BigDecimal`.
+- Service & Upsert logic:
+  - Updated `EnrollmentServiceImpl.java`:
+    - Clamps `progressPercent` strictly to `[0.00, 100.00]` with scale 2 using `RoundingMode.HALF_UP`.
+    - Implemented upsert semantics: queries existing progress by `findByUserIdAndContent_ContentId(userId, contentId)`; if present, updates `progressPercent`, `secondsWatched`, and `completedAt` on existing record instead of creating duplicate rows; if absent, inserts new entity.
+    - Sets `completedAt = LocalDateTime.now()` when progress reaches 100.
+- Privacy & Headers:
+  - Added `Cache-Control: private, no-store` header to `POST /api/progress`, `GET /api/progress/me`, and `GET /api/progress/content/{contentId}` (NFR-03).
+- Red-green verification:
+  - Authored `UserProgressUniqueAndUpsertTests.java` with 7 integration tests covering BigDecimal precision insert, upsert updating existing record, clamp below zero, clamp above 100, completedAt on 100%, private no-store headers, and database unique constraint rejection on duplicate insert.
+  - Red: compilation failure due to integer vs BigDecimal types, and 415 error on conflicting Jackson setters.
+  - Green: 7/7 tests passed in `UserProgressUniqueAndUpsertTests`. Full backend suite `248/248` passed, payments suite `10/10` passed, frontend suite `40/40` passed, stylelint ratchet 100% passed.
 
 ### Wave 4 — Assessment integrity
 - [~] W4-01 Hide correctAnswer in all student DTOs
