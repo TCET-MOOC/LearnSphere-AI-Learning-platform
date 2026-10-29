@@ -1003,7 +1003,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 ### Wave 4 — Assessment integrity
 - [x] W4-01 Hide correctAnswer in all student DTOs
 - [x] W4-02 Retire legacy `/api/tests` surface
-- [ ] W4-03 Options in `Question.extra`
+- [x] W4-03 Options in `Question.extra`
 - [ ] W4-04 One answer per question + upsert
 - [~] W4-05 Grading correctness (TEXT manual)
 - [ ] W4-06 Attempt lifecycle + timeout job
@@ -1041,6 +1041,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `LegacyTestSurfaceRetirementTests.java` covering 4 integration scenarios: generic `GET /api/tests` 403 block for non-admin, generic `POST /api/tests` 403 block for non-admin, canonical teacher test/question update/delete with stealth 404 IDOR rejection, and canonical student assessment flow via `/api/assessments/**`.
   - Red: initial run failed 3/4 tests (405 on missing teacher PUT, 500 on un-annotated `GET /api/tests`, 404 instead of 403 on `POST /api/tests`).
   - Green: `LegacyTestSurfaceRetirementTests` passed 4/4 tests. Full backend test suite `320/320` passed (`BUILD SUCCESS`). Payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet 100% clean. Frontend production build passed (`BUILD_EXIT=0`).
+
+**W4-03 evidence (2026-10-29) — Question.extra JSON options storage & drop question_options:**
+- Rules: A-12, [D-F8], LMS Entity Reference Section 7 ("No separate QuestionOption table. For MCQ, extra contains JSON array; correctAnswer must match one option.").
+- Database Migration (Flyway `V15__question_options_extra_json.sql`):
+  - Migrated existing rows from `public.question_options` into `questions.extra` as a JSON array (`jsonb_agg(opt.options ORDER BY opt.question_id)`) where `extra` was null or empty.
+  - Dropped table `public.question_options` with `CASCADE`.
+- Entity Refactoring (`Question.java`):
+  - Removed `@ElementCollection` and `@CollectionTable(name = "question_options")`.
+  - Mapped `options` as `@Transient List<String>`.
+  - Added bidirectional serialization/deserialization between `options` and `extra` (`syncOptionsToExtra()` on `@PrePersist` and `@PreUpdate`, and dynamic fallback reading from `extra` via Jackson `ObjectMapper`).
+  - Implemented `validateMcqCorrectAnswer()`: for MCQ questions (`questionType` equals "MCQ" or "MULTIPLE_CHOICE"), validates that `options` is non-empty and `correctAnswer` matches at least one of the options (case-insensitive and trimmed). Throws `BadRequestException` if invalid.
+- Controller & Service Enforcements:
+  - `TeacherAssessmentController.java`: enforces `question.validateMcqCorrectAnswer()` on `POST /{testId}/questions`, `PUT /{testId}/questions/{questionId}`, and `POST /{testId}/questions/bulk`.
+  - `TestController.java`: enforces `existing.validateMcqCorrectAnswer()` on `PUT /questions/{id}`.
+  - `TestServiceImpl.java`: enforces `question.validateMcqCorrectAnswer()` on `addQuestionToTest`.
+- Red-green verification:
+  - Authored `QuestionExtraJsonOptionsTests.java` covering 6 scenarios: `question_options` table dropped in schema and options stored in `extra` JSON, student `GET /api/assessments/{id}` returning options without `correctAnswer`, MCQ question creation validation, rejection of mismatched MCQ `correctAnswer` (400), rejection of empty options array for MCQ (400), and rejection of MCQ update with mismatched `correctAnswer` (400).
+  - Red: initial run failed before migration and validations.
+  - Green: `QuestionExtraJsonOptionsTests` passed 6/6 tests. Full backend test suite `326/326` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
 
 ### Wave 5 — Engagement and community
 - [~] W5-01 Canonical thread/post + legacy migration

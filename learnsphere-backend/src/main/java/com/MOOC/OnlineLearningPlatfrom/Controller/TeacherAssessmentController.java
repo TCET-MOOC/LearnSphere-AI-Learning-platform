@@ -87,6 +87,7 @@ public class TeacherAssessmentController {
             throw new BadRequestException("This test is not linked to a course.");
         }
         assertOwnedCourse(test.getCourse().getId(), principal.getUser().getUserId());
+        question.validateMcqCorrectAnswer();
         return ResponseEntity.ok(testService.addQuestionToTest(testId, question));
     }
 
@@ -104,8 +105,9 @@ public class TeacherAssessmentController {
         if (updated.getQuestionType() != null) question.setQuestionType(updated.getQuestionType());
         if (updated.getMarks() != null) question.setMarks(updated.getMarks());
         if (updated.getOptions() != null) question.setOptions(updated.getOptions());
-        if (updated.getCorrectAnswer() != null) question.setCorrectAnswer(updated.getCorrectAnswer());
         if (updated.getExtra() != null) question.setExtra(updated.getExtra());
+        if (updated.getCorrectAnswer() != null) question.setCorrectAnswer(updated.getCorrectAnswer());
+        question.validateMcqCorrectAnswer();
         return ResponseEntity.ok(questionRepository.save(question));
     }
 

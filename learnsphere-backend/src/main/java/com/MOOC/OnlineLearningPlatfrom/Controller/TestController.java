@@ -132,8 +132,10 @@ public class TestController {
         if (updated.getBody() != null) existing.setBody(updated.getBody());
         if (updated.getQuestionType() != null) existing.setQuestionType(updated.getQuestionType());
         if (updated.getMarks() != null) existing.setMarks(updated.getMarks());
-        if (updated.getCorrectAnswer() != null) existing.setCorrectAnswer(updated.getCorrectAnswer());
+        if (updated.getOptions() != null) existing.setOptions(updated.getOptions());
         if (updated.getExtra() != null) existing.setExtra(updated.getExtra());
+        if (updated.getCorrectAnswer() != null) existing.setCorrectAnswer(updated.getCorrectAnswer());
+        existing.validateMcqCorrectAnswer();
         return ResponseEntity.ok(questionRepository.save(existing));
     }
 

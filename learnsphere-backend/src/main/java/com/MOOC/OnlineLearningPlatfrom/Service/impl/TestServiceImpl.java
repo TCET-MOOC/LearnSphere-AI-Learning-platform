@@ -9,6 +9,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.StudentAnswerRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.TestAttemptRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.TestRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.TestService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,13 +22,13 @@ public class TestServiceImpl implements TestService {
     private final QuestionRepository questionRepository;
     private final TestAttemptRepository testAttemptRepository;
     private final StudentAnswerRepository studentAnswerRepository;
-    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     public TestServiceImpl(TestRepository testRepository,
                            QuestionRepository questionRepository,
                            TestAttemptRepository testAttemptRepository,
                            StudentAnswerRepository studentAnswerRepository,
-                           org.springframework.context.ApplicationEventPublisher eventPublisher) {
+                           ApplicationEventPublisher eventPublisher) {
         this.testRepository = testRepository;
         this.questionRepository = questionRepository;
         this.testAttemptRepository = testAttemptRepository;
@@ -80,6 +81,7 @@ public class TestServiceImpl implements TestService {
         Test test = testRepository.findById(testId)
                 .orElseThrow(() -> new RuntimeException("Test not found with id: " + testId));
         question.setTest(test);
+        question.validateMcqCorrectAnswer();
         return questionRepository.save(question);
     }
 
