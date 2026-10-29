@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-29 |
-| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02`, `W4-03`, `W4-04`, `W4-05`, `W4-06`, `W4-07`, `W4-08`, `W4-09` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. Assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, score computed dynamically), attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, background `AttemptTimeoutJob`, schedule/duration/attempt-limit enforcement with active-attempt resume, `BigDecimal(8,2)` score/marks precision across schema, entities, and grading engines, and attempt review with answer privacy and manual-grading audit logging. |
-| Next milestone | **Wave 4 — Assessment integrity** (`W4-10 Assessment integrity suite`). |
+| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02`, `W4-03`, `W4-04`, `W4-05`, `W4-06`, `W4-07`, `W4-08`, `W4-09`, `W4-10` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. Assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, score computed dynamically), attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, background `AttemptTimeoutJob`, schedule/duration/attempt-limit enforcement with active-attempt resume, `BigDecimal(8,2)` score/marks precision across schema, entities, and grading engines, attempt review with answer privacy and manual-grading audit logging, and comprehensive locked assessment integrity integration suite (`AssessmentIntegritySuiteTests`). |
+| Next milestone | **Wave 4 — Assessment integrity** (`W4-11 Player-attached quiz end-to-end + completion gate`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1010,7 +1010,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W4-07 Schedule/duration/attempt-limit enforcement
 - [x] W4-08 BigDecimal score/marks migration
 - [x] W4-09 Attempt review + manual-grade audit
-- [ ] W4-10 Assessment integrity suite
+- [x] W4-10 Assessment integrity suite
 - [ ] W4-11 Player-attached quiz end-to-end + completion gate
 
 **W4-01 evidence (2026-10-29) — Student question DTO hides correctAnswer; retire leaky legacy question reads:**
@@ -1183,6 +1183,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `AttemptReviewAndGradeAuditTests.java` covering 8 scenarios: in-progress attempt review hiding correct answers and marks for students, in-progress answers endpoint masking marksAwarded for students, completed attempt review revealing answers and marks, abandoned attempt review revealing answers and score, course teacher review access, foreign student/teacher stealth 404 rejection, manual grade audit log record generation with before/after state, and student manual-grade rejection.
   - Red: initial run failed 3/8 tests (teacher review returned 404 before `requireAttemptOwnerOrStaff`; audit log was not yet recorded).
   - Green: `AttemptReviewAndGradeAuditTests` passed 8/8 tests. Full assessment test suite passed 53/53 tests. Full backend test suite `363/363` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
+
+**W4-10 evidence (2026-10-29) — Comprehensive Assessment Integrity Suite:**
+- Rules: AC-15…AC-18, PLAN §10, A-10, A-12, BR-12, BR-13, NFR-03.
+- Comprehensive end-to-end integration suite: `src/test/java/com/MOOC/OnlineLearningPlatfrom/assessment/AssessmentIntegritySuiteTests.java`.
+- Contracts verified and locked across 11 integration tests:
+  1. Pre-Submit Answer Privacy: student `GET /api/assessments/{id}` strictly hides `correctAnswer` in JSON, and retired legacy read surfaces (`/api/tests/{id}/questions`, `/api/questions/{id}`) return 404/405 with `Cache-Control: private, no-store` (AC-15, [D-F1]).
+  2. In-Progress Attempt Review Privacy: student review for in-progress attempt masks `correctAnswer`, `score`, and individual `marksAwarded` with `Cache-Control: private, no-store` (AC-15, [D-F12]).
+  3. Finalized Attempt Revelation: completed or abandoned attempts reveal actual `score`, questions' `correctAnswer`, and question `marksAwarded` with `Cache-Control: private, no-store` (AC-15).
+  4. One Answer Per Question & In-Place Upsert: database unique constraint `uq_student_answers_attempt_question` enforces upsert semantics, updating existing answers in place without creating duplicate records (AC-16, [D-F4]).
+  5. Submission Post-Finalize / Expiry Rejection: rejects submissions on `COMPLETED` and `ABANDONED` attempts, auto-abandons and rejects expired attempts, and rejects foreign test questions with RFC 9457 `400 BAD_REQUEST` (AC-16, AC-18).
+  6. Auto-Grading Correctness & Dynamic Scoring: auto-grades MCQ/TF server-side, strictly preserves `marksAwarded == null` on TEXT questions until manual grading, and computes attempt score dynamically from stored answers only (AC-16, AC-17, [D-F3]).
+  7. Manual Grade Awards & Audit Logging: teacher grades TEXT answers via `PATCH /api/answers/{id}/grade`, dynamically recalculating parent attempt score and recording immutable `MANUAL_GRADE_AWARDED` entries in `audit_log`; student manual grading is rejected with stealth 404 (AC-17, [D-F12]).
+  8. Attempt Lifecycle & Background Timeout Job: stamps server clock `startedAt`, `completedAt`; background `AttemptTimeoutJob.checkAndExpireTimedOutAttempts()` auto-abandons expired attempts, grades answers, stamps deadline `completedAt`, and leaves active attempts untouched (AC-18, [D-F5, D-F11]).
+  9. Start Attempt Enforcements: blocks future `scheduledAt` tests (400), resumes active in-progress attempts within duration window, auto-abandons expired attempts, and enforces `maxAttempts` limits (400) (AC-18, [D-F6, D-F7, D-F10]).
+  10. BigDecimal Precision: verifies exact `BigDecimal(8,2)` arithmetic across question marks, student marks awarded, and calculated attempt scores without precision loss (A-10, [D-F13]).
+  11. Stealth 404 IDOR Defense: unenrolled students and cross-student / cross-teacher probers receive RFC 9457 `404 NOT_FOUND` across start, review, answers, and finalize endpoints (AC-15).
+- Red-green verification:
+  - Red: initial run failed 2/11 tests (JSON path was `$.testId` instead of `$.id` on `TestDetailDto`; test setup had omitted initial MCQ answer record during manual grade recalculation).
+  - Green: `AssessmentIntegritySuiteTests` passed 11/11 tests. Full 10 assessment test suites passed 64/64 tests. Full backend test suite `374/374` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet 100% clean.
 
 ### Wave 5 — Engagement and community
 - [~] W5-01 Canonical thread/post + legacy migration
