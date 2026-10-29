@@ -4,6 +4,8 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Question;
 import com.MOOC.OnlineLearningPlatfrom.Entity.StudentAnswer;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Test;
 import com.MOOC.OnlineLearningPlatfrom.Entity.TestAttempt;
+import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
+import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.QuestionRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.StudentAnswerRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.TestAttemptRepository;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TestServiceImpl implements TestService {
@@ -100,12 +103,45 @@ public class TestServiceImpl implements TestService {
     @Override
     public StudentAnswer submitAnswer(Long attemptId, Long questionId, StudentAnswer studentAnswer) {
         TestAttempt attempt = testAttemptRepository.findById(attemptId)
-                .orElseThrow(() -> new RuntimeException("Attempt not found with id: " + attemptId));
+                .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
+
+        if (!"IN_PROGRESS".equalsIgnoreCase(attempt.getStatus())) {
+            throw new BadRequestException("Attempt is already finalized (status: " + attempt.getStatus() + ")");
+        }
+
+        if (attempt.getAttemptedAt() != null && attempt.getTest() != null
+                && attempt.getTest().getDurationMinutes() != null && attempt.getTest().getDurationMinutes() > 0) {
+            LocalDateTime deadline = attempt.getAttemptedAt().plusMinutes(attempt.getTest().getDurationMinutes());
+            if (LocalDateTime.now().isAfter(deadline)) {
+                attempt.setStatus("ABANDONED");
+                testAttemptRepository.save(attempt);
+                throw new BadRequestException("Attempt has expired / timed out");
+            }
+        }
+
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new RuntimeException("Question not found with id: " + questionId));
-        studentAnswer.setAttempt(attempt);
-        studentAnswer.setQuestion(question);
-        return studentAnswerRepository.save(studentAnswer);
+                .orElseThrow(() -> new ResourceNotFoundException("Question not found with id: " + questionId));
+
+        if (attempt.getTest() != null && question.getTest() != null
+                && !attempt.getTest().getTestId().equals(question.getTest().getTestId())) {
+            throw new BadRequestException("Question does not belong to this test");
+        }
+
+        Optional<StudentAnswer> existingOpt = studentAnswerRepository
+                .findByAttempt_AttemptIdAndQuestion_QuestionId(attemptId, questionId);
+
+        StudentAnswer toSave;
+        if (existingOpt.isPresent()) {
+            toSave = existingOpt.get();
+            toSave.setAnswerText(studentAnswer.getAnswerText());
+            toSave.setMarksAwarded(null);
+        } else {
+            toSave = studentAnswer;
+            toSave.setAttempt(attempt);
+            toSave.setQuestion(question);
+        }
+
+        return studentAnswerRepository.save(toSave);
     }
 
     @Override

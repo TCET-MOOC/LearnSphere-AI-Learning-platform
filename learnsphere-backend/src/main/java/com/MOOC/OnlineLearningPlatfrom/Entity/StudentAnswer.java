@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty; // <-- IMPORTANT: New impo
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "student_answers")
+@Table(name = "student_answers", uniqueConstraints = {
+        @UniqueConstraint(name = "uq_student_answers_attempt_question", columnNames = {"attempt_id", "question_id"})
+})
 public class StudentAnswer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

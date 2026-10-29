@@ -1004,7 +1004,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W4-01 Hide correctAnswer in all student DTOs
 - [x] W4-02 Retire legacy `/api/tests` surface
 - [x] W4-03 Options in `Question.extra`
-- [ ] W4-04 One answer per question + upsert
+- [x] W4-04 One answer per question + upsert
 - [~] W4-05 Grading correctness (TEXT manual)
 - [ ] W4-06 Attempt lifecycle + timeout job
 - [~] W4-07 Schedule/duration/attempt-limit enforcement
@@ -1060,6 +1060,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `QuestionExtraJsonOptionsTests.java` covering 6 scenarios: `question_options` table dropped in schema and options stored in `extra` JSON, student `GET /api/assessments/{id}` returning options without `correctAnswer`, MCQ question creation validation, rejection of mismatched MCQ `correctAnswer` (400), rejection of empty options array for MCQ (400), and rejection of MCQ update with mismatched `correctAnswer` (400).
   - Red: initial run failed before migration and validations.
   - Green: `QuestionExtraJsonOptionsTests` passed 6/6 tests. Full backend test suite `326/326` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
+
+**W4-04 evidence (2026-10-29) — Unique (attempt_id, question_id), answer upsert, and reject answers after finalize/timeout:**
+- Rules: AC-16, [D-F4], LMS Entity Reference Section 7.
+- Database Constraint & Migration (Flyway `V16__student_answers_unique_attempt_question.sql`):
+  - Deduplicated historical duplicate rows in `student_answers` per `(attempt_id, question_id)`, preserving the latest `student_answer_id`.
+  - Added unique constraint `uq_student_answers_attempt_question` on `(attempt_id, question_id)`.
+  - Added performance index `idx_student_answers_attempt_question` on `(attempt_id, question_id)`.
+- Entity & Repository:
+  - Updated `StudentAnswer.java`: declared `@UniqueConstraint(name = "uq_student_answers_attempt_question", columnNames = {"attempt_id", "question_id"})` in `@Table`.
+  - Updated `StudentAnswerRepository.java`: declared `Optional<StudentAnswer> findByAttempt_AttemptIdAndQuestion_QuestionId(Long attemptId, Long questionId)`.
+- Service Implementation (`TestServiceImpl.java`):
+  - Enforced upsert semantics: if an answer already exists for `(attemptId, questionId)`, updates `existing.setAnswerText(...)`, clears pending `marksAwarded`, and persists without creating duplicate records.
+  - Enforced finalize rejection: if `attempt.getStatus()` is `"COMPLETED"`, `"ABANDONED"`, or not `"IN_PROGRESS"`, rejects submission with `BadRequestException("Attempt is already finalized...")` (RFC 9457 `400 BAD_REQUEST`).
+  - Enforced timeout rejection: if `attempt.getAttemptedAt() + durationMinutes` is in the past, transitions attempt status to `"ABANDONED"` and rejects submission with `BadRequestException("Attempt has expired / timed out")`.
+  - Enforced test question boundary: rejects answer submission if the question does not belong to the attempt's test with `BadRequestException("Question does not belong to this test")`.
+- Red-green verification:
+  - Authored `StudentAnswerUpsertTests.java` covering 6 scenarios: database unique constraint enforcement, answer upsert updating existing record with stable answer ID, rejection of submission on COMPLETED attempt, rejection of submission on ABANDONED attempt, rejection and auto-abandonment on timed out attempt, and rejection of foreign test question.
+  - Red: initial run failed 6/6 tests.
+  - Green: `StudentAnswerUpsertTests` passed 6/6 tests. Full backend test suite `332/332` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
 
 ### Wave 5 — Engagement and community
 - [~] W5-01 Canonical thread/post + legacy migration
