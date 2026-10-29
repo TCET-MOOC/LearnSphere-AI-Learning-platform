@@ -95,7 +95,10 @@ public class TestServiceImpl implements TestService {
         TestAttempt newAttempt = new TestAttempt();
         newAttempt.setTest(test);
         newAttempt.setUserId(userId);
-        newAttempt.setAttemptedAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        newAttempt.setStartedAt(now);
+        newAttempt.setAttemptedAt(now);
+        newAttempt.setCompletedAt(null);
         newAttempt.setStatus("IN_PROGRESS");
         return testAttemptRepository.save(newAttempt);
     }
@@ -109,11 +112,13 @@ public class TestServiceImpl implements TestService {
             throw new BadRequestException("Attempt is already finalized (status: " + attempt.getStatus() + ")");
         }
 
-        if (attempt.getAttemptedAt() != null && attempt.getTest() != null
+        LocalDateTime startTime = attempt.getStartedAt() != null ? attempt.getStartedAt() : attempt.getAttemptedAt();
+        if (startTime != null && attempt.getTest() != null
                 && attempt.getTest().getDurationMinutes() != null && attempt.getTest().getDurationMinutes() > 0) {
-            LocalDateTime deadline = attempt.getAttemptedAt().plusMinutes(attempt.getTest().getDurationMinutes());
+            LocalDateTime deadline = startTime.plusMinutes(attempt.getTest().getDurationMinutes());
             if (LocalDateTime.now().isAfter(deadline)) {
                 attempt.setStatus("ABANDONED");
+                attempt.setCompletedAt(deadline);
                 testAttemptRepository.save(attempt);
                 throw new BadRequestException("Attempt has expired / timed out");
             }
@@ -148,10 +153,66 @@ public class TestServiceImpl implements TestService {
     public TestAttempt calculateAndFinalizeScore(Long attemptId) {
         TestAttempt attempt = testAttemptRepository.findById(attemptId)
                 .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
+
+        if (!"IN_PROGRESS".equalsIgnoreCase(attempt.getStatus())) {
+            throw new BadRequestException("Attempt is already finalized (status: " + attempt.getStatus() + ")");
+        }
+
         List<StudentAnswer> answers = studentAnswerRepository.findByAttempt_AttemptId(attemptId);
         if (answers == null || answers.isEmpty()) {
             answers = attempt.getStudentAnswers() != null ? attempt.getStudentAnswers() : java.util.List.of();
         }
+
+        LocalDateTime startTime = attempt.getStartedAt() != null ? attempt.getStartedAt() : attempt.getAttemptedAt();
+        if (startTime != null && attempt.getTest() != null
+                && attempt.getTest().getDurationMinutes() != null && attempt.getTest().getDurationMinutes() > 0) {
+            LocalDateTime deadline = startTime.plusMinutes(attempt.getTest().getDurationMinutes());
+            if (LocalDateTime.now().isAfter(deadline)) {
+                attempt.setStatus("ABANDONED");
+                attempt.setCompletedAt(deadline);
+                // Grade auto-gradable answers
+                for (StudentAnswer answer : answers) {
+                    Question question = answer.getQuestion();
+                    int marksForQuestion = question != null && question.getMarks() != null ? question.getMarks() : 0;
+                    String answerText = answer.getAnswerText();
+                    boolean hasAnswer = answerText != null && !answerText.trim().isEmpty();
+                    if (question != null) {
+                        String type = question.getQuestionType() != null ? question.getQuestionType().trim().toUpperCase() : "";
+                        boolean isAutoGradable = type.equals("MCQ") || type.equals("MULTIPLE_CHOICE")
+                                || type.equals("TF") || type.equals("TRUE_FALSE") || type.equals("BOOLEAN");
+                        if (isAutoGradable) {
+                            int awarded = 0;
+                            if (hasAnswer) {
+                                String correct = question.getCorrectAnswer();
+                                if (correct != null && correct.trim().equalsIgnoreCase(answerText.trim())) {
+                                    awarded = marksForQuestion;
+                                }
+                            }
+                            answer.setMarksAwarded(awarded);
+                            studentAnswerRepository.save(answer);
+                        }
+                    }
+                }
+                int totalScore = 0;
+                for (StudentAnswer answer : answers) {
+                    if (answer.getMarksAwarded() != null) {
+                        totalScore += answer.getMarksAwarded();
+                    }
+                }
+                attempt.setScore(totalScore);
+                TestAttempt saved = testAttemptRepository.save(attempt);
+                if (saved.getTest() != null && saved.getTest().getCourse() != null) {
+                    eventPublisher.publishEvent(new com.MOOC.OnlineLearningPlatfrom.Event.TestAttemptCompletedEvent(
+                            saved.getAttemptId(),
+                            saved.getTest().getTestId(),
+                            saved.getTest().getCourse().getId(),
+                            saved.getUserId()
+                    ));
+                }
+                throw new BadRequestException("Attempt has expired / timed out");
+            }
+        }
+
         for (StudentAnswer answer : answers) {
             Question question = answer.getQuestion();
             int marksForQuestion = question != null && question.getMarks() != null ? question.getMarks() : 0;
@@ -192,6 +253,7 @@ public class TestServiceImpl implements TestService {
         }
         attempt.setScore(totalScore);
         attempt.setStatus("COMPLETED");
+        attempt.setCompletedAt(LocalDateTime.now());
         TestAttempt saved = testAttemptRepository.save(attempt);
 
         if (saved.getTest() != null && saved.getTest().getCourse() != null) {

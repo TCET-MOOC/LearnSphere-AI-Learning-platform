@@ -15,6 +15,8 @@ public class TestAttempt {
     private Long userId;
     private Integer score;
     private LocalDateTime attemptedAt;
+    private LocalDateTime startedAt;
+    private LocalDateTime completedAt;
     private String status;
 
     @ManyToOne
@@ -26,14 +28,41 @@ public class TestAttempt {
     @JsonIgnore
     private List<StudentAnswer> studentAnswers;
 
+    @PrePersist
+    public void onPrePersist() {
+        if (startedAt == null) {
+            startedAt = LocalDateTime.now();
+        }
+        if (attemptedAt == null) {
+            attemptedAt = startedAt;
+        }
+        if (status == null) {
+            status = "IN_PROGRESS";
+        }
+    }
+
     public Long getAttemptId() { return attemptId; }
     public void setAttemptId(Long attemptId) { this.attemptId = attemptId; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
     public Integer getScore() { return score; }
     public void setScore(Integer score) { this.score = score; }
-    public LocalDateTime getAttemptedAt() { return attemptedAt; }
-    public void setAttemptedAt(LocalDateTime attemptedAt) { this.attemptedAt = attemptedAt; }
+    public LocalDateTime getAttemptedAt() { return attemptedAt != null ? attemptedAt : startedAt; }
+    public void setAttemptedAt(LocalDateTime attemptedAt) {
+        this.attemptedAt = attemptedAt;
+        if (this.startedAt == null) {
+            this.startedAt = attemptedAt;
+        }
+    }
+    public LocalDateTime getStartedAt() { return startedAt != null ? startedAt : attemptedAt; }
+    public void setStartedAt(LocalDateTime startedAt) {
+        this.startedAt = startedAt;
+        if (this.attemptedAt == null) {
+            this.attemptedAt = startedAt;
+        }
+    }
+    public LocalDateTime getCompletedAt() { return completedAt; }
+    public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public Test getTest() { return test; }

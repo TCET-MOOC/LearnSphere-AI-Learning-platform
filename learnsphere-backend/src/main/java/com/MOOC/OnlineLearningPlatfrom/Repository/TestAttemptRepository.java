@@ -16,4 +16,5 @@ public interface TestAttemptRepository extends JpaRepository<TestAttempt, Long> 
     List<TestAttempt> findByTest_TestId(Long testId);
     List<TestAttempt> findByUserIdAndTest_TestId(Long userId, Long testId);
     List<TestAttempt> findByUserIdAndStatus(Long userId, String status);
+    List<TestAttempt> findByStatus(String status);
 }

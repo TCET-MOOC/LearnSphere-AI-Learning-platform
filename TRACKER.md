@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-29 |
-| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02`, `W4-03`, `W4-04`, `W4-05` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. Assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with upsert semantics, and server-side auto-grading (MCQ/TF auto, TEXT manual, score computed dynamically). |
-| Next milestone | **Wave 4 — Assessment integrity** (`W4-06 Attempt lifecycle + timeout job`). |
+| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02`, `W4-03`, `W4-04`, `W4-05`, `W4-06` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. Assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, score computed dynamically), and attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, and background `AttemptTimeoutJob`. |
+| Next milestone | **Wave 4 — Assessment integrity** (`W4-07 Schedule/duration/attempt-limit enforcement`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1006,7 +1006,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W4-03 Options in `Question.extra`
 - [x] W4-04 One answer per question + upsert
 - [x] W4-05 Grading correctness (TEXT manual)
-- [ ] W4-06 Attempt lifecycle + timeout job
+- [x] W4-06 Attempt lifecycle + timeout job
 - [~] W4-07 Schedule/duration/attempt-limit enforcement
 - [ ] W4-08 BigDecimal score/marks migration
 - [~] W4-09 Attempt review + manual-grade audit
@@ -1096,6 +1096,29 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `GradingCorrectnessTests.java` covering 5 scenarios: auto-grading MCQ and TF correctly, leaving TEXT questions ungraded (`marksAwarded == null`) upon finalization with attempt score excluding TEXT marks, manual grading by instructor recalculating attempt score, rejection of invalid manual grade (negative or exceeding max marks) with 400 Bad Request, and stealth 404 rejection of unauthorized student manual grading.
   - Red: initial run failed before elimination of [D-F3] and manual grade recalculation.
   - Green: `GradingCorrectnessTests` passed 5/5 tests. Full backend test suite `337/337` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
+
+**W4-06 evidence (2026-10-29) — Attempt lifecycle (startedAt, completedAt, ABANDONED, timeout job, server clock):**
+- Rules: AC-18, [D-F5, D-F11], M-11, LMS Entity Reference Section 6.
+- Database Migration & Schema (Flyway `V17__test_attempts_lifecycle_timestamps.sql`):
+  - Added `started_at` and `completed_at` columns (`TIMESTAMP WITHOUT TIME ZONE`) to `test_attempts`.
+  - Backfilled `started_at` from `attempted_at` (defaulting to `CURRENT_TIMESTAMP`), and backfilled `completed_at` for existing `COMPLETED` attempts.
+  - Enforced check constraint `chk_test_attempts_status` on `test_attempts (status IN ('IN_PROGRESS', 'COMPLETED', 'ABANDONED'))`.
+  - Added index `idx_test_attempts_status_started` on `(status, started_at)` for timeout sweep performance.
+  - Added `created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP` to `tests` table.
+- Entity & Model Enhancements:
+  - `TestAttempt.java`: added `startedAt` and `completedAt` with `@PrePersist` defaults, synchronizing legacy `attemptedAt` with `startedAt`.
+  - `Test.java`: added `createdAt` with `@PrePersist` defaults.
+  - `AssessmentDtos.java`: updated `AttemptDto` and `AttemptReviewDto` with `startedAt` and `completedAt` exposure; `score` exposed for finalized attempts (`COMPLETED` or `ABANDONED`).
+- Server Clock Lifecycle & Timeout Sweep:
+  - `TestServiceImpl.startTestAttempt`: strictly stamps server clock `startedAt = LocalDateTime.now()`, `completedAt = null`, and `status = 'IN_PROGRESS'`.
+  - `TestServiceImpl.submitAnswer`: validates deadline `now > startedAt + durationMinutes`; if exceeded, auto-transitions status to `ABANDONED`, stamps `completedAt = deadline`, and rejects submission with RFC 9457 `400 BAD_REQUEST`.
+  - `TestServiceImpl.calculateAndFinalizeScore`: validates deadline; if on time, sets `status = 'COMPLETED'` and stamps server clock `completedAt = LocalDateTime.now()`. If expired, auto-transitions to `ABANDONED`, evaluates auto-gradable answers, stamps `completedAt`, and rejects with `400 BAD_REQUEST`.
+  - `AttemptTimeoutJob.java`: background worker scheduled with `@Scheduled(fixedDelay = 60000)` sweeping in-progress attempts. Evaluates auto-gradable answers for timed-out attempts, transitions them to `ABANDONED`, stamps `completedAt`, and publishes `TestAttemptCompletedEvent` for leaderboard updates.
+  - `@EnableScheduling` activated on `OnlineLearningPlatfromApplication`.
+- Red-green verification:
+  - Authored `AttemptLifecycleAndTimeoutTests.java` covering 8 scenarios: starting attempt stamping server `startedAt` and `IN_PROGRESS` with null `completedAt`, on-time finalization stamping `completedAt` and `COMPLETED`, deadline expiration auto-abandoning on answer submission, deadline expiration auto-abandoning on finalization, background worker auto-abandoning and grading existing answers, active attempts remaining untouched within duration window, database status check constraint rejecting invalid statuses, and `tests.created_at` timestamp persistence.
+  - Red: initial run failed with compilation failure (missing `AttemptTimeoutJob`) and missing lifecycle fields.
+  - Green: `AttemptLifecycleAndTimeoutTests` passed 8/8 tests. Full backend test suite `345/345` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
 
 ### Wave 5 — Engagement and community
 - [~] W5-01 Canonical thread/post + legacy migration

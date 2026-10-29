@@ -25,6 +25,14 @@ public class Test {
     private String securityPolicy;
     private LocalDateTime scheduledAt;
     private Boolean isRemedial = false;
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void onPrePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
     // --- NEW RELATIONSHIPS ---
 
@@ -119,6 +127,14 @@ public class Test {
 
     public void setQuestions(List<Question> questions) {
         this.questions = questions;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public List<TestAttempt> getAttempts() {

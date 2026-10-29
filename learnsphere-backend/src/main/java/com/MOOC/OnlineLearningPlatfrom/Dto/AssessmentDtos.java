@@ -128,6 +128,8 @@ public class AssessmentDtos {
         private String status;
         private Integer score;
         private LocalDateTime attemptedAt;
+        private LocalDateTime startedAt;
+        private LocalDateTime completedAt;
 
         public static AttemptDto from(TestAttempt attempt) {
             AttemptDto dto = new AttemptDto();
@@ -136,6 +138,8 @@ public class AssessmentDtos {
             dto.status = attempt.getStatus();
             dto.score = attempt.getScore();
             dto.attemptedAt = attempt.getAttemptedAt();
+            dto.startedAt = attempt.getStartedAt() != null ? attempt.getStartedAt() : attempt.getAttemptedAt();
+            dto.completedAt = attempt.getCompletedAt();
             return dto;
         }
 
@@ -144,6 +148,8 @@ public class AssessmentDtos {
         public String getStatus() { return status; }
         public Integer getScore() { return score; }
         public LocalDateTime getAttemptedAt() { return attemptedAt; }
+        public LocalDateTime getStartedAt() { return startedAt; }
+        public LocalDateTime getCompletedAt() { return completedAt; }
     }
 
     // Per-question review row: what was asked, the correct answer (only when completed), what the student answered, marks awarded.
@@ -204,6 +210,8 @@ public class AssessmentDtos {
         private int maxScore;
         private Boolean isRemedial;
         private LocalDateTime attemptedAt;
+        private LocalDateTime startedAt;
+        private LocalDateTime completedAt;
         private List<AnswerReviewDto> answers;
 
         public static AttemptReviewDto from(TestAttempt attempt) {
@@ -219,11 +227,13 @@ public class AssessmentDtos {
                         : 0;
             }
             dto.status = attempt.getStatus();
-            boolean isCompleted = "COMPLETED".equalsIgnoreCase(attempt.getStatus());
-            dto.score = isCompleted ? attempt.getScore() : null;
+            boolean isFinalized = "COMPLETED".equalsIgnoreCase(attempt.getStatus()) || "ABANDONED".equalsIgnoreCase(attempt.getStatus());
+            dto.score = isFinalized ? attempt.getScore() : null;
             dto.attemptedAt = attempt.getAttemptedAt();
+            dto.startedAt = attempt.getStartedAt() != null ? attempt.getStartedAt() : attempt.getAttemptedAt();
+            dto.completedAt = attempt.getCompletedAt();
             dto.answers = attempt.getStudentAnswers() != null
-                    ? attempt.getStudentAnswers().stream().map(a -> AnswerReviewDto.from(a, isCompleted)).toList()
+                    ? attempt.getStudentAnswers().stream().map(a -> AnswerReviewDto.from(a, isFinalized)).toList()
                     : List.of();
             return dto;
         }
@@ -236,6 +246,8 @@ public class AssessmentDtos {
         public int getMaxScore() { return maxScore; }
         public Boolean getIsRemedial() { return isRemedial; }
         public LocalDateTime getAttemptedAt() { return attemptedAt; }
+        public LocalDateTime getStartedAt() { return startedAt; }
+        public LocalDateTime getCompletedAt() { return completedAt; }
         public List<AnswerReviewDto> getAnswers() { return answers; }
     }
 }
