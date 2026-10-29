@@ -1,22 +1,18 @@
 package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
-import com.MOOC.OnlineLearningPlatfrom.Entity.Question;
-import com.MOOC.OnlineLearningPlatfrom.Entity.StudentAnswer;
-import com.MOOC.OnlineLearningPlatfrom.Entity.Test;
-import com.MOOC.OnlineLearningPlatfrom.Entity.TestAttempt;
+import com.MOOC.OnlineLearningPlatfrom.Entity.*;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
-import com.MOOC.OnlineLearningPlatfrom.Repository.QuestionRepository;
-import com.MOOC.OnlineLearningPlatfrom.Repository.StudentAnswerRepository;
-import com.MOOC.OnlineLearningPlatfrom.Repository.TestAttemptRepository;
-import com.MOOC.OnlineLearningPlatfrom.Repository.TestRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.*;
 import com.MOOC.OnlineLearningPlatfrom.Service.TestService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -26,17 +22,20 @@ public class TestServiceImpl implements TestService {
     private final QuestionRepository questionRepository;
     private final TestAttemptRepository testAttemptRepository;
     private final StudentAnswerRepository studentAnswerRepository;
+    private final UserProgressRepository userProgressRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     public TestServiceImpl(TestRepository testRepository,
                            QuestionRepository questionRepository,
                            TestAttemptRepository testAttemptRepository,
                            StudentAnswerRepository studentAnswerRepository,
+                           UserProgressRepository userProgressRepository,
                            ApplicationEventPublisher eventPublisher) {
         this.testRepository = testRepository;
         this.questionRepository = questionRepository;
         this.testAttemptRepository = testAttemptRepository;
         this.studentAnswerRepository = studentAnswerRepository;
+        this.userProgressRepository = userProgressRepository;
         this.eventPublisher = eventPublisher;
     }
 
@@ -58,32 +57,29 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public Test updateTest(Long testId, Test testDetails) {
-        Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
+        Test test = getTestById(testId);
         test.setTitle(testDetails.getTitle());
         test.setDurationMinutes(testDetails.getDurationMinutes());
         test.setSecurityPolicy(testDetails.getSecurityPolicy());
+        test.setIsRemedial(testDetails.getIsRemedial());
         test.setScheduledAt(testDetails.getScheduledAt());
-        if (testDetails.getCourse() != null) {
-            test.setCourse(testDetails.getCourse());
-        }
-        if (testDetails.getIsRemedial() != null) {
-            test.setIsRemedial(testDetails.getIsRemedial());
-        }
+        if (testDetails.getPlacement() != null) test.setPlacement(testDetails.getPlacement());
+        if (testDetails.getRequiredForCompletion() != null) test.setRequiredForCompletion(testDetails.getRequiredForCompletion());
+        if (testDetails.getPassThreshold() != null) test.setPassThreshold(testDetails.getPassThreshold());
+        if (testDetails.getMaxAttempts() != null) test.setMaxAttempts(testDetails.getMaxAttempts());
+        if (testDetails.getContent() != null) test.setContent(testDetails.getContent());
         return testRepository.save(test);
     }
 
     @Override
     public void deleteTest(Long testId) {
-        Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
+        Test test = getTestById(testId);
         testRepository.delete(test);
     }
 
     @Override
     public Question addQuestionToTest(Long testId, Question question) {
-        Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
+        Test test = getTestById(testId);
         question.setTest(test);
         question.validateMcqCorrectAnswer();
         return questionRepository.save(question);
@@ -96,31 +92,34 @@ public class TestServiceImpl implements TestService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // 1. Enforce scheduledAt: test not accessible before scheduled time
+        // 1. Enforce scheduledAt
         if (test.getScheduledAt() != null && now.isBefore(test.getScheduledAt())) {
             throw new BadRequestException("Test is scheduled for a future time: " + test.getScheduledAt());
         }
 
         // 2. Check existing attempts for this user and test
         List<TestAttempt> existingAttempts = testAttemptRepository.findByUserIdAndTest_TestId(userId, testId);
-        TestAttempt activeAttempt = null;
 
+        TestAttempt activeAttempt = null;
         if (existingAttempts != null) {
-            for (TestAttempt attempt : existingAttempts) {
-                if ("IN_PROGRESS".equalsIgnoreCase(attempt.getStatus())) {
-                    LocalDateTime start = attempt.getStartedAt() != null ? attempt.getStartedAt() : attempt.getAttemptedAt();
+            for (TestAttempt att : existingAttempts) {
+                if ("IN_PROGRESS".equalsIgnoreCase(att.getStatus())) {
+                    LocalDateTime start = att.getStartedAt() != null ? att.getStartedAt() : att.getAttemptedAt();
                     if (start != null && test.getDurationMinutes() != null && test.getDurationMinutes() > 0) {
                         LocalDateTime deadline = start.plusMinutes(test.getDurationMinutes());
                         if (now.isAfter(deadline)) {
-                            // Expired: auto-abandon
-                            attempt.setStatus("ABANDONED");
-                            attempt.setCompletedAt(deadline);
-                            testAttemptRepository.save(attempt);
-                            continue;
+                            // Expired while still marked IN_PROGRESS -> auto-abandon
+                            att.setStatus("ABANDONED");
+                            att.setCompletedAt(deadline);
+                            testAttemptRepository.save(att);
+                        } else {
+                            activeAttempt = att;
+                            break;
                         }
+                    } else {
+                        activeAttempt = att;
+                        break;
                     }
-                    activeAttempt = attempt;
-                    break;
                 }
             }
         }
@@ -180,21 +179,39 @@ public class TestServiceImpl implements TestService {
             throw new BadRequestException("Question does not belong to this test");
         }
 
-        Optional<StudentAnswer> existingOpt = studentAnswerRepository
-                .findByAttempt_AttemptIdAndQuestion_QuestionId(attemptId, questionId);
+        StudentAnswer targetAnswer = studentAnswerRepository
+                .findByAttempt_AttemptIdAndQuestion_QuestionId(attemptId, questionId)
+                .orElse(null);
 
-        StudentAnswer toSave;
-        if (existingOpt.isPresent()) {
-            toSave = existingOpt.get();
-            toSave.setAnswerText(studentAnswer.getAnswerText());
-            toSave.setMarksAwarded((BigDecimal) null);
-        } else {
-            toSave = studentAnswer;
-            toSave.setAttempt(attempt);
-            toSave.setQuestion(question);
+        if (targetAnswer == null) {
+            targetAnswer = new StudentAnswer();
+            targetAnswer.setAttempt(attempt);
+            targetAnswer.setQuestion(question);
         }
 
-        return studentAnswerRepository.save(toSave);
+        targetAnswer.setAnswerText(studentAnswer.getAnswerText());
+
+        // AC-17: Auto-grading is performed strictly server-side for MCQ/TF; TEXT remains null
+        String type = question.getQuestionType() != null ? question.getQuestionType().trim().toUpperCase() : "";
+        boolean isAutoGradable = type.equals("MCQ") || type.equals("MULTIPLE_CHOICE")
+                || type.equals("TF") || type.equals("TRUE_FALSE") || type.equals("BOOLEAN");
+
+        if (isAutoGradable) {
+            String answerText = studentAnswer.getAnswerText();
+            boolean hasAnswer = answerText != null && !answerText.trim().isEmpty();
+            BigDecimal marksForQuestion = question.getMarks() != null ? question.getMarks() : BigDecimal.ZERO;
+
+            if (hasAnswer && question.getCorrectAnswer() != null
+                    && question.getCorrectAnswer().trim().equalsIgnoreCase(answerText.trim())) {
+                targetAnswer.setMarksAwarded(marksForQuestion);
+            } else {
+                targetAnswer.setMarksAwarded(BigDecimal.ZERO);
+            }
+        } else {
+            targetAnswer.setMarksAwarded((BigDecimal) null);
+        }
+
+        return studentAnswerRepository.save(targetAnswer);
     }
 
     @Override
@@ -202,14 +219,7 @@ public class TestServiceImpl implements TestService {
         TestAttempt attempt = testAttemptRepository.findById(attemptId)
                 .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
 
-        if (!"IN_PROGRESS".equalsIgnoreCase(attempt.getStatus())) {
-            throw new BadRequestException("Attempt is already finalized (status: " + attempt.getStatus() + ")");
-        }
-
         List<StudentAnswer> answers = studentAnswerRepository.findByAttempt_AttemptId(attemptId);
-        if (answers == null || answers.isEmpty()) {
-            answers = attempt.getStudentAnswers() != null ? attempt.getStudentAnswers() : java.util.List.of();
-        }
 
         LocalDateTime startTime = attempt.getStartedAt() != null ? attempt.getStartedAt() : attempt.getAttemptedAt();
         if (startTime != null && attempt.getTest() != null
@@ -282,8 +292,6 @@ public class TestServiceImpl implements TestService {
                     }
                     answer.setMarksAwarded(awarded);
                 } else {
-                    // AC-17, [D-F3]: TEXT and subjective answers remain ungraded (null) until an instructor grades them.
-                    // Preserve manual grade if one was already assigned, otherwise leave as null.
                     if (answer.getMarksAwarded() == null) {
                         answer.setMarksAwarded((BigDecimal) null);
                     }
@@ -313,6 +321,62 @@ public class TestServiceImpl implements TestService {
             ));
         }
 
+        // W4-11: Post-video quiz completion gate (BR-25, BR-10)
+        Test test = saved.getTest();
+        if (test != null && Boolean.TRUE.equals(test.getRequiredForCompletion())) {
+            if (isPassingAttempt(test, saved)) {
+                UserProgress prog = null;
+                if (test.getContent() != null) {
+                    prog = userProgressRepository.findByUserIdAndContent_ContentId(saved.getUserId(), test.getContent().getContentId()).orElse(null);
+                }
+                if (prog == null && test.getLecture() != null) {
+                    prog = userProgressRepository.findByUserIdAndLecture_Id(saved.getUserId(), test.getLecture().getId()).orElse(null);
+                }
+                if (prog != null && prog.getProgressPercent() != null && prog.getProgressPercent().compareTo(BigDecimal.valueOf(90)) >= 0) {
+                    if (prog.getCompletedAt() == null) {
+                        prog.setCompletedAt(LocalDateTime.now());
+                        userProgressRepository.save(prog);
+                    }
+                }
+            }
+        }
+
         return saved;
+    }
+
+    @Override
+    public boolean isPassingAttempt(Test test, TestAttempt attempt) {
+        if (test == null || attempt == null || !"COMPLETED".equalsIgnoreCase(attempt.getStatus())) {
+            return false;
+        }
+        List<Question> questions = questionRepository.findByTest_TestId(test.getTestId());
+        BigDecimal maxScore = questions != null
+                ? questions.stream().map(Question::getMarks).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add)
+                : BigDecimal.ZERO;
+        if (maxScore.compareTo(BigDecimal.ZERO) <= 0) {
+            return true;
+        }
+        BigDecimal score = attempt.getScore() != null ? attempt.getScore() : BigDecimal.ZERO;
+        BigDecimal passThreshold = test.getPassThreshold() != null ? test.getPassThreshold() : new BigDecimal("60.00");
+        BigDecimal percentage = score.multiply(new BigDecimal("100.00")).divide(maxScore, 2, RoundingMode.HALF_UP);
+        return percentage.compareTo(passThreshold) >= 0;
+    }
+
+    @Override
+    public boolean hasPassingAttempt(Long testId, Long userId) {
+        Test test = testRepository.findById(testId).orElse(null);
+        if (test == null || userId == null) {
+            return false;
+        }
+        List<TestAttempt> attempts = testAttemptRepository.findByUserIdAndTest_TestId(userId, testId);
+        if (attempts == null || attempts.isEmpty()) {
+            return false;
+        }
+        for (TestAttempt att : attempts) {
+            if (isPassingAttempt(test, att)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -29,6 +29,7 @@ import {
 })
 export class PostVideoQuizComponent implements OnInit {
   @Input() lectureId!: number;
+  @Input() contentId?: number;
   @Input() lectureTitle: string = '';
   @Input() courseId?: number;
 
@@ -62,6 +63,43 @@ export class PostVideoQuizComponent implements OnInit {
     this.selectedAnswers = {};
     this.currentIndex = 0;
 
+    if (this.contentId) {
+      this.assessmentService.getAssessmentByContent(this.contentId).subscribe({
+        next: (detail) => {
+          if (detail) {
+            this.quiz = detail as unknown as Assessment;
+            this.quizDetail = detail;
+            this.assessmentService.startAssessment(detail.id).subscribe({
+              next: (att) => {
+                this.attempt = att;
+                this.loading = false;
+                this.cdr.markForCheck();
+              },
+              error: () => {
+                this.loading = false;
+                this.cdr.markForCheck();
+              }
+            });
+          } else {
+            this.fallbackToLectureQuiz();
+          }
+        },
+        error: () => {
+          this.fallbackToLectureQuiz();
+        }
+      });
+    } else {
+      this.fallbackToLectureQuiz();
+    }
+  }
+
+  private fallbackToLectureQuiz(): void {
+    if (!this.lectureId) {
+      this.quiz = null;
+      this.loading = false;
+      this.cdr.markForCheck();
+      return;
+    }
     this.assessmentService.getAssessmentsByLecture(this.lectureId).subscribe({
       next: (tests) => {
         if (tests && tests.length > 0) {
@@ -153,8 +191,9 @@ export class PostVideoQuizComponent implements OnInit {
             const score = rev.score ?? 0;
             const maxScore = rev.maxScore || 0;
             const percentage = maxScore > 0 ? (score / maxScore) * 100 : 100;
-            if (percentage >= 60) {
-              this.quizPassed.emit(this.lectureId);
+            const threshold = this.quizDetail?.passThreshold ?? 60;
+            if (percentage >= threshold) {
+              this.quizPassed.emit(this.contentId ?? this.lectureId);
             }
             this.cdr.markForCheck();
           },
@@ -189,6 +228,7 @@ export class PostVideoQuizComponent implements OnInit {
   }
 
   get isPassed(): boolean {
-    return this.scorePercentage >= 60;
+    const threshold = this.quizDetail?.passThreshold ?? 60;
+    return this.scorePercentage >= threshold;
   }
 }

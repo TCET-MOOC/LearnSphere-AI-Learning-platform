@@ -2,8 +2,9 @@ package com.MOOC.OnlineLearningPlatfrom.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List; // Import List
+import java.util.List;
 
 @Entity
 @Table(name = "tests")
@@ -20,18 +21,40 @@ public class Test {
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
 
+    @ManyToOne
+    @JoinColumn(name = "content_id")
+    private CourseContent content;
+
     private String title;
     private Integer durationMinutes;
     private String securityPolicy;
     private LocalDateTime scheduledAt;
     private Boolean isRemedial = false;
-    private Integer maxAttempts;
+    private Integer maxAttempts = 3;
+    private String placement = "POST_VIDEO";
+    private Boolean requiredForCompletion = false;
+
+    @Column(precision = 5, scale = 2)
+    private BigDecimal passThreshold = new BigDecimal("60.00");
+
     private LocalDateTime createdAt;
 
     @PrePersist
     public void onPrePersist() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
+        }
+        if (maxAttempts == null) {
+            maxAttempts = 3;
+        }
+        if (placement == null) {
+            placement = "POST_VIDEO";
+        }
+        if (requiredForCompletion == null) {
+            requiredForCompletion = false;
+        }
+        if (passThreshold == null) {
+            passThreshold = new BigDecimal("60.00");
         }
     }
 
@@ -46,7 +69,6 @@ public class Test {
     @JsonIgnore
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL)
     private List<TestAttempt> attempts;
-
 
     // --- Getters and Setters for all fields, including the new lists ---
 
@@ -80,6 +102,18 @@ public class Test {
 
     public Long getLectureId() {
         return lecture != null ? lecture.getId() : null;
+    }
+
+    public CourseContent getContent() {
+        return content;
+    }
+
+    public void setContent(CourseContent content) {
+        this.content = content;
+    }
+
+    public Long getContentId() {
+        return content != null ? content.getContentId() : null;
     }
 
     public Boolean getIsRemedial() {
@@ -144,6 +178,30 @@ public class Test {
 
     public void setMaxAttempts(Integer maxAttempts) {
         this.maxAttempts = maxAttempts;
+    }
+
+    public String getPlacement() {
+        return placement;
+    }
+
+    public void setPlacement(String placement) {
+        this.placement = placement;
+    }
+
+    public Boolean getRequiredForCompletion() {
+        return requiredForCompletion;
+    }
+
+    public void setRequiredForCompletion(Boolean requiredForCompletion) {
+        this.requiredForCompletion = requiredForCompletion;
+    }
+
+    public BigDecimal getPassThreshold() {
+        return passThreshold;
+    }
+
+    public void setPassThreshold(BigDecimal passThreshold) {
+        this.passThreshold = passThreshold;
     }
 
     public List<TestAttempt> getAttempts() {

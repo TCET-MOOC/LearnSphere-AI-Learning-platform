@@ -14,6 +14,9 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.EnrollmentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserProgressRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.CourseService;
+import com.MOOC.OnlineLearningPlatfrom.Repository.TestRepository;
+import com.MOOC.OnlineLearningPlatfrom.Service.TestService;
+import com.MOOC.OnlineLearningPlatfrom.Entity.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -37,19 +40,25 @@ public class StudentController {
     private final com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository;
     private final com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService liveSessionService;
     private final com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService enrollmentService;
+    private final TestRepository testRepository;
+    private final TestService testService;
 
     public StudentController(CourseService courseService,
                               EnrollmentRepository enrollmentRepository,
                               UserProgressRepository userProgressRepository,
                               com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository,
                               com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService liveSessionService,
-                              com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService enrollmentService) {
+                              com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService enrollmentService,
+                              TestRepository testRepository,
+                              TestService testService) {
         this.courseService = courseService;
         this.enrollmentRepository = enrollmentRepository;
         this.userProgressRepository = userProgressRepository;
         this.courseContentRepository = courseContentRepository;
         this.liveSessionService = liveSessionService;
         this.enrollmentService = enrollmentService;
+        this.testRepository = testRepository;
+        this.testService = testService;
     }
 
     @GetMapping("/live-sessions")
@@ -144,6 +153,22 @@ public class StudentController {
         Lecture lecture = courseService.getLectureEntity(id);
         Long userId = requireUserId(principal);
         CourseContent content = courseContentRepository.findByLegacyLectureId(id).orElse(null);
+
+        Optional<Test> testOpt = Optional.empty();
+        if (content != null && content.getContentId() != null) {
+            testOpt = testRepository.findFirstByContent_ContentId(content.getContentId());
+            if (testOpt.isEmpty() && content.getLegacyLectureId() != null) {
+                testOpt = testRepository.findFirstByLecture_Id(content.getLegacyLectureId());
+            }
+        }
+        if (testOpt.isEmpty()) {
+            testOpt = testRepository.findFirstByLecture_Id(id);
+        }
+        if (testOpt.isPresent() && Boolean.TRUE.equals(testOpt.get().getRequiredForCompletion())) {
+            if (!testService.hasPassingAttempt(testOpt.get().getTestId(), userId)) {
+                throw new com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException("A required post-video quiz must be passed before completing this content");
+            }
+        }
         UserProgress progress = null;
         if (content != null) {
             progress = userProgressRepository.findByUserIdAndContent_ContentId(userId, content.getContentId()).orElse(null);

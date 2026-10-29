@@ -33,6 +33,11 @@ export class AssessmentService {
     return this.apiService.get<Assessment[]>(`/assessments/lecture/${lectureId}`);
   }
 
+  /** Full test detail by contentId. */
+  getAssessmentByContent(contentId: number): Observable<AssessmentDetail> {
+    return this.apiService.get<AssessmentDetail>(`/assessments/content/${contentId}`);
+  }
+
   /** Full test detail (questions, without correct answers). */
   getAssessment(id: number): Observable<AssessmentDetail> {
     return this.apiService.get<AssessmentDetail>(`/assessments/${id}`);

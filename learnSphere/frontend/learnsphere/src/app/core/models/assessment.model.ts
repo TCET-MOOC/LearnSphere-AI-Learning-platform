@@ -9,6 +9,11 @@ export interface Assessment {
   id: number;
   courseId: number;
   courseTitle?: string;
+  contentId?: number | null;
+  placement?: string | null;
+  requiredForCompletion?: boolean;
+  passThreshold?: number | null;
+  maxAttempts?: number | null;
   title: string;
   durationMinutes: number;
   isRemedial: boolean;
@@ -31,6 +36,11 @@ export interface AssessmentDetail {
   courseId: number;
   title: string;
   durationMinutes: number;
+  contentId?: number | null;
+  placement?: string | null;
+  requiredForCompletion?: boolean;
+  passThreshold?: number | null;
+  maxAttempts?: number | null;
   securityPolicy?: string;
   isRemedial: boolean;
   scheduledAt?: string | null;

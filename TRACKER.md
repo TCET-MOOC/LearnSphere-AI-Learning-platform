@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-29 |
-| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02`, `W4-03`, `W4-04`, `W4-05`, `W4-06`, `W4-07`, `W4-08`, `W4-09`, `W4-10` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. Assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, score computed dynamically), attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, background `AttemptTimeoutJob`, schedule/duration/attempt-limit enforcement with active-attempt resume, `BigDecimal(8,2)` score/marks precision across schema, entities, and grading engines, attempt review with answer privacy and manual-grading audit logging, and comprehensive locked assessment integrity integration suite (`AssessmentIntegritySuiteTests`). |
-| Next milestone | **Wave 4 — Assessment integrity** (`W4-11 Player-attached quiz end-to-end + completion gate`). |
+| Current phase | **Wave 4 — Assessment integrity 100% COMPLETE & VERIFIED GREEN (`W4-01` through `W4-11`).** Wave 1 (`38f5597`), Wave 2 (`a125912`), Wave 3 (`217230e`, `c9d4da6`), and Wave 4 are 100% complete and verified green. Full assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with in-place upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, dynamic score computation), attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, background `AttemptTimeoutJob`, schedule/duration/attempt-limit enforcement with active-attempt resume, `BigDecimal(8,2)` score/marks precision across schema, entities, and grading engines, attempt review with answer privacy and manual-grading audit logging, player-attached quiz binding (`CourseContent`), post-video completion gate with sticky pass guarantee and non-retroactive revocation (BR-25, BR-10), and comprehensive locked assessment integrity integration suite (`AssessmentIntegritySuiteTests` & `PlayerAttachedQuizCompletionGateTests`). |
+| Next milestone | **Wave 5 — Engagement and community** (`W5-01 Canonical thread/post + legacy migration`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1011,7 +1011,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W4-08 BigDecimal score/marks migration
 - [x] W4-09 Attempt review + manual-grade audit
 - [x] W4-10 Assessment integrity suite
-- [ ] W4-11 Player-attached quiz end-to-end + completion gate
+- [x] W4-11 Player-attached quiz end-to-end + completion gate
 
 **W4-01 evidence (2026-10-29) — Student question DTO hides correctAnswer; retire leaky legacy question reads:**
 - Rules: AC-15, [D-F1], NFR-03.
@@ -1202,6 +1202,50 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Red-green verification:
   - Red: initial run failed 2/11 tests (JSON path was `$.testId` instead of `$.id` on `TestDetailDto`; test setup had omitted initial MCQ answer record during manual grade recalculation).
   - Green: `AssessmentIntegritySuiteTests` passed 11/11 tests. Full 10 assessment test suites passed 64/64 tests. Full backend test suite `374/374` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet 100% clean.
+
+**W4-11 evidence (2026-10-29) — Player-attached quiz end-to-end + completion gate:**
+- Rules: A-27, BR-25, BR-10, AC-12, AC-15, AC-18.
+- Schema Migration (`V20__tests_content_binding_and_delivery.sql`):
+  - Added columns `content_id` (FK to `course_content(content_id)` ON DELETE SET NULL), `placement` (`VARCHAR(32)` default `'POST_VIDEO'`), `required_for_completion` (`BOOLEAN` default `false`), `pass_threshold` (`NUMERIC(5,2)` default `60.00`).
+  - Backfilled `content_id` from legacy lectures via `course_content.legacy_lecture_id`.
+  - Backfilled `max_attempts` default to 3.
+  - Added index `idx_tests_content_id` on `public.tests(content_id)`.
+- Backend Implementation & Completion Gate:
+  - `Test.java`: Added `content`, `placement`, `requiredForCompletion`, `passThreshold`, and `maxAttempts` with `@PrePersist` defaults.
+  - `TestRepository.java`: Added `findByContent_ContentId`, `findFirstByContent_ContentId`, and `findFirstByLecture_Id`.
+  - `AssessmentDtos.java`: Added content binding and completion fields to `TestSummaryDto` and `TestDetailDto`.
+  - `TestService` / `TestServiceImpl`: Implemented `isPassingAttempt(Test, TestAttempt)` and `hasPassingAttempt(Long testId, Long userId)`.
+  - In `TestServiceImpl.calculateAndFinalizeScore`: Automatically updates and persists `UserProgress.completedAt` if test is required, passing attempt is achieved, and student watch progress is already >= 90%.
+  - In `EnrollmentServiceImpl.updateUserProgress`: Requires both watch progress >= 90% AND passing attempt on required quiz (`score / maxScore * 100 >= passThreshold`).
+  - Sticky Pass: Once passed, subsequent retakes that fail do NOT revoke content completion (`hasPassingAttempt` returns true if any completed attempt has passed).
+  - Non-Retroactive Revocation: Adding or editing a required quiz to content that was already completed previously (`completedAt != null`) does not revoke completion unless watch progress regresses below 90%.
+  - Direct Completion Guard: `StudentController.markLectureComplete` rejects completion with `400 BAD_REQUEST` ("A required post-video quiz must be passed before completing this content") if a required quiz has not been passed.
+  - Content Assessment Endpoint: `GET /api/assessments/content/{contentId}` resolves quizzes bound to `CourseContent` (with fallback to legacy lecture), enforces course enrollment with stealth 404 IDOR protection, and returns `Cache-Control: private, no-store`.
+  - Teacher Authoring: `TeacherAssessmentController` supports creating and updating tests bound to `CourseContent` with `placement`, `requiredForCompletion`, `passThreshold`, and `maxAttempts`.
+- Frontend Integration:
+  - `assessment.model.ts`: Extended `Assessment` and `AssessmentDetail` with `contentId`, `placement`, `requiredForCompletion`, `passThreshold`, and `maxAttempts`.
+  - `assessment.service.ts`: Added `getAssessmentByContent(contentId: number): Observable<AssessmentDetail>`.
+  - `post-video-quiz.component.ts`: Supports `@Input() contentId?: number;`, fetches quizzes via `getAssessmentByContent(contentId)` with graceful fallback to `getAssessmentsByLecture(lectureId)`, computes pass/fail against `passThreshold`, and emits `quizPassed` with `contentId ?? lectureId`.
+  - `lecture.component.html`: Passes `[contentId]="currentLecture.contentId"` to `<app-post-video-quiz>`.
+- Red-green verification:
+  - Authored `PlayerAttachedQuizCompletionGateTests.java` covering all 10 scenarios:
+    1. Watch 95% without passing quiz leaves `completedAt` null.
+    2. Pass quiz with 100% before 90% watch leaves `completedAt` null.
+    3. Watch 90%+ AND pass quiz stamps `completedAt` exactly once.
+    4. Failed retake leaves earlier content completion intact (sticky pass).
+    5. Retake limit enforced (`maxAttempts = 3`).
+    6. Adding/changing a required quiz does not retroactively revoke completed content.
+    7. Foreign student querying content assessment receives stealth 404.
+    8. Client calling completion directly without passing required quiz is rejected with 400 Bad Request.
+    9. Content quiz and attempt endpoints return `Cache-Control: private, no-store`.
+    10. Teacher can create and update quiz bound to `CourseContent` with post-video settings.
+  - Red: compilation errors on missing schema fields, missing DTO fields, and missing methods.
+  - Green: `PlayerAttachedQuizCompletionGateTests` passed 10/10 tests.
+  - Full assessment test suite passed 74/74 tests across all 11 assessment test suites.
+  - Full backend test suite `384/384` passed (`BUILD SUCCESS`).
+  - Full payments suite `10/10` passed (`BUILD SUCCESS`).
+  - Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`).
+  - Frontend stylelint ratchet 100% clean.
 
 ### Wave 5 — Engagement and community
 - [~] W5-01 Canonical thread/post + legacy migration

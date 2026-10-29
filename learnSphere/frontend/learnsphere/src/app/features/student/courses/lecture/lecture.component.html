@@ -389,6 +389,7 @@
   <app-post-video-quiz
     *ngIf="showPostQuizModal && currentLecture"
     [lectureId]="currentLecture.id"
+    [contentId]="currentLecture.contentId"
     [lectureTitle]="currentLecture.title"
     [courseId]="courseId || undefined"
     (quizPassed)="onQuizPassed($event)"

@@ -17,4 +17,6 @@ public interface TestService {
     TestAttempt startTestAttempt(Long testId, Long userId);
     StudentAnswer submitAnswer(Long attemptId, Long questionId, StudentAnswer studentAnswer);
     TestAttempt calculateAndFinalizeScore(Long attemptId);
+    boolean isPassingAttempt(Test test, TestAttempt attempt);
+    boolean hasPassingAttempt(Long testId, Long userId);
 }

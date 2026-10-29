@@ -27,6 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import com.MOOC.OnlineLearningPlatfrom.Entity.Test;
+import com.MOOC.OnlineLearningPlatfrom.Repository.TestRepository;
+import com.MOOC.OnlineLearningPlatfrom.Service.TestService;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,6 +45,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final UserAccountRepository userAccountRepository;
     private final PaymentRepository paymentRepository;
     private final CollegeEntitlementService collegeEntitlementService;
+    private final TestRepository testRepository;
+    private final TestService testService;
 
     public EnrollmentServiceImpl(EnrollmentRepository enrollmentRepository,
                                  UserProgressRepository userProgressRepository,
@@ -50,7 +55,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                                  LectureRepository lectureRepository,
                                  UserAccountRepository userAccountRepository,
                                  PaymentRepository paymentRepository,
-                                 CollegeEntitlementService collegeEntitlementService) {
+                                 CollegeEntitlementService collegeEntitlementService,
+                                 TestRepository testRepository,
+                                 TestService testService) {
         this.enrollmentRepository = enrollmentRepository;
         this.userProgressRepository = userProgressRepository;
         this.courseRepository = courseRepository;
@@ -59,6 +66,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         this.userAccountRepository = userAccountRepository;
         this.paymentRepository = paymentRepository;
         this.collegeEntitlementService = collegeEntitlementService;
+        this.testRepository = testRepository;
+        this.testService = testService;
     }
 
     @Override
@@ -176,10 +185,33 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             target.setProgressPercent(percent);
         }
 
-        // AC-12 / A-08: completion at >= 90 %, un-complete on regression (< 90 %)
+        // AC-12 / A-08 / BR-25: completion at >= 90 % AND passed required quiz (if any)
+        Optional<Test> boundTestOpt = Optional.empty();
+        if (content != null && content.getContentId() != null) {
+            boundTestOpt = testRepository.findFirstByContent_ContentId(content.getContentId());
+            if (boundTestOpt.isEmpty() && content.getLegacyLectureId() != null) {
+                boundTestOpt = testRepository.findFirstByLecture_Id(content.getLegacyLectureId());
+            }
+        }
+        if (boundTestOpt.isEmpty() && target.getLecture() != null && target.getLecture().getId() != null) {
+            boundTestOpt = testRepository.findFirstByLecture_Id(target.getLecture().getId());
+        }
+
+        boolean hasRequiredQuiz = boundTestOpt.isPresent() && Boolean.TRUE.equals(boundTestOpt.get().getRequiredForCompletion());
+        boolean quizPassed = hasRequiredQuiz && testService.hasPassingAttempt(boundTestOpt.get().getTestId(), target.getUserId());
         if (target.getProgressPercent() != null && target.getProgressPercent().compareTo(BigDecimal.valueOf(90)) >= 0) {
-            if (target.getCompletedAt() == null) {
-                target.setCompletedAt(LocalDateTime.now());
+            if (hasRequiredQuiz) {
+                if (quizPassed) {
+                    if (target.getCompletedAt() == null) {
+                        target.setCompletedAt(LocalDateTime.now());
+                    }
+                } else {
+                    // BR-25: Non-retroactive revocation. If target already had completedAt, retain it; otherwise leave null.
+                }
+            } else {
+                if (target.getCompletedAt() == null) {
+                    target.setCompletedAt(LocalDateTime.now());
+                }
             }
         } else {
             target.setCompletedAt(null);

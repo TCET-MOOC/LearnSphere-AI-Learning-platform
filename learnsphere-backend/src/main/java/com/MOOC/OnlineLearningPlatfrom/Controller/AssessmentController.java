@@ -5,6 +5,8 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Question;
 import com.MOOC.OnlineLearningPlatfrom.Entity.StudentAnswer;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Test;
 import com.MOOC.OnlineLearningPlatfrom.Entity.TestAttempt;
+import com.MOOC.OnlineLearningPlatfrom.Entity.CourseContent;
+import com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.QuestionRepository;
@@ -37,19 +39,22 @@ public class AssessmentController {
     private final QuestionRepository questionRepository;
     private final StudentAnswerRepository studentAnswerRepository;
     private final OwnershipService ownershipService;
+    private final CourseContentRepository courseContentRepository;
 
     public AssessmentController(TestService testService,
                                  TestRepository testRepository,
                                  TestAttemptRepository testAttemptRepository,
                                  QuestionRepository questionRepository,
                                  StudentAnswerRepository studentAnswerRepository,
-                                 OwnershipService ownershipService) {
+                                 OwnershipService ownershipService,
+                                 CourseContentRepository courseContentRepository) {
         this.testService = testService;
         this.testRepository = testRepository;
         this.testAttemptRepository = testAttemptRepository;
         this.questionRepository = questionRepository;
         this.studentAnswerRepository = studentAnswerRepository;
         this.ownershipService = ownershipService;
+        this.courseContentRepository = courseContentRepository;
     }
 
     @GetMapping
@@ -170,5 +175,39 @@ public class AssessmentController {
             throw new ResourceNotFoundException("Attempt not found with id: " + attemptId);
         }
         return attempt;
+    }
+
+    @GetMapping("/content/{contentId}")
+    public ResponseEntity<TestDetailDto> getAssessmentByContent(
+            @PathVariable Long contentId,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        CourseContent content = courseContentRepository.findById(contentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course content not found with id: " + contentId));
+
+        Long courseId = null;
+        if (content.getModule() != null && content.getModule().getCourse() != null) {
+            courseId = content.getModule().getCourse().getId();
+        }
+        Test test = testRepository.findFirstByContent_ContentId(contentId)
+                .or(() -> content.getLegacyLectureId() != null ? testRepository.findFirstByLecture_Id(content.getLegacyLectureId()) : java.util.Optional.empty())
+                .orElseThrow(() -> new ResourceNotFoundException("No assessment found for content id: " + contentId));
+
+        if (courseId == null && test.getCourse() != null) {
+            courseId = test.getCourse().getId();
+        }
+        if (courseId != null) {
+            ownershipService.requireEnrolled(courseId, principal);
+        }
+
+        if (test.getQuestions() == null || test.getQuestions().isEmpty()) {
+            List<Question> questions = questionRepository.findByTest_TestId(test.getTestId());
+            if (questions != null && !questions.isEmpty()) {
+                test.setQuestions(questions);
+            }
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(TestDetailDto.from(test));
     }
 }

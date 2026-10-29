@@ -22,11 +22,16 @@ public class AssessmentDtos {
         private Long courseId;
         private String courseTitle;
         private Long lectureId;
+        private Long contentId;
         private String title;
         private Integer durationMinutes;
         private Boolean isRemedial;
         private int questionCount;
         private LocalDateTime scheduledAt;
+        private String placement;
+        private Boolean requiredForCompletion;
+        private BigDecimal passThreshold;
+        private Integer maxAttempts;
 
         public static TestSummaryDto from(Test test) {
             TestSummaryDto dto = new TestSummaryDto();
@@ -38,11 +43,18 @@ public class AssessmentDtos {
             if (test.getLecture() != null) {
                 dto.lectureId = test.getLecture().getId();
             }
+            if (test.getContent() != null) {
+                dto.contentId = test.getContent().getContentId();
+            }
             dto.title = test.getTitle();
             dto.durationMinutes = test.getDurationMinutes();
             dto.isRemedial = test.getIsRemedial();
             dto.questionCount = test.getQuestions() != null ? test.getQuestions().size() : 0;
             dto.scheduledAt = test.getScheduledAt();
+            dto.placement = test.getPlacement();
+            dto.requiredForCompletion = test.getRequiredForCompletion();
+            dto.passThreshold = test.getPassThreshold();
+            dto.maxAttempts = test.getMaxAttempts();
             return dto;
         }
 
@@ -50,11 +62,16 @@ public class AssessmentDtos {
         public Long getCourseId() { return courseId; }
         public String getCourseTitle() { return courseTitle; }
         public Long getLectureId() { return lectureId; }
+        public Long getContentId() { return contentId; }
         public String getTitle() { return title; }
         public Integer getDurationMinutes() { return durationMinutes; }
         public Boolean getIsRemedial() { return isRemedial; }
         public int getQuestionCount() { return questionCount; }
         public LocalDateTime getScheduledAt() { return scheduledAt; }
+        public String getPlacement() { return placement; }
+        public Boolean getRequiredForCompletion() { return requiredForCompletion; }
+        public BigDecimal getPassThreshold() { return passThreshold; }
+        public Integer getMaxAttempts() { return maxAttempts; }
     }
 
     // Student-facing question — never exposes correctAnswer.
@@ -87,11 +104,16 @@ public class AssessmentDtos {
         private Long id;
         private Long courseId;
         private Long lectureId;
+        private Long contentId;
         private String title;
         private Integer durationMinutes;
         private String securityPolicy;
         private Boolean isRemedial;
         private LocalDateTime scheduledAt;
+        private String placement;
+        private Boolean requiredForCompletion;
+        private BigDecimal passThreshold;
+        private Integer maxAttempts;
         private List<QuestionDto> questions;
 
         public static TestDetailDto from(Test test) {
@@ -99,11 +121,16 @@ public class AssessmentDtos {
             dto.id = test.getTestId();
             dto.courseId = test.getCourse() != null ? test.getCourse().getId() : null;
             dto.lectureId = test.getLecture() != null ? test.getLecture().getId() : null;
+            dto.contentId = test.getContent() != null ? test.getContent().getContentId() : null;
             dto.title = test.getTitle();
             dto.durationMinutes = test.getDurationMinutes();
             dto.securityPolicy = test.getSecurityPolicy();
             dto.isRemedial = test.getIsRemedial();
             dto.scheduledAt = test.getScheduledAt();
+            dto.placement = test.getPlacement();
+            dto.requiredForCompletion = test.getRequiredForCompletion();
+            dto.passThreshold = test.getPassThreshold();
+            dto.maxAttempts = test.getMaxAttempts();
             dto.questions = test.getQuestions() != null
                     ? test.getQuestions().stream().map(QuestionDto::from).toList()
                     : List.of();
@@ -113,11 +140,16 @@ public class AssessmentDtos {
         public Long getId() { return id; }
         public Long getCourseId() { return courseId; }
         public Long getLectureId() { return lectureId; }
+        public Long getContentId() { return contentId; }
         public String getTitle() { return title; }
         public Integer getDurationMinutes() { return durationMinutes; }
         public String getSecurityPolicy() { return securityPolicy; }
         public Boolean getIsRemedial() { return isRemedial; }
         public LocalDateTime getScheduledAt() { return scheduledAt; }
+        public String getPlacement() { return placement; }
+        public Boolean getRequiredForCompletion() { return requiredForCompletion; }
+        public BigDecimal getPassThreshold() { return passThreshold; }
+        public Integer getMaxAttempts() { return maxAttempts; }
         public List<QuestionDto> getQuestions() { return questions; }
     }
 
