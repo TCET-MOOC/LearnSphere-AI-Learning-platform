@@ -5,9 +5,9 @@
 
 | | |
 |---|---|
-| Last updated | 2026-10-28 |
-| Current phase | **Wave 3 — Enrolment, progress and credentials 100% complete (`W3-01` through `W3-15` complete, verified green).** Wave 1 is 100% complete and pushed (`38f5597`). Wave 2 is 100% complete (`W2-01` through `W2-17`, `a125912`). `W3-15` delivered player workspace typography and density (DS-11), quieted surrounding card chrome, tokenized video player and interactive transcript, eliminated nested card wrappers, and enforced tabular numerals across all time displays. |
-| Next milestone | **Wave 4 — Assessment integrity** (`W4-01 Hide correctAnswer in all student DTOs`). |
+| Last updated | 2026-10-29 |
+| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. `W4-01` hides `correctAnswer` in student DTOs, retires leaky legacy question reads (`GET /api/tests/{testId}/questions` and `GET /api/questions/{id}`), enforces stealth IDOR enrollment check on `GET /api/assessments/{id}`, and returns `Cache-Control: private, no-store`. |
+| Next milestone | **Wave 4 — Assessment integrity** (`W4-02 Retire legacy /api/tests write surface`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1001,7 +1001,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Production build: exit code 0 (`BUILD_EXIT=0`).
 
 ### Wave 4 — Assessment integrity
-- [~] W4-01 Hide correctAnswer in all student DTOs
+- [x] W4-01 Hide correctAnswer in all student DTOs
 - [~] W4-02 Retire legacy `/api/tests` surface
 - [ ] W4-03 Options in `Question.extra`
 - [ ] W4-04 One answer per question + upsert
@@ -1012,6 +1012,21 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [~] W4-09 Attempt review + manual-grade audit
 - [ ] W4-10 Assessment integrity suite
 - [ ] W4-11 Player-attached quiz end-to-end + completion gate
+
+**W4-01 evidence (2026-10-29) — Student question DTO hides correctAnswer; retire leaky legacy question reads:**
+- Rules: AC-15, [D-F1], NFR-03.
+- Answer Privacy & Student DTO Contracts (`AssessmentDtos.java`):
+  - `QuestionDto` (returned by `GET /api/assessments/{id}`): strictly contains `questionId`, `body`, `questionType`, `marks`, `options`, with zero `correctAnswer` field.
+  - `AnswerReviewDto` and `AttemptReviewDto`: updated to be attempt-status-aware. While `attempt.status == IN_PROGRESS`, `correctAnswer`, `score`, and `marksAwarded` are strictly hidden (`null`, omitted via `@JsonInclude(NON_NULL)`). Only once an attempt transitions to `COMPLETED` are score, marks, and `correctAnswer` populated for review.
+- Retired Leaky Reads (`TestController.java`):
+  - Removed `GET /api/tests/{testId}/questions` and `GET /api/questions/{id}` which previously returned `Question` entities with raw `correctAnswer` in JSON. Calling these endpoints now yields `404 Not Found` or `405 Method Not Allowed`.
+- Enrolment-Bound Access & Stealth IDOR (`AssessmentController.java`):
+  - In `GET /api/assessments/{id}`: enforced course enrollment check via `ownershipService.requireEnrolled(test.getCourse().getId(), principal)`. Un-enrolled students receive RFC 9457 `404 NOT_FOUND` (stealth IDOR masking existence), while enrolled learners, course staff, and admins can view questions.
+  - Added `Cache-Control: private, no-store` header to all assessment endpoints (`GET /api/assessments`, `GET /api/assessments/{id}`, `GET /api/assessments/lecture/{lectureId}`, `POST /api/assessments/{id}/start`, `POST /api/assessments/attempts/{attemptId}/answers`, `POST /api/assessments/attempts/{attemptId}/finalize`, `GET /api/assessments/attempts/{attemptId}`) adhering to NFR-03.
+- Red-green verification:
+  - Authored `QuestionAnswerPrivacyTests.java` covering 6 integration scenarios: student assessment DTO hiding correct answer with `private, no-store`, un-enrolled student masking (404), retired tests/questions read endpoint rejection (404/405), retired questions/id endpoint rejection (404/405), in-progress attempt review hiding correct answer and marks, and attempt completion revealing correct answer with `private, no-store`.
+  - Red: initial run failed 6/6 tests.
+  - Green: `QuestionAnswerPrivacyTests` passed 6/6 tests. Full backend test suite `316/316` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet 100% clean. Frontend production build passed (`BUILD_EXIT=0`).
 
 ### Wave 5 — Engagement and community
 - [~] W5-01 Canonical thread/post + legacy migration

@@ -105,12 +105,9 @@ public class TestController {
     }
 
     // --- Questions ---
-
-    @GetMapping("/tests/{testId}/questions")
-    public ResponseEntity<List<Question>> getTestQuestions(@PathVariable Long testId) {
-        Test test = testService.getTestById(testId);
-        return ResponseEntity.ok(test.getQuestions());
-    }
+    // Note: W4-01 retired legacy leaky question read endpoints:
+    // GET /api/tests/{testId}/questions and GET /api/questions/{id}.
+    // Student questions are queried via /api/assessments/{id} with correctAnswer hidden.
 
     @PostMapping("/tests/{testId}/questions")
     public ResponseEntity<Question> addQuestion(@PathVariable Long testId,
@@ -118,13 +115,6 @@ public class TestController {
                                                 @AuthenticationPrincipal CustomUserDetails principal) {
         ownershipService.requireTestStaff(testId, principal);
         return ResponseEntity.ok(testService.addQuestionToTest(testId, question));
-    }
-
-    @GetMapping("/questions/{id}")
-    public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
-        Question question = questionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Question not found with id: " + id));
-        return ResponseEntity.ok(question);
     }
 
     @PutMapping("/questions/{id}")

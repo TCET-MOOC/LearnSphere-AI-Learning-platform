@@ -4,6 +4,7 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Question;
 import com.MOOC.OnlineLearningPlatfrom.Entity.StudentAnswer;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Test;
 import com.MOOC.OnlineLearningPlatfrom.Entity.TestAttempt;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -120,6 +121,7 @@ public class AssessmentDtos {
     }
 
     // Attempt summary — returned by start/answer calls.
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class AttemptDto {
         private Long attemptId;
         private Long testId;
@@ -144,7 +146,8 @@ public class AssessmentDtos {
         public LocalDateTime getAttemptedAt() { return attemptedAt; }
     }
 
-    // Per-question review row: what was asked, the correct answer, what the student answered, marks awarded.
+    // Per-question review row: what was asked, the correct answer (only when completed), what the student answered, marks awarded.
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class AnswerReviewDto {
         private Long questionId;
         private String questionBody;
@@ -156,6 +159,11 @@ public class AssessmentDtos {
         private Integer marksAwarded;
 
         public static AnswerReviewDto from(StudentAnswer answer) {
+            boolean isCompleted = answer.getAttempt() != null && "COMPLETED".equalsIgnoreCase(answer.getAttempt().getStatus());
+            return from(answer, isCompleted);
+        }
+
+        public static AnswerReviewDto from(StudentAnswer answer, boolean isCompleted) {
             AnswerReviewDto dto = new AnswerReviewDto();
             Question q = answer.getQuestion();
             if (q != null) {
@@ -164,10 +172,14 @@ public class AssessmentDtos {
                 dto.questionType = q.getQuestionType();
                 dto.marks = q.getMarks();
                 dto.options = q.getOptions();
-                dto.correctAnswer = q.getCorrectAnswer();
+                if (isCompleted) {
+                    dto.correctAnswer = q.getCorrectAnswer();
+                } else {
+                    dto.correctAnswer = null;
+                }
             }
             dto.studentAnswer = answer.getAnswerText();
-            dto.marksAwarded = answer.getMarksAwarded();
+            dto.marksAwarded = isCompleted ? answer.getMarksAwarded() : null;
             return dto;
         }
 
@@ -182,6 +194,7 @@ public class AssessmentDtos {
     }
 
     // Full review for a completed (or in-progress) attempt.
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class AttemptReviewDto {
         private Long attemptId;
         private Long testId;
@@ -206,10 +219,11 @@ public class AssessmentDtos {
                         : 0;
             }
             dto.status = attempt.getStatus();
-            dto.score = attempt.getScore();
+            boolean isCompleted = "COMPLETED".equalsIgnoreCase(attempt.getStatus());
+            dto.score = isCompleted ? attempt.getScore() : null;
             dto.attemptedAt = attempt.getAttemptedAt();
             dto.answers = attempt.getStudentAnswers() != null
-                    ? attempt.getStudentAnswers().stream().map(AnswerReviewDto::from).toList()
+                    ? attempt.getStudentAnswers().stream().map(a -> AnswerReviewDto.from(a, isCompleted)).toList()
                     : List.of();
             return dto;
         }
