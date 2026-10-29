@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-29 |
-| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. `W4-01` hides `correctAnswer` in student DTOs, retires leaky legacy question reads (`GET /api/tests/{testId}/questions` and `GET /api/questions/{id}`), enforces stealth IDOR enrollment check on `GET /api/assessments/{id}`, and returns `Cache-Control: private, no-store`. |
-| Next milestone | **Wave 4 — Assessment integrity** (`W4-02 Retire legacy /api/tests write surface`). |
+| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. `W4-01` hides `correctAnswer` in student DTOs and retires leaky question reads. `W4-02` retires legacy `/api/tests` generic surfaces to admin-only deprecated and establishes `/api/assessments/**` (students) and `/api/teacher/tests/**` (teachers) as the canonical paths. |
+| Next milestone | **Wave 4 — Assessment integrity** (`W4-03 Options in Question.extra`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1002,7 +1002,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 
 ### Wave 4 — Assessment integrity
 - [x] W4-01 Hide correctAnswer in all student DTOs
-- [~] W4-02 Retire legacy `/api/tests` surface
+- [x] W4-02 Retire legacy `/api/tests` surface
 - [ ] W4-03 Options in `Question.extra`
 - [ ] W4-04 One answer per question + upsert
 - [~] W4-05 Grading correctness (TEXT manual)
@@ -1027,6 +1027,20 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `QuestionAnswerPrivacyTests.java` covering 6 integration scenarios: student assessment DTO hiding correct answer with `private, no-store`, un-enrolled student masking (404), retired tests/questions read endpoint rejection (404/405), retired questions/id endpoint rejection (404/405), in-progress attempt review hiding correct answer and marks, and attempt completion revealing correct answer with `private, no-store`.
   - Red: initial run failed 6/6 tests.
   - Green: `QuestionAnswerPrivacyTests` passed 6/6 tests. Full backend test suite `316/316` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet 100% clean. Frontend production build passed (`BUILD_EXIT=0`).
+
+**W4-02 evidence (2026-10-29) — Retire legacy /api/tests write surface & canonical path enforcement:**
+- Rules: [D-F2, D-F12], LMS Entity Reference sections 6 & 7.
+- Legacy Surface Retirement (`TestController.java`):
+  - Generic unscoped `GET /api/tests` and `POST /api/tests` marked `@Deprecated` and restricted strictly to `@PreAuthorize("hasRole('ADMIN')")`. Students and teachers calling them receive 403 Forbidden.
+- Canonical Teacher Authoring (`TeacherAssessmentController.java`):
+  - Implemented canonical `PUT /api/teacher/tests/{testId}`, `PUT /api/teacher/tests/{testId}/questions/{questionId}`, and `DELETE /api/teacher/tests/{testId}/questions/{questionId}`.
+  - Enforced course/test ownership via `OwnershipService` stealth 404 (`ResourceNotFoundException`), preventing teacher IDOR / ID enumeration.
+- Canonical Student Assessment Path (`AssessmentController.java`):
+  - All student flows (view assessment, start attempt, submit answers, finalize, and review) remain strictly canonical under `/api/assessments/**`.
+- Red-green verification:
+  - Authored `LegacyTestSurfaceRetirementTests.java` covering 4 integration scenarios: generic `GET /api/tests` 403 block for non-admin, generic `POST /api/tests` 403 block for non-admin, canonical teacher test/question update/delete with stealth 404 IDOR rejection, and canonical student assessment flow via `/api/assessments/**`.
+  - Red: initial run failed 3/4 tests (405 on missing teacher PUT, 500 on un-annotated `GET /api/tests`, 404 instead of 403 on `POST /api/tests`).
+  - Green: `LegacyTestSurfaceRetirementTests` passed 4/4 tests. Full backend test suite `320/320` passed (`BUILD SUCCESS`). Payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet 100% clean. Frontend production build passed (`BUILD_EXIT=0`).
 
 ### Wave 5 — Engagement and community
 - [~] W5-01 Canonical thread/post + legacy migration

@@ -6,18 +6,21 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Test;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.LectureRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.QuestionRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.TestRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
+import com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService;
 import com.MOOC.OnlineLearningPlatfrom.Service.TestService;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Teacher-only endpoints for building assessments (tests/quizzes) on their own courses.
- * Ownership of the target course is checked manually since /api/teacher/** here just requires
- * ROLE_TEACHER, not "owns this specific course".
+ * Enforces course ownership via stealth 404 (IDOR protection).
  */
 @RestController
 @RequestMapping("/api/teacher/tests")
@@ -26,16 +29,22 @@ public class TeacherAssessmentController {
     private final TestService testService;
     private final TestRepository testRepository;
     private final CourseRepository courseRepository;
-    private final com.MOOC.OnlineLearningPlatfrom.Repository.LectureRepository lectureRepository;
+    private final LectureRepository lectureRepository;
+    private final QuestionRepository questionRepository;
+    private final OwnershipService ownershipService;
 
     public TeacherAssessmentController(TestService testService,
-                                        TestRepository testRepository,
-                                        CourseRepository courseRepository,
-                                        com.MOOC.OnlineLearningPlatfrom.Repository.LectureRepository lectureRepository) {
+                                       TestRepository testRepository,
+                                       CourseRepository courseRepository,
+                                       LectureRepository lectureRepository,
+                                       QuestionRepository questionRepository,
+                                       OwnershipService ownershipService) {
         this.testService = testService;
         this.testRepository = testRepository;
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
+        this.questionRepository = questionRepository;
+        this.ownershipService = ownershipService;
     }
 
     @PostMapping
@@ -55,10 +64,23 @@ public class TeacherAssessmentController {
         return ResponseEntity.ok(testService.createTest(test));
     }
 
+    @PutMapping("/{testId}")
+    public ResponseEntity<Test> updateTest(@PathVariable Long testId,
+                                           @RequestBody Test testDetails,
+                                           @AuthenticationPrincipal CustomUserDetails principal) {
+        Test test = ownershipService.requireTestStaff(testId, principal);
+        if (testDetails.getTitle() != null) test.setTitle(testDetails.getTitle());
+        if (testDetails.getDurationMinutes() != null) test.setDurationMinutes(testDetails.getDurationMinutes());
+        if (testDetails.getIsRemedial() != null) test.setIsRemedial(testDetails.getIsRemedial());
+        if (testDetails.getSecurityPolicy() != null) test.setSecurityPolicy(testDetails.getSecurityPolicy());
+        if (testDetails.getScheduledAt() != null) test.setScheduledAt(testDetails.getScheduledAt());
+        return ResponseEntity.ok(testRepository.save(test));
+    }
+
     @PostMapping("/{testId}/questions")
     public ResponseEntity<Question> addQuestion(@PathVariable Long testId,
-                                                 @RequestBody Question question,
-                                                 @AuthenticationPrincipal CustomUserDetails principal) {
+                                                @RequestBody Question question,
+                                                @AuthenticationPrincipal CustomUserDetails principal) {
         Test test = testRepository.findById(testId)
                 .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
         if (test.getCourse() == null) {
@@ -66,6 +88,38 @@ public class TeacherAssessmentController {
         }
         assertOwnedCourse(test.getCourse().getId(), principal.getUser().getUserId());
         return ResponseEntity.ok(testService.addQuestionToTest(testId, question));
+    }
+
+    @PutMapping("/{testId}/questions/{questionId}")
+    public ResponseEntity<Question> updateQuestion(@PathVariable Long testId,
+                                                   @PathVariable Long questionId,
+                                                   @RequestBody Question updated,
+                                                   @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireTestStaff(testId, principal);
+        Question question = ownershipService.requireQuestionStaff(questionId, principal);
+        if (question.getTest() == null || !question.getTest().getTestId().equals(testId)) {
+            throw new ResourceNotFoundException("Question not found with id: " + questionId);
+        }
+        if (updated.getBody() != null) question.setBody(updated.getBody());
+        if (updated.getQuestionType() != null) question.setQuestionType(updated.getQuestionType());
+        if (updated.getMarks() != null) question.setMarks(updated.getMarks());
+        if (updated.getOptions() != null) question.setOptions(updated.getOptions());
+        if (updated.getCorrectAnswer() != null) question.setCorrectAnswer(updated.getCorrectAnswer());
+        if (updated.getExtra() != null) question.setExtra(updated.getExtra());
+        return ResponseEntity.ok(questionRepository.save(question));
+    }
+
+    @DeleteMapping("/{testId}/questions/{questionId}")
+    public ResponseEntity<Void> deleteQuestion(@PathVariable Long testId,
+                                               @PathVariable Long questionId,
+                                               @AuthenticationPrincipal CustomUserDetails principal) {
+        ownershipService.requireTestStaff(testId, principal);
+        Question question = ownershipService.requireQuestionStaff(questionId, principal);
+        if (question.getTest() == null || !question.getTest().getTestId().equals(testId)) {
+            throw new ResourceNotFoundException("Question not found with id: " + questionId);
+        }
+        questionRepository.deleteById(questionId);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{testId}/questions/bulk")
@@ -88,7 +142,7 @@ public class TeacherAssessmentController {
 
     @GetMapping("/course/{courseId}")
     public ResponseEntity<List<Test>> getTestsByCourse(@PathVariable Long courseId,
-                                                        @AuthenticationPrincipal CustomUserDetails principal) {
+                                                       @AuthenticationPrincipal CustomUserDetails principal) {
         assertOwnedCourse(courseId, principal.getUser().getUserId());
         List<Test> tests = testRepository.findByCourse_Id(courseId);
         return ResponseEntity.ok(tests);
@@ -96,7 +150,7 @@ public class TeacherAssessmentController {
 
     @GetMapping("/lecture/{lectureId}")
     public ResponseEntity<List<Test>> getTestsByLecture(@PathVariable Long lectureId,
-                                                         @AuthenticationPrincipal CustomUserDetails principal) {
+                                                        @AuthenticationPrincipal CustomUserDetails principal) {
         List<Test> tests = testRepository.findByLecture_Id(lectureId);
         return ResponseEntity.ok(tests);
     }
@@ -128,7 +182,7 @@ public class TeacherAssessmentController {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + courseId));
         if (course.getTeacher() == null || !course.getTeacher().getUserId().equals(teacherId)) {
-            throw new BadRequestException("You do not own this course.");
+            throw new ResourceNotFoundException("Course not found with id: " + courseId);
         }
         return course;
     }

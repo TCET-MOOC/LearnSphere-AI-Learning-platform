@@ -15,6 +15,7 @@ import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService;
 import com.MOOC.OnlineLearningPlatfrom.Service.TestService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,6 +68,8 @@ public class TestController {
 
     // --- Test CRUD ---
 
+    @Deprecated
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/tests")
     public ResponseEntity<Test> createTest(@RequestBody Test test,
                                            @AuthenticationPrincipal CustomUserDetails principal) {
@@ -78,6 +81,8 @@ public class TestController {
         return ResponseEntity.ok(testService.createTest(test));
     }
 
+    @Deprecated
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/tests")
     public ResponseEntity<List<Test>> getAllTests() {
         return ResponseEntity.ok(testService.getAllTests());
