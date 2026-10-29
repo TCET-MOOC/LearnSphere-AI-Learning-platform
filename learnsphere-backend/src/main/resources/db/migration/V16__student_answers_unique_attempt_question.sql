@@ -15,3 +15,4 @@ ALTER TABLE public.student_answers
 -- Create index for performance
 CREATE INDEX IF NOT EXISTS idx_student_answers_attempt_question
     ON public.student_answers (attempt_id, question_id);
+

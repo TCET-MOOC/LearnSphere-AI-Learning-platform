@@ -5,6 +5,7 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Question;
 import com.MOOC.OnlineLearningPlatfrom.Entity.StudentAnswer;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Test;
 import com.MOOC.OnlineLearningPlatfrom.Entity.TestAttempt;
+import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.QuestionRepository;
@@ -14,6 +15,8 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.TestRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService;
 import com.MOOC.OnlineLearningPlatfrom.Service.TestService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,6 +36,7 @@ public class TestController {
     private final StudentAnswerRepository studentAnswerRepository;
     private final CourseRepository courseRepository;
     private final OwnershipService ownershipService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public TestController(TestService testService,
                           TestRepository testRepository,
@@ -40,7 +44,8 @@ public class TestController {
                           QuestionRepository questionRepository,
                           StudentAnswerRepository studentAnswerRepository,
                           CourseRepository courseRepository,
-                          OwnershipService ownershipService) {
+                          OwnershipService ownershipService,
+                          ApplicationEventPublisher eventPublisher) {
         this.testService = testService;
         this.testRepository = testRepository;
         this.testAttemptRepository = testAttemptRepository;
@@ -48,6 +53,7 @@ public class TestController {
         this.studentAnswerRepository = studentAnswerRepository;
         this.courseRepository = courseRepository;
         this.ownershipService = ownershipService;
+        this.eventPublisher = eventPublisher;
     }
 
     // --- Course-scoped tests ---
@@ -239,9 +245,51 @@ public class TestController {
         } else if (!ownershipService.isAdmin(principal)) {
             throw new ResourceNotFoundException("Answer not found with id: " + id);
         }
-        if (body.containsKey("marksAwarded")) {
-            answer.setMarksAwarded(Integer.valueOf(body.get("marksAwarded").toString()));
+
+        if (!body.containsKey("marksAwarded") || body.get("marksAwarded") == null) {
+            throw new BadRequestException("marksAwarded is required");
         }
-        return ResponseEntity.ok(studentAnswerRepository.save(answer));
+        int marksAwarded;
+        try {
+            marksAwarded = Integer.parseInt(body.get("marksAwarded").toString());
+        } catch (NumberFormatException e) {
+            throw new BadRequestException("marksAwarded must be an integer");
+        }
+
+        int maxMarks = answer.getQuestion() != null && answer.getQuestion().getMarks() != null
+                ? answer.getQuestion().getMarks()
+                : 100;
+        if (marksAwarded < 0 || marksAwarded > maxMarks) {
+            throw new BadRequestException("marksAwarded must be between 0 and " + maxMarks);
+        }
+
+        answer.setMarksAwarded(marksAwarded);
+        StudentAnswer savedAnswer = studentAnswerRepository.save(answer);
+
+        // Recalculate parent attempt score from stored answers only (AC-16, [D-F3])
+        TestAttempt attempt = answer.getAttempt();
+        if (attempt != null) {
+            List<StudentAnswer> allAnswers = studentAnswerRepository.findByAttempt_AttemptId(attempt.getAttemptId());
+            int newTotal = allAnswers.stream()
+                    .filter(a -> a.getMarksAwarded() != null)
+                    .mapToInt(StudentAnswer::getMarksAwarded)
+                    .sum();
+            attempt.setScore(newTotal);
+            testAttemptRepository.save(attempt);
+
+            // Re-trigger leaderboard recalculation if attempt is completed
+            if ("COMPLETED".equalsIgnoreCase(attempt.getStatus()) && attempt.getTest() != null && attempt.getTest().getCourse() != null) {
+                eventPublisher.publishEvent(new com.MOOC.OnlineLearningPlatfrom.Event.TestAttemptCompletedEvent(
+                        attempt.getAttemptId(),
+                        attempt.getTest().getTestId(),
+                        attempt.getTest().getCourse().getId(),
+                        attempt.getUserId()
+                ));
+            }
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(savedAnswer);
     }
 }

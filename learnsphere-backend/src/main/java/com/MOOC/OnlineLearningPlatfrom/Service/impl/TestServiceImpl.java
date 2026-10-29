@@ -147,36 +147,48 @@ public class TestServiceImpl implements TestService {
     @Override
     public TestAttempt calculateAndFinalizeScore(Long attemptId) {
         TestAttempt attempt = testAttemptRepository.findById(attemptId)
-                .orElseThrow(() -> new RuntimeException("Attempt not found with id: " + attemptId));
+                .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
         List<StudentAnswer> answers = studentAnswerRepository.findByAttempt_AttemptId(attemptId);
         if (answers == null || answers.isEmpty()) {
             answers = attempt.getStudentAnswers() != null ? attempt.getStudentAnswers() : java.util.List.of();
         }
-        int totalScore = 0;
         for (StudentAnswer answer : answers) {
             Question question = answer.getQuestion();
             int marksForQuestion = question != null && question.getMarks() != null ? question.getMarks() : 0;
             String answerText = answer.getAnswerText();
             boolean hasAnswer = answerText != null && !answerText.trim().isEmpty();
-            int awarded = 0;
-            if (hasAnswer && question != null) {
+
+            if (question != null) {
                 String type = question.getQuestionType() != null ? question.getQuestionType().trim().toUpperCase() : "";
-                if (type.equals("MCQ") || type.equals("MULTIPLE_CHOICE")) {
-                    String correct = question.getCorrectAnswer();
-                    if (correct != null && correct.trim().equalsIgnoreCase(answerText.trim())) {
-                        awarded = marksForQuestion;
-                    } else {
-                        awarded = 0;
+                boolean isAutoGradable = type.equals("MCQ") || type.equals("MULTIPLE_CHOICE")
+                        || type.equals("TF") || type.equals("TRUE_FALSE") || type.equals("BOOLEAN");
+
+                if (isAutoGradable) {
+                    int awarded = 0;
+                    if (hasAnswer) {
+                        String correct = question.getCorrectAnswer();
+                        if (correct != null && correct.trim().equalsIgnoreCase(answerText.trim())) {
+                            awarded = marksForQuestion;
+                        }
                     }
+                    answer.setMarksAwarded(awarded);
                 } else {
-                    // SHORT_ANSWER / ESSAY / other free-text types: no reliable auto-grading,
-                    // so any non-empty answer earns full marks.
-                    awarded = marksForQuestion;
+                    // AC-17, [D-F3]: TEXT and subjective answers remain ungraded (null) until an instructor grades them.
+                    // Preserve manual grade if one was already assigned, otherwise leave as null.
+                    if (answer.getMarksAwarded() == null) {
+                        answer.setMarksAwarded(null);
+                    }
                 }
             }
-            answer.setMarksAwarded(awarded);
-            totalScore += awarded;
             studentAnswerRepository.save(answer);
+        }
+
+        // AC-16: Score is computed strictly from stored answers server-side
+        int totalScore = 0;
+        for (StudentAnswer answer : answers) {
+            if (answer.getMarksAwarded() != null) {
+                totalScore += answer.getMarksAwarded();
+            }
         }
         attempt.setScore(totalScore);
         attempt.setStatus("COMPLETED");

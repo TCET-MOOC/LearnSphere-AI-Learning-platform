@@ -265,3 +265,4 @@ class LegacyTestSurfaceRetirementTests extends PostgresIntegrationTest {
                 .andExpect(jsonPath("$.answers[0].correctAnswer").value("Raft"));
     }
 }
+

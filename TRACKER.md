@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-29 |
-| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. `W4-01` hides `correctAnswer` in student DTOs and retires leaky question reads. `W4-02` retires legacy `/api/tests` generic surfaces to admin-only deprecated and establishes `/api/assessments/**` (students) and `/api/teacher/tests/**` (teachers) as the canonical paths. |
-| Next milestone | **Wave 4 — Assessment integrity** (`W4-03 Options in Question.extra`). |
+| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02`, `W4-03`, `W4-04`, `W4-05` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. Assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with upsert semantics, and server-side auto-grading (MCQ/TF auto, TEXT manual, score computed dynamically). |
+| Next milestone | **Wave 4 — Assessment integrity** (`W4-06 Attempt lifecycle + timeout job`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1005,7 +1005,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W4-02 Retire legacy `/api/tests` surface
 - [x] W4-03 Options in `Question.extra`
 - [x] W4-04 One answer per question + upsert
-- [~] W4-05 Grading correctness (TEXT manual)
+- [x] W4-05 Grading correctness (TEXT manual)
 - [ ] W4-06 Attempt lifecycle + timeout job
 - [~] W4-07 Schedule/duration/attempt-limit enforcement
 - [ ] W4-08 BigDecimal score/marks migration
@@ -1079,6 +1079,23 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `StudentAnswerUpsertTests.java` covering 6 scenarios: database unique constraint enforcement, answer upsert updating existing record with stable answer ID, rejection of submission on COMPLETED attempt, rejection of submission on ABANDONED attempt, rejection and auto-abandonment on timed out attempt, and rejection of foreign test question.
   - Red: initial run failed 6/6 tests.
   - Green: `StudentAnswerUpsertTests` passed 6/6 tests. Full backend test suite `332/332` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
+
+**W4-05 evidence (2026-10-29) — Grading correctness (TEXT manual, auto-graded MCQ/TF, dynamic attempt score):**
+- Rules: AC-17, [D-F3], LMS Entity Reference Section 7 ("Auto-graded server-side on submission for MCQ/TF; TEXT questions remain null until instructor manual grading. Scores calculated server-side from student answers.").
+- Elimination of Flawed Auto-Grading (`TestServiceImpl.java`):
+  - Removed defective legacy logic that automatically awarded full marks to any non-empty free-text/essay answer and erroneously treated `TF` as free-text.
+  - MCQ and True/False (`MCQ`, `MULTIPLE_CHOICE`, `TF`, `TRUE_FALSE`, `BOOLEAN`): auto-graded server-side by strictly comparing student answer text against question `correctAnswer` (case-insensitive and trimmed). Matches earn full question marks; non-matches earn 0.
+  - Free-text and Essay (`TEXT`, `ESSAY`, `SHORT_ANSWER`): `marksAwarded` strictly remains `null` on submission/finalization until instructor manual grading.
+- Dynamic Server-Side Score Calculation (`TestServiceImpl.java`):
+  - On attempt finalization, `attempt.score` is calculated dynamically as `SUM(marksAwarded)` across all stored answers where `marksAwarded != null`. Client-provided scores are completely ignored.
+- Manual Grading & Attempt Score Synchronization (`TestController.java`):
+  - Implemented `PATCH /api/answers/{id}/grade` with strict input validation: `marksAwarded >= 0` and `marksAwarded <= question.marks`.
+  - Recalculates the parent `TestAttempt.score` across all stored answers, persists the updated attempt, publishes `TestAttemptCompletedEvent` (triggering asynchronous leaderboard updates), and returns `Cache-Control: private, no-store`.
+  - Stealth IDOR: unauthorized students attempting to grade answers receive RFC 9457 `404 NOT_FOUND`.
+- Red-green verification:
+  - Authored `GradingCorrectnessTests.java` covering 5 scenarios: auto-grading MCQ and TF correctly, leaving TEXT questions ungraded (`marksAwarded == null`) upon finalization with attempt score excluding TEXT marks, manual grading by instructor recalculating attempt score, rejection of invalid manual grade (negative or exceeding max marks) with 400 Bad Request, and stealth 404 rejection of unauthorized student manual grading.
+  - Red: initial run failed before elimination of [D-F3] and manual grade recalculation.
+  - Green: `GradingCorrectnessTests` passed 5/5 tests. Full backend test suite `337/337` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
 
 ### Wave 5 — Engagement and community
 - [~] W5-01 Canonical thread/post + legacy migration

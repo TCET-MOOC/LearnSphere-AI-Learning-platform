@@ -22,3 +22,4 @@ BEGIN
         DROP TABLE public.question_options CASCADE;
     END IF;
 END $$;
+

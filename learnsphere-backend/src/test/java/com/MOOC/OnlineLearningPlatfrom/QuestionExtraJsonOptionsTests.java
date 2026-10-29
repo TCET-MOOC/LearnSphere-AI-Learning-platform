@@ -286,3 +286,4 @@ class QuestionExtraJsonOptionsTests extends PostgresIntegrationTest {
                 .andExpect(jsonPath("$.detail", containsString("correctAnswer must match one of the options")));
     }
 }
+
