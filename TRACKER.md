@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-29 |
-| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02`, `W4-03`, `W4-04`, `W4-05`, `W4-06` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. Assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, score computed dynamically), and attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, and background `AttemptTimeoutJob`. |
-| Next milestone | **Wave 4 — Assessment integrity** (`W4-07 Schedule/duration/attempt-limit enforcement`). |
+| Current phase | **Wave 4 — Assessment integrity in progress (`W4-01`, `W4-02`, `W4-03`, `W4-04`, `W4-05`, `W4-06`, `W4-07` complete, verified green).** Wave 1 (`38f5597`), Wave 2 (`a125912`), and Wave 3 (`217230e`, `c9d4da6`) are 100% complete and verified green. Assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, score computed dynamically), attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, background `AttemptTimeoutJob`, and schedule/duration/attempt-limit enforcement with active-attempt resume and stealth 404 for un-enrolled students. |
+| Next milestone | **Wave 4 — Assessment integrity** (`W4-08 BigDecimal score/marks migration`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1007,7 +1007,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W4-04 One answer per question + upsert
 - [x] W4-05 Grading correctness (TEXT manual)
 - [x] W4-06 Attempt lifecycle + timeout job
-- [~] W4-07 Schedule/duration/attempt-limit enforcement
+- [x] W4-07 Schedule/duration/attempt-limit enforcement
 - [ ] W4-08 BigDecimal score/marks migration
 - [~] W4-09 Attempt review + manual-grade audit
 - [ ] W4-10 Assessment integrity suite
@@ -1119,6 +1119,27 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Authored `AttemptLifecycleAndTimeoutTests.java` covering 8 scenarios: starting attempt stamping server `startedAt` and `IN_PROGRESS` with null `completedAt`, on-time finalization stamping `completedAt` and `COMPLETED`, deadline expiration auto-abandoning on answer submission, deadline expiration auto-abandoning on finalization, background worker auto-abandoning and grading existing answers, active attempts remaining untouched within duration window, database status check constraint rejecting invalid statuses, and `tests.created_at` timestamp persistence.
   - Red: initial run failed with compilation failure (missing `AttemptTimeoutJob`) and missing lifecycle fields.
   - Green: `AttemptLifecycleAndTimeoutTests` passed 8/8 tests. Full backend test suite `345/345` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
+
+**W4-07 evidence (2026-10-29) — Schedule, duration, attempt-limit enforcement on start & stealth 404:**
+- Rules: AC-18, [D-F6, D-F7, D-F10], LMS Entity Reference Section 6.
+- Database Migration (Flyway `V18__test_max_attempts.sql`):
+  - Added `max_attempts INTEGER` column to `public.tests` table.
+- Entity & Service Updates:
+  - `Test.java`: mapped `private Integer maxAttempts` with getters/setters.
+  - `TestServiceImpl.startTestAttempt`:
+    - Enforced `scheduledAt`: if `scheduledAt` is set and in the future (`now < scheduledAt`), rejects start with RFC 9457 `400 BAD_REQUEST` ("Test is scheduled for a future time: ...").
+    - Enforced active attempt resume: checks previous in-progress attempts. If an attempt is within its duration window, resumes and returns that active attempt instead of creating a duplicate concurrent attempt. If an existing attempt is past its duration window, auto-transitions it to `ABANDONED` with `completedAt = deadline`.
+    - Enforced attempt limits: if `maxAttempts` is configured (> 0), counts finalized/used attempts (`COMPLETED` or `ABANDONED`); if `usedAttempts >= maxAttempts`, rejects start with RFC 9457 `400 BAD_REQUEST` ("Maximum attempt limit of ... reached for this test").
+    - Cleaned up exception handling: replaced generic `RuntimeException` with `ResourceNotFoundException` on missing test lookups.
+- Controller & Security Verification:
+  - `AssessmentController.java` (`POST /api/assessments/{id}/start`) & `TestController.java` (`POST /api/tests/{testId}/attempts`):
+    - Both endpoints enforce course enrollment check via `ownershipService.requireEnrolled(...)`.
+    - Un-enrolled students receive stealth `404 NOT_FOUND` (preventing test presence scanning).
+    - Responses return `Cache-Control: private, no-store`.
+- Red-green verification:
+  - Authored `ScheduleAndAttemptLimitTests.java` covering 7 scenarios: future scheduledAt rejection (400), past/null scheduledAt allowed (200), maxAttempts limit rejection (400), active in-progress attempt resume (200 with stable attempt ID), expired attempt auto-abandonment enabling new attempt within limits, unenrolled student stealth 404 rejection across both start surfaces, and private no-store cache header verification.
+  - Red: initial run failed 5/7 tests.
+  - Green: `ScheduleAndAttemptLimitTests` passed 7/7 tests. Full backend test suite `352/352` passed (`BUILD SUCCESS`). Full payments suite `10/10` passed (`BUILD SUCCESS`). Frontend Vitest suite `16 files / 79 tests` passed (`BUILD SUCCESS`). Frontend stylelint ratchet clean. Frontend production build passed (`BUILD_EXIT=0`).
 
 ### Wave 5 — Engagement and community
 - [~] W5-01 Canonical thread/post + legacy migration

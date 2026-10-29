@@ -52,13 +52,13 @@ public class TestServiceImpl implements TestService {
     @Override
     public Test getTestById(Long testId) {
         return testRepository.findById(testId)
-                .orElseThrow(() -> new RuntimeException("Test not found with id: " + testId));
+                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
     }
 
     @Override
     public Test updateTest(Long testId, Test testDetails) {
         Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new RuntimeException("Test not found with id: " + testId));
+                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
         test.setTitle(testDetails.getTitle());
         test.setDurationMinutes(testDetails.getDurationMinutes());
         test.setSecurityPolicy(testDetails.getSecurityPolicy());
@@ -75,14 +75,14 @@ public class TestServiceImpl implements TestService {
     @Override
     public void deleteTest(Long testId) {
         Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new RuntimeException("Test not found with id: " + testId));
+                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
         testRepository.delete(test);
     }
 
     @Override
     public Question addQuestionToTest(Long testId, Question question) {
         Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new RuntimeException("Test not found with id: " + testId));
+                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
         question.setTest(test);
         question.validateMcqCorrectAnswer();
         return questionRepository.save(question);
@@ -91,11 +91,58 @@ public class TestServiceImpl implements TestService {
     @Override
     public TestAttempt startTestAttempt(Long testId, Long userId) {
         Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new RuntimeException("Test not found with id: " + testId));
+                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1. Enforce scheduledAt: test not accessible before scheduled time
+        if (test.getScheduledAt() != null && now.isBefore(test.getScheduledAt())) {
+            throw new BadRequestException("Test is scheduled for a future time: " + test.getScheduledAt());
+        }
+
+        // 2. Check existing attempts for this user and test
+        List<TestAttempt> existingAttempts = testAttemptRepository.findByUserIdAndTest_TestId(userId, testId);
+        TestAttempt activeAttempt = null;
+
+        if (existingAttempts != null) {
+            for (TestAttempt attempt : existingAttempts) {
+                if ("IN_PROGRESS".equalsIgnoreCase(attempt.getStatus())) {
+                    LocalDateTime start = attempt.getStartedAt() != null ? attempt.getStartedAt() : attempt.getAttemptedAt();
+                    if (start != null && test.getDurationMinutes() != null && test.getDurationMinutes() > 0) {
+                        LocalDateTime deadline = start.plusMinutes(test.getDurationMinutes());
+                        if (now.isAfter(deadline)) {
+                            // Expired: auto-abandon
+                            attempt.setStatus("ABANDONED");
+                            attempt.setCompletedAt(deadline);
+                            testAttemptRepository.save(attempt);
+                            continue;
+                        }
+                    }
+                    activeAttempt = attempt;
+                    break;
+                }
+            }
+        }
+
+        // Resume existing active in-progress attempt if within duration window
+        if (activeAttempt != null) {
+            return activeAttempt;
+        }
+
+        // 3. Enforce attempt limit
+        if (test.getMaxAttempts() != null && test.getMaxAttempts() > 0 && existingAttempts != null) {
+            long usedAttempts = existingAttempts.stream()
+                    .filter(a -> "COMPLETED".equalsIgnoreCase(a.getStatus()) || "ABANDONED".equalsIgnoreCase(a.getStatus()))
+                    .count();
+            if (usedAttempts >= test.getMaxAttempts()) {
+                throw new BadRequestException("Maximum attempt limit of " + test.getMaxAttempts() + " reached for this test");
+            }
+        }
+
+        // 4. Start new attempt with server clock
         TestAttempt newAttempt = new TestAttempt();
         newAttempt.setTest(test);
         newAttempt.setUserId(userId);
-        LocalDateTime now = LocalDateTime.now();
         newAttempt.setStartedAt(now);
         newAttempt.setAttemptedAt(now);
         newAttempt.setCompletedAt(null);

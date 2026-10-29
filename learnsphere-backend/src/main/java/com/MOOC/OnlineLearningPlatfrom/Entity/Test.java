@@ -25,6 +25,7 @@ public class Test {
     private String securityPolicy;
     private LocalDateTime scheduledAt;
     private Boolean isRemedial = false;
+    private Integer maxAttempts;
     private LocalDateTime createdAt;
 
     @PrePersist
@@ -135,6 +136,14 @@ public class Test {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Integer getMaxAttempts() {
+        return maxAttempts;
+    }
+
+    public void setMaxAttempts(Integer maxAttempts) {
+        this.maxAttempts = maxAttempts;
     }
 
     public List<TestAttempt> getAttempts() {

@@ -168,7 +168,9 @@ public class TestController {
         Long userId = principal != null && principal.getUser() != null ? principal.getUser().getUserId()
                 : (payload != null && payload.get("userId") != null ? payload.get("userId") : 1L);
         ownershipService.requireSelf(userId, principal);
-        return ResponseEntity.ok(testService.startTestAttempt(testId, userId));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(testService.startTestAttempt(testId, userId));
     }
 
     @GetMapping("/attempts/{attemptId}")
