@@ -89,7 +89,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         if (tests.isEmpty()) return;
 
         // Collect all distinct student userIds who have completed attempts on tests in this course
-        Map<Long, Map<Long, Integer>> userTestBestScores = new HashMap<>(); // userId -> (testId -> bestScore)
+        Map<Long, Map<Long, BigDecimal>> userTestBestScores = new HashMap<>(); // userId -> (testId -> bestScore)
 
         for (Test t : tests) {
             List<TestAttempt> attempts = testAttemptRepository.findByTest_TestId(t.getTestId());
@@ -97,7 +97,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
                 if ("COMPLETED".equalsIgnoreCase(a.getStatus()) && a.getScore() != null && a.getUserId() != null) {
                     userTestBestScores
                             .computeIfAbsent(a.getUserId(), k -> new HashMap<>())
-                            .merge(t.getTestId(), a.getScore(), Math::max);
+                            .merge(t.getTestId(), a.getScore(), (s1, s2) -> s1.compareTo(s2) >= 0 ? s1 : s2);
                 }
             }
         }
@@ -105,12 +105,14 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         if (userTestBestScores.isEmpty()) return;
 
         // Precompute max marks for each test
-        Map<Long, Integer> testMaxMarks = new HashMap<>();
+        Map<Long, BigDecimal> testMaxMarks = new HashMap<>();
         for (Test t : tests) {
             List<Question> questions = questionRepository.findByTest_TestId(t.getTestId());
-            int maxMarks = 0;
+            BigDecimal maxMarks = BigDecimal.ZERO;
             for (Question q : questions) {
-                maxMarks += q.getMarks() != null ? q.getMarks() : 0;
+                if (q.getMarks() != null) {
+                    maxMarks = maxMarks.add(q.getMarks());
+                }
             }
             testMaxMarks.put(t.getTestId(), maxMarks);
         }
@@ -118,9 +120,9 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         // For each user, calculate average percentage score
         List<Leaderboard> entries = new ArrayList<>();
 
-        for (Map.Entry<Long, Map<Long, Integer>> userEntry : userTestBestScores.entrySet()) {
+        for (Map.Entry<Long, Map<Long, BigDecimal>> userEntry : userTestBestScores.entrySet()) {
             Long userId = userEntry.getKey();
-            Map<Long, Integer> scores = userEntry.getValue();
+            Map<Long, BigDecimal> scores = userEntry.getValue();
 
             UserAccount user = userAccountRepository.findById(userId).orElse(null);
             if (user == null) continue;
@@ -128,15 +130,15 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             double sumPercents = 0.0;
             int count = 0;
 
-            for (Map.Entry<Long, Integer> scoreEntry : scores.entrySet()) {
+            for (Map.Entry<Long, BigDecimal> scoreEntry : scores.entrySet()) {
                 Long testId = scoreEntry.getKey();
-                int score = scoreEntry.getValue();
-                int max = testMaxMarks.getOrDefault(testId, 0);
+                BigDecimal score = scoreEntry.getValue();
+                BigDecimal max = testMaxMarks.getOrDefault(testId, BigDecimal.ZERO);
                 double percent;
-                if (max > 0) {
-                    percent = (score * 100.0) / max;
+                if (max.compareTo(BigDecimal.ZERO) > 0) {
+                    percent = (score.doubleValue() * 100.0) / max.doubleValue();
                 } else {
-                    percent = (double) score;
+                    percent = score.doubleValue();
                 }
                 sumPercents += percent;
                 count++;

@@ -226,7 +226,7 @@ class AttemptLifecycleAndTimeoutTests extends PostgresIntegrationTest {
         TestAttempt refreshed = testAttemptRepository.findById(attempt.getAttemptId()).orElseThrow();
         assertThat(refreshed.getStatus()).isEqualTo("ABANDONED");
         assertThat(refreshed.getCompletedAt()).isNotNull();
-        assertThat(refreshed.getScore()).isEqualTo(10);
+        assertThat(refreshed.getScore()).isEqualByComparingTo("10");
     }
 
     @Test
@@ -253,7 +253,7 @@ class AttemptLifecycleAndTimeoutTests extends PostgresIntegrationTest {
         TestAttempt refreshed = testAttemptRepository.findById(expiredAttempt.getAttemptId()).orElseThrow();
         assertThat(refreshed.getStatus()).isEqualTo("ABANDONED");
         assertThat(refreshed.getCompletedAt()).isNotNull();
-        assertThat(refreshed.getScore()).isEqualTo(10);
+        assertThat(refreshed.getScore()).isEqualByComparingTo("10");
     }
 
     @Test

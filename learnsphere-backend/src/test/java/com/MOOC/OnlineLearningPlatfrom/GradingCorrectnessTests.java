@@ -182,10 +182,10 @@ class GradingCorrectnessTests extends PostgresIntegrationTest {
                 .andExpect(jsonPath("$.status", is("COMPLETED")));
 
         StudentAnswer evaluatedMcq = studentAnswerRepository.findById(mcqAnswer.getStudentAnswerId()).orElseThrow();
-        assertThat(evaluatedMcq.getMarksAwarded()).isEqualTo(5);
+        assertThat(evaluatedMcq.getMarksAwarded()).isEqualByComparingTo("5");
 
         StudentAnswer evaluatedTf = studentAnswerRepository.findById(tfAnswer.getStudentAnswerId()).orElseThrow();
-        assertThat(evaluatedTf.getMarksAwarded()).isEqualTo(0);
+        assertThat(evaluatedTf.getMarksAwarded()).isEqualByComparingTo("0");
     }
 
     @Test
@@ -227,7 +227,7 @@ class GradingCorrectnessTests extends PostgresIntegrationTest {
                 .isNull();
 
         TestAttempt evaluatedAttempt = testAttemptRepository.findById(attempt.getAttemptId()).orElseThrow();
-        assertThat(evaluatedAttempt.getScore()).isEqualTo(5);
+        assertThat(evaluatedAttempt.getScore()).isEqualByComparingTo("5");
     }
 
     @Test
@@ -273,13 +273,13 @@ class GradingCorrectnessTests extends PostgresIntegrationTest {
 
         // Verify StudentAnswer marksAwarded updated
         StudentAnswer gradedText = studentAnswerRepository.findById(textAnswer.getStudentAnswerId()).orElseThrow();
-        assertThat(gradedText.getMarksAwarded()).isEqualTo(8);
+        assertThat(gradedText.getMarksAwarded()).isEqualByComparingTo("8");
 
         // Verify parent TestAttempt score was recalculated: 5 (MCQ) + 8 (TEXT) = 13
         TestAttempt updatedAttempt = testAttemptRepository.findById(attempt.getAttemptId()).orElseThrow();
         assertThat(updatedAttempt.getScore())
                 .as("Attempt score must be recalculated to sum of all marksAwarded")
-                .isEqualTo(13);
+                .isEqualByComparingTo("13");
     }
 
     @Test

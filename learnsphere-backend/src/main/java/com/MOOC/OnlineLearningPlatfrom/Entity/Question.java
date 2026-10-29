@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class Question {
 
     private String questionType;
 
-    private Integer marks;
+    private BigDecimal marks;
 
     // The correct option text (for MCQ) or a short-answer key. Never exposed to students.
     private String correctAnswer;
@@ -149,12 +150,16 @@ public class Question {
         this.questionType = questionType;
     }
 
-    public Integer getMarks() {
+    public BigDecimal getMarks() {
         return marks;
     }
 
-    public void setMarks(Integer marks) {
+    public void setMarks(BigDecimal marks) {
         this.marks = marks;
+    }
+
+    public void setMarks(int marks) {
+        this.marks = BigDecimal.valueOf(marks);
     }
 
     public Test getTest() {

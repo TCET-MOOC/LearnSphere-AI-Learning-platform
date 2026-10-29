@@ -83,34 +83,36 @@ public class CertificateServiceImpl implements CertificateService {
                     .filter(t -> t.getIsRemedial() == null || !t.getIsRemedial())
                     .toList();
 
-            int totalMaxMarks = 0;
-            int totalScored = 0;
+            java.math.BigDecimal totalMaxMarks = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal totalScored = java.math.BigDecimal.ZERO;
             boolean hasAttempt = false;
 
             for (Test t : courseTests) {
-                int testMax = 0;
+                java.math.BigDecimal testMax = java.math.BigDecimal.ZERO;
                 List<Question> questions = questionRepository.findByTest_TestId(t.getTestId());
                 for (Question q : questions) {
-                    testMax += q.getMarks() != null ? q.getMarks() : 0;
+                    if (q.getMarks() != null) {
+                        testMax = testMax.add(q.getMarks());
+                    }
                 }
-                if (testMax <= 0) continue;
-                totalMaxMarks += testMax;
+                if (testMax.compareTo(java.math.BigDecimal.ZERO) <= 0) continue;
+                totalMaxMarks = totalMaxMarks.add(testMax);
 
                 List<TestAttempt> attempts = testAttemptRepository.findByUserIdAndTest_TestId(user.getUserId(), t.getTestId());
-                int best = 0;
+                java.math.BigDecimal best = java.math.BigDecimal.ZERO;
                 for (TestAttempt a : attempts) {
                     if ("COMPLETED".equalsIgnoreCase(a.getStatus()) && a.getScore() != null) {
                         hasAttempt = true;
-                        if (a.getScore() > best) {
+                        if (a.getScore().compareTo(best) > 0) {
                             best = a.getScore();
                         }
                     }
                 }
-                totalScored += best;
+                totalScored = totalScored.add(best);
             }
 
-            if (totalMaxMarks > 0 && hasAttempt) {
-                double percent = (totalScored * 100.0) / totalMaxMarks;
+            if (totalMaxMarks.compareTo(java.math.BigDecimal.ZERO) > 0 && hasAttempt) {
+                double percent = (totalScored.doubleValue() * 100.0) / totalMaxMarks.doubleValue();
                 realScore = Math.round(percent * 10.0) / 10.0;
             } else {
                 realScore = Math.round(calc.getProgressPercent() * 10.0) / 10.0;
@@ -132,18 +134,20 @@ public class CertificateServiceImpl implements CertificateService {
             }
             Double bestRemedialPercent = null;
             for (Test test : remedialTests) {
-                int maxMarks = 0;
+                java.math.BigDecimal maxMarks = java.math.BigDecimal.ZERO;
                 List<Question> questions = questionRepository.findByTest_TestId(test.getTestId());
                 for (Question q : questions) {
-                    maxMarks += q.getMarks() != null ? q.getMarks() : 0;
+                    if (q.getMarks() != null) {
+                        maxMarks = maxMarks.add(q.getMarks());
+                    }
                 }
-                if (maxMarks <= 0) {
+                if (maxMarks.compareTo(java.math.BigDecimal.ZERO) <= 0) {
                     continue;
                 }
                 List<TestAttempt> attempts = testAttemptRepository.findByUserIdAndTest_TestId(user.getUserId(), test.getTestId());
                 for (TestAttempt attempt : attempts) {
                     if ("COMPLETED".equalsIgnoreCase(attempt.getStatus()) && attempt.getScore() != null) {
-                        double percent = (attempt.getScore() * 100.0) / maxMarks;
+                        double percent = (attempt.getScore().doubleValue() * 100.0) / maxMarks.doubleValue();
                         if (percent >= 40.0) {
                             if (bestRemedialPercent == null || percent > bestRemedialPercent) {
                                 bestRemedialPercent = percent;

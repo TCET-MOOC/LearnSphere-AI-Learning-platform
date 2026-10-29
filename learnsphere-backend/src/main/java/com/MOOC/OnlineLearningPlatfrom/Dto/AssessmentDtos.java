@@ -6,6 +6,7 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Test;
 import com.MOOC.OnlineLearningPlatfrom.Entity.TestAttempt;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class AssessmentDtos {
         private Long questionId;
         private String body;
         private String questionType;
-        private Integer marks;
+        private BigDecimal marks;
         private List<String> options;
 
         public static QuestionDto from(Question q) {
@@ -77,7 +78,7 @@ public class AssessmentDtos {
         public Long getQuestionId() { return questionId; }
         public String getBody() { return body; }
         public String getQuestionType() { return questionType; }
-        public Integer getMarks() { return marks; }
+        public BigDecimal getMarks() { return marks; }
         public List<String> getOptions() { return options; }
     }
 
@@ -126,7 +127,7 @@ public class AssessmentDtos {
         private Long attemptId;
         private Long testId;
         private String status;
-        private Integer score;
+        private BigDecimal score;
         private LocalDateTime attemptedAt;
         private LocalDateTime startedAt;
         private LocalDateTime completedAt;
@@ -146,7 +147,7 @@ public class AssessmentDtos {
         public Long getAttemptId() { return attemptId; }
         public Long getTestId() { return testId; }
         public String getStatus() { return status; }
-        public Integer getScore() { return score; }
+        public BigDecimal getScore() { return score; }
         public LocalDateTime getAttemptedAt() { return attemptedAt; }
         public LocalDateTime getStartedAt() { return startedAt; }
         public LocalDateTime getCompletedAt() { return completedAt; }
@@ -158,11 +159,11 @@ public class AssessmentDtos {
         private Long questionId;
         private String questionBody;
         private String questionType;
-        private Integer marks;
+        private BigDecimal marks;
         private List<String> options;
         private String correctAnswer;
         private String studentAnswer;
-        private Integer marksAwarded;
+        private BigDecimal marksAwarded;
 
         public static AnswerReviewDto from(StudentAnswer answer) {
             boolean isCompleted = answer.getAttempt() != null && "COMPLETED".equalsIgnoreCase(answer.getAttempt().getStatus());
@@ -192,11 +193,11 @@ public class AssessmentDtos {
         public Long getQuestionId() { return questionId; }
         public String getQuestionBody() { return questionBody; }
         public String getQuestionType() { return questionType; }
-        public Integer getMarks() { return marks; }
+        public BigDecimal getMarks() { return marks; }
         public List<String> getOptions() { return options; }
         public String getCorrectAnswer() { return correctAnswer; }
         public String getStudentAnswer() { return studentAnswer; }
-        public Integer getMarksAwarded() { return marksAwarded; }
+        public BigDecimal getMarksAwarded() { return marksAwarded; }
     }
 
     // Full review for a completed (or in-progress) attempt.
@@ -206,8 +207,8 @@ public class AssessmentDtos {
         private Long testId;
         private String testTitle;
         private String status;
-        private Integer score;
-        private int maxScore;
+        private BigDecimal score;
+        private BigDecimal maxScore;
         private Boolean isRemedial;
         private LocalDateTime attemptedAt;
         private LocalDateTime startedAt;
@@ -223,8 +224,10 @@ public class AssessmentDtos {
                 dto.testTitle = test.getTitle();
                 dto.isRemedial = test.getIsRemedial();
                 dto.maxScore = test.getQuestions() != null
-                        ? test.getQuestions().stream().mapToInt(q -> q.getMarks() != null ? q.getMarks() : 0).sum()
-                        : 0;
+                        ? test.getQuestions().stream()
+                                .map(q -> q.getMarks() != null ? q.getMarks() : BigDecimal.ZERO)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        : BigDecimal.ZERO;
             }
             dto.status = attempt.getStatus();
             boolean isFinalized = "COMPLETED".equalsIgnoreCase(attempt.getStatus()) || "ABANDONED".equalsIgnoreCase(attempt.getStatus());
@@ -242,8 +245,8 @@ public class AssessmentDtos {
         public Long getTestId() { return testId; }
         public String getTestTitle() { return testTitle; }
         public String getStatus() { return status; }
-        public Integer getScore() { return score; }
-        public int getMaxScore() { return maxScore; }
+        public BigDecimal getScore() { return score; }
+        public BigDecimal getMaxScore() { return maxScore; }
         public Boolean getIsRemedial() { return isRemedial; }
         public LocalDateTime getAttemptedAt() { return attemptedAt; }
         public LocalDateTime getStartedAt() { return startedAt; }

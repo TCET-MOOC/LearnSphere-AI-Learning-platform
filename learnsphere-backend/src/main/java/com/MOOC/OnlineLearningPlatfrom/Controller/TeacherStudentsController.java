@@ -109,19 +109,21 @@ public class TeacherStudentsController {
             int scoredTests = 0;
             boolean isRemedial = false;
             for (Test test : allTests) {
-                int maxMarks = 0;
+                java.math.BigDecimal maxMarks = java.math.BigDecimal.ZERO;
                 if (test.getQuestions() != null) {
                     for (Question q : test.getQuestions()) {
-                        maxMarks += q.getMarks() != null ? q.getMarks() : 0;
+                        if (q.getMarks() != null) {
+                            maxMarks = maxMarks.add(q.getMarks());
+                        }
                     }
                 }
                 List<TestAttempt> attempts = testAttemptRepository.findByUserIdAndTest_TestId(studentId, test.getTestId());
                 TestAttempt best = attempts.stream()
                         .filter(a -> "COMPLETED".equalsIgnoreCase(a.getStatus()) && a.getScore() != null)
-                        .max(Comparator.comparingInt(TestAttempt::getScore))
+                        .max(Comparator.comparing(TestAttempt::getScore))
                         .orElse(null);
-                if (best != null && maxMarks > 0) {
-                    double percent = (best.getScore() * 100.0) / maxMarks;
+                if (best != null && maxMarks.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                    double percent = (best.getScore().doubleValue() * 100.0) / maxMarks.doubleValue();
                     scoreSum += percent;
                     scoredTests++;
                     if (Boolean.TRUE.equals(test.getIsRemedial()) && percent >= 40.0) {

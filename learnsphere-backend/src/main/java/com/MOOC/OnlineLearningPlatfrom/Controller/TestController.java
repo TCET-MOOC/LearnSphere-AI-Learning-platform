@@ -251,17 +251,17 @@ public class TestController {
         if (!body.containsKey("marksAwarded") || body.get("marksAwarded") == null) {
             throw new BadRequestException("marksAwarded is required");
         }
-        int marksAwarded;
+        java.math.BigDecimal marksAwarded;
         try {
-            marksAwarded = Integer.parseInt(body.get("marksAwarded").toString());
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("marksAwarded must be an integer");
+            marksAwarded = new java.math.BigDecimal(body.get("marksAwarded").toString());
+        } catch (Exception e) {
+            throw new BadRequestException("marksAwarded must be a valid number");
         }
 
-        int maxMarks = answer.getQuestion() != null && answer.getQuestion().getMarks() != null
+        java.math.BigDecimal maxMarks = answer.getQuestion() != null && answer.getQuestion().getMarks() != null
                 ? answer.getQuestion().getMarks()
-                : 100;
-        if (marksAwarded < 0 || marksAwarded > maxMarks) {
+                : java.math.BigDecimal.valueOf(100);
+        if (marksAwarded.compareTo(java.math.BigDecimal.ZERO) < 0 || marksAwarded.compareTo(maxMarks) > 0) {
             throw new BadRequestException("marksAwarded must be between 0 and " + maxMarks);
         }
 
@@ -272,10 +272,10 @@ public class TestController {
         TestAttempt attempt = answer.getAttempt();
         if (attempt != null) {
             List<StudentAnswer> allAnswers = studentAnswerRepository.findByAttempt_AttemptId(attempt.getAttemptId());
-            int newTotal = allAnswers.stream()
-                    .filter(a -> a.getMarksAwarded() != null)
-                    .mapToInt(StudentAnswer::getMarksAwarded)
-                    .sum();
+            java.math.BigDecimal newTotal = allAnswers.stream()
+                    .map(StudentAnswer::getMarksAwarded)
+                    .filter(java.util.Objects::nonNull)
+                    .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
             attempt.setScore(newTotal);
             testAttemptRepository.save(attempt);
 

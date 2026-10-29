@@ -2,6 +2,8 @@ package com.MOOC.OnlineLearningPlatfrom.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,7 +15,7 @@ public class TestAttempt {
     private Long attemptId;
 
     private Long userId;
-    private Integer score;
+    private BigDecimal score;
     private LocalDateTime attemptedAt;
     private LocalDateTime startedAt;
     private LocalDateTime completedAt;
@@ -45,8 +47,9 @@ public class TestAttempt {
     public void setAttemptId(Long attemptId) { this.attemptId = attemptId; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
-    public Integer getScore() { return score; }
-    public void setScore(Integer score) { this.score = score; }
+    public BigDecimal getScore() { return score; }
+    public void setScore(BigDecimal score) { this.score = score; }
+    public void setScore(int score) { this.score = BigDecimal.valueOf(score); }
     public LocalDateTime getAttemptedAt() { return attemptedAt != null ? attemptedAt : startedAt; }
     public void setAttemptedAt(LocalDateTime attemptedAt) {
         this.attemptedAt = attemptedAt;

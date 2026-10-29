@@ -14,6 +14,7 @@ import com.MOOC.OnlineLearningPlatfrom.Service.TestService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -186,7 +187,7 @@ public class TestServiceImpl implements TestService {
         if (existingOpt.isPresent()) {
             toSave = existingOpt.get();
             toSave.setAnswerText(studentAnswer.getAnswerText());
-            toSave.setMarksAwarded(null);
+            toSave.setMarksAwarded((BigDecimal) null);
         } else {
             toSave = studentAnswer;
             toSave.setAttempt(attempt);
@@ -220,7 +221,7 @@ public class TestServiceImpl implements TestService {
                 // Grade auto-gradable answers
                 for (StudentAnswer answer : answers) {
                     Question question = answer.getQuestion();
-                    int marksForQuestion = question != null && question.getMarks() != null ? question.getMarks() : 0;
+                    BigDecimal marksForQuestion = question != null && question.getMarks() != null ? question.getMarks() : BigDecimal.ZERO;
                     String answerText = answer.getAnswerText();
                     boolean hasAnswer = answerText != null && !answerText.trim().isEmpty();
                     if (question != null) {
@@ -228,7 +229,7 @@ public class TestServiceImpl implements TestService {
                         boolean isAutoGradable = type.equals("MCQ") || type.equals("MULTIPLE_CHOICE")
                                 || type.equals("TF") || type.equals("TRUE_FALSE") || type.equals("BOOLEAN");
                         if (isAutoGradable) {
-                            int awarded = 0;
+                            BigDecimal awarded = BigDecimal.ZERO;
                             if (hasAnswer) {
                                 String correct = question.getCorrectAnswer();
                                 if (correct != null && correct.trim().equalsIgnoreCase(answerText.trim())) {
@@ -240,10 +241,10 @@ public class TestServiceImpl implements TestService {
                         }
                     }
                 }
-                int totalScore = 0;
+                BigDecimal totalScore = BigDecimal.ZERO;
                 for (StudentAnswer answer : answers) {
                     if (answer.getMarksAwarded() != null) {
-                        totalScore += answer.getMarksAwarded();
+                        totalScore = totalScore.add(answer.getMarksAwarded());
                     }
                 }
                 attempt.setScore(totalScore);
@@ -262,7 +263,7 @@ public class TestServiceImpl implements TestService {
 
         for (StudentAnswer answer : answers) {
             Question question = answer.getQuestion();
-            int marksForQuestion = question != null && question.getMarks() != null ? question.getMarks() : 0;
+            BigDecimal marksForQuestion = question != null && question.getMarks() != null ? question.getMarks() : BigDecimal.ZERO;
             String answerText = answer.getAnswerText();
             boolean hasAnswer = answerText != null && !answerText.trim().isEmpty();
 
@@ -272,7 +273,7 @@ public class TestServiceImpl implements TestService {
                         || type.equals("TF") || type.equals("TRUE_FALSE") || type.equals("BOOLEAN");
 
                 if (isAutoGradable) {
-                    int awarded = 0;
+                    BigDecimal awarded = BigDecimal.ZERO;
                     if (hasAnswer) {
                         String correct = question.getCorrectAnswer();
                         if (correct != null && correct.trim().equalsIgnoreCase(answerText.trim())) {
@@ -284,7 +285,7 @@ public class TestServiceImpl implements TestService {
                     // AC-17, [D-F3]: TEXT and subjective answers remain ungraded (null) until an instructor grades them.
                     // Preserve manual grade if one was already assigned, otherwise leave as null.
                     if (answer.getMarksAwarded() == null) {
-                        answer.setMarksAwarded(null);
+                        answer.setMarksAwarded((BigDecimal) null);
                     }
                 }
             }
@@ -292,10 +293,10 @@ public class TestServiceImpl implements TestService {
         }
 
         // AC-16: Score is computed strictly from stored answers server-side
-        int totalScore = 0;
+        BigDecimal totalScore = BigDecimal.ZERO;
         for (StudentAnswer answer : answers) {
             if (answer.getMarksAwarded() != null) {
-                totalScore += answer.getMarksAwarded();
+                totalScore = totalScore.add(answer.getMarksAwarded());
             }
         }
         attempt.setScore(totalScore);

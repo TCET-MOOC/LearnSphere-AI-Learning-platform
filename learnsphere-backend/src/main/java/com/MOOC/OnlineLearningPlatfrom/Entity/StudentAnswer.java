@@ -1,7 +1,9 @@
 package com.MOOC.OnlineLearningPlatfrom.Entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty; // <-- IMPORTANT: New import
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "student_answers", uniqueConstraints = {
@@ -14,24 +16,17 @@ public class StudentAnswer {
 
     @Column(columnDefinition = "TEXT")
     private String answerText;
-    private Integer marksAwarded;
-
-    // --- UPDATED RELATIONSHIPS ---
+    private BigDecimal marksAwarded;
 
     @ManyToOne
     @JoinColumn(name = "attempt_id")
-    // This allows you to SEND an attempt ID, but it won't be in the RESPONSE JSON
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private TestAttempt attempt;
 
     @ManyToOne
     @JoinColumn(name = "question_id")
-    // This allows you to SEND a question ID, but it won't be in the RESPONSE JSON
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Question question;
-
-
-    // --- Getters and Setters ---
 
     public Long getStudentAnswerId() {
         return studentAnswerId;
@@ -49,12 +44,16 @@ public class StudentAnswer {
         this.answerText = answerText;
     }
 
-    public Integer getMarksAwarded() {
+    public BigDecimal getMarksAwarded() {
         return marksAwarded;
     }
 
-    public void setMarksAwarded(Integer marksAwarded) {
+    public void setMarksAwarded(BigDecimal marksAwarded) {
         this.marksAwarded = marksAwarded;
+    }
+
+    public void setMarksAwarded(int marksAwarded) {
+        this.marksAwarded = BigDecimal.valueOf(marksAwarded);
     }
 
     public TestAttempt getAttempt() {

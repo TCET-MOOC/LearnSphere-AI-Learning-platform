@@ -84,7 +84,7 @@ public class AttemptTimeoutJob {
 
                 // Auto-grade existing stored answers
                 List<StudentAnswer> answers = studentAnswerRepository.findByAttempt_AttemptId(attempt.getAttemptId());
-                int totalScore = 0;
+                java.math.BigDecimal totalScore = java.math.BigDecimal.ZERO;
                 if (answers != null) {
                     for (StudentAnswer answer : answers) {
                         Question question = answer.getQuestion();
@@ -97,16 +97,16 @@ public class AttemptTimeoutJob {
                                 String correct = question.getCorrectAnswer();
                                 String studentAns = answer.getAnswerText();
                                 if (correct != null && studentAns != null && correct.trim().equalsIgnoreCase(studentAns.trim())) {
-                                    int marks = question.getMarks() != null ? question.getMarks() : 0;
+                                    java.math.BigDecimal marks = question.getMarks() != null ? question.getMarks() : java.math.BigDecimal.ZERO;
                                     answer.setMarksAwarded(marks);
                                 } else {
-                                    answer.setMarksAwarded(0);
+                                    answer.setMarksAwarded(java.math.BigDecimal.ZERO);
                                 }
                                 studentAnswerRepository.save(answer);
                             }
                         }
                         if (answer.getMarksAwarded() != null) {
-                            totalScore += answer.getMarksAwarded();
+                            totalScore = totalScore.add(answer.getMarksAwarded());
                         }
                     }
                 }
