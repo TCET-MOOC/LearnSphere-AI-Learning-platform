@@ -14,6 +14,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.TestAttemptRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.TestRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService;
+import com.MOOC.OnlineLearningPlatfrom.Service.AuditService;
 import com.MOOC.OnlineLearningPlatfrom.Service.TestService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +38,7 @@ public class TestController {
     private final CourseRepository courseRepository;
     private final OwnershipService ownershipService;
     private final ApplicationEventPublisher eventPublisher;
+    private final AuditService auditService;
 
     public TestController(TestService testService,
                           TestRepository testRepository,
@@ -45,7 +47,8 @@ public class TestController {
                           StudentAnswerRepository studentAnswerRepository,
                           CourseRepository courseRepository,
                           OwnershipService ownershipService,
-                          ApplicationEventPublisher eventPublisher) {
+                          ApplicationEventPublisher eventPublisher,
+                          AuditService auditService) {
         this.testService = testService;
         this.testRepository = testRepository;
         this.testAttemptRepository = testAttemptRepository;
@@ -54,6 +57,7 @@ public class TestController {
         this.courseRepository = courseRepository;
         this.ownershipService = ownershipService;
         this.eventPublisher = eventPublisher;
+        this.auditService = auditService;
     }
 
     // --- Course-scoped tests ---
@@ -178,7 +182,9 @@ public class TestController {
             @PathVariable Long attemptId,
             @AuthenticationPrincipal CustomUserDetails principal) {
         TestAttempt attempt = ownershipService.requireAttemptOwnerOrStaff(attemptId, principal);
-        return ResponseEntity.ok(attempt);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(attempt);
     }
 
     @PostMapping("/attempts/{attemptId}/submit")
@@ -231,8 +237,29 @@ public class TestController {
     public ResponseEntity<List<StudentAnswer>> getAttemptAnswers(
             @PathVariable Long attemptId,
             @AuthenticationPrincipal CustomUserDetails principal) {
-        ownershipService.requireAttemptOwnerOrStaff(attemptId, principal);
-        return ResponseEntity.ok(studentAnswerRepository.findByAttempt_AttemptId(attemptId));
+        TestAttempt attempt = ownershipService.requireAttemptOwnerOrStaff(attemptId, principal);
+        List<StudentAnswer> answers = studentAnswerRepository.findByAttempt_AttemptId(attemptId);
+
+        boolean isStaffOrAdmin = principal != null && principal.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_TEACHER") || a.getAuthority().equals("ROLE_INSTRUCTOR"));
+        boolean isFinalized = "COMPLETED".equalsIgnoreCase(attempt.getStatus()) || "ABANDONED".equalsIgnoreCase(attempt.getStatus());
+
+        if (!isStaffOrAdmin && !isFinalized) {
+            // For student own attempt while still in-progress, mask marksAwarded so grading info does not leak
+            answers = answers.stream().map(a -> {
+                StudentAnswer masked = new StudentAnswer();
+                masked.setStudentAnswerId(a.getStudentAnswerId());
+                masked.setAnswerText(a.getAnswerText());
+                masked.setAttempt(a.getAttempt());
+                masked.setQuestion(a.getQuestion());
+                masked.setMarksAwarded((java.math.BigDecimal) null);
+                return masked;
+            }).toList();
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(answers);
     }
 
     @PatchMapping("/answers/{id}/grade")
@@ -265,14 +292,18 @@ public class TestController {
             throw new BadRequestException("marksAwarded must be between 0 and " + maxMarks);
         }
 
+        java.math.BigDecimal oldMarks = answer.getMarksAwarded();
+        TestAttempt attempt = answer.getAttempt();
+        java.math.BigDecimal oldScore = attempt != null ? attempt.getScore() : null;
+
         answer.setMarksAwarded(marksAwarded);
         StudentAnswer savedAnswer = studentAnswerRepository.save(answer);
 
         // Recalculate parent attempt score from stored answers only (AC-16, [D-F3])
-        TestAttempt attempt = answer.getAttempt();
+        java.math.BigDecimal newTotal = null;
         if (attempt != null) {
             List<StudentAnswer> allAnswers = studentAnswerRepository.findByAttempt_AttemptId(attempt.getAttemptId());
-            java.math.BigDecimal newTotal = allAnswers.stream()
+            newTotal = allAnswers.stream()
                     .map(StudentAnswer::getMarksAwarded)
                     .filter(java.util.Objects::nonNull)
                     .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
@@ -289,6 +320,26 @@ public class TestController {
                 ));
             }
         }
+
+        // Record audit log entry (AC-15, AC-16, W4-09)
+        Map<String, Object> beforeMap = new java.util.LinkedHashMap<>();
+        if (oldMarks != null) beforeMap.put("marksAwarded", oldMarks);
+        if (oldScore != null) beforeMap.put("attemptScore", oldScore);
+
+        Map<String, Object> afterMap = new java.util.LinkedHashMap<>();
+        afterMap.put("marksAwarded", marksAwarded);
+        if (newTotal != null) afterMap.put("attemptScore", newTotal);
+        if (body.containsKey("feedback") && body.get("feedback") != null) {
+            afterMap.put("feedback", body.get("feedback").toString());
+        }
+
+        auditService.record(
+                AuditService.MANUAL_GRADE_AWARDED,
+                AuditService.RESOURCE_STUDENT_ANSWER,
+                id,
+                beforeMap,
+                afterMap
+        );
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")

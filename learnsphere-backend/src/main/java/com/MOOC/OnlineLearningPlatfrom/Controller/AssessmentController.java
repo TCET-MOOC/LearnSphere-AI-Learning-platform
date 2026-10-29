@@ -153,7 +153,7 @@ public class AssessmentController {
     @GetMapping("/attempts/{attemptId}")
     public ResponseEntity<AttemptReviewDto> getAttemptReview(@PathVariable Long attemptId,
                                                                @AuthenticationPrincipal CustomUserDetails principal) {
-        TestAttempt attempt = assertOwnedAttempt(attemptId, principal.getUser().getUserId());
+        TestAttempt attempt = ownershipService.requireAttemptOwnerOrStaff(attemptId, principal);
         List<StudentAnswer> answers = studentAnswerRepository.findByAttempt_AttemptId(attemptId);
         if (answers != null && !answers.isEmpty()) {
             attempt.setStudentAnswers(answers);
