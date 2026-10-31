@@ -71,7 +71,7 @@ public class OrderController {
             }
             org.springframework.http.HttpEntity<Void> entity = new org.springframework.http.HttpEntity<>(headers);
 
-            int amountInPaise = 100000; // default 1000 INR fallback if backend unavailable
+            Integer amountInPaise = null;
             try {
                 ResponseEntity<Map> response = restTemplate.exchange(courseUrl, org.springframework.http.HttpMethod.GET, entity, Map.class);
                 if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -83,6 +83,14 @@ public class OrderController {
                 }
             } catch (Exception fetchEx) {
                 log.warn("Course price fetch via internal call failed: {}", fetchEx.getMessage());
+            }
+
+            // No price fallback: if course price cannot be resolved, fail closed
+            if (amountInPaise == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", "ERROR",
+                        "message", "Unable to determine course price. Please try again."
+                ));
             }
 
             if (amountInPaise <= 0) {
@@ -187,31 +195,82 @@ public class OrderController {
 
     @PostMapping("/verify")
     public ResponseEntity<?> verifyPayment(@RequestBody Map<String, String> request) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        if (currentUserId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
         String rzpOrderId = request.get("razorpay_order_id");
         String rzpPaymentId = request.get("razorpay_payment_id");
         String rzpSignature = request.get("razorpay_signature");
 
-        if (rzpOrderId == null || rzpPaymentId == null) {
-            return ResponseEntity.badRequest().body("razorpay_order_id and razorpay_payment_id are required");
+        if (rzpOrderId == null || rzpPaymentId == null || rzpSignature == null || rzpSignature.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "ERROR",
+                    "message", "razorpay_order_id, razorpay_payment_id, and razorpay_signature are required"
+            ));
         }
 
         var orderOpt = orderRepository.findByRazorpayOrderId(rzpOrderId);
         if (orderOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Order not found: " + rzpOrderId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found: " + rzpOrderId);
         }
 
         Order order = orderOpt.get();
 
-        if (rzpSignature != null && razorpayKeySecret != null && !razorpayKeySecret.isBlank()) {
-            try {
-                JSONObject options = new JSONObject();
-                options.put("razorpay_order_id", rzpOrderId);
-                options.put("razorpay_payment_id", rzpPaymentId);
-                options.put("razorpay_signature", rzpSignature);
-                com.razorpay.Utils.verifyPaymentSignature(options, razorpayKeySecret);
-            } catch (Exception sigEx) {
-                log.warn("Signature verification notice: {}", sigEx.getMessage());
+        // IDOR defense: caller must own this order
+        if (!order.getUserId().equals(currentUserId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        // Idempotency check: if order is already PAID
+        if (order.getStatus() == Order.OrderStatus.PAID) {
+            if (paymentRepository.existsByRazorpayPaymentId(rzpPaymentId)) {
+                return ResponseEntity.ok(Map.of(
+                        "status", "SUCCESS",
+                        "message", "Payment already verified and enrollment confirmed!",
+                        "order_id", rzpOrderId,
+                        "payment_id", rzpPaymentId
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                        "status", "CONFLICT",
+                        "message", "Order has already been paid and captured."
+                ));
             }
+        }
+
+        // Fail-closed signature verification
+        if (razorpayKeySecret == null || razorpayKeySecret.isBlank()) {
+            log.error("Razorpay key secret not configured; failing closed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Payment gateway verification unavailable");
+        }
+
+        try {
+            JSONObject options = new JSONObject();
+            options.put("razorpay_order_id", rzpOrderId);
+            options.put("razorpay_payment_id", rzpPaymentId);
+            options.put("razorpay_signature", rzpSignature);
+            boolean verified = com.razorpay.Utils.verifyPaymentSignature(options, razorpayKeySecret);
+            if (!verified) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "ERROR",
+                        "message", "Invalid signature"
+                ));
+            }
+        } catch (Exception sigEx) {
+            log.warn("Signature verification failed: {}", sigEx.getMessage());
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "ERROR",
+                    "message", "Invalid signature: " + sigEx.getMessage()
+            ));
+        }
+
+        if (paymentRepository.existsByRazorpayPaymentId(rzpPaymentId)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                    "status", "CONFLICT",
+                    "message", "Payment has already been processed."
+            ));
         }
 
         order.setStatus(Order.OrderStatus.PAID);

@@ -1394,7 +1394,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W6-01 Remove simulated checkout rail
 - [x] W6-02 Payments service authentication
 
-- [~] W6-03 Fail-closed verification + order idempotency
+- [x] W6-03 Fail-closed verification + order idempotency
 - [ ] W6-04 Remove `/orders/simulate-success`
 - [~] W6-05 Internal enrol: server price + idempotent ledger
 - [~] W6-06 One ledger + reconciliation
@@ -1407,6 +1407,26 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
 
+
+**W6-03 evidence (2026-10-31) — Fail-closed verification + order idempotency:**
+- Rules: AC-19, AUD-03, `[F-F2, F-F4, F-F5]`, spec §3.5, §6.
+- Fail-Closed Payment Verification:
+  - In `OrderController.verifyPayment`: `razorpay_signature` is strictly mandatory; missing signature immediately rejects with RFC 9457 `400 BAD_REQUEST`.
+  - Enforced cryptographic verification via Razorpay SDK `Utils.verifyPaymentSignature`. Invalid, altered, or forged signatures immediately return `400 BAD_REQUEST` ("Invalid signature").
+  - The order remains strictly in `CREATED` status, no `Payment` row is written, and `/internal/enroll` is NEVER invoked on signature verification failure.
+- Order Idempotency & Single Capture:
+  - Enforced one capture per order: if `order.status == PAID`, an exact replay with the same `razorpay_payment_id` returns idempotent `200 OK` without creating duplicate payments or re-triggering enrollment.
+  - Double-capture attempts with a distinct `razorpay_payment_id` on an already-paid order are rejected with RFC 9457 `409 CONFLICT` ("Order has already been paid and captured.").
+  - Stealth 404 IDOR defense: foreign users attempting to verify another student's order receive `404 NOT_FOUND`.
+- Strict Server-Side Pricing (No Fallback):
+  - In `createOrder`: completely eliminated the legacy default fallback of 100,000 paise (₹1,000).
+  - If course price cannot be resolved from the backend (outage, network error, missing price), the request fails fast with `400 BAD_REQUEST` ("Unable to determine course price. Please try again.").
+  - Free courses (amount <= 0) cannot be ordered via gateway and reject with `400 BAD_REQUEST`.
+- Red-green verification:
+  - Authored `FailClosedVerificationAndIdempotencyTests.java` covering price resolution failure, invalid signature rejection (400), missing signature (400), valid verification, idempotent replay, double-capture conflict (409), and foreign order stealth 404.
+  - Red: initial run failed 5/6 tests (fail-open signature, missing signature accepted, duplicate capture accepted, foreign access allowed, and duplicate key crash on replay).
+  - Green: `FailClosedVerificationAndIdempotencyTests` passed 6/6 tests.
+  - Full payments service suite passed 23/23 tests (`BUILD SUCCESS`).
 
 **W6-02 evidence (2026-10-31) — Payments service authentication and ownership:**
 - Rules: AUD-04, NFR-03, `[F-F2]`, spec §5, §6.
