@@ -1254,7 +1254,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W5-04 Moderation on canonical posts
 - [x] W5-05 Course-scoped announcements
 - [x] W5-06 Notification event catalogue + outbox
-- [~] W5-07 Live session enrolment gating
+- [x] W5-07 Live session enrolment gating
 - [~] W5-08 Messaging pagination/authorization
 - [~] W5-09 Feedback eligibility + average
 - [ ] W5-10 Live media provider + player integration
@@ -1335,6 +1335,15 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Manual & Scheduled trigger: Outbox runs on a periodic background schedule (@Scheduled(fixedDelay = 5000)) with an on-demand endpoint POST /api/notifications/outbox/process.
 - Migration: Created V24__notification_outbox.sql creating notification_outbox with foreign key to users(user_id) ON DELETE CASCADE, unique constraint uq_outbox_event_aggregate_recipient, and performance indexes idx_outbox_status_created_at, idx_outbox_recipient_id, idx_notifications_user_created, idx_notifications_user_read.
 - Integration tests: Authored NotificationCatalogueAndOutboxTests (7/7 scenarios passed green). Full community suite (45/45) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
+
+**W5-07 evidence (2026-10-31) — Live session enrolment gating:**
+- Contract: Rules A-18, [E-F16], and NFR-03 strictly implemented:
+  - Enrolment gating: GET /api/student/live-sessions/{id} is strictly restricted to students actively enrolled in the course, or course staff/admins. Unenrolled students receive 404 NOT_FOUND (IDOR defense preventing discovery of live session existence). Unauthenticated requests return 401 UNAUTHORIZED.
+  - Feed isolation: GET /api/student/live-sessions returns only live sessions for courses where the student holds an active enrollment (plus taught courses for teachers). Students with no active enrollments receive an empty list (no leakage of foreign course sessions).
+  - Teacher authorization: Starting (PUT /api/teacher/live-sessions/{id}/start), ending (PUT /api/teacher/live-sessions/{id}/end), and creating (POST /api/teacher/live-sessions) require course staff or admin privileges. Attempts by teachers from other courses return 404 NOT_FOUND. Attempts by students return 403 FORBIDDEN.
+  - Scope boundaries: Attendance tracking and recordings remain explicitly out of scope for v1 per A-18.
+  - Caching & Performance: Cache-Control: private, no-store enforced on GET /api/student/live-sessions and GET /api/student/live-sessions/{id}.
+- Integration tests: Authored LiveSessionEnrolmentGatingTests (11/11 scenarios passed green). Full community regression suite (69/69) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
 
 ### Wave 6 — Commerce, royalties and institutions
 - [~] W6-01 Remove simulated checkout rail

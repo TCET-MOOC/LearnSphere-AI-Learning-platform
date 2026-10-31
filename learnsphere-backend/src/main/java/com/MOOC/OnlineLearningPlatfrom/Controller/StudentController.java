@@ -64,14 +64,14 @@ public class StudentController {
     @GetMapping("/live-sessions")
     public ResponseEntity<List<com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto>> getLiveSessions(@AuthenticationPrincipal CustomUserDetails principal) {
         requireUserId(principal);
-        return ResponseEntity.ok(liveSessionService.getStudentSessions(principal));
+        return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore().cachePrivate()).body(liveSessionService.getStudentSessions(principal));
     }
 
     @GetMapping("/live-sessions/{id}")
     public ResponseEntity<com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto> getLiveSession(@PathVariable Long id,
                                                                                                        @AuthenticationPrincipal CustomUserDetails principal) {
         requireUserId(principal);
-        return ResponseEntity.ok(liveSessionService.getSessionById(id));
+        return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore().cachePrivate()).body(liveSessionService.getSessionById(id, principal));
     }
 
     @GetMapping("/courses")
