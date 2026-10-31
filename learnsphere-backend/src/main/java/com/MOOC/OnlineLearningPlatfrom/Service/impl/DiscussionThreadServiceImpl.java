@@ -2,6 +2,7 @@ package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.DiscussionThread;
+import com.MOOC.OnlineLearningPlatfrom.Entity.FlaggedContent;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Post;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserAccount;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
@@ -11,6 +12,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.DiscussionThreadRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.PostRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.DiscussionThreadService;
+import com.MOOC.OnlineLearningPlatfrom.Service.ModerationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +27,18 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
     private final PostRepository postRepository;
     private final CourseRepository courseRepository;
     private final UserAccountRepository userAccountRepository;
+    private final ModerationService moderationService;
 
     public DiscussionThreadServiceImpl(DiscussionThreadRepository threadRepository,
                                        PostRepository postRepository,
                                        CourseRepository courseRepository,
-                                       UserAccountRepository userAccountRepository) {
+                                       UserAccountRepository userAccountRepository,
+                                       ModerationService moderationService) {
         this.threadRepository = threadRepository;
         this.postRepository = postRepository;
         this.courseRepository = courseRepository;
         this.userAccountRepository = userAccountRepository;
+        this.moderationService = moderationService;
     }
 
     @Override
@@ -71,7 +76,16 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
 
         thread.setCourse(course);
         thread.setUser(user);
-        return threadRepository.save(thread);
+
+        FlaggedContent.Reason reason = moderationService.classify((thread.getTitle() != null ? thread.getTitle() : "") + " " + (thread.getContent() != null ? thread.getContent() : ""));
+        if (reason != null) {
+            thread.setFlagged(true);
+        }
+        DiscussionThread saved = threadRepository.save(thread);
+        if (reason != null) {
+            moderationService.recordAutoFlag(FlaggedContent.ContentType.DISCUSSION_THREAD, saved.getThreadId(), reason);
+        }
+        return saved;
     }
 
     @Override
@@ -88,6 +102,12 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
             existing.setContent(updated.getContent());
         }
         existing.setUpdatedAt(LocalDateTime.now());
+
+        FlaggedContent.Reason reason = moderationService.classify((existing.getTitle() != null ? existing.getTitle() : "") + " " + (existing.getContent() != null ? existing.getContent() : ""));
+        if (reason != null) {
+            existing.setFlagged(true);
+            moderationService.recordAutoFlag(FlaggedContent.ContentType.DISCUSSION_THREAD, existing.getThreadId(), reason);
+        }
 
         return threadRepository.save(existing);
     }
@@ -110,6 +130,13 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
             throw new ResourceNotFoundException("Thread not found with id: " + threadId);
         }
         return postRepository.findByThread_ThreadIdOrderByCreatedAtAsc(threadId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Post getPostById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
     }
 
     @Override
@@ -142,7 +169,16 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
             post.setParentPost(parent);
         }
 
+        FlaggedContent.Reason reason = moderationService.classify(post.getBody());
+        if (reason != null) {
+            post.setFlagged(true);
+        }
+
         Post saved = postRepository.save(post);
+        if (reason != null) {
+            moderationService.recordAutoFlag(FlaggedContent.ContentType.DISCUSSION_POST, saved.getPostId(), reason);
+        }
+
         if (thread.getPosts() != null) {
             thread.getPosts().add(saved);
         }
@@ -160,6 +196,11 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
 
         if (updated.getBody() != null && !updated.getBody().isBlank()) {
             existing.setBody(updated.getBody());
+            FlaggedContent.Reason reason = moderationService.classify(existing.getBody());
+            if (reason != null) {
+                existing.setFlagged(true);
+                moderationService.recordAutoFlag(FlaggedContent.ContentType.DISCUSSION_POST, existing.getPostId(), reason);
+            }
         }
 
         return postRepository.save(existing);

@@ -7,7 +7,7 @@
 |---|---|
 | Last updated | 2026-10-31 |
 | Current phase | **Wave 4 — Assessment integrity 100% COMPLETE & VERIFIED GREEN (`W4-01` through `W4-11`).** Wave 1 (`38f5597`), Wave 2 (`a125912`), Wave 3 (`217230e`, `c9d4da6`), and Wave 4 are 100% complete and verified green. Full assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with in-place upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, dynamic score computation), attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, background `AttemptTimeoutJob`, schedule/duration/attempt-limit enforcement with active-attempt resume, `BigDecimal(8,2)` score/marks precision across schema, entities, and grading engines, attempt review with answer privacy and manual-grading audit logging, player-attached quiz binding (`CourseContent`), post-video completion gate with sticky pass guarantee and non-retroactive revocation (BR-25, BR-10), and comprehensive locked assessment integrity integration suite (`AssessmentIntegritySuiteTests` & `PlayerAttachedQuizCompletionGateTests`). |
-| Next milestone | **Wave 5 — Engagement and community** (`W5-04 Moderation on canonical posts`). |
+| Next milestone | **Wave 5 — Engagement and community** (`W5-05 Course-scoped announcements`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1251,7 +1251,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W5-01 Canonical thread/post + legacy migration
 - [x] W5-02 Enrolment-gated community reads/writes
 - [x] W5-03 Reply nesting + cross-thread validation
-- [~] W5-04 Moderation on canonical posts
+- [x] W5-04 Moderation on canonical posts
 - [~] W5-05 Course-scoped announcements
 - [ ] W5-06 Notification event catalogue + outbox
 - [~] W5-07 Live session enrolment gating
@@ -1300,6 +1300,19 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Added `ON DELETE CASCADE` constraint on `post.parent_post_id` in `V21__discussion_thread_canonical_migration.sql`.
 - Integration tests: Authored `ReplyNestingAndValidationTests` (6/6 scenarios passed green).
 - Regression: All 15 discussion integration tests (`CanonicalDiscussionThreadTests`, `EnrolmentGatedCommunityTests`) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
+
+**W5-04 evidence (2026-10-31) — Moderation on canonical posts:**
+- Contract: Rules `[E-F7, E-F8]` and NFR-03 implemented:
+  - Automated profanity and keyword auto-flagging on post and thread creation/updates via `ModerationService.classify` and `recordAutoFlag` (`BULLYING` and `SPAM` keywords). Offending content receives `flagged = true` and generates a `PENDING` entry in `flagged_content`.
+  - Batch scan: `ModerationServiceImpl.scanAndFlag()` scans posts, threads, and messages in non-readonly transaction and populates pending queue.
+  - Queue retrieval: Admin `GET /api/admin/flagged` with category filtering (`bullying`, `spam`, etc.), author metadata, course titles, snippets, and `Cache-Control: private, no-store`.
+  - Authorization: Strict RBAC on `/api/admin/flagged/**` — anonymous requests return 401 Unauthorized; Student and Teacher requests return 403 Forbidden.
+  - Resolve moderation: Admin `PUT /api/admin/flagged/{id}/resolve` marks flag `RESOLVED`, masks the underlying content with `[Content removed by moderator]`, and resets `flagged = false`.
+  - Dismiss moderation: Admin `PUT /api/admin/flagged/{id}/dismiss` marks flag `DISMISSED`, preserves original text, and resets `flagged = false`.
+  - User manual reporting: Enrolled students and staff can flag posts (`POST /api/posts/{id}/flag`) and threads (`POST /api/threads/{id}/flag`) recording `reporterId` and reason. Unenrolled requests rejected with 404.
+- Migration: Created `V22__moderation_discussion_thread_check.sql` expanding `flagged_content_content_type_check` to accept `DISCUSSION_THREAD`.
+- Performance: Added `LEFT JOIN FETCH p.user` in `PostRepository` queries and `@JsonIgnore` on `Post.replies` to eliminate lazy serialization overhead.
+- Integration tests: `CanonicalPostModerationTests` passed 7/7 scenarios. Full discussion suite (28/28) passed green. Frontend suite (79/79) passed green.
 
 ### Wave 6 — Commerce, royalties and institutions
 - [~] W6-01 Remove simulated checkout rail

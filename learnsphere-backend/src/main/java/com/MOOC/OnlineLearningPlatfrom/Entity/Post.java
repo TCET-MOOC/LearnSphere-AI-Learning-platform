@@ -51,12 +51,20 @@ public class Post {
 
     @JsonProperty("authorName")
     public String getAuthorName() {
-        return user != null ? user.getFullName() : null;
+        try {
+            return user != null ? user.getFullName() : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @JsonProperty("authorAvatar")
     public String getAuthorAvatar() {
-        return user != null ? user.getAvatarUrl() : null;
+        try {
+            return user != null ? user.getAvatarUrl() : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Column(name = "body", columnDefinition = "TEXT", nullable = false)
@@ -89,6 +97,7 @@ public class Post {
     @OrderBy("createdAt ASC")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private List<Post> replies = new ArrayList<>();
 
     @Column(name = "flagged")

@@ -1,6 +1,7 @@
 package com.MOOC.OnlineLearningPlatfrom.Service;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.FlaggedContentDto;
+import com.MOOC.OnlineLearningPlatfrom.Entity.FlaggedContent;
 
 import java.util.List;
 
@@ -11,4 +12,10 @@ public interface ModerationService {
 
     FlaggedContentDto resolve(Long id);
     FlaggedContentDto dismiss(Long id);
+
+    FlaggedContent.Reason classify(String text);
+    void recordAutoFlag(FlaggedContent.ContentType type, Long contentId, FlaggedContent.Reason reason);
+
+    FlaggedContentDto flagPost(Long postId, Long reporterId, String reason);
+    FlaggedContentDto flagThread(Long threadId, Long reporterId, String reason);
 }

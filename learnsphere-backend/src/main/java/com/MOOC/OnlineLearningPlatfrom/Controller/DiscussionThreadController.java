@@ -22,11 +22,14 @@ public class DiscussionThreadController {
 
     private final DiscussionThreadService discussionThreadService;
     private final OwnershipService ownershipService;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.ModerationService moderationService;
 
     public DiscussionThreadController(DiscussionThreadService discussionThreadService,
-                                    OwnershipService ownershipService) {
+                                    OwnershipService ownershipService,
+                                    com.MOOC.OnlineLearningPlatfrom.Service.ModerationService moderationService) {
         this.discussionThreadService = discussionThreadService;
         this.ownershipService = ownershipService;
+        this.moderationService = moderationService;
     }
 
     // --- Threads ---
@@ -140,5 +143,36 @@ public class DiscussionThreadController {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         discussionThreadService.deletePost(id, userId, isAdmin);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/posts/{id}/flag")
+    public ResponseEntity<Void> flagPost(
+            @PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, String> body,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        Post post = discussionThreadService.getPostById(id);
+        DiscussionThread thread = discussionThreadService.getThreadById(post.getThreadId());
+        ownershipService.requireEnrolled(thread.getCourseId(), principal);
+        Long reporterId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : null;
+        String reason = body != null ? body.get("reason") : "SPAM";
+        moderationService.flagPost(id, reporterId, reason);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .build();
+    }
+
+    @PostMapping("/threads/{id}/flag")
+    public ResponseEntity<Void> flagThread(
+            @PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, String> body,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        DiscussionThread thread = discussionThreadService.getThreadById(id);
+        ownershipService.requireEnrolled(thread.getCourseId(), principal);
+        Long reporterId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : null;
+        String reason = body != null ? body.get("reason") : "SPAM";
+        moderationService.flagThread(id, reporterId, reason);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .build();
     }
 }

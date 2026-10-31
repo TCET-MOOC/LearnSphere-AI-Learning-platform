@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * A moderation flag raised against a piece of user-generated content (a discussion post
- * or a direct message). Rows are created either by the keyword-based auto-flagger
- * (see ModerationServiceImpl) or, in the future, by a user-facing "report" action.
+ * A moderation flag raised against a piece of user-generated content (a discussion post,
+ * thread, or direct message). Rows are created either by the keyword-based auto-flagger
+ * (see ModerationServiceImpl) or by a user-facing report action.
  */
 @Entity
 @Table(name = "flagged_content")
@@ -41,7 +41,7 @@ public class FlaggedContent {
     }
 
     public enum ContentType {
-        DISCUSSION_POST, MESSAGE
+        DISCUSSION_POST, MESSAGE, DISCUSSION_THREAD
     }
 
     public enum Reason {

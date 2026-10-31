@@ -1,17 +1,18 @@
 package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.FlaggedContentDto;
+import com.MOOC.OnlineLearningPlatfrom.Entity.DiscussionThread;
 import com.MOOC.OnlineLearningPlatfrom.Entity.FlaggedContent;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Message;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Post;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
+import com.MOOC.OnlineLearningPlatfrom.Repository.DiscussionThreadRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.FlaggedContentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.MessageRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.PostRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.ModerationService;
 import com.MOOC.OnlineLearningPlatfrom.Service.support.KeywordLists;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,20 +23,44 @@ public class ModerationServiceImpl implements ModerationService {
     private final PostRepository postRepository;
     private final MessageRepository messageRepository;
     private final FlaggedContentRepository flaggedContentRepository;
+    private final DiscussionThreadRepository discussionThreadRepository;
 
     public ModerationServiceImpl(PostRepository postRepository,
                                   MessageRepository messageRepository,
-                                  FlaggedContentRepository flaggedContentRepository) {
+                                  FlaggedContentRepository flaggedContentRepository,
+                                  DiscussionThreadRepository discussionThreadRepository) {
         this.postRepository = postRepository;
         this.messageRepository = messageRepository;
         this.flaggedContentRepository = flaggedContentRepository;
+        this.discussionThreadRepository = discussionThreadRepository;
     }
 
-    /**
-     * Scans for new content to auto-flag. Runs in its own REQUIRES_NEW transaction
-     * so that write locks are released before the read phase in getFlagged().
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public FlaggedContent.Reason classify(String text) {
+        if (text == null || text.isBlank()) return null;
+        boolean bullying = KeywordLists.containsAny(text, KeywordLists.BULLYING_WORDS);
+        boolean spam = KeywordLists.containsAny(text, KeywordLists.SPAM_WORDS);
+        if (bullying) return FlaggedContent.Reason.BULLYING;
+        if (spam) return FlaggedContent.Reason.SPAM;
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void recordAutoFlag(FlaggedContent.ContentType type, Long contentId, FlaggedContent.Reason reason) {
+        if (type == null || contentId == null || reason == null) return;
+        if (flaggedContentRepository.existsByContentTypeAndContentId(type, contentId)) return;
+
+        FlaggedContent flag = new FlaggedContent();
+        flag.setContentType(type);
+        flag.setContentId(contentId);
+        flag.setReason(reason);
+        flag.setReporterId(null);
+        flag.setStatus(FlaggedContent.Status.PENDING);
+        flaggedContentRepository.save(flag);
+    }
+
+    @Transactional
     public void scanAndFlag() {
         for (Post post : postRepository.findAll()) {
             if (post.getBody() == null) continue;
@@ -56,6 +81,25 @@ public class ModerationServiceImpl implements ModerationService {
             postRepository.save(post);
         }
 
+        for (DiscussionThread thread : discussionThreadRepository.findAll()) {
+            String combined = (thread.getTitle() != null ? thread.getTitle() : "") + " " + (thread.getContent() != null ? thread.getContent() : "");
+            if (flaggedContentRepository.existsByContentTypeAndContentId(FlaggedContent.ContentType.DISCUSSION_THREAD, thread.getThreadId())) continue;
+
+            FlaggedContent.Reason reason = classify(combined);
+            if (reason == null) continue;
+
+            FlaggedContent flag = new FlaggedContent();
+            flag.setContentType(FlaggedContent.ContentType.DISCUSSION_THREAD);
+            flag.setContentId(thread.getThreadId());
+            flag.setReason(reason);
+            flag.setReporterId(null);
+            flag.setStatus(FlaggedContent.Status.PENDING);
+            flaggedContentRepository.save(flag);
+
+            thread.setFlagged(true);
+            discussionThreadRepository.save(thread);
+        }
+
         for (Message message : messageRepository.findAll()) {
             if (message.getText() == null) continue;
             if (flaggedContentRepository.existsByContentTypeAndContentId(FlaggedContent.ContentType.MESSAGE, message.getId())) continue;
@@ -73,18 +117,9 @@ public class ModerationServiceImpl implements ModerationService {
         }
     }
 
-    private FlaggedContent.Reason classify(String text) {
-        boolean bullying = KeywordLists.containsAny(text, KeywordLists.BULLYING_WORDS);
-        boolean spam = KeywordLists.containsAny(text, KeywordLists.SPAM_WORDS);
-        if (bullying) return FlaggedContent.Reason.BULLYING;
-        if (spam) return FlaggedContent.Reason.SPAM;
-        return null;
-    }
-
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<FlaggedContentDto> getFlagged(String category) {
-        // scanAndFlag() runs in its own REQUIRES_NEW transaction; write locks released before we read.
         scanAndFlag();
 
         List<FlaggedContent> flags;
@@ -120,6 +155,13 @@ public class ModerationServiceImpl implements ModerationService {
                 courseTitle = post.getThread() != null && post.getThread().getCourse() != null ? post.getThread().getCourse().getTitle() : null;
                 snippet = truncate(post.getBody());
             }
+        } else if (flag.getContentType() == FlaggedContent.ContentType.DISCUSSION_THREAD) {
+            DiscussionThread thread = discussionThreadRepository.findById(flag.getContentId()).orElse(null);
+            if (thread != null) {
+                authorName = thread.getUser() != null ? thread.getUser().getFullName() : authorName;
+                courseTitle = thread.getCourse() != null ? thread.getCourse().getTitle() : null;
+                snippet = truncate(thread.getTitle() + " - " + thread.getContent());
+            }
         } else if (flag.getContentType() == FlaggedContent.ContentType.MESSAGE) {
             Message message = messageRepository.findById(flag.getContentId()).orElse(null);
             if (message != null) {
@@ -144,6 +186,29 @@ public class ModerationServiceImpl implements ModerationService {
         FlaggedContent flag = flaggedContentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Flagged content not found with id: " + id));
         flag.setStatus(FlaggedContent.Status.RESOLVED);
+
+        if (flag.getContentType() == FlaggedContent.ContentType.DISCUSSION_POST) {
+            Post post = postRepository.findById(flag.getContentId()).orElse(null);
+            if (post != null) {
+                post.setBody("[Content removed by moderator]");
+                post.setFlagged(false);
+                postRepository.save(post);
+            }
+        } else if (flag.getContentType() == FlaggedContent.ContentType.DISCUSSION_THREAD) {
+            DiscussionThread thread = discussionThreadRepository.findById(flag.getContentId()).orElse(null);
+            if (thread != null) {
+                thread.setContent("[Content removed by moderator]");
+                thread.setFlagged(false);
+                discussionThreadRepository.save(thread);
+            }
+        } else if (flag.getContentType() == FlaggedContent.ContentType.MESSAGE) {
+            Message message = messageRepository.findById(flag.getContentId()).orElse(null);
+            if (message != null) {
+                message.setText("[Content removed by moderator]");
+                messageRepository.save(message);
+            }
+        }
+
         flaggedContentRepository.save(flag);
         return toDto(flag);
     }
@@ -154,7 +219,66 @@ public class ModerationServiceImpl implements ModerationService {
         FlaggedContent flag = flaggedContentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Flagged content not found with id: " + id));
         flag.setStatus(FlaggedContent.Status.DISMISSED);
+
+        if (flag.getContentType() == FlaggedContent.ContentType.DISCUSSION_POST) {
+            Post post = postRepository.findById(flag.getContentId()).orElse(null);
+            if (post != null) {
+                post.setFlagged(false);
+                postRepository.save(post);
+            }
+        } else if (flag.getContentType() == FlaggedContent.ContentType.DISCUSSION_THREAD) {
+            DiscussionThread thread = discussionThreadRepository.findById(flag.getContentId()).orElse(null);
+            if (thread != null) {
+                thread.setFlagged(false);
+                discussionThreadRepository.save(thread);
+            }
+        }
+
         flaggedContentRepository.save(flag);
+        return toDto(flag);
+    }
+
+    @Override
+    @Transactional
+    public FlaggedContentDto flagPost(Long postId, Long reporterId, String reasonStr) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
+        post.setFlagged(true);
+        postRepository.save(post);
+
+        FlaggedContent.Reason reason = mapCategory(reasonStr != null ? reasonStr : "SPAM");
+        if (reason == null) reason = FlaggedContent.Reason.SPAM;
+
+        FlaggedContent flag = new FlaggedContent();
+        flag.setContentType(FlaggedContent.ContentType.DISCUSSION_POST);
+        flag.setContentId(postId);
+        flag.setReporterId(reporterId);
+        flag.setReason(reason);
+        flag.setStatus(FlaggedContent.Status.PENDING);
+        flaggedContentRepository.save(flag);
+
+        return toDto(flag);
+    }
+
+    @Override
+    @Transactional
+    public FlaggedContentDto flagThread(Long threadId, Long reporterId, String reasonStr) {
+        DiscussionThread thread = discussionThreadRepository.findById(threadId)
+                .orElseThrow(() -> new ResourceNotFoundException("Thread not found with id: " + threadId));
+        thread.setFlagged(true);
+        discussionThreadRepository.save(thread);
+
+        FlaggedContent.Reason reason = mapCategory(reasonStr != null ? reasonStr : "SPAM");
+        if (reason == null) reason = FlaggedContent.Reason.SPAM;
+
+        FlaggedContent flag = new FlaggedContent();
+        flag.setContentType(FlaggedContent.ContentType.DISCUSSION_THREAD);
+        flag.setContentId(threadId);
+        flag.setReporterId(reporterId);
+        flag.setReason(reason);
+        flag.setStatus(FlaggedContent.Status.PENDING);
+        flaggedContentRepository.save(flag);
+
         return toDto(flag);
     }
 }

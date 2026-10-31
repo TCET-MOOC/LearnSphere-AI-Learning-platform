@@ -13,6 +13,7 @@ public class FlaggedContentDto {
     private String reason;
     private String severity;
     private String status;
+    private Long reporterId;
     private Long authorId;
     private String authorName;
     private String authorInitials;
@@ -24,12 +25,19 @@ public class FlaggedContentDto {
         FlaggedContentDto dto = new FlaggedContentDto();
         dto.id = flag.getId();
         dto.contentType = flag.getContentType() != null ? flag.getContentType().name() : null;
-        dto.contentTypeLabel = flag.getContentType() == FlaggedContent.ContentType.MESSAGE ? "Direct message" : "Comment";
+        if (flag.getContentType() == FlaggedContent.ContentType.DISCUSSION_THREAD) {
+            dto.contentTypeLabel = "Thread";
+        } else if (flag.getContentType() == FlaggedContent.ContentType.MESSAGE) {
+            dto.contentTypeLabel = "Direct message";
+        } else {
+            dto.contentTypeLabel = "Comment";
+        }
         dto.contentId = flag.getContentId();
         dto.reason = flag.getReason() != null ? flag.getReason().name() : null;
         dto.severity = (flag.getReason() == FlaggedContent.Reason.BULLYING || flag.getReason() == FlaggedContent.Reason.HIGH_RISK)
                 ? "high" : "medium";
         dto.status = flag.getStatus() != null ? flag.getStatus().name() : null;
+        dto.reporterId = flag.getReporterId();
         dto.authorName = authorName;
         dto.authorInitials = initials(authorName);
         dto.courseTitle = courseTitle;
@@ -56,6 +64,7 @@ public class FlaggedContentDto {
     public String getReason() { return reason; }
     public String getSeverity() { return severity; }
     public String getStatus() { return status; }
+    public Long getReporterId() { return reporterId; }
     public Long getAuthorId() { return authorId; }
     public String getAuthorName() { return authorName; }
     public String getAuthorInitials() { return authorInitials; }
