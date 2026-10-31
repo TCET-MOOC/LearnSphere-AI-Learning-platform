@@ -16,13 +16,13 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
     List<Announcement> findByAudienceInOrderByPinnedDescCreatedAtDesc(Collection<Announcement.Audience> audiences);
 
     @Query("SELECT a FROM Announcement a LEFT JOIN FETCH a.course LEFT JOIN FETCH a.author " +
-           "WHERE a.course.courseId = :courseId " +
+           "WHERE a.course.id = :courseId " +
            "AND (a.expiresAt IS NULL OR a.expiresAt > :now) " +
            "ORDER BY a.pinned DESC, a.createdAt DESC")
     List<Announcement> findActiveByCourseId(@Param("courseId") Long courseId, @Param("now") LocalDateTime now);
 
     @Query("SELECT a FROM Announcement a LEFT JOIN FETCH a.course LEFT JOIN FETCH a.author " +
-           "WHERE ((a.course IS NULL AND a.audience IN :audiences) OR (a.course.courseId IN :enrolledCourseIds)) " +
+           "WHERE ((a.course IS NULL AND a.audience IN :audiences) OR (a.course.id IN :enrolledCourseIds)) " +
            "AND (a.expiresAt IS NULL OR a.expiresAt > :now) " +
            "ORDER BY a.pinned DESC, a.createdAt DESC")
     List<Announcement> findActiveForStudent(@Param("audiences") Collection<Announcement.Audience> audiences,
@@ -37,7 +37,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
                                         @Param("now") LocalDateTime now);
 
     @Query("SELECT a FROM Announcement a LEFT JOIN FETCH a.course LEFT JOIN FETCH a.author " +
-           "WHERE ((a.course IS NULL AND a.audience IN :audiences) OR (a.course.courseId IN :taughtCourseIds)) " +
+           "WHERE ((a.course IS NULL AND a.audience IN :audiences) OR (a.course.id IN :taughtCourseIds)) " +
            "AND (a.expiresAt IS NULL OR a.expiresAt > :now) " +
            "ORDER BY a.pinned DESC, a.createdAt DESC")
     List<Announcement> findActiveForTeacher(@Param("audiences") Collection<Announcement.Audience> audiences,
@@ -45,7 +45,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
                                            @Param("now") LocalDateTime now);
 
     @Query("SELECT a FROM Announcement a LEFT JOIN FETCH a.course LEFT JOIN FETCH a.author " +
-           "WHERE (:courseId IS NULL OR a.course.courseId = :courseId) " +
+           "WHERE (:courseId IS NULL OR a.course.id = :courseId) " +
            "AND (a.expiresAt IS NULL OR a.expiresAt > :now) " +
            "ORDER BY a.pinned DESC, a.createdAt DESC")
     List<Announcement> findActiveForAdmin(@Param("courseId") Long courseId,

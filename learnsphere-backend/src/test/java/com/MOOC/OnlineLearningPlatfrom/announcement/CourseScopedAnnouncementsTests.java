@@ -193,9 +193,9 @@ public class CourseScopedAnnouncementsTests extends PostgresIntegrationTest {
                 .andReturn();
 
         Long id = objectMapper.readTree(res.getResponse().getContentAsString()).get("id").asLong();
-        Announcement saved = announcementRepository.findByIdWithDetails(id).orElseThrow();
+        Announcement saved = announcementRepository.findById(id).orElseThrow();
         assertThat(saved.getCourse()).isNotNull();
-        assertThat(saved.getCourse().getCourseId()).isEqualTo(courseA.getCourseId());
+        assertThat(saved.getCourse().getId()).isEqualTo(courseA.getId());
     }
 
     @Test

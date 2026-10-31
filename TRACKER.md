@@ -1253,7 +1253,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W5-03 Reply nesting + cross-thread validation
 - [x] W5-04 Moderation on canonical posts
 - [x] W5-05 Course-scoped announcements
-- [ ] W5-06 Notification event catalogue + outbox
+- [x] W5-06 Notification event catalogue + outbox
 - [~] W5-07 Live session enrolment gating
 - [~] W5-08 Messaging pagination/authorization
 - [~] W5-09 Feedback eligibility + average
@@ -1324,6 +1324,17 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Caching & Security: Cache-Control: private, no-store headers set across all announcement endpoints. SecurityConfig explicitly secures announcement endpoints under authenticated().
 - Migration: Created V23__announcements_course_scoping_and_expiry.sql adding course_id (FK to courses ON DELETE CASCADE), expires_at timestamp(6), and performance indexes idx_announcements_course_id and idx_announcements_expires_at.
 - Integration tests: Authored CourseScopedAnnouncementsTests (10/10 scenarios passed green). Combined community suite (38/38) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
+
+**W5-06 evidence (2026-10-31) — Notification event catalogue + outbox:**
+- Contract: Rules A-17, [E-F14], and NFR-03 implemented:
+  - Fixed event catalogue: Defined NotificationEventType with 6 canonical events: ENROLMENT, GRADE, FEEDBACK, THREAD_REPLY, LIVE_START, and ANNOUNCEMENT.
+  - Durable outbox pattern: Created notification_outbox table with status tracking (PENDING, PROCESSED, FAILED), retry count, error logging, and unique constraint on (event_type, aggregate_id, recipient_id) ensuring strict idempotency and duplicate event suppression.
+  - Outbox processing: NotificationOutboxService processes pending outbox rows in batches, transforming them into durable Notification rows, dispatching real-time notifications via WebSocket (SimpMessagingTemplate to /queue/notifications and /topic/notifications/{userId}), and updating status to PROCESSED with processed_at timestamp.
+  - Retry & Error handling: Failed deliveries increment retry_count and log error_message; status transitions to FAILED if retries exceed maximum threshold (3).
+  - API endpoints: GET /api/notifications returns user-scoped notifications ordered newest first; PUT /api/notifications/{id}/read validates notification ownership (403 Forbidden for foreign notifications); PUT /api/notifications/read-all marks all unread items read; GET /api/notifications/unread-count returns accurate count. All endpoints enforce Cache-Control: private, no-store.
+  - Manual & Scheduled trigger: Outbox runs on a periodic background schedule (@Scheduled(fixedDelay = 5000)) with an on-demand endpoint POST /api/notifications/outbox/process.
+- Migration: Created V24__notification_outbox.sql creating notification_outbox with foreign key to users(user_id) ON DELETE CASCADE, unique constraint uq_outbox_event_aggregate_recipient, and performance indexes idx_outbox_status_created_at, idx_outbox_recipient_id, idx_notifications_user_created, idx_notifications_user_read.
+- Integration tests: Authored NotificationCatalogueAndOutboxTests (7/7 scenarios passed green). Full community suite (45/45) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
 
 ### Wave 6 — Commerce, royalties and institutions
 - [~] W6-01 Remove simulated checkout rail
