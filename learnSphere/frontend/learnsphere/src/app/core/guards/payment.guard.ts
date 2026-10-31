@@ -29,9 +29,9 @@ export const paymentGuard: CanActivateFn = (route) => {
         return of(true);
       }
       return paymentService.getStatus(courseId).pipe(
-        map((status) => status.paid || router.createUrlTree(['/payment/checkout', courseId]))
+        map((status) => status.paid || router.createUrlTree(['/student/courses', courseId]))
       );
     }),
-    catchError(() => of(router.createUrlTree(['/payment/checkout', courseId])))
+    catchError(() => of(router.createUrlTree(['/student/courses', courseId])))
   );
 };

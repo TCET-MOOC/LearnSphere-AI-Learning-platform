@@ -8,6 +8,7 @@ import com.MOOC.OnlineLearningPlatfrom.Dto.VerifyPaymentRequestDto;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.PaymentService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Student-facing (any authenticated role) checkout flow for paid courses. There is no real
- * payment gateway wired up (no Razorpay/Stripe keys available in this environment) — checkout
- * creates a simulated gateway order, and verify simulates the gateway's success callback.
+ * Payment endpoints on the main backend.
+ * The simulated checkout and verify rails have been retired (A-06, AUD-06, W6-01).
+ * Production course purchases and verification are exclusively handled by the Razorpay flow
+ * in the payments service.
  */
 @RestController
 @RequestMapping("/api/payments")
@@ -30,31 +32,29 @@ public class PaymentController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<PaymentOrderDto> checkout(@RequestBody CheckoutRequestDto request,
+    public ResponseEntity<PaymentOrderDto> checkout(@RequestBody(required = false) CheckoutRequestDto request,
                                                       @AuthenticationPrincipal CustomUserDetails principal) {
-        if (request.getCourseId() == null) {
-            throw new BadRequestException("courseId is required.");
-        }
-        return ResponseEntity.ok(paymentService.checkout(request.getCourseId(), principal));
+        throw new BadRequestException("The simulated checkout rail has been retired. Please purchase courses via the Razorpay checkout flow.");
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<PaymentResponseDto> verify(@RequestBody VerifyPaymentRequestDto request,
+    public ResponseEntity<PaymentResponseDto> verify(@RequestBody(required = false) VerifyPaymentRequestDto request,
                                                        @AuthenticationPrincipal CustomUserDetails principal) {
-        if (request.getOrderId() == null || request.getOrderId().isBlank()) {
-            throw new BadRequestException("orderId is required.");
-        }
-        return ResponseEntity.ok(paymentService.verify(request.getOrderId(), principal));
+        throw new BadRequestException("The simulated checkout verify rail has been retired. Please verify payments via the payments service.");
     }
 
     @GetMapping("/history")
     public ResponseEntity<List<PaymentResponseDto>> history(@AuthenticationPrincipal CustomUserDetails principal) {
-        return ResponseEntity.ok(paymentService.getHistory(principal));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(paymentService.getHistory(principal));
     }
 
     @GetMapping("/status")
     public ResponseEntity<PaymentStatusDto> status(@RequestParam Long courseId,
                                                      @AuthenticationPrincipal CustomUserDetails principal) {
-        return ResponseEntity.ok(new PaymentStatusDto(paymentService.hasPaid(courseId, principal)));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(new PaymentStatusDto(paymentService.hasPaid(courseId, principal)));
     }
 }

@@ -1391,7 +1391,37 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 
 
 ### Wave 6 — Commerce, royalties and institutions
-- [~] W6-01 Remove simulated checkout rail
+- [x] W6-01 Remove simulated checkout rail
+- [ ] W6-02 Payments service authentication
+- [~] W6-03 Fail-closed verification + order idempotency
+- [ ] W6-04 Remove `/orders/simulate-success`
+- [~] W6-05 Internal enrol: server price + idempotent ledger
+- [~] W6-06 One ledger + reconciliation
+- [~] W6-07 Remove royalty auto-reconcile
+- [~] W6-08 70/30 policy object
+- [~] W6-09 Payout threshold/schedule/lock/statement
+- [~] W6-10 College verification + affiliation gate
+- [ ] W6-11 Same-college free entitlement
+- [ ] W6-12 Commerce/security suite (forgery, replay, history, receipt)
+- [ ] W6-13 Receipt PDF + modal (AUD-01)
+- [ ] W6-14 Payment history UI truth (AUD-02)
+
+**W6-01 evidence (2026-10-31) — Remove simulated checkout rail:**
+- Rules: A-06 (One Payment Rail), AUD-02, NFR-03, spec §5.
+- Simulated Rail Retirement:
+  - Retired `POST /api/payments/checkout` and `POST /api/payments/verify` on main backend by permanently throwing RFC 9457 `400 BAD_REQUEST` (`"The simulated checkout rail has been retired. Please purchase courses via the Razorpay checkout flow."`).
+  - Completely prevents simulated payment forgery and unauthorized ledger creation via mock client calls.
+- Enforced Private Caching & Authentication:
+  - Added `Cache-Control: private, no-store` to financial endpoints: `GET /api/payments/history` and `GET /api/payments/status/{courseId}`.
+  - Enforced authenticated caller identity (anonymous requests return 401 UNAUTHORIZED).
+- Frontend Alignment:
+  - Updated `payment.guard.ts`: unpurchased course attempts redirect to canonical course view `/student/courses/${courseId}` to trigger the official Razorpay modal rather than routing to `/payment/checkout/${courseId}`.
+  - Updated `checkout.component.ts`: removed mock checkout and verify methods; automatically redirects students back to `/student/courses/${courseId}` with a clear status notice.
+- Red-green verification:
+  - Authored `SimulatedCheckoutRetirementTests.java` covering retired checkout (400), retired verify (400), unauthenticated access (401), and `Cache-Control: private, no-store` headers on status and history endpoints.
+  - Verified 5/5 integration tests passed GREEN (`BUILD SUCCESS`).
+  - Verified payments service tests (10/10) passed GREEN.
+  - Verified frontend test suite (16 files / 79 tests) passed GREEN.
 - [ ] W6-02 Payments service authentication
 - [~] W6-03 Fail-closed verification + order idempotency
 - [ ] W6-04 Remove `/orders/simulate-success`
