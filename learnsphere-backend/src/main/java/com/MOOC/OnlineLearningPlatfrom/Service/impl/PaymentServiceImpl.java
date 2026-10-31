@@ -141,32 +141,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PaymentResponseDto> getHistory(CustomUserDetails principal) {
         Long userId = principal.getUser().getUserId();
-        UserAccount student = userAccountRepository.findById(userId).orElse(principal.getUser());
-
-        // Reconcile any enrolled paid courses that might be missing a payment history row
-        List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
-        for (Enrollment e : enrollments) {
-            Course c = e.getCourse();
-            if (c != null && c.getPrice() != null && c.getPrice().compareTo(BigDecimal.ZERO) > 0) {
-                boolean hasPayment = paymentRepository.existsByUser_UserIdAndCourse_Id(userId, c.getId());
-                if (!hasPayment) {
-                    Payment p = new Payment();
-                    p.setUser(student);
-                    p.setCourse(c);
-                    p.setAmount(c.getPrice());
-                    p.setCurrency("INR");
-                    p.setStatus(Payment.Status.SUCCESS);
-                    p.setGatewayOrderId("order_rzp_" + c.getId() + "_" + userId);
-                    p.setGatewayPaymentId("pay_rzp_" + UUID.randomUUID().toString().replace("-", "").substring(0, 14));
-                    p.setPaidAt(e.getEnrolledAt() != null ? e.getEnrolledAt() : LocalDateTime.now());
-                    paymentRepository.save(p);
-                }
-            }
-        }
-
+        // W6-06: Strict one ledger — only return actual payment records, never fabricate synthetic SUCCESS rows
         return paymentRepository.findByUser_UserIdOrderByCreatedAtDesc(userId).stream()
                 .map(PaymentResponseDto::from)
                 .toList();

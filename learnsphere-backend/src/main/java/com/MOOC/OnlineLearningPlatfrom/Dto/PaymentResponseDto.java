@@ -20,6 +20,17 @@ public class PaymentResponseDto {
     private String department;
     private String thumbnail;
 
+    public static String normalizeStatus(Payment.Status status) {
+        if (status == null) {
+            return null;
+        }
+        return switch (status) {
+            case SUCCESS -> "PAID";
+            case PENDING -> "CREATED";
+            case FAILED -> "FAILED";
+        };
+    }
+
     public static PaymentResponseDto from(Payment payment) {
         PaymentResponseDto dto = new PaymentResponseDto();
         dto.id = payment.getId();
@@ -33,7 +44,7 @@ public class PaymentResponseDto {
         }
         dto.amount = payment.getAmount();
         dto.currency = payment.getCurrency();
-        dto.status = payment.getStatus() != null ? payment.getStatus().name() : null;
+        dto.status = normalizeStatus(payment.getStatus());
         dto.gatewayOrderId = payment.getGatewayOrderId();
         dto.gatewayPaymentId = payment.getGatewayPaymentId();
         dto.createdAt = payment.getCreatedAt();

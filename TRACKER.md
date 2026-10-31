@@ -1397,7 +1397,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W6-03 Fail-closed verification + order idempotency
 - [x] W6-04 Remove `/orders/simulate-success`
 - [x] W6-05 Internal enrol: server price + idempotent ledger
-- [~] W6-06 One ledger + reconciliation
+- [x] W6-06 One ledger + reconciliation
 - [~] W6-07 Remove royalty auto-reconcile
 - [~] W6-08 70/30 policy object
 - [~] W6-09 Payout threshold/schedule/lock/statement
@@ -1407,6 +1407,26 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
 
+
+**W6-06 evidence (2026-10-31) — One ledger + reconciliation:**
+- Rules: A-21, AUD-02, audit.md B10, [F-F8, F-F10], spec A 2, A 6.
+- Strict Single Ledger (No Fake Payments):
+  - In `PaymentServiceImpl.java`: completely removed the fabrication of synthetic `SUCCESS` rows from `getHistory`.
+  - Student payment history now queries the immutable `Payment` table directly (`findByUser_UserIdOrderByCreatedAtDesc`).
+  - Real attempts (including `PENDING`/`CREATED` and `FAILED`) are accurately retained and presented without fabricating transaction identities.
+- Normalized Status Vocabulary:
+  - In `PaymentResponseDto.java`: normalized status strings to uniform vocabulary across both services (`SUCCESS` -> `PAID`, `PENDING` -> `CREATED`, `FAILED` -> `FAILED`).
+  - Preserved `paidAt` timestamp and `gatewayPaymentId` fields.
+  - Enforced `Cache-Control: private, no-store` on authenticated `/api/payments/history`.
+- Admin Reconciliation Endpoint:
+  - Added `GET /api/admin/ledger/reconciliation` in `LedgerAdminController.java`, secured by `@PreAuthorize("hasRole('ADMIN')")`.
+  - Computes comprehensive ledger aggregates via `LedgerReconciliationService`: total payments count, counts and amounts partitioned by `PAID`, `CREATED`, and `FAILED` statuses, total minted royalties count and sum, total paid enrollments count, discrepancy count, and `isReconciled` boolean.
+  - Enforces `Cache-Control: private, no-store`.
+- Red-green verification:
+  - Authored `LedgerReconciliationAndHistoryTests.java` covering: non-fabrication of synthetic payments for enrolled students, normalized status vocabulary, admin-only authorization gate (401/403), and accurate reconciliation ledger metrics.
+  - Red: initial run failed 3/4 tests (synthetic row fabricated, legacy SUCCESS status returned, 403 on missing admin endpoint).
+  - Green: `LedgerReconciliationAndHistoryTests` passed 4/4 tests (`BUILD SUCCESS`).
+  - Combined commerce regression suite (`SimulatedCheckoutRetirementTests`, `InternalEnrollmentSecurityAndIdempotencyTests`, `LedgerReconciliationAndHistoryTests`) passed 14/14 tests (`BUILD SUCCESS`).
 
 **W6-05 evidence (2026-10-31) — Internal enrol: server price + idempotent ledger:**
 - Rules: A-19, AUD-05, audit.md B10, [F-F5], spec A 3.5, A 6.
