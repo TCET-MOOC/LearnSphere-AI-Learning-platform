@@ -5,3 +5,4 @@ ALTER TABLE public.payouts
 CREATE UNIQUE INDEX IF NOT EXISTS uk_payouts_idempotency_key
     ON public.payouts (idempotency_key)
     WHERE idempotency_key IS NOT NULL;
+

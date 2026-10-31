@@ -57,3 +57,4 @@ public class RoyaltyPolicy {
         return PLATFORM_PERCENTAGE;
     }
 }
+

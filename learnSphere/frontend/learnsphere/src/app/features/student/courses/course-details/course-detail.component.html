@@ -26,6 +26,10 @@
       <div class="detail-actions">
         <span class="pill pill--completed" *ngIf="isCompleted">🏆 Completed (100%)</span>
         
+        <div *ngIf="!isEnrolled && isCollegeEntitled" class="college-entitlement-badge mb-12">
+          <span class="pill pill--college">🎓 Included by your college{{ collegeName ? ': ' + collegeName : '' }}</span>
+        </div>
+        
         <button
           *ngIf="!isEnrolled"
           class="btn btn--primary enroll-btn"
@@ -34,7 +38,7 @@
           (click)="enroll()">
           <ng-container *ngIf="confirmingPayment">Confirming payment...</ng-container>
           <ng-container *ngIf="!confirmingPayment">
-            {{ enrolling ? 'Processing...' : (isFree ? 'Enroll Free' : 'Buy Course (₹' + c.price + ')') }}
+            {{ enrolling ? 'Processing...' : (isCollegeEntitled ? 'Enroll Free — Included by your college' : (isFree ? 'Enroll Free' : 'Buy Course (₹' + c.price + ')')) }}
           </ng-container>
         </button>
 

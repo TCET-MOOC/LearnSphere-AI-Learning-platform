@@ -63,13 +63,31 @@ public class OrderController {
             }
             Long courseId = Long.parseLong(courseIdObj.toString());
 
-            // Fetch course price from main backend
-            String courseUrl = mainBackendUrl + "/api/courses/" + courseId;
             HttpHeaders headers = new HttpHeaders();
             if (internalApiKey != null && !internalApiKey.isBlank()) {
                 headers.set("X-Internal-Key", internalApiKey);
             }
             org.springframework.http.HttpEntity<Void> entity = new org.springframework.http.HttpEntity<>(headers);
+
+            // Check if student has same-college free entitlement
+            try {
+                String entitlementUrl = mainBackendUrl + "/api/courses/" + courseId + "/entitlement?userId=" + userId;
+                ResponseEntity<Map> entRes = restTemplate.exchange(entitlementUrl, org.springframework.http.HttpMethod.GET, entity, Map.class);
+                if (entRes.getStatusCode().is2xxSuccessful() && entRes.getBody() != null) {
+                    Object eligible = entRes.getBody().get("eligible");
+                    if (Boolean.TRUE.equals(eligible)) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                                "status", "ERROR",
+                                "message", "This course is included by your college — use the direct enroll endpoint instead of checkout."
+                        ));
+                    }
+                }
+            } catch (Exception entEx) {
+                log.debug("Entitlement check query ignored or unavailable: {}", entEx.getMessage());
+            }
+
+            // Fetch course price from main backend
+            String courseUrl = mainBackendUrl + "/api/courses/" + courseId;
 
             Integer amountInPaise = null;
             try {

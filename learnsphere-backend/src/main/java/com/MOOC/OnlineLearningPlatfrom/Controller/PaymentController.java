@@ -26,14 +26,23 @@ import java.util.List;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final com.MOOC.OnlineLearningPlatfrom.Service.CollegeEntitlementService collegeEntitlementService;
 
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService,
+                             com.MOOC.OnlineLearningPlatfrom.Service.CollegeEntitlementService collegeEntitlementService) {
         this.paymentService = paymentService;
+        this.collegeEntitlementService = collegeEntitlementService;
     }
 
     @PostMapping("/checkout")
     public ResponseEntity<PaymentOrderDto> checkout(@RequestBody(required = false) CheckoutRequestDto request,
                                                       @AuthenticationPrincipal CustomUserDetails principal) {
+        if (request != null && request.getCourseId() != null && principal != null && principal.getUser() != null) {
+            var entitlementStatus = collegeEntitlementService.checkEntitlement(principal.getUser().getUserId(), request.getCourseId());
+            if (entitlementStatus != null && entitlementStatus.isEligible()) {
+                throw new BadRequestException("This course is included by your college — use the direct enroll endpoint instead of checkout.");
+            }
+        }
         throw new BadRequestException("The simulated checkout rail has been retired. Please purchase courses via the Razorpay checkout flow.");
     }
 

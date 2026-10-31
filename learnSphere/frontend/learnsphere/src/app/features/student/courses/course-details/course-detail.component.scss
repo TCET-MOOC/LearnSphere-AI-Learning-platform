@@ -701,4 +701,12 @@
     background: rgba(255, 255, 255, 0.06);
     color: $muted;
   }
+
+  &--college {
+    background: rgba(99, 102, 241, 0.18);
+    color: #a5b4fc;
+    border: 1px solid rgba(165, 180, 252, 0.3);
+    font-size: 12px;
+    padding: 6px 12px;
+  }
 }

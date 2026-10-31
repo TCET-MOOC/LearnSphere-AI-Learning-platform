@@ -1402,11 +1402,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W6-08 70/30 policy object
 - [x] W6-09 Payout threshold/schedule/lock/statement
 - [x] W6-10 College verification + affiliation gate
-- [ ] W6-11 Same-college free entitlement
+- [x] W6-11 Same-college free entitlement
 - [ ] W6-12 Commerce/security suite (forgery, replay, history, receipt)
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
 
+
+**W6-11 evidence (2026-10-31) — Same-college free entitlement:**
+- Rules: A-20, BR-19, [F-F15], spec §4.
+- Institutional Entitlement & Checkout Defense:
+  - Enforced same-college free entitlement server-side in `EnrollmentServiceImpl.enrollUser`: students with verified affiliation to the same verified college as the course instructor enroll for free with `role = STUDENT` and **0 payment rows created**.
+  - Enforced checkout defense on main backend (`POST /api/payments/checkout`): students entitled to free college access receive 400 Bad Request ("This course is included by your college — use the direct enroll endpoint instead of checkout.") preventing erroneous payments.
+  - Connected `OrderController.createOrder` in payments microservice to query main backend `GET /api/courses/{id}/entitlement?userId=...` with service key `X-Internal-Key`; rejects order creation for entitled students with 400 Bad Request.
+  - Added `checkCollegeEntitlement()` in frontend `CourseDetailComponent`: fetches `/courses/:id/entitlement` and sets `isCollegeEntitled` and `collegeName`.
+  - Frontend UI displays "🎓 Included by your college: <College Name>" badge and dynamic button label "Enroll Free — Included by your college", directly calling `enrollInCourse` without payment gateway invocation.
+- Red-Green Verification:
+  - `SameCollegeEntitlementTests` passed 7/7 tests verifying same-college verified student free enroll, unverified college rejection, foreign college rejection, checkout blocking (400), admin waiver override with audit log, admin revocation restoring payment gate, and private no-store headers.
+  - Payments microservice tests passed 25/25 (`BUILD SUCCESS`).
+  - Full backend commerce regression passed 37/37 tests (`BUILD SUCCESS`).
+  - Full Angular frontend test suite passed 79/79 tests across 16 test files.
 
 **W6-10 evidence (2026-10-31) — College verification + affiliation gate:**
 - Rules: A-19, [F-F14], spec §7 SCR-36/SCR-37.

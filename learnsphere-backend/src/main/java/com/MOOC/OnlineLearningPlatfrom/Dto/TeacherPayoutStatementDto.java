@@ -50,3 +50,4 @@ public class TeacherPayoutStatementDto {
     public List<PayoutResponseDto> getPayoutHistory() { return payoutHistory; }
     public LocalDateTime getGeneratedAt() { return generatedAt; }
 }
+

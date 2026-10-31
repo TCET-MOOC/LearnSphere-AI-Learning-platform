@@ -28,8 +28,16 @@ public class CollegeEntitlementController {
     @GetMapping("/courses/{courseId}/entitlement")
     public ResponseEntity<CollegeEntitlementStatusDto> getCourseEntitlement(
             @PathVariable Long courseId,
+            @RequestParam(value = "userId", required = false) Long queryUserId,
+            @RequestHeader(value = "X-Internal-Key", required = false) String internalKey,
             @AuthenticationPrincipal CustomUserDetails principal) {
-        Long userId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : null;
+        Long userId = null;
+        if (internalKey != null && !internalKey.isBlank()) {
+            userId = queryUserId;
+        }
+        if (userId == null && principal != null && principal.getUser() != null) {
+            userId = principal.getUser().getUserId();
+        }
         CollegeEntitlementStatusDto status = collegeEntitlementService.checkEntitlement(userId, courseId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")

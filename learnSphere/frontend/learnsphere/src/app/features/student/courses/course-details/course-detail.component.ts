@@ -44,6 +44,8 @@ export class CourseDetailComponent implements OnInit {
   submittingReview = false;
 
   isEnrolled = false;
+  isCollegeEntitled = false;
+  collegeName = '';
   enrolling = false;
   loading = true;
   confirmingPayment = false;
@@ -109,12 +111,14 @@ export class CourseDetailComponent implements OnInit {
         this.isEnrolled = true;
         this.progressPercent = courseDetail.progressPercent != null ? Math.round(courseDetail.progressPercent) : 0;
         this.isCompleted = !!(courseDetail.completed || this.progressPercent >= 100);
+        this.checkCollegeEntitlement();
         this.loadLectures();
         this.checkCertificate();
         this.cdr.markForCheck();
       },
       error: () => {
         this.isEnrolled = false;
+        this.checkCollegeEntitlement();
         this.loadLectures();
         this.cdr.markForCheck();
       }
@@ -282,12 +286,32 @@ export class CourseDetailComponent implements OnInit {
     });
   }
 
+  checkCollegeEntitlement(): void {
+    if (this.authService.isAuthenticated) {
+      this.apiService.get<any>(`/courses/${this.courseId}/entitlement`).subscribe({
+        next: (res) => {
+          if (res && res.eligible) {
+            this.isCollegeEntitled = true;
+            this.collegeName = res.collegeName || '';
+          } else {
+            this.isCollegeEntitled = false;
+          }
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.isCollegeEntitled = false;
+          this.cdr.markForCheck();
+        }
+      });
+    }
+  }
+
   get isFree(): boolean {
     return !this.course || !this.course.price || this.course.price === 0;
   }
 
   enroll(): void {
-    if (!this.isFree) {
+    if (!this.isFree && !this.isCollegeEntitled) {
       this.initiatePayment();
       return;
     }
@@ -297,6 +321,7 @@ export class CourseDetailComponent implements OnInit {
         this.enrolling = false;
         this.notificationService.success('Enrolled! Enjoy the course.');
         this.isEnrolled = true;
+        this.checkCollegeEntitlement();
         this.loadLectures();
       },
       error: (err) => {

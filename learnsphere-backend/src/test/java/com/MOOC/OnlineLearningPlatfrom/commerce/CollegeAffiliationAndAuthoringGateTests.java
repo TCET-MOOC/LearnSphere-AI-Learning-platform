@@ -262,3 +262,4 @@ public class CollegeAffiliationAndAuthoringGateTests extends PostgresIntegration
                 .andExpect(jsonPath("$.status").value("DRAFT"));
     }
 }
+
