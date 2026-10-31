@@ -153,6 +153,7 @@ public class DemoDataSeeder implements CommandLineRunner {
                 });
 
         seedEnrollment(student, cs201);
+        seedApprovedAffiliation(teacher, primaryCollege, department);
         seedPendingAffiliation(pendingTeacher, primaryCollege, department);
     }
 
@@ -262,10 +263,25 @@ public class DemoDataSeeder implements CommandLineRunner {
         enrollmentRepository.save(enrollment);
     }
 
+    private void seedApprovedAffiliation(UserAccount teacher,
+                                         College claimedCollege,
+                                         Department claimedDepartment) {
+        if (affiliationRequestRepository.existsByTeacher_UserIdAndStatus(teacher.getUserId(), AffiliationRequest.Status.APPROVED)) {
+            return;
+        }
+        AffiliationRequest request = new AffiliationRequest();
+        request.setTeacher(teacher);
+        request.setClaimedCollege(claimedCollege);
+        request.setClaimedDepartment(claimedDepartment.getName());
+        request.setStatus(AffiliationRequest.Status.APPROVED);
+        request.setCreatedAt(SEEDED_AT);
+        affiliationRequestRepository.save(request);
+    }
+
     private void seedPendingAffiliation(UserAccount pendingTeacher,
                                         College claimedCollege,
                                         Department claimedDepartment) {
-        if (affiliationRequestRepository.count() > 0) {
+        if (affiliationRequestRepository.existsByTeacher_UserIdAndStatus(pendingTeacher.getUserId(), AffiliationRequest.Status.PENDING)) {
             return;
         }
         AffiliationRequest request = new AffiliationRequest();

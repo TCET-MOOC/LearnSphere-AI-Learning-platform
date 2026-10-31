@@ -17,10 +17,12 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserRoleRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.AdminService;
 import com.MOOC.OnlineLearningPlatfrom.Service.AuditService;
+import com.MOOC.OnlineLearningPlatfrom.Service.NotificationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -32,6 +34,7 @@ public class AdminServiceImpl implements AdminService {
     private final RoleRepository roleRepository;
     private final UserAccountRepository userAccountRepository;
     private final AuditService auditService;
+    private final NotificationService notificationService;
 
     public AdminServiceImpl(CollegeRepository collegeRepository,
                              UserRoleRepository userRoleRepository,
@@ -39,7 +42,8 @@ public class AdminServiceImpl implements AdminService {
                              CourseRepository courseRepository,
                              RoleRepository roleRepository,
                              UserAccountRepository userAccountRepository,
-                             AuditService auditService) {
+                             AuditService auditService,
+                             NotificationService notificationService) {
         this.collegeRepository = collegeRepository;
         this.userRoleRepository = userRoleRepository;
         this.affiliationRequestRepository = affiliationRequestRepository;
@@ -47,6 +51,7 @@ public class AdminServiceImpl implements AdminService {
         this.roleRepository = roleRepository;
         this.userAccountRepository = userAccountRepository;
         this.auditService = auditService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -66,8 +71,19 @@ public class AdminServiceImpl implements AdminService {
     public void verifyCollege(Long collegeId) {
         College college = collegeRepository.findById(collegeId)
                 .orElseThrow(() -> new ResourceNotFoundException("College not found with id: " + collegeId));
+        College.VerificationStatus oldStatus = college.getVerificationStatus();
         college.setVerificationStatus(College.VerificationStatus.VERIFIED);
         collegeRepository.save(college);
+
+        if (auditService != null) {
+            auditService.record(
+                    AuditService.COLLEGE_STATUS_CHANGED,
+                    AuditService.RESOURCE_COLLEGE,
+                    collegeId,
+                    Map.of("verificationStatus", oldStatus != null ? oldStatus.name() : "UNKNOWN"),
+                    Map.of("verificationStatus", College.VerificationStatus.VERIFIED.name())
+            );
+        }
     }
 
     @Override
@@ -75,7 +91,19 @@ public class AdminServiceImpl implements AdminService {
     public void rejectCollege(Long collegeId) {
         College college = collegeRepository.findById(collegeId)
                 .orElseThrow(() -> new ResourceNotFoundException("College not found with id: " + collegeId));
-        collegeRepository.delete(college);
+        College.VerificationStatus oldStatus = college.getVerificationStatus();
+        college.setVerificationStatus(College.VerificationStatus.REJECTED);
+        collegeRepository.save(college);
+
+        if (auditService != null) {
+            auditService.record(
+                    AuditService.COLLEGE_STATUS_CHANGED,
+                    AuditService.RESOURCE_COLLEGE,
+                    collegeId,
+                    Map.of("verificationStatus", oldStatus != null ? oldStatus.name() : "UNKNOWN"),
+                    Map.of("verificationStatus", College.VerificationStatus.REJECTED.name())
+            );
+        }
     }
 
     @Override
@@ -102,16 +130,38 @@ public class AdminServiceImpl implements AdminService {
             userRole.setUser(teacher);
             userRole.setRole(teacherRole);
             userRoleRepository.save(userRole);
-            auditService.record(
-                    AuditService.USER_ROLE_ASSIGNED,
-                    AuditService.RESOURCE_USER,
-                    teacher.getUserId(),
-                    AuditService.snapshot("role", "STUDENT"),
-                    AuditService.snapshot("role", "TEACHER", "affiliationRequestId", requestId)
-            );
+            if (auditService != null) {
+                auditService.record(
+                        AuditService.USER_ROLE_ASSIGNED,
+                        AuditService.RESOURCE_USER,
+                        teacher.getUserId(),
+                        AuditService.snapshot("role", "STUDENT"),
+                        AuditService.snapshot("role", "TEACHER", "affiliationRequestId", requestId)
+                );
+            }
         }
 
         affiliationRequestRepository.save(request);
+
+        if (notificationService != null && teacher != null) {
+            String collegeName = request.getClaimedCollege() != null ? request.getClaimedCollege().getName() : "college";
+            notificationService.create(
+                    teacher,
+                    "Affiliation Approved",
+                    "Your affiliation request for " + collegeName + " has been approved.",
+                    "AFFILIATION"
+            );
+        }
+
+        if (auditService != null) {
+            auditService.record(
+                    AuditService.AFFILIATION_APPROVED,
+                    AuditService.RESOURCE_AFFILIATION,
+                    requestId,
+                    Map.of("status", "PENDING"),
+                    Map.of("status", "APPROVED", "teacherId", teacher != null ? teacher.getUserId() : null)
+            );
+        }
     }
 
     @Override
@@ -121,6 +171,26 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("Affiliation request not found with id: " + requestId));
         request.setStatus(AffiliationRequest.Status.REJECTED);
         affiliationRequestRepository.save(request);
+
+        if (notificationService != null && request.getTeacher() != null) {
+            String collegeName = request.getClaimedCollege() != null ? request.getClaimedCollege().getName() : "college";
+            notificationService.create(
+                    request.getTeacher(),
+                    "Affiliation Rejected",
+                    "Your affiliation request for " + collegeName + " was not approved.",
+                    "AFFILIATION"
+            );
+        }
+
+        if (auditService != null) {
+            auditService.record(
+                    AuditService.AFFILIATION_REJECTED,
+                    AuditService.RESOURCE_AFFILIATION,
+                    requestId,
+                    Map.of("status", "PENDING"),
+                    Map.of("status", "REJECTED")
+            );
+        }
     }
 
     private CollegeResponseDto toDto(College college) {

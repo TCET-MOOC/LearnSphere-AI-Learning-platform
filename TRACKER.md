@@ -1401,12 +1401,28 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W6-07 Remove royalty auto-reconcile
 - [x] W6-08 70/30 policy object
 - [x] W6-09 Payout threshold/schedule/lock/statement
-- [~] W6-10 College verification + affiliation gate
+- [x] W6-10 College verification + affiliation gate
 - [ ] W6-11 Same-college free entitlement
 - [ ] W6-12 Commerce/security suite (forgery, replay, history, receipt)
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
 
+
+**W6-10 evidence (2026-10-31) — College verification + affiliation gate:**
+- Rules: A-19, [F-F14], spec §7 SCR-36/SCR-37.
+- Institutional Status & Authoring Entitlement Gate:
+  - Added `REJECTED` state to `College.VerificationStatus` enum, replacing destructive hard deletion with audit-preserved soft rejection (`college.setVerificationStatus(REJECTED)`).
+  - Added Flyway migration `V28__college_verification_status_check.sql` to update PostgreSQL check constraint on `colleges.verification_status` to include `'REJECTED'`.
+  - Recorded structured audit logging (`COLLEGE_STATUS_CHANGED`) via `AuditService` on verification approve/reject state transitions.
+  - Dispatched in-app notifications on affiliation approval (`AFFILIATION_APPROVED`) and rejection (`AFFILIATION_REJECTED`) via `NotificationService.create(...)`.
+  - Added route aliases in `AdminController` supporting `/colleges/{id}/reject`, `/colleges/affiliations/**`, and `/affiliations/**` across PUT/POST verbs with `Cache-Control: private, no-store`.
+  - Enforced course creation authoring gate in `CourseServiceImpl.createCourse`: requires non-admin teachers to have an `APPROVED` affiliation with a `VERIFIED` college (failing closed with 403 `AccessDeniedException` if unverified/unaffiliated), while permitting admin authoring with `AFFILIATION_OVERRIDE` audit logging.
+  - Updated `DemoDataSeeder` to seed `APPROVED` affiliation for baseline demo teacher to preserve existing test fixtures.
+- Red-Green Verification:
+  - Authored `CollegeAffiliationAndAuthoringGateTests.java` covering: college verification approval & soft rejection, affiliation request approval & student notification dispatch, course creation rejection for unaffiliated instructors (403), course creation success for affiliated instructors (201), and admin bypass with audit logging.
+  - Red: initial test run failed on 404 for alias route and check constraint violation for `'REJECTED'`.
+  - Green: `CollegeAffiliationAndAuthoringGateTests` passed 5/5 tests (`BUILD SUCCESS`).
+  - Full backend commerce regression passed 30/30 tests (`BUILD SUCCESS`).
 
 **W6-09 evidence (2026-10-31) — Payout threshold/schedule/lock/statement:**
 - Rules: A-22, BR-20, [F-F18], spec §4 SCR-55.

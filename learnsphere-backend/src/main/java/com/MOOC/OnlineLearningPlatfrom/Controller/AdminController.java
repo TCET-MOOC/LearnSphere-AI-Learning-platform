@@ -20,6 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final AdminService adminService;
@@ -30,8 +31,7 @@ public class AdminController {
         this.auditService = auditService;
     }
 
-    @GetMapping("/audit")
-    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/audit-logs")
     public ResponseEntity<PageResponse<AuditLogResponseDto>> getAuditLogs(
             @RequestParam(required = false) Long actorId,
             @RequestParam(required = false) String resourceType,
@@ -47,7 +47,9 @@ public class AdminController {
 
     @GetMapping("/colleges")
     public ResponseEntity<List<CollegeResponseDto>> getColleges() {
-        return ResponseEntity.ok(adminService.getAllColleges());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(adminService.getAllColleges());
     }
 
     @PostMapping("/colleges")
@@ -55,31 +57,57 @@ public class AdminController {
         return ResponseEntity.ok(adminService.createCollege(college));
     }
 
-    @PutMapping("/colleges/{collegeId}/verify")
+    @PutMapping({"/colleges/{collegeId}/verify", "/colleges/{collegeId}/verification"})
     public ResponseEntity<Map<String, Boolean>> verifyCollege(@PathVariable Long collegeId) {
         adminService.verifyCollege(collegeId);
         return ResponseEntity.ok(Map.of("success", true));
     }
 
-    @DeleteMapping("/colleges/{collegeId}")
+    @PostMapping("/colleges/{collegeId}/verify")
+    public ResponseEntity<Map<String, Boolean>> verifyCollegePost(@PathVariable Long collegeId) {
+        adminService.verifyCollege(collegeId);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @DeleteMapping({"/colleges/{collegeId}", "/colleges/{collegeId}/reject"})
     public ResponseEntity<Map<String, Boolean>> rejectCollege(@PathVariable Long collegeId) {
         adminService.rejectCollege(collegeId);
         return ResponseEntity.ok(Map.of("success", true));
     }
 
-    @GetMapping("/colleges/affiliations")
-    public ResponseEntity<List<AffiliationRequestResponseDto>> getAffiliationRequests() {
-        return ResponseEntity.ok(adminService.getAffiliationRequests());
+    @PostMapping("/colleges/{collegeId}/reject")
+    public ResponseEntity<Map<String, Boolean>> rejectCollegePost(@PathVariable Long collegeId) {
+        adminService.rejectCollege(collegeId);
+        return ResponseEntity.ok(Map.of("success", true));
     }
 
-    @PutMapping("/colleges/affiliations/{requestId}/approve")
+    @GetMapping({"/colleges/affiliations", "/affiliations"})
+    public ResponseEntity<List<AffiliationRequestResponseDto>> getAffiliationRequests() {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(adminService.getAffiliationRequests());
+    }
+
+    @PutMapping({"/colleges/affiliations/{requestId}/approve", "/affiliations/{requestId}/approve"})
     public ResponseEntity<Map<String, Boolean>> approveAffiliation(@PathVariable Long requestId) {
         adminService.approveAffiliation(requestId);
         return ResponseEntity.ok(Map.of("success", true));
     }
 
-    @PutMapping("/colleges/affiliations/{requestId}/reject")
+    @PostMapping({"/colleges/affiliations/{requestId}/approve", "/affiliations/{requestId}/approve"})
+    public ResponseEntity<Map<String, Boolean>> approveAffiliationPost(@PathVariable Long requestId) {
+        adminService.approveAffiliation(requestId);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @PutMapping({"/colleges/affiliations/{requestId}/reject", "/affiliations/{requestId}/reject"})
     public ResponseEntity<Map<String, Boolean>> rejectAffiliation(@PathVariable Long requestId) {
+        adminService.rejectAffiliation(requestId);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @PostMapping({"/colleges/affiliations/{requestId}/reject", "/affiliations/{requestId}/reject"})
+    public ResponseEntity<Map<String, Boolean>> rejectAffiliationPost(@PathVariable Long requestId) {
         adminService.rejectAffiliation(requestId);
         return ResponseEntity.ok(Map.of("success", true));
     }

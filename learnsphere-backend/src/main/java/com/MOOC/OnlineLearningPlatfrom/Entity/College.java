@@ -31,6 +31,6 @@ public class College {
     }
 
     public enum VerificationStatus {
-        VERIFIED, PENDING
+        VERIFIED, PENDING, REJECTED
     }
 }

@@ -33,12 +33,18 @@ public class AuditService {
     public static final String ENTITLEMENT_REVOKED = "ENTITLEMENT_REVOKED";
     public static final String MANUAL_GRADE_AWARDED = "MANUAL_GRADE_AWARDED";
     public static final String PAYOUT_DISBURSED = "PAYOUT_DISBURSED";
+    public static final String COLLEGE_STATUS_CHANGED = "COLLEGE_STATUS_CHANGED";
+    public static final String AFFILIATION_APPROVED = "AFFILIATION_APPROVED";
+    public static final String AFFILIATION_REJECTED = "AFFILIATION_REJECTED";
+    public static final String AFFILIATION_OVERRIDE = "AFFILIATION_OVERRIDE";
 
     public static final String RESOURCE_USER = "USER";
     public static final String RESOURCE_COURSE = "COURSE";
     public static final String RESOURCE_ENTITLEMENT = "COLLEGE_ENTITLEMENT";
     public static final String RESOURCE_STUDENT_ANSWER = "STUDENT_ANSWER";
     public static final String RESOURCE_PAYOUT = "PAYOUT";
+    public static final String RESOURCE_COLLEGE = "COLLEGE";
+    public static final String RESOURCE_AFFILIATION = "AFFILIATION_REQUEST";
 
     private final AuditLogRepository auditLogRepository;
 

@@ -2,13 +2,19 @@ package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.CourseResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.LectureResponseDto;
+import com.MOOC.OnlineLearningPlatfrom.Entity.AffiliationRequest;
+import com.MOOC.OnlineLearningPlatfrom.Entity.College;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Lecture;
+import com.MOOC.OnlineLearningPlatfrom.Entity.UserAccount;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
+import com.MOOC.OnlineLearningPlatfrom.Repository.AffiliationRequestRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.LectureRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
+import com.MOOC.OnlineLearningPlatfrom.Service.AuditService;
 import com.MOOC.OnlineLearningPlatfrom.Service.CourseService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -17,6 +23,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -28,6 +35,9 @@ public class CourseServiceImpl implements CourseService {
     private final com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService;
     private final com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService;
     private final com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository;
+    private final AffiliationRequestRepository affiliationRequestRepository;
+    private final UserAccountRepository userAccountRepository;
+    private final AuditService auditService;
 
     @org.springframework.beans.factory.annotation.Autowired
     public CourseServiceImpl(CourseRepository courseRepository,
@@ -38,7 +48,13 @@ public class CourseServiceImpl implements CourseService {
                              @org.springframework.beans.factory.annotation.Autowired(required = false)
                              com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService,
                              @org.springframework.beans.factory.annotation.Autowired(required = false)
-                             com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository) {
+                             com.MOOC.OnlineLearningPlatfrom.Repository.CourseContentRepository courseContentRepository,
+                             @org.springframework.beans.factory.annotation.Autowired(required = false)
+                             AffiliationRequestRepository affiliationRequestRepository,
+                             @org.springframework.beans.factory.annotation.Autowired(required = false)
+                             UserAccountRepository userAccountRepository,
+                             @org.springframework.beans.factory.annotation.Autowired(required = false)
+                             AuditService auditService) {
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
         this.departmentRepository = departmentRepository;
@@ -46,6 +62,9 @@ public class CourseServiceImpl implements CourseService {
         this.ownershipService = ownershipService;
         this.publicCacheService = publicCacheService;
         this.courseContentRepository = courseContentRepository;
+        this.affiliationRequestRepository = affiliationRequestRepository;
+        this.userAccountRepository = userAccountRepository;
+        this.auditService = auditService;
     }
 
     public CourseServiceImpl(CourseRepository courseRepository,
@@ -54,7 +73,7 @@ public class CourseServiceImpl implements CourseService {
                              JdbcTemplate jdbcTemplate,
                              com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService,
                              com.MOOC.OnlineLearningPlatfrom.Service.PublicCacheService publicCacheService) {
-        this(courseRepository, lectureRepository, departmentRepository, jdbcTemplate, ownershipService, publicCacheService, null);
+        this(courseRepository, lectureRepository, departmentRepository, jdbcTemplate, ownershipService, publicCacheService, null, null, null, null);
     }
 
     public CourseServiceImpl(CourseRepository courseRepository,
@@ -62,11 +81,11 @@ public class CourseServiceImpl implements CourseService {
                              com.MOOC.OnlineLearningPlatfrom.Repository.DepartmentRepository departmentRepository,
                              JdbcTemplate jdbcTemplate,
                              com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService) {
-        this(courseRepository, lectureRepository, departmentRepository, jdbcTemplate, ownershipService, null, null);
+        this(courseRepository, lectureRepository, departmentRepository, jdbcTemplate, ownershipService, null, null, null, null, null);
     }
 
     public CourseServiceImpl(CourseRepository courseRepository, LectureRepository lectureRepository, JdbcTemplate jdbcTemplate) {
-        this(courseRepository, lectureRepository, null, jdbcTemplate, null, null, null);
+        this(courseRepository, lectureRepository, null, jdbcTemplate, null, null, null, null, null, null);
     }
 
     @Override
@@ -133,7 +152,7 @@ public class CourseServiceImpl implements CourseService {
             courses = courses.stream()
                     .filter(c -> {
                         String haystack = ((c.getTitle() != null ? c.getTitle() : "") + " "
-                                + (c.getDescription() != null ? c.getDescription() : "")).toLowerCase();
+                                 + (c.getDescription() != null ? c.getDescription() : "")).toLowerCase();
                         for (String token : tokens) {
                             if (!haystack.contains(token)) return false;
                         }
@@ -200,12 +219,46 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponseDto createCourse(Course course, CustomUserDetails principal) {
-        course.setTeacher(principal.getUser());
+        boolean isAdmin = principal != null && principal.getRoles() != null &&
+                (principal.getRoles().contains("ADMIN") || principal.getRoles().contains("ROLE_ADMIN"));
+
+        UserAccount teacher = principal != null && principal.getUser() != null ? principal.getUser() : null;
+        if (teacher != null && userAccountRepository != null && teacher.getUserId() != null) {
+            teacher = userAccountRepository.findById(teacher.getUserId()).orElse(teacher);
+        }
+
+        boolean hasVerifiedCollege = teacher != null && teacher.getCollege() != null &&
+                teacher.getCollege().getVerificationStatus() == College.VerificationStatus.VERIFIED;
+        boolean hasApprovedAffiliation = teacher != null && affiliationRequestRepository != null &&
+                teacher.getUserId() != null &&
+                affiliationRequestRepository.existsByTeacher_UserIdAndStatus(
+                        teacher.getUserId(), AffiliationRequest.Status.APPROVED);
+
+        if (!isAdmin) {
+            if (!hasVerifiedCollege || !hasApprovedAffiliation) {
+                throw new AccessDeniedException("Teacher must have an approved affiliation to a verified college to create courses.");
+            }
+        } else {
+            // Admin override
+            if (teacher != null && (!hasVerifiedCollege || !hasApprovedAffiliation)) {
+                if (auditService != null) {
+                    auditService.record(
+                            AuditService.AFFILIATION_OVERRIDE,
+                            AuditService.RESOURCE_COURSE,
+                            0L,
+                            Map.of("teacherId", teacher.getUserId()),
+                            Map.of("action", "ADMIN_COURSE_CREATE_OVERRIDE")
+                    );
+                }
+            }
+        }
+
+        course.setTeacher(teacher != null ? teacher : (principal != null ? principal.getUser() : null));
         course.setStatus(Course.Status.DRAFT);
 
         com.MOOC.OnlineLearningPlatfrom.Entity.Department dept = resolveDepartment(course);
         if (dept == null) {
-            throw new com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException("Department is required for course creation");
+            throw new BadRequestException("Department is required for course creation");
         }
         course.setDepartment(dept);
         course.setDepartmentLabel(dept.getName());
@@ -237,7 +290,7 @@ public class CourseServiceImpl implements CourseService {
             boolean isAdmin = principal != null && principal.getRoles() != null &&
                     (principal.getRoles().contains("ADMIN") || principal.getRoles().contains("ROLE_ADMIN"));
             if (updates.getStatus() == Course.Status.LIVE && !isAdmin) {
-                throw new org.springframework.security.access.AccessDeniedException("Course publication requires administrator approval");
+                throw new AccessDeniedException("Course publication requires administrator approval");
             }
             course.setStatus(updates.getStatus());
         }
@@ -269,7 +322,7 @@ public class CourseServiceImpl implements CourseService {
         assertOwner(course, principal);
 
         if (course.getStatus() != Course.Status.ARCHIVED) {
-            throw new com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException("Course is not archived");
+            throw new BadRequestException("Course is not archived");
         }
 
         course.setStatus(Course.Status.DRAFT);
