@@ -1,6 +1,8 @@
 package com.MOOC.OnlineLearningPlatfrom.Repository;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -8,10 +10,15 @@ import org.springframework.stereotype.Repository;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserAccount;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserAccountRepository extends JpaRepository<UserAccount, Long> {
     UserAccount findByEmail(String email);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM UserAccount u WHERE u.userId = :userId")
+    Optional<UserAccount> findByIdWithLock(@Param("userId") Long userId);
 
     @Query("SELECT u FROM UserAccount u JOIN UserRole ur ON ur.user.userId = u.userId WHERE ur.role.name = 'STUDENT' ORDER BY COALESCE(u.leaderboardPoints, 0) DESC")
     List<UserAccount> findGlobalStudentLeaderboard();

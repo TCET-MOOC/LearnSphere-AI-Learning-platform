@@ -1,6 +1,7 @@
 package com.MOOC.OnlineLearningPlatfrom.Controller;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.PayoutResponseDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.TeacherPayoutStatementDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.TeacherRoyaltiesResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.RoyaltyService;
@@ -36,5 +37,12 @@ public class RoyaltyController {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore().cachePrivate())
                 .body(royaltyService.getPayouts(principal));
+    }
+
+    @GetMapping("/payouts/statement")
+    public ResponseEntity<TeacherPayoutStatementDto> getPayoutStatement(@AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(royaltyService.getPayoutStatement(principal));
     }
 }

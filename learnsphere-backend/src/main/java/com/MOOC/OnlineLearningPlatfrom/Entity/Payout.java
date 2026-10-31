@@ -31,6 +31,9 @@ public class Payout {
 
     private LocalDateTime transferredAt;
 
+    @Column(name = "idempotency_key", unique = true)
+    private String idempotencyKey;
+
     private LocalDateTime createdAt;
 
     @PrePersist

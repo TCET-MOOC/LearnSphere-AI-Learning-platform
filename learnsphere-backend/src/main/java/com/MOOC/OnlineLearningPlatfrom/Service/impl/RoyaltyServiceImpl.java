@@ -4,6 +4,7 @@ import com.MOOC.OnlineLearningPlatfrom.Dto.PayoutResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.RoyaltyBreakdownDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.RoyaltySourceSplitDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.RoyaltySummaryDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.TeacherPayoutStatementDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.TeacherRoyaltiesResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Payment;
@@ -133,5 +134,42 @@ public class RoyaltyServiceImpl implements RoyaltyService {
         return payoutRepository.findByTeacher_UserIdOrderByCreatedAtDesc(principal.getUser().getUserId()).stream()
                 .map(PayoutResponseDto::from)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TeacherPayoutStatementDto getPayoutStatement(CustomUserDetails principal) {
+        Long teacherId = principal.getUser().getUserId();
+        UserAccount teacher = userAccountRepository.findById(teacherId).orElse(principal.getUser());
+        String currentPeriod = LocalDateTime.now().format(PERIOD_FORMAT);
+        BigDecimal currentBalance = teacher.getRoyaltyBalance() != null ? teacher.getRoyaltyBalance() : BigDecimal.ZERO;
+        BigDecimal minimumThreshold = new BigDecimal("500.00");
+        boolean eligibleForPayout = currentBalance.compareTo(minimumThreshold) >= 0;
+
+        List<Royalty> royalties = royaltyRepository.findByTeacher_UserIdOrderByCreatedAtDesc(teacherId);
+        BigDecimal thisMonthEarnings = royalties.stream()
+                .filter(r -> currentPeriod.equals(r.getPeriod()))
+                .map(Royalty::getAmount).filter(a -> a != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal lifetimeEarnings = royalties.stream()
+                .map(Royalty::getAmount).filter(a -> a != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<PayoutResponseDto> payoutHistory = payoutRepository.findByTeacher_UserIdOrderByCreatedAtDesc(teacherId).stream()
+                .map(PayoutResponseDto::from)
+                .toList();
+
+        return new TeacherPayoutStatementDto(
+                currentPeriod,
+                teacherId,
+                teacher.getFullName(),
+                currentBalance,
+                minimumThreshold,
+                eligibleForPayout,
+                thisMonthEarnings,
+                lifetimeEarnings,
+                payoutHistory,
+                LocalDateTime.now()
+        );
     }
 }

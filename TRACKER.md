@@ -1400,13 +1400,33 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W6-06 One ledger + reconciliation
 - [x] W6-07 Remove royalty auto-reconcile
 - [x] W6-08 70/30 policy object
-- [~] W6-09 Payout threshold/schedule/lock/statement
+- [x] W6-09 Payout threshold/schedule/lock/statement
 - [~] W6-10 College verification + affiliation gate
 - [ ] W6-11 Same-college free entitlement
 - [ ] W6-12 Commerce/security suite (forgery, replay, history, receipt)
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
 
+
+**W6-09 evidence (2026-10-31) — Payout threshold/schedule/lock/statement:**
+- Rules: A-22, BR-20, [F-F18], spec §4 SCR-55.
+- Payout Threshold & Locking Controls:
+  - Enforced ₹500 minimum payout threshold (`MINIMUM_PAYOUT_THRESHOLD = new BigDecimal("500.00")`) in `PayoutAdminController`.
+  - Rejects single payout (`POST /api/admin/payouts/{teacherId}/pay`) with 400 Bad Request when teacher's pending royalty balance is below ₹500.
+  - In `POST /api/admin/payouts/process-all`: filters disbursements to only process teachers at or above ₹500, skipping sub-threshold teachers without error.
+  - Applied pessimistic DB write lock (`@Lock(LockModeType.PESSIMISTIC_WRITE)`) in `UserAccountRepository.findByIdWithLock(teacherId)` inside `@Transactional` payout operations to prevent concurrent double-pay races.
+  - Implemented `Idempotency-Key` header verification on single payout: duplicate disbursement attempts return the existing recorded `PayoutResponseDto` without double deduction.
+  - Added Flyway migration `V27__payout_idempotency_key.sql` adding `idempotency_key` unique column to `payouts` table.
+  - Added audit logging on disbursement via `AuditService.PAYOUT_DISBURSED` on `RESOURCE_PAYOUT`.
+- Teacher-Facing Monthly Statement:
+  - Added `GET /api/teacher/payouts/statement` returning `TeacherPayoutStatementDto` with period, current unpaid balance, threshold (₹500), eligibility flag, monthly earnings, lifetime earnings, and payout history.
+  - Enforced `Cache-Control: private, no-store` header on all payout views.
+  - Gated statement access to `TEACHER` and `ADMIN` roles; non-teachers receive 403 Forbidden.
+- Red-Green Verification:
+  - Authored `PayoutLifecycleAndStatementTests.java` covering: sub-threshold rejection (400), successful disbursement above threshold (200) + audit logging, idempotency key re-entrancy, bulk threshold filtering (`process-all`), teacher statement retrieval + cache control, and RBAC security gate.
+  - Red: initial test run failed on missing DTO and RFC 7807 problem detail path.
+  - Green: `PayoutLifecycleAndStatementTests` passed 6/6 tests (`BUILD SUCCESS`).
+  - Full backend commerce regression suite (`PayoutLifecycleAndStatementTests`, `RoyaltyPolicyTests`, `SimulatedCheckoutRetirementTests`, `InternalEnrollmentSecurityAndIdempotencyTests`, `LedgerReconciliationAndHistoryTests`, `RoyaltyAutoReconcileRetirementTests`) passed 25/25 tests (`BUILD SUCCESS`).
 
 **W6-08 evidence (2026-10-31) — 70/30 policy object:**
 - Rules: AC-21, audit.md B10, [F-F11], spec §6.

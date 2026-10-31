@@ -13,13 +13,23 @@ public class PendingPayoutDto {
     private String avatarUrl;
     private BigDecimal pendingAmount;
     private long courseCount;
+    private boolean eligibleForPayout;
+    private BigDecimal minimumThreshold;
 
-    public PendingPayoutDto(Long teacherId, String teacherName, String avatarUrl, BigDecimal pendingAmount, long courseCount) {
+    public PendingPayoutDto(Long teacherId, String teacherName, String avatarUrl, BigDecimal pendingAmount, long courseCount, boolean eligibleForPayout, BigDecimal minimumThreshold) {
         this.teacherId = teacherId;
         this.teacherName = teacherName;
         this.avatarUrl = avatarUrl;
         this.pendingAmount = pendingAmount;
         this.courseCount = courseCount;
+        this.eligibleForPayout = eligibleForPayout;
+        this.minimumThreshold = minimumThreshold;
+    }
+
+    public PendingPayoutDto(Long teacherId, String teacherName, String avatarUrl, BigDecimal pendingAmount, long courseCount) {
+        this(teacherId, teacherName, avatarUrl, pendingAmount, courseCount,
+                pendingAmount != null && pendingAmount.compareTo(new BigDecimal("500.00")) >= 0,
+                new BigDecimal("500.00"));
     }
 
     public Long getTeacherId() { return teacherId; }
@@ -27,4 +37,6 @@ public class PendingPayoutDto {
     public String getAvatarUrl() { return avatarUrl; }
     public BigDecimal getPendingAmount() { return pendingAmount; }
     public long getCourseCount() { return courseCount; }
+    public boolean isEligibleForPayout() { return eligibleForPayout; }
+    public BigDecimal getMinimumThreshold() { return minimumThreshold; }
 }
