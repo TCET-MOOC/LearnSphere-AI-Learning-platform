@@ -91,6 +91,7 @@ public class SecurityConfig {
                         .requestMatchers("/internal/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/colleges").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/departments", "/api/departments/**").permitAll()
+                        .requestMatchers("/api/courses/*/threads", "/api/threads/**", "/api/posts/**").authenticated()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/courses", "/api/courses/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/certificates/verify/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/contents/*/stream").permitAll()
