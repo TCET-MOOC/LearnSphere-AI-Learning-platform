@@ -11,6 +11,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.PaymentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.RoyaltyRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.EnrollmentService;
+import com.MOOC.OnlineLearningPlatfrom.commerce.RoyaltyPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +34,8 @@ public class InternalController {
     private final PaymentRepository paymentRepository;
     private final RoyaltyRepository royaltyRepository;
     private final UserAccountRepository userAccountRepository;
+    private final RoyaltyPolicy royaltyPolicy;
 
-    private static final BigDecimal TEACHER_ROYALTY_SHARE = new BigDecimal("0.70");
     private static final DateTimeFormatter PERIOD_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM");
 
     @Value("${internal.api.key}")
@@ -45,13 +46,15 @@ public class InternalController {
                               EnrollmentService enrollmentService,
                               PaymentRepository paymentRepository,
                               RoyaltyRepository royaltyRepository,
-                              UserAccountRepository userAccountRepository) {
+                              UserAccountRepository userAccountRepository,
+                              RoyaltyPolicy royaltyPolicy) {
         this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
         this.enrollmentService = enrollmentService;
         this.paymentRepository = paymentRepository;
         this.royaltyRepository = royaltyRepository;
         this.userAccountRepository = userAccountRepository;
+        this.royaltyPolicy = royaltyPolicy;
     }
 
     @PostMapping("/enroll")
@@ -151,7 +154,7 @@ public class InternalController {
         // 5. Credit 70% royalty to Course Teacher
         if (course.getTeacher() != null && paidAmount.compareTo(BigDecimal.ZERO) > 0) {
             UserAccount teacher = course.getTeacher();
-            BigDecimal royaltyAmount = paidAmount.multiply(TEACHER_ROYALTY_SHARE).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal royaltyAmount = royaltyPolicy.calculateTeacherRoyalty(paidAmount);
 
             Royalty royalty = new Royalty();
             royalty.setTeacher(teacher);

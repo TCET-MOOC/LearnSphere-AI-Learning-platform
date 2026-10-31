@@ -1399,7 +1399,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W6-05 Internal enrol: server price + idempotent ledger
 - [x] W6-06 One ledger + reconciliation
 - [x] W6-07 Remove royalty auto-reconcile
-- [~] W6-08 70/30 policy object
+- [x] W6-08 70/30 policy object
 - [~] W6-09 Payout threshold/schedule/lock/statement
 - [~] W6-10 College verification + affiliation gate
 - [ ] W6-11 Same-college free entitlement
@@ -1407,6 +1407,18 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
 
+
+**W6-08 evidence (2026-10-31) — 70/30 policy object:**
+- Rules: AC-21, audit.md B10, [F-F11], spec §6.
+- Canonical Policy Component:
+  - Created `RoyaltyPolicy.java` defining the canonical 70/30 royalty split (70% instructor royalty cut, 30% platform infrastructure fee).
+  - Implemented `calculateTeacherRoyalty(grossAmount)` and `calculatePlatformEarnings(grossAmount)` ensuring half-up rounding to two decimal places (`RoundingMode.HALF_UP`) and mathematical conservation (`teacherRoyalty + platformEarnings == grossAmount`).
+- Unified Service & Controller Integration:
+  - Replaced ad-hoc `TEACHER_ROYALTY_SHARE` constants in `InternalController`, `PaymentServiceImpl`, and `RevenueServiceImpl` with injected `RoyaltyPolicy`.
+  - Updated `README.md` lines 53-54 and 253 from outdated 20/80 references to canonical 30% platform fee and 70% teacher royalty.
+- Red-Green Verification:
+  - Authored `RoyaltyPolicyTests.java` covering calculation correctness, rounding invariance, edge amounts (zero, null), and dynamic revenue summary integration.
+  - Regression: Full backend commerce suite (`RoyaltyPolicyTests`, `SimulatedCheckoutRetirementTests`, `InternalEnrollmentSecurityAndIdempotencyTests`, `LedgerReconciliationAndHistoryTests`, `RoyaltyAutoReconcileRetirementTests`) passed 19/19 tests (`BUILD SUCCESS`).
 
 **W6-07 evidence (2026-10-31) — Remove royalty auto-reconcile:**
 - Rules: audit.md B10, [F-F9, F-F10], spec §6.

@@ -16,6 +16,7 @@ import com.MOOC.OnlineLearningPlatfrom.Repository.RoyaltyRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.PaymentService;
+import com.MOOC.OnlineLearningPlatfrom.commerce.RoyaltyPolicy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,12 +30,6 @@ import java.util.UUID;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-    /**
-     * Teacher's cut of every paid enrollment. The remaining 30% is retained by the
-     * platform (hosting, payment processing, discovery/marketing). This is a simplification
-     * for this project — a real platform would likely vary the split by contract/college deal.
-     */
-    private static final BigDecimal TEACHER_ROYALTY_SHARE = new BigDecimal("0.70");
     private static final DateTimeFormatter PERIOD_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM");
 
     private final PaymentRepository paymentRepository;
@@ -43,19 +38,22 @@ public class PaymentServiceImpl implements PaymentService {
     private final RoyaltyRepository royaltyRepository;
     private final UserAccountRepository userAccountRepository;
     private final com.MOOC.OnlineLearningPlatfrom.Service.CollegeEntitlementService collegeEntitlementService;
+    private final RoyaltyPolicy royaltyPolicy;
 
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                                CourseRepository courseRepository,
                                EnrollmentRepository enrollmentRepository,
                                RoyaltyRepository royaltyRepository,
                                UserAccountRepository userAccountRepository,
-                               com.MOOC.OnlineLearningPlatfrom.Service.CollegeEntitlementService collegeEntitlementService) {
+                               com.MOOC.OnlineLearningPlatfrom.Service.CollegeEntitlementService collegeEntitlementService,
+                               RoyaltyPolicy royaltyPolicy) {
         this.paymentRepository = paymentRepository;
         this.courseRepository = courseRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.royaltyRepository = royaltyRepository;
         this.userAccountRepository = userAccountRepository;
         this.collegeEntitlementService = collegeEntitlementService;
+        this.royaltyPolicy = royaltyPolicy;
     }
 
     @Override
@@ -125,7 +123,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private void creditTeacherRoyalty(Course course, BigDecimal paymentAmount) {
         UserAccount teacher = course.getTeacher();
-        BigDecimal royaltyAmount = paymentAmount.multiply(TEACHER_ROYALTY_SHARE).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal royaltyAmount = royaltyPolicy.calculateTeacherRoyalty(paymentAmount);
 
         Royalty royalty = new Royalty();
         royalty.setTeacher(teacher);

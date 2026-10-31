@@ -50,8 +50,8 @@ LearnSphere is a college-first e-learning platform where faculty upload video le
 
 ### Revenue Split
 
-- Platform retains **20%** of all external sales as a service fee.
-- The remaining **80%** is split as **royalty to the teacher** who created the course.
+- Platform retains **30%** of all external sales as a service fee.
+- The remaining **70%** is split as **royalty to the teacher** who created the course.
 - College earns a **branding and PR benefit** — courses sold to external students act as free marketing for the institution.
 - Teachers are paid **monthly** via bank transfer once their balance crosses a minimum threshold (₹500).
 
@@ -250,7 +250,7 @@ The teacher dashboard has **11 sections** accessible via a left icon sidebar, wi
 - **Earnings by course table** — per course, shows enrolled count, external paid count, and monthly earnings
 - **Payout history** — each past month with amount and transfer date; current month shown as pending
 - **Royalty breakdown bars** — external sales % / college share % / remedial certs %
-- Platform fee disclosure note (20% retained)
+- Platform fee disclosure note (30% retained)
 
 #### Settings
 - **Profile:** name, college email (verified), department, bio/intro (shown on public teacher profile), linked bank account for payouts

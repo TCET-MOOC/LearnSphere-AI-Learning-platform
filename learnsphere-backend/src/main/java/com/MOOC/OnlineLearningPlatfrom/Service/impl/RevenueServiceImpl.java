@@ -7,31 +7,31 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Payment;
 import com.MOOC.OnlineLearningPlatfrom.Repository.PaymentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.RevenueService;
+import com.MOOC.OnlineLearningPlatfrom.commerce.RoyaltyPolicy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Real revenue breakdown computed from SUCCESS Payment rows.
- * Platform/teacher split mirrors the real 70% teacher royalty share used at checkout time
- * (see PaymentServiceImpl.TEACHER_ROYALTY_SHARE).
+ * Platform/teacher split mirrors the canonical 70/30 royalty policy.
  */
 @Service
 public class RevenueServiceImpl implements RevenueService {
 
-    private static final BigDecimal TEACHER_ROYALTY_SHARE = new BigDecimal("0.70");
     private static final DateTimeFormatter MONTH_KEY = DateTimeFormatter.ofPattern("yyyy-MM");
     private static final DateTimeFormatter MONTH_LABEL = DateTimeFormatter.ofPattern("MMM yyyy");
 
     private final PaymentRepository paymentRepository;
+    private final RoyaltyPolicy royaltyPolicy;
 
-    public RevenueServiceImpl(PaymentRepository paymentRepository) {
+    public RevenueServiceImpl(PaymentRepository paymentRepository, RoyaltyPolicy royaltyPolicy) {
         this.paymentRepository = paymentRepository;
+        this.royaltyPolicy = royaltyPolicy;
     }
 
     @Override
@@ -46,13 +46,21 @@ public class RevenueServiceImpl implements RevenueService {
                 .map(Payment::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal teacherRoyalties = totalRevenue.multiply(TEACHER_ROYALTY_SHARE).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal platformEarnings = totalRevenue.subtract(teacherRoyalties).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal teacherRoyalties = royaltyPolicy.calculateTeacherRoyalty(totalRevenue);
+        BigDecimal platformEarnings = royaltyPolicy.calculatePlatformEarnings(totalRevenue);
 
         List<CourseRevenueDto> byCourse = buildByCourse(successfulPayments);
         List<MonthlyRevenueDto> byMonth = buildByMonth(successfulPayments);
 
-        return new RevenueSummaryDto(totalRevenue, platformEarnings, teacherRoyalties, 30, 70, byCourse, byMonth);
+        return new RevenueSummaryDto(
+                totalRevenue,
+                platformEarnings,
+                teacherRoyalties,
+                royaltyPolicy.getPlatformPercentage(),
+                royaltyPolicy.getTeacherPercentage(),
+                byCourse,
+                byMonth
+        );
     }
 
     private List<CourseRevenueDto> buildByCourse(List<Payment> payments) {
