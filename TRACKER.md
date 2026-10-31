@@ -1255,7 +1255,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W5-05 Course-scoped announcements
 - [x] W5-06 Notification event catalogue + outbox
 - [x] W5-07 Live session enrolment gating
-- [~] W5-08 Messaging pagination/authorization
+- [x] W5-08 Messaging pagination/authorization
 - [~] W5-09 Feedback eligibility + average
 - [ ] W5-10 Live media provider + player integration
 
@@ -1344,6 +1344,16 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Scope boundaries: Attendance tracking and recordings remain explicitly out of scope for v1 per A-18.
   - Caching & Performance: Cache-Control: private, no-store enforced on GET /api/student/live-sessions and GET /api/student/live-sessions/{id}.
 - Integration tests: Authored LiveSessionEnrolmentGatingTests (11/11 scenarios passed green). Full community regression suite (69/69) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
+
+**W5-08 evidence (2026-10-31) — Messaging pagination, participant authorization, report/block, retention note:**
+- Contract: Rules [E-F17], spec §4 SCR-23, and NFR-03 strictly implemented:
+  - Participant authorization & IDOR defense: Only conversation participants (participantA or participantB) and ADMINs can view or post messages. Access attempts by outsiders return 404 NOT_FOUND preventing conversational resource enumeration. Unauthenticated requests return 401 UNAUTHORIZED.
+  - Server-side pagination: GET /api/conversations/{id}/messages supports page (default 0) and size (default 50, max 100) parameters, returning a sliced message list with headers X-Total-Count, X-Page-Number, X-Page-Size, and X-Total-Pages. Responses enforce Cache-Control: private, no-store.
+  - Block and unblock controls: Either participant can block a conversation (POST /api/conversations/{id}/block), setting isBlocked=true and blockedByUser. Attempts to send messages in a blocked conversation return 400 BAD_REQUEST. Only the blocking user (or admin) can unblock (POST /api/conversations/{id}/unblock); foreign unblock attempts return 400 BAD_REQUEST. Non-participants receive 404 NOT_FOUND.
+  - Moderation reporting: Participants can report conversations/messages directly to moderation (POST /api/conversations/{id}/report) with reason (BULLYING, SPAM, etc.), generating PENDING entries in flagged_content for admin review.
+  - Retention note: Explicit retention policy documented across Conversation and Message entities and messaging service contract — direct messages are preserved for academic integrity, audit, and dispute resolution (default 1-year institutional retention window).
+- Migration: Created V25__conversations_block_support.sql adding is_blocked and blocked_by_user_id with index idx_conversations_blocked.
+- Integration tests: Authored MessagingPaginationAndAuthorizationTests (11/11 scenarios passed green). Full community regression suite (67/67) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
 
 ### Wave 6 — Commerce, royalties and institutions
 - [~] W6-01 Remove simulated checkout rail

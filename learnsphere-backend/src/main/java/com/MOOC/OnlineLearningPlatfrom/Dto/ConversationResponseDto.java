@@ -17,6 +17,8 @@ public class ConversationResponseDto {
     private LocalDateTime lastMessageAt;
     private LocalDateTime createdAt;
     private long unreadCount;
+    private Boolean isBlocked = false;
+    private Long blockedByUserId;
 
     public static ConversationResponseDto from(Conversation conversation, Long currentUserId, long unreadCount) {
         return from(conversation, currentUserId, unreadCount, null);
@@ -47,6 +49,8 @@ public class ConversationResponseDto {
         dto.lastMessageAt = conversation.getLastMessageAt();
         dto.createdAt = conversation.getCreatedAt();
         dto.unreadCount = unreadCount;
+        dto.isBlocked = Boolean.TRUE.equals(conversation.getIsBlocked());
+        dto.blockedByUserId = conversation.getBlockedByUser() != null ? conversation.getBlockedByUser().getUserId() : null;
         return dto;
     }
 
@@ -61,4 +65,6 @@ public class ConversationResponseDto {
     public LocalDateTime getLastMessageAt() { return lastMessageAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public long getUnreadCount() { return unreadCount; }
+    public Boolean getIsBlocked() { return isBlocked; }
+    public Long getBlockedByUserId() { return blockedByUserId; }
 }

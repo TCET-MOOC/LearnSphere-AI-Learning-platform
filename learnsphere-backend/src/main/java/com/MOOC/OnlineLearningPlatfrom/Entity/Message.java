@@ -6,6 +6,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * Direct message within a conversation (W5-08).
+ *
+ * <p><b>Retention Note:</b> Individual messages are append-only and preserved for academic
+ * integrity, audit, and dispute resolution purposes (default 1-year retention window).
+ * Soft-deletion or moderation masking retains metadata for institutional compliance.</p>
+ */
 @Entity
 @Table(name = "messages")
 @Data
