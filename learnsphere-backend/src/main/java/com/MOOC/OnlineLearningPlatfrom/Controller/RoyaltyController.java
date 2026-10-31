@@ -4,6 +4,7 @@ import com.MOOC.OnlineLearningPlatfrom.Dto.PayoutResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.TeacherRoyaltiesResponseDto;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.RoyaltyService;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,11 +26,15 @@ public class RoyaltyController {
 
     @GetMapping("/royalties")
     public ResponseEntity<TeacherRoyaltiesResponseDto> getRoyalties(@AuthenticationPrincipal CustomUserDetails principal) {
-        return ResponseEntity.ok(royaltyService.getRoyalties(principal));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(royaltyService.getRoyalties(principal));
     }
 
     @GetMapping("/payouts")
     public ResponseEntity<List<PayoutResponseDto>> getPayouts(@AuthenticationPrincipal CustomUserDetails principal) {
-        return ResponseEntity.ok(royaltyService.getPayouts(principal));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().cachePrivate())
+                .body(royaltyService.getPayouts(principal));
     }
 }

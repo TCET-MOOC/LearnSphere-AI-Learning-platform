@@ -1398,7 +1398,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W6-04 Remove `/orders/simulate-success`
 - [x] W6-05 Internal enrol: server price + idempotent ledger
 - [x] W6-06 One ledger + reconciliation
-- [~] W6-07 Remove royalty auto-reconcile
+- [x] W6-07 Remove royalty auto-reconcile
 - [~] W6-08 70/30 policy object
 - [~] W6-09 Payout threshold/schedule/lock/statement
 - [~] W6-10 College verification + affiliation gate
@@ -1407,6 +1407,22 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
 
+
+**W6-07 evidence (2026-10-31) — Remove royalty auto-reconcile:**
+- Rules: audit.md B10, [F-F9, F-F10], spec §6.
+- Elimination of Auto-Reconcile on Read:
+  - In `RoyaltyServiceImpl.java`: permanently removed the loop that scanned all enrollments in paid courses and auto-minted synthetic royalties/inflated `teacher.royaltyBalance` on read requests.
+  - Teacher royalties view (`getRoyalties`) is now an idempotent, read-only query (`@Transactional(readOnly = true)`) that never creates database records or mutates teacher balances.
+  - Enforced that royalties mint ONLY upon confirmed captured payments (`Payment.Status.SUCCESS`). Free or same-college enrollments in paid courses never mint synthetic royalties.
+  - In `RoyaltyBreakdownDto`, `externalPaidCount` and `externalEnrollments` count strictly actual SUCCESS payments via `paymentRepository.countByCourse_IdAndStatus`.
+- Ledger Derivation & Header Hardening:
+  - In `RevenueServiceImpl.java`: derives total revenue and platform/teacher breakdowns directly from `Payment.Status.SUCCESS` rows.
+  - In `RoyaltyController.java` (`/api/teacher/royalties`, `/api/teacher/payouts`) and `RevenueController.java` (`/api/admin/revenue`): enforced `Cache-Control: private, no-store`.
+- Red-green verification:
+  - Authored `RoyaltyAutoReconcileRetirementTests.java` covering: non-minting of synthetic royalties for free enrollments in paid courses, idempotency/read-only behavior across repeated calls, and derivation of revenue summaries from paid payments.
+  - Red: initial run failed 2/3 tests (Cache-Control missing private header, endpoint path mismatch).
+  - Green: `RoyaltyAutoReconcileRetirementTests` passed 3/3 tests (`BUILD SUCCESS`).
+  - Full backend commerce regression suite (`SimulatedCheckoutRetirementTests`, `InternalEnrollmentSecurityAndIdempotencyTests`, `LedgerReconciliationAndHistoryTests`, `RoyaltyAutoReconcileRetirementTests`) passed 17/17 tests (`BUILD SUCCESS`).
 
 **W6-06 evidence (2026-10-31) — One ledger + reconciliation:**
 - Rules: A-21, AUD-02, audit.md B10, [F-F8, F-F10], spec A 2, A 6.

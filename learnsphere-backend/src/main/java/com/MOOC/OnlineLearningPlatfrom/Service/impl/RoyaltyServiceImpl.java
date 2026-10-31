@@ -54,7 +54,7 @@ public class RoyaltyServiceImpl implements RoyaltyService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public TeacherRoyaltiesResponseDto getRoyalties(CustomUserDetails principal) {
         Long teacherId = principal.getUser().getUserId();
         UserAccount teacher = userAccountRepository.findById(teacherId).orElse(principal.getUser());
@@ -71,31 +71,9 @@ public class RoyaltyServiceImpl implements RoyaltyService {
             courses = courseRepository.findAll();
         }
 
-        // Auto-reconcile existing enrollments with royalties
+        // W6-07: Auto-reconcile on read is permanently removed.
+        // Royalties are minted ONLY upon captured payments (CAPTURED/SUCCESS).
         String currentPeriod = LocalDateTime.now().format(PERIOD_FORMAT);
-        for (Course course : courses) {
-            if (course.getPrice() != null && course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
-                long paidEnrollments = enrollmentRepository.countByCourse_Id(course.getId());
-                long existingRoyaltiesCount = royaltyRepository.findByTeacher_UserIdAndCourse_Id(teacherId, course.getId()).size();
-                long missingCount = paidEnrollments - existingRoyaltiesCount;
-                if (missingCount > 0) {
-                    BigDecimal royaltyPerEnrollment = course.getPrice().multiply(new BigDecimal("0.70")).setScale(2, RoundingMode.HALF_UP);
-                    for (int i = 0; i < missingCount; i++) {
-                        Royalty r = new Royalty();
-                        r.setTeacher(teacher);
-                        r.setCourse(course);
-                        r.setPeriod(currentPeriod);
-                        r.setSource(Royalty.Source.EXTERNAL_SALES);
-                        r.setAmount(royaltyPerEnrollment);
-                        royaltyRepository.save(r);
-                    }
-                    BigDecimal currentBalance = teacher.getRoyaltyBalance() != null ? teacher.getRoyaltyBalance() : BigDecimal.ZERO;
-                    BigDecimal addedTotal = royaltyPerEnrollment.multiply(BigDecimal.valueOf(missingCount));
-                    teacher.setRoyaltyBalance(currentBalance.add(addedTotal));
-                    userAccountRepository.save(teacher);
-                }
-            }
-        }
 
         List<Royalty> royalties = royaltyRepository.findByTeacher_UserIdOrderByCreatedAtDesc(teacherId);
 
@@ -109,16 +87,12 @@ public class RoyaltyServiceImpl implements RoyaltyService {
                 ? teacher.getRoyaltyBalance() : BigDecimal.ZERO;
 
         long externalEnrollments = courses.stream()
-                .mapToLong(c -> {
-                    long payCount = paymentRepository.countByCourse_IdAndStatus(c.getId(), Payment.Status.SUCCESS);
-                    long enrollCount = enrollmentRepository.countByCourse_Id(c.getId());
-                    return Math.max(payCount, enrollCount);
-                })
+                .mapToLong(c -> paymentRepository.countByCourse_IdAndStatus(c.getId(), Payment.Status.SUCCESS))
                 .sum();
 
         List<RoyaltyBreakdownDto> byCourse = courses.stream().map(course -> {
             long enrolledCount = enrollmentRepository.countByCourse_Id(course.getId());
-            long externalPaidCount = Math.max(paymentRepository.countByCourse_IdAndStatus(course.getId(), Payment.Status.SUCCESS), enrolledCount);
+            long externalPaidCount = paymentRepository.countByCourse_IdAndStatus(course.getId(), Payment.Status.SUCCESS);
             BigDecimal courseAmount = royaltyRepository.findByTeacher_UserIdAndCourse_Id(teacherId, course.getId())
                     .stream().map(Royalty::getAmount).filter(a -> a != null)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -154,6 +128,7 @@ public class RoyaltyServiceImpl implements RoyaltyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PayoutResponseDto> getPayouts(CustomUserDetails principal) {
         return payoutRepository.findByTeacher_UserIdOrderByCreatedAtDesc(principal.getUser().getUserId()).stream()
                 .map(PayoutResponseDto::from)
