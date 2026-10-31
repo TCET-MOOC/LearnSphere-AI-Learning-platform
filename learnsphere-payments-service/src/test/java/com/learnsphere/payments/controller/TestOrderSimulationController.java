@@ -97,6 +97,7 @@ public class TestOrderSimulationController {
             if (internalApiKey != null && !internalApiKey.isBlank()) {
                 headers.set("X-Internal-Key", internalApiKey);
             }
+            headers.set("X-Service-Id", "payments-service");
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             Map<String, Object> body = Map.of(

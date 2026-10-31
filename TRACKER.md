@@ -1396,7 +1396,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 
 - [x] W6-03 Fail-closed verification + order idempotency
 - [x] W6-04 Remove `/orders/simulate-success`
-- [~] W6-05 Internal enrol: server price + idempotent ledger
+- [x] W6-05 Internal enrol: server price + idempotent ledger
 - [~] W6-06 One ledger + reconciliation
 - [~] W6-07 Remove royalty auto-reconcile
 - [~] W6-08 70/30 policy object
@@ -1407,6 +1407,28 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
 
+
+**W6-05 evidence (2026-10-31) — Internal enrol: server price + idempotent ledger:**
+- Rules: A-19, AUD-05, audit.md B10, [F-F5], spec A 3.5, A 6.
+- Server-Side Pricing & Payload Tamper Protection:
+  - In `InternalController.java`: main backend endpoint `/internal/enroll` completely ignores caller-supplied body `amount`.
+  - Recomputes course price strictly from database-backed `course.getPrice()`.
+  - Rejects non-LIVE courses with `400 BAD_REQUEST` ("Course is not LIVE").
+  - Rejects free courses (price <= 0) with `400 BAD_REQUEST` ("Internal enrollment only supports paid courses").
+- Authentication & Header Enforcement:
+  - Requires both `X-Internal-Key` matching configured `internal.api.key` AND `X-Service-Id: payments-service`.
+  - Missing, invalid, or mismatched credentials immediately reject with `401 UNAUTHORIZED`.
+- Idempotency & Duplicate Ledger Prevention:
+  - Added `findByGatewayPaymentId` and `existsByGatewayPaymentId` to `PaymentRepository`.
+  - Before writing payments or minting royalties, checks `paymentRepository.findByGatewayPaymentId(paymentId)`.
+  - If already processed: ensures student enrollment exists and returns idempotent `200 OK` (`status: ALREADY_PROCESSED`), without inserting duplicate `Payment` rows or minting duplicate `Royalty` entries or double-crediting teacher balance.
+  - Requires real, non-empty `paymentId` and `orderId` in payload (`400 BAD_REQUEST` if missing or blank).
+  - Updated payments service (`OrderController`, `WebhookController`, and `TestOrderSimulationController`) to pass `X-Service-Id: payments-service` and supply `paymentId`.
+- Red-green verification:
+  - Authored `InternalEnrollmentSecurityAndIdempotencyTests.java` with 5 scenarios: missing auth headers returns 401, non-LIVE course returns 400, missing paymentId returns 400, server recomputes price and ignores tampered amount, and replay with same paymentId is idempotent.
+  - Red: initial run failed 3/5 tests (returned 400 on missing headers, failed on tampered amount, non-idempotent duplicate writes).
+  - Green: `InternalEnrollmentSecurityAndIdempotencyTests` passed 5/5 tests (`BUILD SUCCESS`).
+  - Full payments service suite passed 25/25 tests (`BUILD SUCCESS`).
 
 **W6-04 evidence (2026-10-31) — Remove /orders/simulate-success:**
 - Rules: AUD-04, `[F-F3]`, spec §5, §6.
@@ -1537,7 +1559,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 | AUD-02 | P1/P2 | Payment history fabrication/status/unit/timestamp defects | W6-06, W6-14 | Open |
 | AUD-03 | P0 | Signature verification fails open | W6-03 | Open |
 | AUD-04 | P0 | Simulation/order lookup unauthenticated or replayable | W6-02, W6-04 | Open |
-| AUD-05 | P0 | Internal enrol trusts amount and is non-idempotent | W6-05 | Open |
+| AUD-05 | P0 | Internal enrol trusts amount and is non-idempotent | W6-05 | Closed (W6-05) |
 | AUD-06 | P1/P2 | Two payment rails; simulated checkout reachable | W6-01 | Open |
 | AUD-07 | P1/P2 | My Courses/catalogue conflated; no resume surface | W3-10 | Closed (W3-10) |
 | AUD-08 | P1/P2 | Player fallback/client-only enrolment/duplicate aliases | W3-11 | Closed (W3-11) |

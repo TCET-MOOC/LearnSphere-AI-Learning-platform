@@ -237,6 +237,7 @@ public class OrderController {
             if (internalApiKey != null && !internalApiKey.isBlank()) {
                 headers.set("X-Internal-Key", internalApiKey);
             }
+            headers.set("X-Service-Id", "payments-service");
             headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
 
             Map<String, Object> body = Map.of(

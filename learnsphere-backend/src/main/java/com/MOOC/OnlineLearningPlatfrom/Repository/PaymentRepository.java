@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByUser_UserIdOrderByCreatedAtDesc(Long userId);
     Optional<Payment> findByGatewayOrderId(String gatewayOrderId);
+    Optional<Payment> findByGatewayPaymentId(String gatewayPaymentId);
+    boolean existsByGatewayPaymentId(String gatewayPaymentId);
     Optional<Payment> findByUser_UserIdAndCourse_IdAndStatus(Long userId, Long courseId, Payment.Status status);
     boolean existsByUser_UserIdAndCourse_Id(Long userId, Long courseId);
     boolean existsByUser_UserIdAndCourse_IdAndStatus(Long userId, Long courseId, Payment.Status status);

@@ -84,7 +84,7 @@ public class WebhookController {
                     orderRepository.save(order);
 
                     // Call Main Backend
-                    enrollStudent(order);
+                    enrollStudent(order, rzpPaymentId);
                 }
             } else if ("payment.failed".equals(event)) {
                 Optional<Order> orderOpt = orderRepository.findByRazorpayOrderId(rzpOrderId);
@@ -110,18 +110,20 @@ public class WebhookController {
         }
     }
 
-    private void enrollStudent(Order order) {
+    private void enrollStudent(Order order, String paymentId) {
         try {
             String url = mainBackendUrl + "/internal/enroll";
             
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-Internal-Key", internalApiKey);
+            headers.set("X-Service-Id", "payments-service");
             headers.setContentType(MediaType.APPLICATION_JSON);
             
             Map<String, Object> body = Map.of(
                     "userId", order.getUserId(),
                     "courseId", order.getCourseId(),
-                    "orderId", order.getRazorpayOrderId()
+                    "orderId", order.getRazorpayOrderId(),
+                    "paymentId", paymentId != null ? paymentId : "unknown_pay"
             );
             
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
