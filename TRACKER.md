@@ -1256,7 +1256,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W5-06 Notification event catalogue + outbox
 - [x] W5-07 Live session enrolment gating
 - [x] W5-08 Messaging pagination/authorization
-- [~] W5-09 Feedback eligibility + average
+- [x] W5-09 Feedback eligibility + average
 - [ ] W5-10 Live media provider + player integration
 
 **W5-01 evidence (2026-10-31) — Canonical thread/post + legacy migration:**
@@ -1354,6 +1354,16 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Retention note: Explicit retention policy documented across Conversation and Message entities and messaging service contract — direct messages are preserved for academic integrity, audit, and dispute resolution (default 1-year institutional retention window).
 - Migration: Created V25__conversations_block_support.sql adding is_blocked and blocked_by_user_id with index idx_conversations_blocked.
 - Integration tests: Authored MessagingPaginationAndAuthorizationTests (11/11 scenarios passed green). Full community regression suite (67/67) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
+
+**W5-09 evidence (2026-10-31) — Feedback eligibility + average rating cache and invalidation:**
+- Contract: Rules AC-22, AC-23, NFR-03, and [E-F12] strictly implemented:
+  - Enrolment eligibility: Only students actively enrolled in a course can submit feedback (POST /api/courses/{courseId}/feedback). Unenrolled student submissions return 404 NOT_FOUND. Anonymous requests return 401 UNAUTHORIZED (removed legacy default userId fallback).
+  - Rating validation: Rating is restricted to Short bounds [1, 5] inclusive; values outside [1, 5] reject with 400 BAD_REQUEST.
+  - Single review constraint: Enforces exactly 1 review per (user, course); resubmission by the same user updates the existing review row (upsert semantics, preserving unique constraint).
+  - Deletion authorization (BR-16): Only the feedback author or an ADMIN can delete a review (DELETE /api/feedback/{id} -> 204 NO_CONTENT). Unauthorised attempts return 404 NOT_FOUND (IDOR defense).
+  - Public average rating caching (NFR-03): GET /api/courses/{courseId}/feedback/avg is backed by in-process Caffeine cache (TTL <= 60 s), returning ETag and Cache-Control: public, max-age=60 with 304 NOT_MODIFIED support on matching If-None-Match.
+  - Cache invalidation: Any feedback write (submit, update, delete) immediately invalidates the cached average rating for that course, guaranteeing that subsequent requests fetch fresh aggregate scores.
+- Integration tests: Authored FeedbackEligibilityAndAverageTests (9/9 scenarios passed green). PublicCacheAndEtagTests (6/6) and full community regression suite passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
 
 ### Wave 6 — Commerce, royalties and institutions
 - [~] W6-01 Remove simulated checkout rail

@@ -8,21 +8,15 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 /**
- * W2-11: In-process Caffeine cache implementation for public read models.
- * Rules: NFR-02, NFR-03, A-04, W2-02, W2-03.
- *
- * Implements:
- * 1. Caffeine in-process caching for published catalogue, course detail, departments, and department courses.
- * 2. TTL <= 60 s.
- * 3. Deterministic ETags derived from per-key cache generation.
- * 4. Hit/miss metrics recording.
- * 5. Comprehensive cache invalidation on curriculum and reference mutations.
+ * W2-11 / W5-09: In-process Caffeine cache implementation for public read models.
+ * Rules: NFR-02, NFR-03, A-04, W2-02, W2-03, W5-09.
  */
 @Service
 public class PublicCacheServiceImpl implements PublicCacheService {
@@ -54,6 +48,12 @@ public class PublicCacheServiceImpl implements PublicCacheService {
     private final Cache<Long, List<CourseResponseDto>> departmentCoursesCache = Caffeine.newBuilder()
             .expireAfterWrite(60, TimeUnit.SECONDS)
             .maximumSize(500)
+            .recordStats()
+            .build();
+
+    private final Cache<Long, Map<String, Object>> feedbackAvgCache = Caffeine.newBuilder()
+            .expireAfterWrite(60, TimeUnit.SECONDS)
+            .maximumSize(1000)
             .recordStats()
             .build();
 
@@ -116,6 +116,15 @@ public class PublicCacheServiceImpl implements PublicCacheService {
     }
 
     @Override
+    public CacheResult<Map<String, Object>> getCourseFeedbackAvg(
+            Long courseId,
+            Supplier<Map<String, Object>> loader) {
+        Map<String, Object> data = feedbackAvgCache.get(courseId, k -> loader.get());
+        String etag = "\"feedback-avg-" + courseId + "-g" + getGeneration("feedback_avg:" + courseId) + "\"";
+        return new CacheResult<>(data, etag);
+    }
+
+    @Override
     public void invalidateCourse(Long courseId) {
         if (courseId != null) {
             courseDetailCache.invalidate(courseId);
@@ -157,12 +166,21 @@ public class PublicCacheServiceImpl implements PublicCacheService {
     }
 
     @Override
+    public void invalidateCourseFeedbackAvg(Long courseId) {
+        if (courseId != null) {
+            feedbackAvgCache.invalidate(courseId);
+            bumpGeneration("feedback_avg:" + courseId);
+        }
+    }
+
+    @Override
     public long getHitCount() {
         return catalogueCache.stats().hitCount()
                 + courseDetailCache.stats().hitCount()
                 + departmentsCache.stats().hitCount()
                 + departmentDetailCache.stats().hitCount()
-                + departmentCoursesCache.stats().hitCount();
+                + departmentCoursesCache.stats().hitCount()
+                + feedbackAvgCache.stats().hitCount();
     }
 
     @Override
@@ -171,6 +189,7 @@ public class PublicCacheServiceImpl implements PublicCacheService {
                 + courseDetailCache.stats().missCount()
                 + departmentsCache.stats().missCount()
                 + departmentDetailCache.stats().missCount()
-                + departmentCoursesCache.stats().missCount();
+                + departmentCoursesCache.stats().missCount()
+                + feedbackAvgCache.stats().missCount();
     }
 }

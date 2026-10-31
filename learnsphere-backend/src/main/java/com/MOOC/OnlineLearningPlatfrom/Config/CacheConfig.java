@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.concurrent.TimeUnit;
 
 /**
- * W2-11: Caffeine cache configuration for public read models (catalogue, course detail, departments).
+ * W2-11 / W5-09: Caffeine cache configuration for public read models (catalogue, course detail, departments, feedback average).
  * Rules: NFR-02, NFR-03, TTL <= 60 s, recordStats for hit/miss metrics.
  */
 @Configuration
@@ -21,6 +21,7 @@ public class CacheConfig {
     public static final String CACHE_PUBLIC_COURSE_DETAIL = "public_course_detail";
     public static final String CACHE_PUBLIC_DEPARTMENTS = "public_departments";
     public static final String CACHE_PUBLIC_DEPARTMENT_COURSES = "public_department_courses";
+    public static final String CACHE_COURSE_FEEDBACK_AVG = "course_feedback_avg";
 
     @Bean
     public CacheManager cacheManager() {
@@ -28,7 +29,8 @@ public class CacheConfig {
                 CACHE_PUBLIC_CATALOGUE,
                 CACHE_PUBLIC_COURSE_DETAIL,
                 CACHE_PUBLIC_DEPARTMENTS,
-                CACHE_PUBLIC_DEPARTMENT_COURSES
+                CACHE_PUBLIC_DEPARTMENT_COURSES,
+                CACHE_COURSE_FEEDBACK_AVG
         );
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(60, TimeUnit.SECONDS)
