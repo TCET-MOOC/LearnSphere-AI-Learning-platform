@@ -6,8 +6,8 @@
 | | |
 |---|---|
 | Last updated | 2026-10-31 |
-| Current phase | **Wave 4 — Assessment integrity 100% COMPLETE & VERIFIED GREEN (`W4-01` through `W4-11`).** Wave 1 (`38f5597`), Wave 2 (`a125912`), Wave 3 (`217230e`, `c9d4da6`), and Wave 4 are 100% complete and verified green. Full assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with in-place upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, dynamic score computation), attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, background `AttemptTimeoutJob`, schedule/duration/attempt-limit enforcement with active-attempt resume, `BigDecimal(8,2)` score/marks precision across schema, entities, and grading engines, attempt review with answer privacy and manual-grading audit logging, player-attached quiz binding (`CourseContent`), post-video completion gate with sticky pass guarantee and non-retroactive revocation (BR-25, BR-10), and comprehensive locked assessment integrity integration suite (`AssessmentIntegritySuiteTests` & `PlayerAttachedQuizCompletionGateTests`). |
-| Next milestone | **Wave 5 — Engagement and community** (`W5-06 Notification event catalogue + outbox`). |
+| Current phase | **Wave 5 — Engagement and community 100% COMPLETE & VERIFIED GREEN (`W5-01` through `W5-10`).** Wave 1, Wave 2, Wave 3, Wave 4, and Wave 5 are 100% complete and verified green. Full community and engagement features active: canonical discussion threads and posts (`discussion_thread`/`post`), enrolment-gated reads/writes with IDOR 404 defense, reply nesting with cross-thread validation, automated moderation and admin flagged-queue workflows with text masking (`[Content removed by moderator]`), course-scoped announcements with feed isolation and expiry/pinning, durable notification outbox pattern with fixed 6-event catalogue, live session enrolment gating, messaging pagination, participant authorization and block controls, feedback enrolment eligibility with single review upsert and Caffeine-cached public average ratings with immediate write invalidation, and real live media provider (YouTube Live / HLS) with ephemeral playback descriptor and player integration. |
+| Next milestone | **Wave 6 — Commerce, royalties and institutions** (`W6-01 Remove simulated checkout rail`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1257,7 +1257,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W5-07 Live session enrolment gating
 - [x] W5-08 Messaging pagination/authorization
 - [x] W5-09 Feedback eligibility + average
-- [ ] W5-10 Live media provider + player integration
+- [x] W5-10 Live media provider + player integration
 
 **W5-01 evidence (2026-10-31) — Canonical thread/post + legacy migration:**
 - Canonical data model: `DiscussionThread` (`discussion_thread`: `thread_id`, `course_id`, `user_id`, `title`, `content`, `created_at`, `updated_at`, `flagged`) and `Post` (`post`: `post_id`, `thread_id`, `user_id`, `body`, `parent_post_id`, `created_at`, `flagged`).
@@ -1364,6 +1364,31 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Public average rating caching (NFR-03): GET /api/courses/{courseId}/feedback/avg is backed by in-process Caffeine cache (TTL <= 60 s), returning ETag and Cache-Control: public, max-age=60 with 304 NOT_MODIFIED support on matching If-None-Match.
   - Cache invalidation: Any feedback write (submit, update, delete) immediately invalidates the cached average rating for that course, guaranteeing that subsequent requests fetch fresh aggregate scores.
 - Integration tests: Authored FeedbackEligibilityAndAverageTests (9/9 scenarios passed green). PublicCacheAndEtagTests (6/6) and full community regression suite passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
+
+**W5-10 evidence (2026-10-31) — Real live media provider + player integration:**
+- Contract: Rules A-26, BR-27, A-18, and NFR-03 strictly implemented:
+  - Source configuration: `PUT /api/teacher/live-sessions/{id}/source` allows course teachers to configure `YOUTUBE_LIVE` (with `providerVideoId`) or `HLS` (with HTTPS `sourceUrl`).
+  - RTMP & stream key rejection: `rtmp://`, `rtmps://`, and encoder stream keys (`key=`, `stream_key`, `secret`, `streamkey`) in source URLs or video IDs are strictly rejected with `400 BAD_REQUEST`.
+  - Start validation: `PUT /api/teacher/live-sessions/{id}/start` strictly verifies a validated source is present; attempting to start without a source returns `400 BAD_REQUEST` ("Cannot start live session without a validated playback source."). When started, `status` becomes `LIVE`, `startedAt` is recorded, and status is broadcast to `/topic/live-sessions/{id}` and `/topic/live-sessions/{id}/status`.
+  - End session: `PUT /api/teacher/live-sessions/{id}/end` transitions status to `ENDED`, records `endedAt`, and broadcasts status change.
+  - Ephemeral Playback Descriptor: `LiveSessionResponseDto` returns `playbackDescriptor` (`sourceType`, `playbackUrl`, `providerVideoId`, `startedAt`) ONLY when `status == LIVE`. When `SCHEDULED` or `ENDED`, `playbackDescriptor` is null and omitted from JSON.
+  - Enrolment & IDOR protection: Unenrolled students calling `GET /api/student/live-sessions/{id}` receive `404 NOT_FOUND` (never receive descriptors or discover session existence). Foreign teachers attempting to configure source or start/end session receive `404 NOT_FOUND`.
+  - Cache policy: Enforced `Cache-Control: private, no-store` on all student live session endpoints.
+  - Frontend: Replaced simulated mock blackboard (`presentation-canvas`, `code-blackboard`, `dijkstra...`) in `StudentLiveRoomComponent` with real `<app-video-player [isLive]="true">` when LIVE with a playback descriptor; clean waiting card when SCHEDULED; clean ended card when ENDED; never simulates stream on error. Added live badge overlay and disabled auto-resume and progress saving in `VideoPlayerComponent` when `isLive` is true.
+- Migration: Created `V26__live_sessions_real_media_source.sql` adding `source_type`, `provider_video_id`, `source_url`, `playback_mode`, `started_at`, `ended_at`, and status index `idx_live_sessions_status`.
+- Integration tests: Authored `LiveMediaProviderAndPlayerTests` (8/8 scenarios passed green). Full community regression suite (90/90) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
+
+### Wave 5 Gate Verification (PASSED)
+- [x] 1. One discussion model in UI and API (`discussion_thread`/`post`) — verified in W5-01, W5-02, W5-03, W5-04; legacy routes return 404.
+- [x] 2. Only enrolled users read/write — verified across discussions, announcements, and live sessions; unenrolled requests receive 404 IDOR defense.
+- [x] 3. Flagged post is actually hidden/masked — verified in W5-04 (`[Content removed by moderator]`).
+- [x] 4. Teacher announcements notify only that course — verified in W5-05 & W5-06; outbox partitions events per recipient/course.
+- [x] 5. Live session cannot start without a real source — verified in W5-10; starting without source returns 400.
+- [x] 6. Enrolled student sees provider playback only while `LIVE` — verified in W5-10; descriptor returned only in LIVE state.
+- [x] 7. Non-enrolled user cannot obtain a descriptor — verified in W5-10; returns 404 NOT_FOUND.
+- [x] 8. Public rating cache invalidates on a feedback write — verified in W5-09; Caffeine cache invalidated immediately on submit/update/delete.
+- [x] Regression test suite: Backend 90/90 passed (`BUILD SUCCESS`), Payments 10/10 passed (`BUILD SUCCESS`), Frontend 79/79 passed (`BUILD SUCCESS`).
+
 
 ### Wave 6 — Commerce, royalties and institutions
 - [~] W6-01 Remove simulated checkout rail

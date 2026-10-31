@@ -7,8 +7,11 @@
         <span>Exit Room</span>
       </button>
       <div class="session-meta">
-        <span class="live-indicator">
+        <span class="live-indicator" *ngIf="session.status === 'LIVE'">
           <span class="dot"></span> LIVE
+        </span>
+        <span class="status-indicator" *ngIf="session.status !== 'LIVE'">
+          {{ session.status }}
         </span>
         <h1 class="room-title">{{ session.title }}</h1>
         <span class="course-pill">{{ session.courseTitle }}</span>
@@ -28,59 +31,48 @@
   <div class="room-body">
     <!-- Main Video Stream -->
     <div class="stream-viewport">
-      <div class="video-container">
-        <!-- Mock/Live Screen Broadcast simulation -->
-        <div class="video-overlay-elements">
-          <div class="teacher-watermark">
-            <div class="teacher-avatar">👨‍🏫</div>
-            <div class="teacher-details">
-              <span class="t-name">Course Faculty</span>
-              <span class="t-badge">Broadcasting 1080p 60fps</span>
-            </div>
-          </div>
-
-          <div class="presentation-canvas">
-            <div class="code-blackboard">
-              <div class="chalk-header">
-                <span class="chalk-title">📐 {{ session.title }}</span>
-                <span class="rec-dot">● REC</span>
-              </div>
-              <div class="chalk-content">
-                <p class="highlight-text">// Key Lecture Concept & Proof</p>
-                <pre><code>function dijkstra(graph, startNode) &#123;
-  const distances = &#123;&#125;;
-  const visited = new Set();
-  const priorityQueue = new PriorityQueue();
-  // Live faculty explanation active
-  ...
-&#125;</code></pre>
-                <div class="live-subtitle-caption">
-                  <span class="caption-icon">🎙️</span>
-                  <span>"...Notice how the greedy choice ensures the optimal substructure at every step..."</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stream Action Controls -->
-        <div class="stream-controls">
-          <div class="left-ctrls">
-            <button class="ctrl-btn" [class.active]="isHandRaised" (click)="toggleHandRaise()">
-              <span>✋</span>
-              <span>{{ isHandRaised ? 'Hand Raised' : 'Raise Hand' }}</span>
-            </button>
-            <button class="ctrl-btn" (click)="isMuted = !isMuted">
-              <lucide-icon [name]="isMuted ? 'volume-x' : 'volume-2'" [size]="18"></lucide-icon>
-              <span>{{ isMuted ? 'Unmute' : 'Mute' }}</span>
-            </button>
-          </div>
-
-          <div class="right-ctrls">
-            <span class="stream-quality-tag">HD 1080p</span>
-          </div>
-        </div>
+      <div class="video-container" *ngIf="session.status === 'LIVE' && session.playbackDescriptor; else placeholderView">
+        <app-video-player
+          [src]="session.playbackDescriptor.playbackUrl"
+          [videoTitle]="session.title"
+          [isLive]="true">
+        </app-video-player>
       </div>
+
+      <ng-template #placeholderView>
+        <div class="video-container placeholder-container">
+          <!-- Scheduled / Waiting State -->
+          <div class="session-state-card waiting-card" *ngIf="session.status === 'SCHEDULED'">
+            <div class="state-icon-pulse">
+              <lucide-icon name="clock" [size]="44"></lucide-icon>
+            </div>
+            <h3>Waiting for Instructor</h3>
+            <p>This live session is scheduled. The broadcast will start as soon as the instructor goes live.</p>
+            <div class="scheduled-time" *ngIf="session.scheduledAt">
+              <span>Scheduled: {{ session.scheduledAt | date:'medium' }}</span>
+            </div>
+          </div>
+
+          <!-- Ended State -->
+          <div class="session-state-card ended-card" *ngIf="session.status === 'ENDED'">
+            <div class="state-icon-check">
+              <lucide-icon name="check-circle" [size]="44"></lucide-icon>
+            </div>
+            <h3>This live session has ended</h3>
+            <p>The instructor has concluded this session. Thank you for attending!</p>
+            <button class="back-overview-btn" (click)="leaveRoom()">Return to Live Dashboard</button>
+          </div>
+
+          <!-- Live but descriptor connecting -->
+          <div class="session-state-card connecting-card" *ngIf="session.status === 'LIVE' && !session.playbackDescriptor">
+            <div class="state-icon-pulse">
+              <lucide-icon name="radio" [size]="44"></lucide-icon>
+            </div>
+            <h3>Connecting to Live Broadcast...</h3>
+            <p>The stream is initializing. Please wait a moment.</p>
+          </div>
+        </div>
+      </ng-template>
     </div>
 
     <!-- Right Interaction Panel (Chat, Q&A, Notes) -->
@@ -119,42 +111,44 @@
             [class.is-question]="msg.isQuestion">
             <div class="bubble-header">
               <span class="sender-name">{{ msg.sender }}</span>
-              <span class="badge" *ngIf="msg.isTeacher">Faculty</span>
-              <span class="badge q-badge" *ngIf="msg.isQuestion">Question</span>
-              <span class="time-stamp">{{ msg.time }}</span>
+              <span class="teacher-tag" *ngIf="msg.isTeacher">Faculty</span>
+              <span class="msg-time">{{ msg.time }}</span>
             </div>
-            <div class="bubble-body">{{ msg.text }}</div>
+            <div class="bubble-content" [class.censored]="msg.isCensored">
+              {{ msg.text }}
+            </div>
           </div>
         </div>
 
-        <div class="chat-composer">
-          <input 
-            type="text" 
-            [(ngModel)]="newMessage" 
-            (keyup.enter)="sendMessage()" 
-            [placeholder]="activeTab === 'qa' ? 'Ask a question to faculty...' : 'Send message to classroom...'">
-          <button class="send-btn" (click)="sendMessage()">
-            <lucide-icon name="send" [size]="16"></lucide-icon>
-          </button>
+        <div class="chat-input-area">
+          <div class="chat-input-box">
+            <input 
+              type="text" 
+              [(ngModel)]="newMessage" 
+              (keyup.enter)="sendMessage()" 
+              [placeholder]="activeTab === 'qa' ? 'Ask a question for the instructor...' : 'Send a message to classroom...'"
+              [disabled]="chatMutedUntil !== null" />
+            <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim() || chatMutedUntil !== null">
+              <lucide-icon name="send" [size]="16"></lucide-icon>
+            </button>
+          </div>
+          <span class="policy-hint">
+            <lucide-icon name="shield" [size]="12"></lucide-icon>
+            Safety Filter Active: Respectful conduct expected at all times.
+          </span>
         </div>
       </div>
 
       <!-- Live Notes View -->
       <div class="notes-feed" *ngIf="activeTab === 'notes'">
+        <div class="notes-header">
+          <h3>Your Private Session Notes</h3>
+          <p>Notes are automatically saved to your course notebook.</p>
+        </div>
         <textarea 
-          class="notes-textarea" 
           [(ngModel)]="liveNotes" 
-          placeholder="Take quick timestamped notes during this live lecture..."></textarea>
-        <button class="save-notes-btn" (click)="saveNote()">
-          <lucide-icon name="save" [size]="16"></lucide-icon>
-          <span>Save to My Notes</span>
-        </button>
+          placeholder="Jot down formulas, takeaways, and key ideas in real-time..."></textarea>
       </div>
     </div>
   </div>
-</div>
-
-<div class="room-loading" *ngIf="loading">
-  <div class="spinner"></div>
-  <p>Connecting to secure live stream room...</p>
 </div>

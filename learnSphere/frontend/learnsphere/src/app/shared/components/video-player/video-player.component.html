@@ -3,6 +3,12 @@
   <!-- Video Shell (Wraps Default YouTube Player and Native HTML5 Video) -->
   <div class="video-player__shell" *ngIf="src; else noSrc">
 
+    <!-- Live Stream Indicator Badge -->
+    <div class="live-stream-badge" *ngIf="isLive">
+      <span class="live-stream-dot"></span>
+      <span class="live-stream-text">LIVE</span>
+    </div>
+
     <!-- 1. Default YouTube Player (Standard Native UI) -->
     <div class="yt-wrapper" *ngIf="isYouTube">
       <div #ytContainer class="yt-container"></div>

@@ -121,6 +121,9 @@ public class LiveSessionEnrolmentGatingTests extends PostgresIntegrationTest {
         sessionCourseA.setTitle("Intro to Live A");
         sessionCourseA.setScheduledAt(LocalDateTime.now().plusDays(1));
         sessionCourseA.setStatus(LiveSession.Status.SCHEDULED);
+        sessionCourseA.setSourceType(LiveSession.SourceType.YOUTUBE_LIVE);
+        sessionCourseA.setProviderVideoId("dQw4w9WgXcQ");
+        sessionCourseA.setPlaybackMode(LiveSession.PlaybackMode.YOUTUBE);
         sessionCourseA = liveSessionRepository.save(sessionCourseA);
 
         sessionCourseB = new LiveSession();

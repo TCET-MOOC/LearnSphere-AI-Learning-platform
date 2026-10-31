@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * A scheduled/live/ended teacher-led live session for a course. There is no real video
- * infrastructure wired up in this project — joinUrl is a placeholder meeting link generated
- * when the session goes live.
+ * A scheduled/live/ended teacher-led live session for a course.
  */
 @Entity
 @Table(name = "live_sessions")
@@ -37,6 +35,21 @@ public class LiveSession {
 
     private String joinUrl;
 
+    @Enumerated(EnumType.STRING)
+    private SourceType sourceType;
+
+    private String providerVideoId;
+
+    @Column(columnDefinition = "TEXT")
+    private String sourceUrl;
+
+    @Enumerated(EnumType.STRING)
+    private PlaybackMode playbackMode;
+
+    private LocalDateTime startedAt;
+
+    private LocalDateTime endedAt;
+
     private LocalDateTime createdAt;
 
     @PrePersist
@@ -46,5 +59,13 @@ public class LiveSession {
 
     public enum Status {
         SCHEDULED, LIVE, ENDED
+    }
+
+    public enum SourceType {
+        YOUTUBE_LIVE, HLS
+    }
+
+    public enum PlaybackMode {
+        YOUTUBE, HLS
     }
 }

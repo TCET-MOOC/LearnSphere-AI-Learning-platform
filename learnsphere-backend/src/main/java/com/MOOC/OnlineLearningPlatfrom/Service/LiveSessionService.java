@@ -2,6 +2,7 @@ package com.MOOC.OnlineLearningPlatfrom.Service;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionRequestDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionSourceDto;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 
 import java.util.List;
@@ -12,6 +13,7 @@ public interface LiveSessionService {
     LiveSessionResponseDto getSessionById(Long id, CustomUserDetails principal);
     LiveSessionResponseDto getSessionById(Long id);
     LiveSessionResponseDto create(LiveSessionRequestDto request, CustomUserDetails principal);
+    LiveSessionResponseDto setSource(Long id, LiveSessionSourceDto dto, CustomUserDetails principal);
     LiveSessionResponseDto start(Long id, CustomUserDetails principal);
     LiveSessionResponseDto end(Long id, CustomUserDetails principal);
 }

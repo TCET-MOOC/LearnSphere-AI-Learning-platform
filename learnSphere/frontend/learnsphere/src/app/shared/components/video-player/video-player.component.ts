@@ -69,6 +69,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnChanges, O
   @Input() lectureId: number | null = null;
   @Input() initialTime: number = 0;
   @Input() language: string = 'en';
+  @Input() isLive: boolean = false;
 
   @Output() timeUpdate = new EventEmitter<VideoTimeUpdate>();
   @Output() ended = new EventEmitter<void>();
@@ -195,6 +196,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnChanges, O
   }
 
   private checkAutoResume(duration: number): void {
+    if (this.isLive) return;
     if (this.initialTime > 0) {
       this.seekTo(this.initialTime);
       return;
@@ -230,6 +232,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnChanges, O
   }
 
   private saveProgress(time: number): void {
+    if (this.isLive) return;
     if (Math.abs(time - this.lastSavedTime) < 5) return;
     this.lastSavedTime = time;
     try {

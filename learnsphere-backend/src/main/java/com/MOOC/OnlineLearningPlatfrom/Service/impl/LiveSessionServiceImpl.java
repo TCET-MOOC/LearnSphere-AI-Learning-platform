@@ -2,6 +2,7 @@ package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionRequestDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionSourceDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.LiveSession;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
@@ -15,8 +16,10 @@ import com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -137,6 +140,70 @@ public class LiveSessionServiceImpl implements LiveSessionService {
     }
 
     @Override
+    public LiveSessionResponseDto setSource(Long id, LiveSessionSourceDto dto, CustomUserDetails principal) {
+        LiveSession session = liveSessionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Live session not found with id: " + id));
+        if (session.getCourse() == null) {
+            throw new ResourceNotFoundException("Live session not found with id: " + id);
+        }
+        ownershipService.requireCourseStaff(session.getCourse().getId(), principal);
+
+        if (dto == null || dto.getSourceType() == null) {
+            throw new BadRequestException("sourceType is required.");
+        }
+
+        String sourceUrl = dto.getSourceUrl();
+        if (sourceUrl != null && !sourceUrl.isBlank()) {
+            String lower = sourceUrl.toLowerCase();
+            if (lower.startsWith("rtmp://") || lower.startsWith("rtmps://")) {
+                throw new BadRequestException("RTMP protocol is not supported for playback. Use HLS or YouTube Live.");
+            }
+            if (lower.contains("key=") || lower.contains("stream_key") || lower.contains("secret") || lower.contains("streamkey")) {
+                throw new BadRequestException("Encoder stream keys must not be exposed in public playback source URLs.");
+            }
+        }
+
+        String providerVideoId = dto.getProviderVideoId();
+        if (providerVideoId != null && !providerVideoId.isBlank()) {
+            String lower = providerVideoId.toLowerCase();
+            if (lower.contains("stream_key") || lower.contains("rtmp") || lower.contains("secret")) {
+                throw new BadRequestException("Invalid video id or encoder key detected.");
+            }
+        }
+
+        if (dto.getSourceType() == LiveSession.SourceType.YOUTUBE_LIVE) {
+            if (providerVideoId == null || providerVideoId.isBlank()) {
+                throw new BadRequestException("providerVideoId is required for YOUTUBE_LIVE.");
+            }
+            session.setSourceType(LiveSession.SourceType.YOUTUBE_LIVE);
+            session.setProviderVideoId(providerVideoId.trim());
+            session.setPlaybackMode(LiveSession.PlaybackMode.YOUTUBE);
+            if (sourceUrl != null && !sourceUrl.isBlank()) {
+                session.setSourceUrl(sourceUrl.trim());
+            } else {
+                session.setSourceUrl("https://www.youtube.com/embed/" + providerVideoId.trim());
+            }
+        } else if (dto.getSourceType() == LiveSession.SourceType.HLS) {
+            if (sourceUrl == null || sourceUrl.isBlank()) {
+                throw new BadRequestException("sourceUrl is required for HLS.");
+            }
+            if (!sourceUrl.toLowerCase().startsWith("https://")) {
+                throw new BadRequestException("HLS sourceUrl must use secure HTTPS.");
+            }
+            session.setSourceType(LiveSession.SourceType.HLS);
+            session.setSourceUrl(sourceUrl.trim());
+            session.setPlaybackMode(LiveSession.PlaybackMode.HLS);
+            if (providerVideoId != null && !providerVideoId.isBlank()) {
+                session.setProviderVideoId(providerVideoId.trim());
+            }
+        } else {
+            throw new BadRequestException("Unsupported source type: " + dto.getSourceType());
+        }
+
+        return LiveSessionResponseDto.from(liveSessionRepository.save(session));
+    }
+
+    @Override
     public LiveSessionResponseDto start(Long id, CustomUserDetails principal) {
         LiveSession session = liveSessionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Live session not found with id: " + id));
@@ -144,10 +211,19 @@ public class LiveSessionServiceImpl implements LiveSessionService {
             throw new ResourceNotFoundException("Live session not found with id: " + id);
         }
         ownershipService.requireCourseStaff(session.getCourse().getId(), principal);
+
+        if (session.getSourceType() == null ||
+                (session.getSourceType() == LiveSession.SourceType.YOUTUBE_LIVE && (session.getProviderVideoId() == null || session.getProviderVideoId().isBlank())) ||
+                (session.getSourceType() == LiveSession.SourceType.HLS && (session.getSourceUrl() == null || session.getSourceUrl().isBlank()))) {
+            throw new BadRequestException("Cannot start live session without a validated playback source.");
+        }
+
         session.setStatus(LiveSession.Status.LIVE);
+        session.setStartedAt(LocalDateTime.now());
         session.setJoinUrl("/live/" + UUID.randomUUID());
         LiveSessionResponseDto dto = LiveSessionResponseDto.from(liveSessionRepository.save(session));
         messagingTemplate.convertAndSend("/topic/live-sessions/" + id, dto);
+        messagingTemplate.convertAndSend("/topic/live-sessions/" + id + "/status", Map.of("status", "LIVE", "sessionId", id));
         return dto;
     }
 
@@ -160,8 +236,10 @@ public class LiveSessionServiceImpl implements LiveSessionService {
         }
         ownershipService.requireCourseStaff(session.getCourse().getId(), principal);
         session.setStatus(LiveSession.Status.ENDED);
+        session.setEndedAt(LocalDateTime.now());
         LiveSessionResponseDto dto = LiveSessionResponseDto.from(liveSessionRepository.save(session));
         messagingTemplate.convertAndSend("/topic/live-sessions/" + id, dto);
+        messagingTemplate.convertAndSend("/topic/live-sessions/" + id + "/status", Map.of("status", "ENDED", "sessionId", id));
         return dto;
     }
 }

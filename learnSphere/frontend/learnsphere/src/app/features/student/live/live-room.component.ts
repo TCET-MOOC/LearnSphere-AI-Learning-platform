@@ -10,6 +10,8 @@ import { AuthService } from '@core/auth/auth.service';
 import { Subscription } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 
+import { VideoPlayerComponent } from '@shared/components/video-player/video-player.component';
+
 interface ChatMessage {
   id: string;
   sender: string;
@@ -27,7 +29,8 @@ interface ChatMessage {
     CommonModule, 
     FormsModule,
     RouterModule,
-    LucideAngularModule
+    LucideAngularModule,
+    VideoPlayerComponent
   ],
   templateUrl: './live-room.component.html',
   styleUrls: ['./live-room.component.scss']
@@ -61,6 +64,7 @@ export class StudentLiveRoomComponent implements OnInit, OnDestroy {
   private viewerInterval: any;
   private chatWsSub?: Subscription;
   private sessionWsSub?: Subscription;
+  private statusWsSub?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -98,8 +102,20 @@ export class StudentLiveRoomComponent implements OnInit, OnDestroy {
           this.session = sessionUpdate;
           if (sessionUpdate.status === 'ENDED') {
             this.notificationService.info('The instructor has ended the live stream.');
+          } else if (sessionUpdate.status === 'LIVE') {
+            this.notificationService.success('The live lecture has started!');
           }
           this.cdr.markForCheck();
+        }
+      }
+    });
+
+    this.statusWsSub = this.wsService.subscribeToTopic<any>(`/topic/live-sessions/${this.sessionId}/status`).subscribe({
+      next: (update) => {
+        if (update && update.status) {
+          if (!this.session || this.session.status !== update.status) {
+            this.loadSession(this.sessionId);
+          }
         }
       }
     });
@@ -134,6 +150,7 @@ export class StudentLiveRoomComponent implements OnInit, OnDestroy {
     }
     if (this.chatWsSub) this.chatWsSub.unsubscribe();
     if (this.sessionWsSub) this.sessionWsSub.unsubscribe();
+    if (this.statusWsSub) this.statusWsSub.unsubscribe();
   }
 
   loadSession(id: number): void {

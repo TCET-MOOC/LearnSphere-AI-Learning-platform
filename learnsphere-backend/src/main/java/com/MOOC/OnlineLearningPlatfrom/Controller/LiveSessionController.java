@@ -2,6 +2,7 @@ package com.MOOC.OnlineLearningPlatfrom.Controller;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionRequestDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionResponseDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.LiveSessionSourceDto;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.LiveSessionService;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,13 @@ public class LiveSessionController {
     public ResponseEntity<LiveSessionResponseDto> create(@RequestBody LiveSessionRequestDto request,
                                                            @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(liveSessionService.create(request, principal));
+    }
+
+    @PutMapping("/{id}/source")
+    public ResponseEntity<LiveSessionResponseDto> setSource(@PathVariable Long id,
+                                                            @RequestBody LiveSessionSourceDto dto,
+                                                            @AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(liveSessionService.setSource(id, dto, principal));
     }
 
     @PutMapping("/{id}/start")
