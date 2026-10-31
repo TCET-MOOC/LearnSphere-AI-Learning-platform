@@ -4,19 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { DiscussionService } from '@core/services/discussion.service';
 import { AuthService } from '@core/auth/auth.service';
 import { NotificationService } from '@core/services/notification.service';
-import { DiscussionPostDto } from '@core/models/social.model';
+import { DiscussionThreadDto, ThreadPostDto } from '@core/models/social.model';
 import { UserRole } from '@core/models/user.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { timeAgo } from '@core/utils/time.util';
 
 /**
- * LectureDiscussionComponent is a per-lecture discussion widget embedded in the
- * lecture player page (mirrors the @Input contract of the sibling
- * NotesDrawerComponent so it can be dropped in next to it).
- * Not yet wired into lecture.component.html — that file belongs to the
- * courses workstream. Usage once wired:
- *   <app-lecture-discussion [courseId]="courseId" [lectureId]="currentLecture.id"
- *     [lectureLabel]="currentLecture.title"></app-lecture-discussion>
+ * LectureDiscussionComponent is a per-lecture/course discussion widget embedded in the
+ * lecture player page.
  */
 @Component({
   selector: 'app-lecture-discussion',
@@ -30,45 +25,46 @@ import { timeAgo } from '@core/utils/time.util';
 
       <div class="new-post">
         <textarea rows="2" placeholder="Ask a question about this lecture…" [(ngModel)]="newPostText"></textarea>
-        <button class="post-btn" type="button" [disabled]="!newPostText.trim() || !lectureId" (click)="submitPost()">Post</button>
+        <button class="post-btn" type="button" [disabled]="!newPostText.trim() || !courseId" (click)="submitPost()">Post</button>
       </div>
 
       <p class="hint" *ngIf="loading">Loading discussion…</p>
       <div class="posts" *ngIf="!loading">
-        <div class="post" *ngFor="let post of posts">
-          <div class="post-ava" [style.background]="getBg(post.authorName)" [style.color]="getColor(post.authorName)">{{ getInitials(post.authorName) }}</div>
+        <div class="post" *ngFor="let thread of threads">
+          <div class="post-ava" [style.background]="getBg(thread.authorName)" [style.color]="getColor(thread.authorName)">{{ getInitials(thread.authorName) }}</div>
           <div class="post-body">
             <div class="post-head">
-              <span class="post-author">{{ post.authorName }}</span>
-              <span class="post-time">{{ timeAgo(post.createdAt) }}</span>
-              <button class="del-btn" type="button" *ngIf="canDelete(post)" (click)="remove(post)">Delete</button>
+              <span class="post-author">{{ thread.authorName }}</span>
+              <span class="post-time">{{ timeAgo(thread.createdAt) }}</span>
+              <button class="del-btn" type="button" *ngIf="canDeleteThread(thread)" (click)="removeThread(thread)">Delete</button>
             </div>
-            <p class="post-text">{{ post.body }}</p>
+            <p class="post-text" style="font-weight: 600; margin-bottom: 2px;">{{ thread.title }}</p>
+            <p class="post-text">{{ thread.content }}</p>
 
-            <div class="replies" *ngIf="post.replies.length">
-              <div class="reply" *ngFor="let reply of post.replies">
+            <div class="replies" *ngIf="thread.posts && thread.posts.length">
+              <div class="reply" *ngFor="let reply of thread.posts">
                 <div class="post-ava post-ava--sm" [style.background]="getBg(reply.authorName)" [style.color]="getColor(reply.authorName)">{{ getInitials(reply.authorName) }}</div>
                 <div>
                   <div class="post-head">
                     <span class="post-author">{{ reply.authorName }}</span>
                     <span class="post-time">{{ timeAgo(reply.createdAt) }}</span>
-                    <button class="del-btn" type="button" *ngIf="canDelete(reply)" (click)="remove(reply)">Delete</button>
+                    <button class="del-btn" type="button" *ngIf="canDeletePost(reply)" (click)="removePost(thread, reply)">Delete</button>
                   </div>
                   <p class="post-text">{{ reply.body }}</p>
                 </div>
               </div>
             </div>
 
-            <button class="link-btn" type="button" (click)="toggleReply(post.id)">
-              {{ replyingTo === post.id ? 'Cancel' : 'Reply' }}
+            <button class="link-btn" type="button" (click)="toggleReply(thread.threadId)">
+              {{ replyingTo === thread.threadId ? 'Cancel' : 'Reply' }}
             </button>
-            <div class="reply-input" *ngIf="replyingTo === post.id">
-              <input type="text" placeholder="Write a reply…" [(ngModel)]="replyText" (keydown.enter)="submitReply(post)" />
-              <button class="post-btn" type="button" [disabled]="!replyText.trim()" (click)="submitReply(post)">Reply</button>
+            <div class="reply-input" *ngIf="replyingTo === thread.threadId">
+              <input type="text" placeholder="Write a reply…" [(ngModel)]="replyText" (keydown.enter)="submitReply(thread)" />
+              <button class="post-btn" type="button" [disabled]="!replyText.trim()" (click)="submitReply(thread)">Reply</button>
             </div>
           </div>
         </div>
-        <p class="hint" *ngIf="posts.length === 0">No discussion yet for this lecture. Be the first to ask a question.</p>
+        <p class="hint" *ngIf="threads.length === 0">No discussion yet for this lecture. Be the first to ask a question.</p>
       </div>
     </section>
   `,
@@ -107,7 +103,7 @@ export class LectureDiscussionComponent implements OnChanges {
   @Input() lectureId?: number;
   @Input() lectureLabel = '';
 
-  posts: DiscussionPostDto[] = [];
+  threads: DiscussionThreadDto[] = [];
   loading = false;
   newPostText = '';
   replyingTo: number | null = null;
@@ -120,24 +116,24 @@ export class LectureDiscussionComponent implements OnChanges {
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['lectureId']) {
+    if (changes['courseId'] || changes['lectureId']) {
       this.reload();
     }
   }
 
   reload(): void {
-    if (!this.lectureId) {
-      this.posts = [];
+    if (!this.courseId) {
+      this.threads = [];
       return;
     }
     this.loading = true;
-    this.discussionService.getLectureDiscussion(this.lectureId).subscribe({
-      next: (posts) => {
-        this.posts = posts;
+    this.discussionService.getThreads(this.courseId).subscribe({
+      next: (threads) => {
+        this.threads = threads;
         this.loading = false;
       },
       error: () => {
-        this.posts = [];
+        this.threads = [];
         this.loading = false;
       }
     });
@@ -145,8 +141,9 @@ export class LectureDiscussionComponent implements OnChanges {
 
   submitPost(): void {
     const body = this.newPostText.trim();
-    if (!body || !this.lectureId) return;
-    this.discussionService.createPost({ lectureId: this.lectureId, body }).subscribe({
+    if (!body || !this.courseId) return;
+    const title = this.lectureLabel ? `[${this.lectureLabel}] Question` : 'Discussion Question';
+    this.discussionService.createThread(this.courseId, { title, content: body }).subscribe({
       next: () => {
         this.newPostText = '';
         this.reload();
@@ -155,35 +152,56 @@ export class LectureDiscussionComponent implements OnChanges {
     });
   }
 
-  toggleReply(postId: number): void {
-    this.replyingTo = this.replyingTo === postId ? null : postId;
+  toggleReply(threadId: number): void {
+    this.replyingTo = this.replyingTo === threadId ? null : threadId;
     this.replyText = '';
   }
 
-  submitReply(post: DiscussionPostDto): void {
+  submitReply(thread: DiscussionThreadDto): void {
     const body = this.replyText.trim();
     if (!body) return;
-    this.discussionService.createPost({ lectureId: this.lectureId, parentPostId: post.id, body }).subscribe({
-      next: () => {
+    this.discussionService.postReply(thread.threadId, body).subscribe({
+      next: (newPost) => {
         this.replyText = '';
         this.replyingTo = null;
-        this.reload();
+        if (!thread.posts) {
+          thread.posts = [];
+        }
+        thread.posts.push(newPost);
       },
       error: () => this.notify.error('Could not post reply.')
     });
   }
 
-  canDelete(post: DiscussionPostDto): boolean {
+  canDeleteThread(thread: DiscussionThreadDto): boolean {
     const currentUserId = this.authService.currentUser?.id;
     const isAdmin = this.authService.currentUser?.role === UserRole.ADMIN;
-    return isAdmin || post.authorId === currentUserId;
+    return isAdmin || thread.userId === currentUserId;
   }
 
-  remove(post: DiscussionPostDto): void {
-    if (!window.confirm('Delete this post?')) return;
-    this.discussionService.deletePost(post.id).subscribe({
+  removeThread(thread: DiscussionThreadDto): void {
+    if (!window.confirm('Delete this thread?')) return;
+    this.discussionService.deleteThread(thread.threadId).subscribe({
       next: () => this.reload(),
-      error: () => this.notify.error('Could not delete post.')
+      error: () => this.notify.error('Could not delete thread.')
+    });
+  }
+
+  canDeletePost(post: ThreadPostDto): boolean {
+    const currentUserId = this.authService.currentUser?.id;
+    const isAdmin = this.authService.currentUser?.role === UserRole.ADMIN;
+    return isAdmin || post.userId === currentUserId;
+  }
+
+  removePost(thread: DiscussionThreadDto, post: ThreadPostDto): void {
+    if (!window.confirm('Delete this reply?')) return;
+    this.discussionService.deletePost(post.postId).subscribe({
+      next: () => {
+        if (thread.posts) {
+          thread.posts = thread.posts.filter(p => p.postId !== post.postId);
+        }
+      },
+      error: () => this.notify.error('Could not delete reply.')
     });
   }
 

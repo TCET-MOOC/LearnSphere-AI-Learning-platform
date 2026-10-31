@@ -65,9 +65,17 @@ public class DiscussionThread {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "flagged")
+    private Boolean flagged = false;
+
     @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt ASC")
     private List<Post> posts = new ArrayList<>();
+
+    @JsonProperty("postCount")
+    public int getPostCount() {
+        return posts != null ? posts.size() : 0;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -75,6 +83,9 @@ public class DiscussionThread {
             this.createdAt = LocalDateTime.now();
         }
         this.updatedAt = LocalDateTime.now();
+        if (this.flagged == null) {
+            this.flagged = false;
+        }
     }
 
     @PreUpdate

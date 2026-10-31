@@ -5,9 +5,9 @@
 
 | | |
 |---|---|
-| Last updated | 2026-10-29 |
+| Last updated | 2026-10-31 |
 | Current phase | **Wave 4 — Assessment integrity 100% COMPLETE & VERIFIED GREEN (`W4-01` through `W4-11`).** Wave 1 (`38f5597`), Wave 2 (`a125912`), Wave 3 (`217230e`, `c9d4da6`), and Wave 4 are 100% complete and verified green. Full assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with in-place upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, dynamic score computation), attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, background `AttemptTimeoutJob`, schedule/duration/attempt-limit enforcement with active-attempt resume, `BigDecimal(8,2)` score/marks precision across schema, entities, and grading engines, attempt review with answer privacy and manual-grading audit logging, player-attached quiz binding (`CourseContent`), post-video completion gate with sticky pass guarantee and non-retroactive revocation (BR-25, BR-10), and comprehensive locked assessment integrity integration suite (`AssessmentIntegritySuiteTests` & `PlayerAttachedQuizCompletionGateTests`). |
-| Next milestone | **Wave 5 — Engagement and community** (`W5-01 Canonical thread/post + legacy migration`). |
+| Next milestone | **Wave 5 — Engagement and community** (`W5-02 Enrolment-gated community reads/writes`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1248,7 +1248,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Frontend stylelint ratchet 100% clean.
 
 ### Wave 5 — Engagement and community
-- [~] W5-01 Canonical thread/post + legacy migration
+- [x] W5-01 Canonical thread/post + legacy migration
 - [ ] W5-02 Enrolment-gated community reads/writes
 - [~] W5-03 Reply nesting + cross-thread validation
 - [~] W5-04 Moderation on canonical posts
@@ -1258,6 +1258,25 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [~] W5-08 Messaging pagination/authorization
 - [~] W5-09 Feedback eligibility + average
 - [ ] W5-10 Live media provider + player integration
+
+**W5-01 evidence (2026-10-31) — Canonical thread/post + legacy migration:**
+- Canonical data model: `DiscussionThread` (`discussion_thread`: `thread_id`, `course_id`, `user_id`, `title`, `content`, `created_at`, `updated_at`, `flagged`) and `Post` (`post`: `post_id`, `thread_id`, `user_id`, `body`, `parent_post_id`, `created_at`, `flagged`).
+- Migration: Created `V21__discussion_thread_canonical_migration.sql` migrating root legacy `discussion_posts` into `discussion_thread`, dropping legacy `discussion_posts` CASCADE, enforcing `ON DELETE CASCADE` foreign keys and performance indexes (`idx_discussion_thread_course_id`, `idx_discussion_thread_created_at`, `idx_post_thread_id`, `idx_post_created_at`).
+- Endpoints active under `/api`:
+  - `GET /api/courses/{courseId}/threads` — list threads for course (ordered `createdAt DESC`).
+  - `POST /api/courses/{courseId}/threads` — create thread under course.
+  - `GET /api/threads/{id}` — get thread by ID with posts list.
+  - `PUT /api/threads/{id}` — update thread (author or admin only).
+  - `DELETE /api/threads/{id}` — delete thread (author or admin only; cascades to posts).
+  - `GET /api/threads/{id}/posts` — list posts for thread (ordered `createdAt ASC`).
+  - `POST /api/threads/{id}/posts` — create post / reply under thread.
+  - `PUT /api/posts/{id}` — edit post (author or admin only).
+  - `DELETE /api/posts/{id}` — delete post (author or admin only).
+- Retired legacy routes: `/api/courses/{id}/discussion`, `/api/lectures/{id}/discussion`, and `/api/discussion` return 404 NOT_FOUND.
+- Private cache: all discussion responses carry `Cache-Control: private, no-store`.
+- Frontend: `discussion.service.ts`, student and teacher `discussion.component`, and `lecture-discussion.component` updated to canonical `DiscussionThreadDto` and `ThreadPostDto`.
+- Integration tests: `CanonicalDiscussionThreadTests` passed 9/9 scenarios.
+- Regression: Backend `393/393` passed; Payments `10/10` passed; Frontend `16 files / 79 tests` passed; stylelint ratchet clean.
 
 ### Wave 6 — Commerce, royalties and institutions
 - [~] W6-01 Remove simulated checkout rail

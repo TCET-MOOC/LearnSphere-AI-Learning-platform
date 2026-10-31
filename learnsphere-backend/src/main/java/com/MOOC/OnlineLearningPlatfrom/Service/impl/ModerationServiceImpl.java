@@ -1,13 +1,13 @@
 package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.FlaggedContentDto;
-import com.MOOC.OnlineLearningPlatfrom.Entity.DiscussionPost;
 import com.MOOC.OnlineLearningPlatfrom.Entity.FlaggedContent;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Message;
+import com.MOOC.OnlineLearningPlatfrom.Entity.Post;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
-import com.MOOC.OnlineLearningPlatfrom.Repository.DiscussionPostRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.FlaggedContentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.MessageRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.PostRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.ModerationService;
 import com.MOOC.OnlineLearningPlatfrom.Service.support.KeywordLists;
 import org.springframework.stereotype.Service;
@@ -19,14 +19,14 @@ import java.util.List;
 @Service
 public class ModerationServiceImpl implements ModerationService {
 
-    private final DiscussionPostRepository discussionPostRepository;
+    private final PostRepository postRepository;
     private final MessageRepository messageRepository;
     private final FlaggedContentRepository flaggedContentRepository;
 
-    public ModerationServiceImpl(DiscussionPostRepository discussionPostRepository,
+    public ModerationServiceImpl(PostRepository postRepository,
                                   MessageRepository messageRepository,
                                   FlaggedContentRepository flaggedContentRepository) {
-        this.discussionPostRepository = discussionPostRepository;
+        this.postRepository = postRepository;
         this.messageRepository = messageRepository;
         this.flaggedContentRepository = flaggedContentRepository;
     }
@@ -37,23 +37,23 @@ public class ModerationServiceImpl implements ModerationService {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void scanAndFlag() {
-        for (DiscussionPost post : discussionPostRepository.findAll()) {
+        for (Post post : postRepository.findAll()) {
             if (post.getBody() == null) continue;
-            if (flaggedContentRepository.existsByContentTypeAndContentId(FlaggedContent.ContentType.DISCUSSION_POST, post.getId())) continue;
+            if (flaggedContentRepository.existsByContentTypeAndContentId(FlaggedContent.ContentType.DISCUSSION_POST, post.getPostId())) continue;
 
             FlaggedContent.Reason reason = classify(post.getBody());
             if (reason == null) continue;
 
             FlaggedContent flag = new FlaggedContent();
             flag.setContentType(FlaggedContent.ContentType.DISCUSSION_POST);
-            flag.setContentId(post.getId());
+            flag.setContentId(post.getPostId());
             flag.setReason(reason);
             flag.setReporterId(null);
             flag.setStatus(FlaggedContent.Status.PENDING);
             flaggedContentRepository.save(flag);
 
             post.setFlagged(true);
-            discussionPostRepository.save(post);
+            postRepository.save(post);
         }
 
         for (Message message : messageRepository.findAll()) {
@@ -114,10 +114,10 @@ public class ModerationServiceImpl implements ModerationService {
         String snippet = "";
 
         if (flag.getContentType() == FlaggedContent.ContentType.DISCUSSION_POST) {
-            DiscussionPost post = discussionPostRepository.findById(flag.getContentId()).orElse(null);
+            Post post = postRepository.findById(flag.getContentId()).orElse(null);
             if (post != null) {
-                authorName = post.getAuthor() != null ? post.getAuthor().getFullName() : authorName;
-                courseTitle = post.getCourse() != null ? post.getCourse().getTitle() : null;
+                authorName = post.getUser() != null ? post.getUser().getFullName() : authorName;
+                courseTitle = post.getThread() != null && post.getThread().getCourse() != null ? post.getThread().getCourse().getTitle() : null;
                 snippet = truncate(post.getBody());
             }
         } else if (flag.getContentType() == FlaggedContent.ContentType.MESSAGE) {

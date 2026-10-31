@@ -6,11 +6,11 @@ import { DiscussionService } from '@core/services/discussion.service';
 import { StudentService } from '../services/student.service';
 import { AuthService } from '@core/auth/auth.service';
 import { NotificationService } from '@core/services/notification.service';
-import { DiscussionPostDto } from '@core/models/social.model';
+import { DiscussionThreadDto, ThreadPostDto } from '@core/models/social.model';
 import { Course } from '@core/models/course.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { timeAgo } from '@core/utils/time.util';
-import { LucideAngularModule, MessageCircle, CornerDownLeft, Trash2, Plus, Search, BookOpen } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-discussion',
@@ -30,10 +30,11 @@ export class DiscussionComponent implements OnInit {
   mineOnly = false;
   searchText = '';
 
-  posts: DiscussionPostDto[] = [];
+  threads: DiscussionThreadDto[] = [];
   loading = false;
-  newPostText = '';
-  replyingTo: number | null = null;
+  newThreadTitle = '';
+  newThreadContent = '';
+  replyingToThreadId: number | null = null;
   replyText = '';
 
   constructor(
@@ -59,15 +60,19 @@ export class DiscussionComponent implements OnInit {
     return this.courses.find(c => c.id === this.activeCourseId)?.title || '';
   }
 
-  get filteredPosts(): DiscussionPostDto[] {
-    let list = this.posts;
+  get filteredThreads(): DiscussionThreadDto[] {
+    let list = this.threads;
     if (this.mineOnly) {
       const uid = this.authService.currentUser?.id;
-      list = list.filter(p => p.authorId === uid);
+      list = list.filter(t => t.userId === uid);
     }
     if (this.searchText) {
       const q = this.searchText.toLowerCase();
-      list = list.filter(p => p.body.toLowerCase().includes(q) || p.authorName.toLowerCase().includes(q));
+      list = list.filter(t => 
+        (t.title && t.title.toLowerCase().includes(q)) || 
+        (t.content && t.content.toLowerCase().includes(q)) || 
+        (t.authorName && t.authorName.toLowerCase().includes(q))
+      );
     }
     return list;
   }
@@ -75,72 +80,95 @@ export class DiscussionComponent implements OnInit {
   selectCourse(courseId: number): void {
     this.activeCourseId = courseId;
     this.mineOnly = false;
-    this.loadPosts();
+    this.loadThreads();
   }
 
   toggleMine(): void {
     this.mineOnly = !this.mineOnly;
   }
 
-  private loadPosts(): void {
+  loadThreads(): void {
     if (!this.activeCourseId) return;
     this.loading = true;
-    this.discussionService.getCourseDiscussion(this.activeCourseId).subscribe({
-      next: (posts) => {
-        this.posts = posts;
+    this.discussionService.getThreads(this.activeCourseId).subscribe({
+      next: (threads) => {
+        this.threads = threads;
         this.loading = false;
       },
       error: () => {
-        this.posts = [];
+        this.threads = [];
         this.loading = false;
-        this.notify.error('Could not load discussion.');
+        this.notify.error('Could not load discussion threads.');
       }
     });
   }
 
-  submitPost(): void {
-    const body = this.newPostText.trim();
-    if (!body || !this.activeCourseId) return;
-    this.discussionService.createPost({ courseId: this.activeCourseId, body }).subscribe({
+  submitThread(): void {
+    const title = this.newThreadTitle.trim();
+    const content = this.newThreadContent.trim();
+    if (!title || !content || !this.activeCourseId) return;
+
+    this.discussionService.createThread(this.activeCourseId, { title, content }).subscribe({
       next: () => {
-        this.newPostText = '';
-        this.loadPosts();
+        this.newThreadTitle = '';
+        this.newThreadContent = '';
+        this.loadThreads();
       },
-      error: () => this.notify.error('Could not post to discussion.')
+      error: () => this.notify.error('Could not create discussion thread.')
     });
   }
 
-  toggleReply(postId: number): void {
-    this.replyingTo = this.replyingTo === postId ? null : postId;
+  toggleReply(threadId: number): void {
+    this.replyingToThreadId = this.replyingToThreadId === threadId ? null : threadId;
     this.replyText = '';
   }
 
-  submitReply(post: DiscussionPostDto): void {
+  submitReply(thread: DiscussionThreadDto): void {
     const body = this.replyText.trim();
-    if (!body || !this.activeCourseId) return;
-    this.discussionService.createPost({ courseId: this.activeCourseId, parentPostId: post.id, body }).subscribe({
-      next: () => {
+    if (!body) return;
+
+    this.discussionService.postReply(thread.threadId, body).subscribe({
+      next: (newPost) => {
         this.replyText = '';
-        this.replyingTo = null;
-        this.loadPosts();
+        this.replyingToThreadId = null;
+        if (!thread.posts) {
+          thread.posts = [];
+        }
+        thread.posts.push(newPost);
       },
       error: () => this.notify.error('Could not post reply.')
     });
   }
 
-  isMine(post: DiscussionPostDto): boolean {
-    return post.authorId === this.authService.currentUser?.id;
+  isMyThread(thread: DiscussionThreadDto): boolean {
+    return thread.userId === this.authService.currentUser?.id;
   }
 
-  canDelete(post: DiscussionPostDto): boolean {
-    return this.isMine(post);
+  canDeleteThread(thread: DiscussionThreadDto): boolean {
+    return this.isMyThread(thread);
   }
 
-  remove(post: DiscussionPostDto): void {
-    if (!window.confirm('Delete this post?')) return;
-    this.discussionService.deletePost(post.id).subscribe({
-      next: () => this.loadPosts(),
-      error: () => this.notify.error('Could not delete post.')
+  removeThread(thread: DiscussionThreadDto): void {
+    if (!window.confirm('Delete this thread and all replies?')) return;
+    this.discussionService.deleteThread(thread.threadId).subscribe({
+      next: () => this.loadThreads(),
+      error: () => this.notify.error('Could not delete thread.')
+    });
+  }
+
+  canDeletePost(post: ThreadPostDto): boolean {
+    return post.userId === this.authService.currentUser?.id;
+  }
+
+  removePost(thread: DiscussionThreadDto, post: ThreadPostDto): void {
+    if (!window.confirm('Delete this reply?')) return;
+    this.discussionService.deletePost(post.postId).subscribe({
+      next: () => {
+        if (thread.posts) {
+          thread.posts = thread.posts.filter(p => p.postId !== post.postId);
+        }
+      },
+      error: () => this.notify.error('Could not delete reply.')
     });
   }
 

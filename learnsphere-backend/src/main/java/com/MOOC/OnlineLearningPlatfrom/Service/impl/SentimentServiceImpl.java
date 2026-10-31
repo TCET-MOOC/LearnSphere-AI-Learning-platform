@@ -2,11 +2,13 @@ package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
 import com.MOOC.OnlineLearningPlatfrom.Dto.*;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
-import com.MOOC.OnlineLearningPlatfrom.Entity.DiscussionPost;
+import com.MOOC.OnlineLearningPlatfrom.Entity.DiscussionThread;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Message;
+import com.MOOC.OnlineLearningPlatfrom.Entity.Post;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserAccount;
-import com.MOOC.OnlineLearningPlatfrom.Repository.DiscussionPostRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.DiscussionThreadRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.MessageRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.PostRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.SentimentService;
 import com.MOOC.OnlineLearningPlatfrom.Service.support.KeywordLists;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * Simple, deterministic, keyword-based sentiment scorer over DiscussionPost.body + Message.text.
+ * Simple, deterministic, keyword-based sentiment scorer over DiscussionThread.content + Post.body + Message.text.
  * There is no ML/NLP infrastructure in this project - this is a heuristic word-count classifier,
  * not real sentiment analysis.
  */
@@ -23,11 +25,15 @@ public class SentimentServiceImpl implements SentimentService {
 
     private static final String[] PALETTE = {"#0f9d58", "#534AB7", "#0d47a1", "#b06000", "#1D9E75", "#8e24aa"};
 
-    private final DiscussionPostRepository discussionPostRepository;
+    private final DiscussionThreadRepository discussionThreadRepository;
+    private final PostRepository postRepository;
     private final MessageRepository messageRepository;
 
-    public SentimentServiceImpl(DiscussionPostRepository discussionPostRepository, MessageRepository messageRepository) {
-        this.discussionPostRepository = discussionPostRepository;
+    public SentimentServiceImpl(DiscussionThreadRepository discussionThreadRepository,
+                                PostRepository postRepository,
+                                MessageRepository messageRepository) {
+        this.discussionThreadRepository = discussionThreadRepository;
+        this.postRepository = postRepository;
         this.messageRepository = messageRepository;
     }
 
@@ -46,9 +52,15 @@ public class SentimentServiceImpl implements SentimentService {
     @Override
     public SentimentSummaryDto getSentiment() {
         List<Item> items = new ArrayList<>();
-        for (DiscussionPost post : discussionPostRepository.findAll()) {
+        for (DiscussionThread thread : discussionThreadRepository.findAll()) {
+            if (thread.getContent() != null && !thread.getContent().isBlank()) {
+                items.add(new Item(thread.getContent(), thread.getCourse()));
+            }
+        }
+        for (Post post : postRepository.findAll()) {
             if (post.getBody() != null && !post.getBody().isBlank()) {
-                items.add(new Item(post.getBody(), post.getCourse()));
+                Course course = post.getThread() != null ? post.getThread().getCourse() : null;
+                items.add(new Item(post.getBody(), course));
             }
         }
         for (Message message : messageRepository.findAll()) {

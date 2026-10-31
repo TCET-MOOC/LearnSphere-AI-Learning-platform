@@ -1,12 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
-import { DiscussionPostDto, DiscussionPostRequest } from '@core/models/social.model';
+import { DiscussionThreadDto, ThreadPostDto } from '@core/models/social.model';
 
 /**
- * DiscussionService — shared across all surfaces that render course/lecture
- * discussion threads: the student/teacher course-wide discussion pages and
- * the per-lecture discussion widget embedded in the lecture player.
+ * DiscussionService — canonical two-tier course discussion forum service
+ * conforming to Section 10 of LMS_Entity_Reference.pdf.
+ * Endpoints:
+ * - GET /api/courses/{courseId}/threads
+ * - POST /api/courses/{courseId}/threads
+ * - GET /api/threads/{threadId}
+ * - PUT /api/threads/{threadId}
+ * - DELETE /api/threads/{threadId}
+ * - GET /api/threads/{threadId}/posts
+ * - POST /api/threads/{threadId}/posts
+ * - PUT /api/posts/{postId}
+ * - DELETE /api/posts/{postId}
  */
 @Injectable({
   providedIn: 'root'
@@ -14,54 +23,39 @@ import { DiscussionPostDto, DiscussionPostRequest } from '@core/models/social.mo
 export class DiscussionService {
   constructor(private api: ApiService) {}
 
-  getCourseDiscussion(courseId: number): Observable<DiscussionPostDto[]> {
-    return this.api.get<DiscussionPostDto[]>(`/courses/${courseId}/discussion`);
+  getThreads(courseId: number): Observable<DiscussionThreadDto[]> {
+    return this.api.get<DiscussionThreadDto[]>(`/courses/${courseId}/threads`);
   }
 
-  getLectureDiscussion(lectureId: number): Observable<DiscussionPostDto[]> {
-    return this.api.get<DiscussionPostDto[]>(`/lectures/${lectureId}/discussion`);
+  getThread(threadId: number): Observable<DiscussionThreadDto> {
+    return this.api.get<DiscussionThreadDto>(`/threads/${threadId}`);
   }
 
-  createPost(payload: DiscussionPostRequest): Observable<DiscussionPostDto> {
-    return this.api.post<DiscussionPostDto>('/discussion', payload);
+  createThread(courseId: number, thread: { title: string; content: string }): Observable<DiscussionThreadDto> {
+    return this.api.post<DiscussionThreadDto>(`/courses/${courseId}/threads`, thread);
   }
 
-  // --- Two-Tier Discussion Forum (Section 10 of LMS_Entity_Reference.pdf) ---
-
-  getThreads(courseId: number): Observable<any[]> {
-    return this.api.get<any[]>(`/courses/${courseId}/threads`);
-  }
-
-  getThread(threadId: number): Observable<any> {
-    return this.api.get<any>(`/threads/${threadId}`);
-  }
-
-  createThread(courseId: number, thread: { title: string; content: string }): Observable<any> {
-    return this.api.post<any>(`/courses/${courseId}/threads`, thread);
-  }
-
-  updateThread(threadId: number, thread: { title?: string; content?: string }): Observable<any> {
-    return this.api.put<any>(`/threads/${threadId}`, thread);
+  updateThread(threadId: number, thread: { title?: string; content?: string }): Observable<DiscussionThreadDto> {
+    return this.api.put<DiscussionThreadDto>(`/threads/${threadId}`, thread);
   }
 
   deleteThread(threadId: number): Observable<void> {
     return this.api.delete<void>(`/threads/${threadId}`);
   }
 
-  getThreadPosts(threadId: number): Observable<any[]> {
-    return this.api.get<any[]>(`/threads/${threadId}/posts`);
+  getThreadPosts(threadId: number): Observable<ThreadPostDto[]> {
+    return this.api.get<ThreadPostDto[]>(`/threads/${threadId}/posts`);
   }
 
-  postReply(threadId: number, body: string, parentPostId?: number): Observable<any> {
-    return this.api.post<any>(`/threads/${threadId}/posts`, { body, parentPostId });
+  postReply(threadId: number, body: string, parentPostId?: number): Observable<ThreadPostDto> {
+    return this.api.post<ThreadPostDto>(`/threads/${threadId}/posts`, { body, parentPostId });
   }
 
-  updatePost(postId: number, body: string): Observable<any> {
-    return this.api.put<any>(`/posts/${postId}`, { body });
+  updatePost(postId: number, body: string): Observable<ThreadPostDto> {
+    return this.api.put<ThreadPostDto>(`/posts/${postId}`, { body });
   }
 
   deletePost(id: number): Observable<void> {
     return this.api.delete<void>(`/posts/${id}`);
   }
 }
-

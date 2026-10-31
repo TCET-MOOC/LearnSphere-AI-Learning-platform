@@ -14,6 +14,7 @@ import com.MOOC.OnlineLearningPlatfrom.Service.DiscussionThreadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -46,8 +47,12 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
     @Override
     @Transactional(readOnly = true)
     public DiscussionThread getThreadById(Long threadId) {
-        return threadRepository.findById(threadId)
+        DiscussionThread thread = threadRepository.findById(threadId)
                 .orElseThrow(() -> new ResourceNotFoundException("Thread not found with id: " + threadId));
+        if (thread.getPosts() != null) {
+            thread.getPosts().size();
+        }
+        return thread;
     }
 
     @Override
@@ -82,6 +87,7 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
         if (updated.getContent() != null && !updated.getContent().isBlank()) {
             existing.setContent(updated.getContent());
         }
+        existing.setUpdatedAt(LocalDateTime.now());
 
         return threadRepository.save(existing);
     }
@@ -92,13 +98,17 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
         if (!isAdmin && (existing.getUser() == null || !existing.getUser().getUserId().equals(userId))) {
             throw new BadRequestException("Only the thread author or admin can delete this thread");
         }
+        postRepository.deleteByThread_ThreadId(threadId);
         threadRepository.delete(existing);
+        threadRepository.flush();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Post> getPostsForThread(Long threadId) {
-        getThreadById(threadId);
+        if (!threadRepository.existsById(threadId)) {
+            throw new ResourceNotFoundException("Thread not found with id: " + threadId);
+        }
         return postRepository.findByThread_ThreadIdOrderByCreatedAtAsc(threadId);
     }
 
@@ -121,7 +131,11 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
             post.setParentPost(parent);
         }
 
-        return postRepository.save(post);
+        Post saved = postRepository.save(post);
+        if (thread.getPosts() != null) {
+            thread.getPosts().add(saved);
+        }
+        return saved;
     }
 
     @Override
@@ -150,5 +164,6 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
         }
 
         postRepository.delete(existing);
+        postRepository.flush();
     }
 }
