@@ -128,6 +128,17 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
         if (post.getParentPostId() != null) {
             Post parent = postRepository.findById(post.getParentPostId())
                     .orElseThrow(() -> new ResourceNotFoundException("Parent post not found with id: " + post.getParentPostId()));
+
+            // Cross-thread validation (Rule A-13, [E-F5, E-F6])
+            if (parent.getThread() == null || !parent.getThread().getThreadId().equals(threadId)) {
+                throw new BadRequestException("Parent post does not belong to this thread");
+            }
+
+            // Max two-level nesting rule: a reply cannot have a parent post that is itself a reply
+            if (parent.getParentPost() != null) {
+                throw new BadRequestException("Nested replies are limited to two levels");
+            }
+
             post.setParentPost(parent);
         }
 
@@ -161,6 +172,23 @@ public class DiscussionThreadServiceImpl implements DiscussionThreadService {
 
         if (!isAdmin && (existing.getUser() == null || !existing.getUser().getUserId().equals(userId))) {
             throw new BadRequestException("Only the post author or admin can delete this post");
+        }
+
+        if (existing.getReplies() != null) {
+            for (Post reply : new java.util.ArrayList<>(existing.getReplies())) {
+                if (existing.getThread() != null && existing.getThread().getPosts() != null) {
+                    existing.getThread().getPosts().remove(reply);
+                }
+                postRepository.delete(reply);
+            }
+            existing.getReplies().clear();
+        }
+
+        if (existing.getThread() != null && existing.getThread().getPosts() != null) {
+            existing.getThread().getPosts().remove(existing);
+        }
+        if (existing.getParentPost() != null && existing.getParentPost().getReplies() != null) {
+            existing.getParentPost().getReplies().remove(existing);
         }
 
         postRepository.delete(existing);

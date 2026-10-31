@@ -7,7 +7,7 @@
 |---|---|
 | Last updated | 2026-10-31 |
 | Current phase | **Wave 4 — Assessment integrity 100% COMPLETE & VERIFIED GREEN (`W4-01` through `W4-11`).** Wave 1 (`38f5597`), Wave 2 (`a125912`), Wave 3 (`217230e`, `c9d4da6`), and Wave 4 are 100% complete and verified green. Full assessment integrity features active: `correctAnswer` hidden in student DTOs, legacy test endpoints restricted/retired, options stored in `Question.extra` JSON (dropped `question_options`), unique `(attempt_id, question_id)` with in-place upsert semantics, server-side auto-grading (MCQ/TF auto, TEXT manual, dynamic score computation), attempt lifecycle with server clock timestamps (`startedAt`, `completedAt`), database `chk_test_attempts_status` constraint, background `AttemptTimeoutJob`, schedule/duration/attempt-limit enforcement with active-attempt resume, `BigDecimal(8,2)` score/marks precision across schema, entities, and grading engines, attempt review with answer privacy and manual-grading audit logging, player-attached quiz binding (`CourseContent`), post-video completion gate with sticky pass guarantee and non-retroactive revocation (BR-25, BR-10), and comprehensive locked assessment integrity integration suite (`AssessmentIntegritySuiteTests` & `PlayerAttachedQuizCompletionGateTests`). |
-| Next milestone | **Wave 5 — Engagement and community** (`W5-03 Reply nesting + cross-thread validation`). |
+| Next milestone | **Wave 5 — Engagement and community** (`W5-04 Moderation on canonical posts`). |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
 | Audit | [`audit.md`](audit.md) (2026-10-24) — 5 P0 findings and the P1/P2 remediation overlay `AUD-01…AUD-16` |
 | Repo | `https://github.com/TCET-MOOC/LearnSphere-AI-Learning-Platform.git` |
@@ -1250,7 +1250,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 ### Wave 5 — Engagement and community
 - [x] W5-01 Canonical thread/post + legacy migration
 - [x] W5-02 Enrolment-gated community reads/writes
-- [~] W5-03 Reply nesting + cross-thread validation
+- [x] W5-03 Reply nesting + cross-thread validation
 - [~] W5-04 Moderation on canonical posts
 - [~] W5-05 Course-scoped announcements
 - [ ] W5-06 Notification event catalogue + outbox
@@ -1287,6 +1287,19 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - Ownership layer integration: `DiscussionThreadController` queries `ownershipService.requireEnrolled(courseId, principal)` for all course thread queries, thread reads, post reads, thread mutations, and post replies.
 - Integration tests: `EnrolmentGatedCommunityTests` passed 6/6 scenarios (public catalogue protection, unenrolled student course thread access 404, unenrolled student thread details access 404, enrolled student read/write 200, course staff override without student enrollment 200, admin override 200). `CanonicalDiscussionThreadTests` passed 9/9 scenarios.
 - Regression: Backend and frontend suites remain 100% green.
+
+**W5-03 evidence (2026-10-31) — Reply nesting + cross-thread validation:**
+- Contract: Rules A-13, A-14, and `[E-F5, E-F6]` strictly enforced:
+  - Max two-level nesting rule: replies can only attach to root posts (replies to replies are rejected with `400 BAD_REQUEST`).
+  - Cross-thread validation: replies must target a parent post within the same thread (`threadId` must match; cross-thread reply attempts are rejected with `400 BAD_REQUEST`).
+  - Non-existent parent post rejected with `404 NOT_FOUND`.
+  - Cascading deletion: deleting a parent post cascades to all its child replies via `fk_post_parent` foreign key constraint with `ON DELETE CASCADE` and JPA orphan removal.
+  - Ordering: posts and replies are consistently ordered by `createdAt ASC` per LMS Entity Reference §10.
+- Entities & migration:
+  - Added `@ToString.Exclude` and `@EqualsAndHashCode.Exclude` to circular JPA relationships in `DiscussionThread` and `Post` preventing `StackOverflowError`.
+  - Added `ON DELETE CASCADE` constraint on `post.parent_post_id` in `V21__discussion_thread_canonical_migration.sql`.
+- Integration tests: Authored `ReplyNestingAndValidationTests` (6/6 scenarios passed green).
+- Regression: All 15 discussion integration tests (`CanonicalDiscussionThreadTests`, `EnrolmentGatedCommunityTests`) passed green. Payments suite (10/10) and frontend suite (79/79) remain 100% green.
 
 ### Wave 6 — Commerce, royalties and institutions
 - [~] W6-01 Remove simulated checkout rail

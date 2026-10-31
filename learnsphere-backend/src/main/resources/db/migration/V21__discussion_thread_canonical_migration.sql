@@ -36,6 +36,10 @@ ALTER TABLE public.post DROP CONSTRAINT IF EXISTS fkd4r03wi0mua21qcy0fujfwtpt;
 ALTER TABLE public.post DROP CONSTRAINT IF EXISTS fk_post_thread;
 ALTER TABLE public.post ADD CONSTRAINT fk_post_thread FOREIGN KEY (thread_id) REFERENCES public.discussion_thread(thread_id) ON DELETE CASCADE;
 
+ALTER TABLE public.post DROP CONSTRAINT IF EXISTS fk7u19g6f38sqcrn2o2ot9l3c4s;
+ALTER TABLE public.post DROP CONSTRAINT IF EXISTS fk_post_parent;
+ALTER TABLE public.post ADD CONSTRAINT fk_post_parent FOREIGN KEY (parent_post_id) REFERENCES public.post(post_id) ON DELETE CASCADE;
+
 ALTER TABLE public.discussion_thread DROP CONSTRAINT IF EXISTS fkfjd35rl54drl5jjde7ka0b5pd;
 ALTER TABLE public.discussion_thread DROP CONSTRAINT IF EXISTS fk_thread_course;
 ALTER TABLE public.discussion_thread ADD CONSTRAINT fk_thread_course FOREIGN KEY (course_id) REFERENCES public.courses(id) ON DELETE CASCADE;

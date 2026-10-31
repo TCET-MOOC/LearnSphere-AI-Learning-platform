@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +28,8 @@ public class DiscussionThread {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Course course;
 
     @JsonProperty("courseId")
@@ -36,6 +40,8 @@ public class DiscussionThread {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private UserAccount user;
 
     @JsonProperty("userId")
@@ -70,6 +76,8 @@ public class DiscussionThread {
 
     @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt ASC")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Post> posts = new ArrayList<>();
 
     @JsonProperty("postCount")
