@@ -138,61 +138,6 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/simulate-success")
-    public ResponseEntity<?> simulateSuccess(@RequestBody Map<String, String> request) {
-        String rzpOrderId = request.get("razorpay_order_id");
-        if (rzpOrderId == null || rzpOrderId.isBlank()) {
-            return ResponseEntity.badRequest().body("razorpay_order_id is required");
-        }
-
-        var orderOpt = orderRepository.findByRazorpayOrderId(rzpOrderId);
-        if (orderOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Order not found: " + rzpOrderId);
-        }
-
-        Order order = orderOpt.get();
-        order.setStatus(Order.OrderStatus.PAID);
-        orderRepository.save(order);
-
-        String paymentId = "pay_sim_" + System.currentTimeMillis();
-        com.learnsphere.payments.entity.Payment payment = new com.learnsphere.payments.entity.Payment();
-        payment.setRazorpayPaymentId(paymentId);
-        payment.setOrder(order);
-        payment.setMethod("test_simulation");
-        payment.setStatus("CAPTURED");
-        payment.setCapturedAt(java.time.LocalDateTime.now());
-        payment.setRawWebhookPayload("{\"simulated\": true}");
-        paymentRepository.save(payment);
-
-        // Enroll Student in Main Backend
-        try {
-            String url = mainBackendUrl + "/internal/enroll";
-            HttpHeaders headers = new HttpHeaders();
-            if (internalApiKey != null && !internalApiKey.isBlank()) {
-                headers.set("X-Internal-Key", internalApiKey);
-            }
-            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-
-            Map<String, Object> body = Map.of(
-                    "userId", order.getUserId(),
-                    "courseId", order.getCourseId(),
-                    "orderId", order.getRazorpayOrderId()
-            );
-
-            org.springframework.http.HttpEntity<Map<String, Object>> req = new org.springframework.http.HttpEntity<>(body, headers);
-            restTemplate.postForEntity(url, req, String.class);
-        } catch (Exception e) {
-            log.warn("Enrollment call during test payment simulation failed: {}", e.getMessage());
-        }
-
-        return ResponseEntity.ok(Map.of(
-                "status", "SUCCESS",
-                "message", "Payment captured and student successfully enrolled!",
-                "order_id", rzpOrderId,
-                "payment_id", paymentId
-        ));
-    }
-
     @PostMapping("/verify")
     public ResponseEntity<?> verifyPayment(@RequestBody Map<String, String> request) {
         Long currentUserId = SecurityUtils.getCurrentUserId();

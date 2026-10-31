@@ -1395,7 +1395,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [x] W6-02 Payments service authentication
 
 - [x] W6-03 Fail-closed verification + order idempotency
-- [ ] W6-04 Remove `/orders/simulate-success`
+- [x] W6-04 Remove `/orders/simulate-success`
 - [~] W6-05 Internal enrol: server price + idempotent ledger
 - [~] W6-06 One ledger + reconciliation
 - [~] W6-07 Remove royalty auto-reconcile
@@ -1407,6 +1407,24 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
 
+
+**W6-04 evidence (2026-10-31) — Remove /orders/simulate-success:**
+- Rules: AUD-04, `[F-F3]`, spec §5, §6.
+- Permanent Removal from Production:
+  - Removed `simulateSuccess` endpoint mapping from `com.learnsphere.payments.controller.OrderController`.
+  - In production builds and standard deployments, requests to `/api/payments/orders/simulate-success` return `404 NOT_FOUND`, preventing unauthorized zero-payment enrollment simulation and ledger forgery.
+- Isolated Hermetic Test-Profile Fake:
+  - Created `TestOrderSimulationController` located strictly in `src/test/java` guarded by `@Profile("test")` and `@ConditionalOnProperty(name = "payments.simulation.enabled", havingValue = "true")`.
+  - The test fake is never bundled or compiled into production JAR artifacts.
+  - Even within hermetic tests, the fake enforces caller authentication and ownership validation.
+- Frontend Alignment:
+  - Removed `simulateSuccess` method from Angular `PaymentsService` (`payments.service.ts`).
+- Red-green verification:
+  - Authored `OrderSimulationRetirementTests.java` verifying via reflection that production `OrderController` declares zero simulation methods, and confirming unauthenticated simulation attempts are rejected (401/404).
+  - Red: initial run failed because `OrderController` declared `simulateSuccess`.
+  - Green: `OrderSimulationRetirementTests` passed 2/2 tests.
+  - Full payments suite passed 25/25 tests (`BUILD SUCCESS`).
+  - Frontend test suite passed 79/79 tests (`BUILD SUCCESS`).
 
 **W6-03 evidence (2026-10-31) — Fail-closed verification + order idempotency:**
 - Rules: AC-19, AUD-03, `[F-F2, F-F4, F-F5]`, spec §3.5, §6.

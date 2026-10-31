@@ -43,10 +43,6 @@ export class PaymentsService {
     return this.http.post<PaymentOrderResponse>(`${this.baseUrl}/orders`, request);
   }
 
-  simulateSuccess(razorpayOrderId: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/orders/simulate-success`, { razorpay_order_id: razorpayOrderId });
-  }
-
   verifyPayment(payload: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature?: string }): Observable<any> {
     return this.http.post(`${this.baseUrl}/orders/verify`, payload);
   }
