@@ -20,9 +20,13 @@ public class Announcement {
     @Column(columnDefinition = "TEXT")
     private String body;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private UserAccount author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
 
     private String category;
 
@@ -31,11 +35,25 @@ public class Announcement {
     @Enumerated(EnumType.STRING)
     private Audience audience = Audience.ALL;
 
+    private LocalDateTime expiresAt;
+
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.pinned == null) {
+            this.pinned = false;
+        }
+        if (this.audience == null) {
+            this.audience = Audience.ALL;
+        }
+    }
+
+    public Long getCourseId() {
+        return course != null ? course.getCourseId() : null;
     }
 
     public enum Audience {
