@@ -128,7 +128,7 @@ export class PurchasesComponent implements OnInit {
           }));
 
         // 2. Fetch pending checkout drafts from payments microservice
-        this.paymentsService.getUserOrders(userId).subscribe({
+        this.paymentsService.getMyOrders().subscribe({
           next: (msOrders) => {
             const rawDrafts: OrderWithCourse[] = (msOrders || [])
               .filter(o => o && o.courseId && o.amount > 0)
@@ -146,7 +146,7 @@ export class PurchasesComponent implements OnInit {
       },
       error: () => {
         // Fallback to microservice if main backend is restarting
-        this.paymentsService.getUserOrders(userId).subscribe({
+        this.paymentsService.getMyOrders().subscribe({
           next: (msOrders) => {
             const rawDrafts: OrderWithCourse[] = (msOrders || [])
               .filter(o => o && o.courseId && o.amount > 0)

@@ -3,11 +3,14 @@ package com.learnsphere.payments.controller;
 import com.learnsphere.payments.entity.Order;
 import com.learnsphere.payments.repository.OrderRepository;
 import com.learnsphere.payments.repository.PaymentRepository;
+import com.learnsphere.payments.security.SecurityUtils;
 import com.razorpay.RazorpayClient;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -17,7 +20,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payments/orders")
-@CrossOrigin("*") // Enable CORS for local dev
 public class OrderController {
 
     private static final Logger log = LoggerFactory.getLogger(OrderController.class);
@@ -48,18 +50,22 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody Map<String, Long> request) {
+    public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> request) {
         try {
-            Long userId = request.get("userId");
-            Long courseId = request.get("courseId");
-
-            if (userId == null || courseId == null) {
-                return ResponseEntity.badRequest().body("userId and courseId are required");
+            Long userId = SecurityUtils.getCurrentUserId();
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
             }
+
+            Object courseIdObj = request.get("courseId");
+            if (courseIdObj == null) {
+                return ResponseEntity.badRequest().body("courseId is required");
+            }
+            Long courseId = Long.parseLong(courseIdObj.toString());
 
             // Fetch course price from main backend
             String courseUrl = mainBackendUrl + "/api/courses/" + courseId;
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            HttpHeaders headers = new HttpHeaders();
             if (internalApiKey != null && !internalApiKey.isBlank()) {
                 headers.set("X-Internal-Key", internalApiKey);
             }
@@ -153,7 +159,7 @@ public class OrderController {
         // Enroll Student in Main Backend
         try {
             String url = mainBackendUrl + "/internal/enroll";
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            HttpHeaders headers = new HttpHeaders();
             if (internalApiKey != null && !internalApiKey.isBlank()) {
                 headers.set("X-Internal-Key", internalApiKey);
             }
@@ -223,7 +229,7 @@ public class OrderController {
         // Enroll Student in Main Backend
         try {
             String url = mainBackendUrl + "/internal/enroll";
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            HttpHeaders headers = new HttpHeaders();
             if (internalApiKey != null && !internalApiKey.isBlank()) {
                 headers.set("X-Internal-Key", internalApiKey);
             }
@@ -251,8 +257,14 @@ public class OrderController {
         ));
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<Order>> getUserOrders(@PathVariable Long userId) {
-        return ResponseEntity.ok(orderRepository.findByUserId(userId));
+    @GetMapping("/me")
+    public ResponseEntity<List<Order>> getMyOrders() {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        if (currentUserId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(orderRepository.findByUserId(currentUserId));
     }
 }

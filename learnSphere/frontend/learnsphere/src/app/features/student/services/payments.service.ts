@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export interface PaymentOrderRequest {
-  userId: number;
+  userId?: number;
   courseId: number;
 }
 
@@ -51,8 +51,12 @@ export class PaymentsService {
     return this.http.post(`${this.baseUrl}/orders/verify`, payload);
   }
 
-  getUserOrders(userId: number): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/orders/${userId}`);
+  getMyOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.baseUrl}/orders/me`);
+  }
+
+  getUserOrders(userId?: number): Observable<Order[]> {
+    return this.getMyOrders();
   }
 
   getPaymentHistory(): Observable<any[]> {

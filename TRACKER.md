@@ -1392,7 +1392,8 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 
 ### Wave 6 — Commerce, royalties and institutions
 - [x] W6-01 Remove simulated checkout rail
-- [ ] W6-02 Payments service authentication
+- [x] W6-02 Payments service authentication
+
 - [~] W6-03 Fail-closed verification + order idempotency
 - [ ] W6-04 Remove `/orders/simulate-success`
 - [~] W6-05 Internal enrol: server price + idempotent ledger
@@ -1405,6 +1406,30 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [ ] W6-12 Commerce/security suite (forgery, replay, history, receipt)
 - [ ] W6-13 Receipt PDF + modal (AUD-01)
 - [ ] W6-14 Payment history UI truth (AUD-02)
+
+
+**W6-02 evidence (2026-10-31) — Payments service authentication and ownership:**
+- Rules: AUD-04, NFR-03, `[F-F2]`, spec §5, §6.
+- Payments Service Security Architecture:
+  - Added `spring-boot-starter-security` and `jjwt` (0.12.6) to `learnsphere-payments-service/pom.xml`.
+  - Implemented `SecurityConfig` with stateless session management, disabled CSRF, restricted CORS (allowed origins `localhost:4200`, `127.0.0.1:4200`, `localhost:8080`, `127.0.0.1:8080`), and custom `AuthenticationEntryPoint` returning RFC 9457 compliant 401 UNAUTHORIZED on unauthenticated requests.
+  - Removed dangerous `@CrossOrigin("*")` on `OrderController`.
+  - Configured endpoint security: public access granted only to `/actuator/health/**` and `/api/payments/webhook/**` (Razorpay signature verified); all `/api/payments/orders/**` endpoints require valid JWT authentication.
+  - Implemented `JwtAuthFilter`, `JwtService`, and `PaymentUserPrincipal` verifying HMAC-SHA256 signatures using `app.jwt.secret` and extracting `userId`, `email`, and authorities.
+- Authentication & User Identity Derivation:
+  - Derived `userId` strictly from `SecurityUtils.getCurrentUserId()`.
+  - In `createOrder`: client-supplied `userId` is ignored and overridden with authenticated principal ID, preventing order forgery on behalf of foreign users.
+  - Retired `GET /api/payments/orders/{userId}` (preventing order enumeration and IDOR).
+  - Implemented canonical `GET /api/payments/orders/me` returning only authenticated user's orders with `Cache-Control: private, no-store`.
+- Frontend Updates:
+  - Updated `PaymentsService`: added `getMyOrders()` calling `/api/payments/orders/me`; updated `getUserOrders()` to delegate to `getMyOrders()`.
+  - Updated `course-detail.component.ts` and `purchases.component.ts` to consume `getMyOrders()`.
+- Red-green verification:
+  - Authored `PaymentsSecurityAndOwnershipTests.java` covering unauthenticated requests (401), retired legacy order paths, token-derived `userId`, tamper resistance, and user order isolation with `Cache-Control: private, no-store`.
+  - Red: unauthenticated calls returned 403 (due to default Spring Security CSRF/entrypoint) and missing `/me` returned 401.
+  - Green: `PaymentsSecurityAndOwnershipTests` passed 7/7 tests.
+  - Full payments service suite passed 17/17 tests (`BUILD SUCCESS`).
+  - Frontend test suite passed 79/79 tests (`BUILD SUCCESS`).
 
 **W6-01 evidence (2026-10-31) — Remove simulated checkout rail:**
 - Rules: A-06 (One Payment Rail), AUD-02, NFR-03, spec §5.
@@ -1422,19 +1447,6 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Verified 5/5 integration tests passed GREEN (`BUILD SUCCESS`).
   - Verified payments service tests (10/10) passed GREEN.
   - Verified frontend test suite (16 files / 79 tests) passed GREEN.
-- [ ] W6-02 Payments service authentication
-- [~] W6-03 Fail-closed verification + order idempotency
-- [ ] W6-04 Remove `/orders/simulate-success`
-- [~] W6-05 Internal enrol: server price + idempotent ledger
-- [~] W6-06 One ledger + reconciliation
-- [~] W6-07 Remove royalty auto-reconcile
-- [~] W6-08 70/30 policy object
-- [~] W6-09 Payout threshold/schedule/lock/statement
-- [~] W6-10 College verification + affiliation gate
-- [ ] W6-11 Same-college free entitlement
-- [ ] W6-12 Commerce/security suite (forgery, replay, history, receipt)
-- [ ] W6-13 Receipt PDF + modal (AUD-01)
-- [ ] W6-14 Payment history UI truth (AUD-02)
 
 ### Wave 7 — Client experience and performance
 - [~] W7-01 Angular 21 baseline + docs correction

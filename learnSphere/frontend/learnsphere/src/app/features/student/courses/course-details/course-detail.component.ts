@@ -415,7 +415,7 @@ export class CourseDetailComponent implements OnInit {
     
     // Poll for status
     const pollInterval = setInterval(() => {
-      this.paymentsService.getUserOrders(userId).subscribe({
+      this.paymentsService.getMyOrders().subscribe({
         next: (orders) => {
           // find the specific order for this course that is PAID
           const order = orders.find(o => o.courseId === this.courseId && o.status === 'PAID');
