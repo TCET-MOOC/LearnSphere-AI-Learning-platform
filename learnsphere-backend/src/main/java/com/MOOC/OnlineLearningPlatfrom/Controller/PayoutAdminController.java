@@ -111,15 +111,20 @@ public class PayoutAdminController {
             @PathVariable Long teacherId,
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
 
-        if (idempotencyKey != null && !idempotencyKey.trim().isEmpty()) {
-            Optional<Payout> existing = payoutRepository.findByIdempotencyKey(idempotencyKey.trim());
-            if (existing.isPresent()) {
-                return ResponseEntity.ok(PayoutResponseDto.from(existing.get()));
-            }
+        Optional<Payout> existing = findByIdempotencyKey(idempotencyKey);
+        if (existing.isPresent()) {
+            return ResponseEntity.ok(PayoutResponseDto.from(existing.get()));
         }
 
         UserAccount teacher = userAccountRepository.findByIdWithLock(teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + teacherId));
+
+        // Re-check under the row lock: a concurrent request with the same key may have
+        // committed while we waited, and its replay must return that payout, not a 400.
+        existing = findByIdempotencyKey(idempotencyKey);
+        if (existing.isPresent()) {
+            return ResponseEntity.ok(PayoutResponseDto.from(existing.get()));
+        }
 
         BigDecimal balance = teacher.getRoyaltyBalance() != null ? teacher.getRoyaltyBalance() : BigDecimal.ZERO;
         if (balance.compareTo(MINIMUM_PAYOUT_THRESHOLD) < 0) {
@@ -128,6 +133,13 @@ public class PayoutAdminController {
 
         Payout payout = executePayout(teacher, balance, idempotencyKey);
         return ResponseEntity.ok(PayoutResponseDto.from(payout));
+    }
+
+    private Optional<Payout> findByIdempotencyKey(String idempotencyKey) {
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            return Optional.empty();
+        }
+        return payoutRepository.findByIdempotencyKey(idempotencyKey.trim());
     }
 
     private Payout executePayout(UserAccount teacher, BigDecimal amount, String idempotencyKey) {
