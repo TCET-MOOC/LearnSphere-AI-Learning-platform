@@ -62,4 +62,9 @@ html, body {
   .layout-wrapper.has-mobile-bar .content-area {
     padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
+
+  /* Focus mode (lesson player): the page brings its own header and sticky action bar. */
+  .layout-wrapper.is-focus app-topbar {
+    display: none;
+  }
 }

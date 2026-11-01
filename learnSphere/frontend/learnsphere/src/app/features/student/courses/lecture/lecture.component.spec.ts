@@ -34,7 +34,10 @@ import {
   Globe,
   MoreVertical,
   Subtitles,
-  Search
+  Search,
+  ArrowLeft,
+  Pencil,
+  ChevronRight
 } from 'lucide-angular';
 
 describe('LectureComponent (DS-11 / AUD-09)', () => {
@@ -86,7 +89,10 @@ describe('LectureComponent (DS-11 / AUD-09)', () => {
           Globe,
           MoreVertical,
           Subtitles,
-          Search
+          Search,
+          ArrowLeft,
+          Pencil,
+          ChevronRight
         })
       ],
       providers: [
@@ -203,7 +209,7 @@ describe('LectureComponent (DS-11 / AUD-09)', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       expect(component.activeBottomTab).toBe('discussion');
 
-      const tabBtns = compiled.querySelectorAll<HTMLButtonElement>('.bottom-tabbed-card .tab-btn');
+      const tabBtns = compiled.querySelectorAll<HTMLButtonElement>('.bottom-tabbed-card .tab-header--desktop .tab-btn');
       expect(tabBtns.length).toBe(4);
 
       tabBtns[1].click();

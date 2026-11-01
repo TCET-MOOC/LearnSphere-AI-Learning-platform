@@ -948,3 +948,304 @@
     }
   }
 }
+
+// ── Approved 360 px player: focus mode (phones only; desktop >= 768 px is unchanged) ──
+.player-phonebar,
+.player-phone-meta,
+.bottom-tabbed-card .tab-header--phone,
+.upnext-list,
+.player-actionbar {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .workspace-page {
+    padding: 0 0 calc(76px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .workspace-grid {
+    gap: 0;
+  }
+
+  .canvas-column {
+    gap: 0;
+  }
+
+  // Desktop-only blocks: the meta card with its tag strip, the desktop tab strip
+  // (including the placeholder Resources tab) and the playlist/transcript column.
+  .lecture-meta-card,
+  .bottom-tabbed-card .tab-header--desktop,
+  .sidebar-column {
+    display: none;
+  }
+
+  .player-phonebar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 56px;
+    padding: 0 12px 0 4px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .player-phonebar__back {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-full);
+    color: var(--text-primary);
+  }
+
+  .player-phonebar__text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .player-phonebar__course {
+    font: 600 15px var(--font-body);
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .player-phonebar__lesson {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .canvas-column .video-canvas-box {
+    border-radius: var(--border-radius-none);
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .player-phone-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .player-phone-meta__title {
+    margin: 0;
+    font: 700 20px/1.3 var(--font-display);
+    color: var(--text-primary);
+  }
+
+  .player-phone-meta__byline {
+    margin: -6px 0 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .player-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .player-progress__track {
+    position: relative;
+    height: 6px;
+    border-radius: var(--border-radius-full);
+    background: var(--border-color);
+  }
+
+  .player-progress__fill {
+    height: 100%;
+    border-radius: var(--border-radius-full);
+    background: var(--brand-primary);
+  }
+
+  .player-progress__mark {
+    position: absolute;
+    top: -3px;
+    width: 2px;
+    height: 12px;
+    margin-left: -1px;
+    border-radius: var(--border-radius-xs);
+    background: var(--text-primary);
+  }
+
+  .player-progress__text {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .player-quick-actions {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .player-quick-actions__btn {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font: 600 14px var(--font-body);
+    cursor: pointer;
+
+    &.is-on {
+      border-color: var(--brand-primary);
+      background: var(--brand-surface);
+      color: var(--brand-primary);
+    }
+  }
+
+  .bottom-tabbed-card {
+    border-radius: var(--border-radius-none);
+    border-left: 0;
+    border-right: 0;
+    box-shadow: none;
+
+    .tab-header--phone {
+      display: flex;
+      gap: 0;
+      padding: 0 8px;
+      background: var(--bg-surface);
+      overflow-x: auto;
+
+      .tab-btn {
+        flex: 1;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 8px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        border-radius: var(--border-radius-none);
+        font-size: 14px;
+        white-space: nowrap;
+
+        &.is-active {
+          background: transparent;
+          border-color: var(--brand-primary);
+        }
+      }
+    }
+
+    .tab-body {
+      padding: 12px 16px 16px;
+    }
+  }
+
+  .upnext-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .upnext-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color-subtle);
+    color: var(--text-primary);
+    text-decoration: none;
+
+    &.is-current {
+      color: var(--brand-primary);
+
+      .upnext-item__num {
+        background: var(--brand-primary);
+        color: var(--text-inverse);
+      }
+    }
+
+    &.is-done .upnext-item__num {
+      background: var(--status-green-bg);
+      color: var(--status-green-text);
+    }
+  }
+
+  .upnext-item__num {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-full);
+    background: var(--bg-hover);
+    font: 600 13px var(--font-body);
+  }
+
+  .upnext-item__title {
+    flex: 1;
+    min-width: 0;
+    font: 500 15px/1.35 var(--font-body);
+  }
+
+  .upnext-item__meta {
+    flex: none;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .player-actionbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 900;
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .player-actionbar__complete,
+  .player-actionbar__next {
+    flex: 1;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: var(--border-radius-lg);
+    font: 600 15px var(--font-body);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .player-actionbar__complete {
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+
+    &:disabled {
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    &.is-done {
+      border-color: var(--status-green-text);
+      color: var(--status-green-text);
+    }
+  }
+
+  .player-actionbar__next {
+    border: 0;
+    background: var(--brand-primary);
+    color: var(--text-inverse);
+  }
+}

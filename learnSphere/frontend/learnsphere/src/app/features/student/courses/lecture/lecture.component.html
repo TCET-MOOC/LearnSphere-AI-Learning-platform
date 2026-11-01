@@ -27,6 +27,17 @@
       <!-- LEFT COLUMN: Video Canvas + Metadata Header + Tabbed Q&A/Notes Panel -->
       <div class="canvas-column">
 
+        <!-- Phone focus mode header (approved 360 px player) -->
+        <header class="player-phonebar">
+          <a class="player-phonebar__back" [routerLink]="['/student/courses', courseId]" [attr.aria-label]="phoneCopy.back">
+            <lucide-icon name="arrow-left" [size]="22" aria-hidden="true"></lucide-icon>
+          </a>
+          <div class="player-phonebar__text">
+            <span class="player-phonebar__course">{{ course?.title }}</span>
+            <span class="player-phonebar__lesson">{{ phoneLessonLabel }}</span>
+          </div>
+        </header>
+
         <!-- 1. 16:9 Video Canvas -->
         <div class="video-canvas-box">
           <app-video-player
@@ -108,9 +119,55 @@
           </div>
         </div>
 
+        <!-- Phone: title, byline, recorded progress and three actions -->
+        <section class="player-phone-meta">
+          <h1 class="player-phone-meta__title">{{ currentLecture.title }}</h1>
+          <p class="player-phone-meta__byline" *ngIf="phoneByline">{{ phoneByline }}</p>
+
+          <div class="player-progress">
+            <div class="player-progress__track" role="progressbar" [attr.aria-label]="phoneCopy.progressLabel"
+              aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="phonePercent">
+              <div class="player-progress__fill" [style.width.%]="phonePercent"></div>
+              <span class="player-progress__mark" [style.left.%]="completionThreshold" aria-hidden="true"></span>
+            </div>
+            <p class="player-progress__text">
+              {{ phoneComplete.kind === 'done' ? phoneCopy.completedLine : phoneCopy.progress(phonePercent, completionThreshold) }}
+            </p>
+          </div>
+
+          <div class="player-quick-actions">
+            <button type="button" class="player-quick-actions__btn" [class.is-on]="isBookmarked" [attr.aria-pressed]="isBookmarked" (click)="toggleBookmark()">
+              <lucide-icon name="bookmark" [size]="18" aria-hidden="true"></lucide-icon>
+              <span>{{ phoneCopy.bookmark }}</span>
+            </button>
+            <button type="button" class="player-quick-actions__btn" (click)="addPhoneNote()">
+              <lucide-icon name="pencil" [size]="18" aria-hidden="true"></lucide-icon>
+              <span>{{ phoneCopy.addNote }}</span>
+            </button>
+            <button type="button" class="player-quick-actions__btn" *ngIf="hasLectureQuiz" (click)="openQuizModal()">
+              <lucide-icon name="help-circle" [size]="18" aria-hidden="true"></lucide-icon>
+              <span>{{ phoneCopy.quiz }}</span>
+            </button>
+            <button type="button" class="player-quick-actions__btn" *ngIf="!hasLectureQuiz && courseCompletionPercent === 100" (click)="openCertificateModal()">
+              <lucide-icon name="award" [size]="18" aria-hidden="true"></lucide-icon>
+              <span>{{ phoneCopy.certificate }}</span>
+            </button>
+          </div>
+        </section>
+
         <!-- 3. Tabbed Panel (Discussion & Q&A, Notes Drawer, Resources) -->
         <div class="bottom-tabbed-card">
-          <div class="tab-header">
+          <div class="tab-header tab-header--phone" role="tablist">
+            <button type="button" role="tab" class="tab-btn" [class.is-active]="activeBottomTab === 'upnext'"
+              [attr.aria-selected]="activeBottomTab === 'upnext'" (click)="activeBottomTab = 'upnext'">{{ phoneCopy.tabUpNext }}</button>
+            <button type="button" role="tab" class="tab-btn" [class.is-active]="activeBottomTab === 'notes'"
+              [attr.aria-selected]="activeBottomTab === 'notes'" (click)="activeBottomTab = 'notes'">{{ phoneCopy.tabNotes }}</button>
+            <button type="button" role="tab" class="tab-btn" [class.is-active]="activeBottomTab === 'discussion'"
+              [attr.aria-selected]="activeBottomTab === 'discussion'" (click)="activeBottomTab = 'discussion'">{{ phoneCopy.tabDiscussion }}</button>
+            <button type="button" role="tab" class="tab-btn" *ngIf="assignments.length > 0" [class.is-active]="activeBottomTab === 'assignments'"
+              [attr.aria-selected]="activeBottomTab === 'assignments'" (click)="activeBottomTab = 'assignments'">{{ phoneCopy.tabAssignments }}</button>
+          </div>
+          <div class="tab-header tab-header--desktop">
             <button 
               class="tab-btn" 
               [class.is-active]="activeBottomTab === 'discussion'" 
@@ -149,7 +206,23 @@
             </button>
           </div>
 
-          <div class="tab-body">
+          <div class="tab-body" role="tabpanel">
+            <!-- Up next (phones only) -->
+            <ol class="upnext-list" *ngIf="activeBottomTab === 'upnext'">
+              <li *ngFor="let lec of lectures">
+                <a class="upnext-item" [routerLink]="['/student/courses', courseId, 'lectures', lec.id]"
+                  [class.is-current]="lec.id === currentLecture.id" [class.is-done]="completedIds.has(lec.id)"
+                  [attr.aria-current]="lec.id === currentLecture.id ? 'true' : null">
+                  <span class="upnext-item__num">
+                    <lucide-icon *ngIf="completedIds.has(lec.id); else lecNum" name="check" [size]="16" aria-hidden="true"></lucide-icon>
+                    <ng-template #lecNum>{{ lec.number }}</ng-template>
+                  </span>
+                  <span class="upnext-item__title">{{ lec.title }}</span>
+                  <span class="upnext-item__meta">{{ lec.id === currentLecture.id ? phoneCopy.playing : formatTime(lec.duration) }}</span>
+                </a>
+              </li>
+            </ol>
+
             <!-- Discussion Tab -->
             <div class="discussion-tab-pane" *ngIf="activeBottomTab === 'discussion'">
               <app-lecture-discussion
@@ -379,6 +452,23 @@
 
         </div>
 
+      </div>
+
+      <!-- Phone: sticky completion / next bar -->
+      <div class="player-actionbar">
+        <button type="button" class="player-actionbar__complete" [class.is-done]="phoneComplete.kind === 'done'"
+          [disabled]="!phoneComplete.enabled" (click)="onPhoneComplete()">
+          <lucide-icon [name]="phoneComplete.kind === 'done' ? 'check-circle' : 'check'" [size]="18" aria-hidden="true"></lucide-icon>
+          <span>{{ phoneComplete.label }}</span>
+        </button>
+        <a *ngIf="nextLessonId !== null; else overview" class="player-actionbar__next"
+          [routerLink]="['/student/courses', courseId, 'lectures', nextLessonId]">
+          <span>{{ phoneCopy.nextLesson }}</span>
+          <lucide-icon name="chevron-right" [size]="18" aria-hidden="true"></lucide-icon>
+        </a>
+        <ng-template #overview>
+          <a class="player-actionbar__next" [routerLink]="['/student/courses', courseId]">{{ phoneCopy.courseOverview }}</a>
+        </ng-template>
       </div>
 
     </div>

@@ -3,7 +3,7 @@
 </ng-container>
 
 <ng-container *ngIf="!isStandalonePage">
-  <div class="layout-wrapper" [class.has-mobile-bar]="!isFocusRoute">
+  <div class="layout-wrapper" [class.has-mobile-bar]="!isFocusRoute" [class.is-focus]="isFocusRoute">
     <app-sidebar *ngIf="userRole === 'STUDENT'"></app-sidebar> 
     <app-teacher-sidebar *ngIf="userRole === 'TEACHER'"></app-teacher-sidebar>
     <app-admin-sidebar *ngIf="userRole === 'ADMIN'"></app-admin-sidebar>

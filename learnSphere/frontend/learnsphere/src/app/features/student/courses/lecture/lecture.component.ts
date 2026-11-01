@@ -35,6 +35,11 @@ import {
   Award
 } from 'lucide-angular';
 import { progressPayload, shouldReport } from './watch-progress';
+import { COMPLETION_THRESHOLD, CompleteAction, completeAction, lessonPosition, nextLectureId, recordedPercent } from './player-mobile';
+import { PLAYER_MOBILE_COPY } from '@core/content/player-mobile.content';
+
+/** Phones get the focus-mode player (approved 360 px redesign); desktop keeps its layout. */
+const PHONE_QUERY = '(max-width: 767.98px)';
 
 @Component({
   selector: 'app-student-lecture',
@@ -56,6 +61,21 @@ import { progressPayload, shouldReport } from './watch-progress';
 })
 export class LectureComponent implements OnInit, OnDestroy {
   @ViewChild(VideoPlayerComponent) videoPlayer?: VideoPlayerComponent;
+  @ViewChild(NotesDrawerComponent) notesDrawer?: NotesDrawerComponent;
+
+  /** Getter, not a field: in the combined unit run the content module can initialise after this one. */
+  get phoneCopy() {
+    return PLAYER_MOBILE_COPY;
+  }
+  readonly completionThreshold = COMPLETION_THRESHOLD;
+  private phoneQuery?: MediaQueryList;
+  private readonly onPhoneQueryChange = (e: MediaQueryListEvent) => {
+    // "Up next" exists only on phones; widening the window falls back to the desktop default tab.
+    if (!e.matches && this.activeBottomTab === 'upnext') {
+      this.activeBottomTab = 'discussion';
+      this.cdr.markForCheck();
+    }
+  };
 
   loading = true;
   courseId: number | null = null;
@@ -90,7 +110,7 @@ export class LectureComponent implements OnInit, OnDestroy {
 
   // Workspace Dynamic Tabs
   activeSidebarTab: 'playlist' | 'transcript' = 'playlist';
-  activeBottomTab: 'discussion' | 'notes' | 'resources' | 'assignments' = 'discussion';
+  activeBottomTab: 'upnext' | 'discussion' | 'notes' | 'resources' | 'assignments' = 'discussion';
   selectedTranscriptLanguage = 'en';
 
   // Assignment & Submissions State (Section 4 & 8)
@@ -124,6 +144,12 @@ export class LectureComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      this.phoneQuery = window.matchMedia(PHONE_QUERY);
+      if (this.phoneQuery.matches) this.activeBottomTab = 'upnext';
+      this.phoneQuery.addEventListener?.('change', this.onPhoneQueryChange);
+    }
+
     this.querySub = this.route.queryParams.subscribe(qParams => {
       if (qParams['t']) {
         const t = parseFloat(qParams['t']);
@@ -150,6 +176,7 @@ export class LectureComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.phoneQuery?.removeEventListener?.('change', this.onPhoneQueryChange);
     if (this.routeSub) this.routeSub.unsubscribe();
     if (this.querySub) this.querySub.unsubscribe();
     this.lectureContext.reset();
@@ -514,6 +541,55 @@ export class LectureComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  // ── Approved 360 px player (focus mode) ──
+
+  /** Recorded progress shown against the 90 % completion mark. */
+  get phonePercent(): number {
+    const lecture = this.currentLecture;
+    if (!lecture) return 0;
+    return recordedPercent({
+      serverPercent: this.currentProgress?.progressPercent,
+      watchedSeconds: this.cumulativeWatchedSeconds,
+      durationSeconds: this.videoDuration || lecture.duration || 0,
+      completed: this.completedIds.has(lecture.id)
+    });
+  }
+
+  get phoneLessonLabel(): string {
+    if (!this.currentLecture) return '';
+    const { index, total } = lessonPosition(this.lectures, this.currentLecture.id);
+    return index > 0 ? this.phoneCopy.lessonOf(index, total) : '';
+  }
+
+  get nextLessonId(): number | null {
+    return this.currentLecture ? nextLectureId(this.lectures, this.currentLecture.id) : null;
+  }
+
+  get phoneComplete(): CompleteAction {
+    const completed = !!this.currentLecture && this.completedIds.has(this.currentLecture.id);
+    return completeAction({ completed, hasQuiz: this.hasLectureQuiz, percent: this.phonePercent });
+  }
+
+  get phoneByline(): string {
+    return [this.course?.teacherName, this.course?.department].filter(Boolean).join(', ');
+  }
+
+  onPhoneComplete(): void {
+    const action = this.phoneComplete;
+    if (!action.enabled) return;
+    if (action.kind === 'quiz') this.openQuizModal();
+    else if (action.kind === 'done') this.toggleComplete();
+    else this.markComplete(true);
+  }
+
+  /** "Add note" opens the Notes tab and its editor at the current timestamp. */
+  addPhoneNote(): void {
+    this.activeBottomTab = 'notes';
+    this.videoPlayer?.pause();
+    this.cdr.detectChanges();
+    this.notesDrawer?.openNewNote();
   }
 
   get watchedPercent(): number {
