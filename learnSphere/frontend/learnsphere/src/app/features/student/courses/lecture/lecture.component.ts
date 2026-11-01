@@ -34,6 +34,7 @@ import {
   HelpCircle,
   Award
 } from 'lucide-angular';
+import { progressPayload, shouldReport } from './watch-progress';
 
 @Component({
   selector: 'app-student-lecture',
@@ -75,6 +76,8 @@ export class LectureComponent implements OnInit, OnDestroy {
   // Anti-cheat cumulative watch tracking
   private cumulativeWatchedSeconds = 0;
   private lastReportedTime = -1;
+  /** Whole seconds of honest watch time already sent to the server. */
+  private lastReportedWatch = 0;
 
   // Post-Video Quiz State
   hasLectureQuiz = false;
@@ -159,6 +162,7 @@ export class LectureComponent implements OnInit, OnDestroy {
     this.videoDuration = 0;
     this.cumulativeWatchedSeconds = 0;
     this.lastReportedTime = -1;
+    this.lastReportedWatch = 0;
 
     this.studentService.getPublicCourse(courseId).subscribe({
       next: (course) => {
@@ -319,8 +323,9 @@ export class LectureComponent implements OnInit, OnDestroy {
     if (this.hasLectureQuiz && this.currentLecture && !this.completedIds.has(this.currentLecture.id)) {
       this.showPostQuizModal = true;
       this.cdr.markForCheck();
-    } else {
-      this.markComplete(false);
+    } else if (shouldReport(this.cumulativeWatchedSeconds, this.lastReportedWatch, true)) {
+      // Reaching the end is not completion by itself (a seek counts for nothing): report and let the server decide.
+      this.reportProgress();
     }
   }
 
@@ -384,20 +389,35 @@ export class LectureComponent implements OnInit, OnDestroy {
     }
     this.lastReportedTime = update.currentTime;
 
-    if (this.currentLecture && update.duration > 10) {
-      const requiredWatchTime = update.duration * 0.8;
-      const isSufficientlyWatched = this.cumulativeWatchedSeconds >= requiredWatchTime || update.currentTime >= update.duration - 2;
-
-      if (
-        isSufficientlyWatched && 
-        this.autoCompletedForLecture !== this.currentLecture.id && 
-        !this.completedIds.has(this.currentLecture.id) && 
-        !this.hasLectureQuiz
-      ) {
-        this.autoCompletedForLecture = this.currentLecture.id;
-        this.markComplete(false);
-      }
+    // BR-25: report honest watch time; completion is decided by the server (>= 90 %).
+    if (this.currentLecture && shouldReport(this.cumulativeWatchedSeconds, this.lastReportedWatch, false)) {
+      this.reportProgress();
     }
+  }
+
+  /** Sends watch time to the server and completes the lecture only when the server says so. */
+  private reportProgress(): void {
+    const lecture = this.currentLecture;
+    if (!lecture) return;
+    this.lastReportedWatch = Math.floor(this.cumulativeWatchedSeconds);
+    this.studentService.saveProgress(progressPayload(lecture, this.cumulativeWatchedSeconds)).subscribe({
+      next: (progress) => {
+        if (
+          progress?.completedAt &&
+          this.currentLecture?.id === lecture.id &&
+          !this.completedIds.has(lecture.id) &&
+          !this.hasLectureQuiz &&
+          this.autoCompletedForLecture !== lecture.id
+        ) {
+          this.autoCompletedForLecture = lecture.id;
+          this.markComplete(false);
+        }
+      },
+      error: () => {
+        // Not fatal: the next report carries the full watch time again.
+        this.lastReportedWatch = 0;
+      }
+    });
   }
 
   onTranscriptSeek(seconds: number): void {
@@ -488,9 +508,9 @@ export class LectureComponent implements OnInit, OnDestroy {
         }
         this.cdr.markForCheck();
       },
-      error: () => {
+      error: (err) => {
         if (manual) {
-          this.notificationService.error('Could not update progress');
+          this.notificationService.error(err?.error?.detail || 'Could not update progress');
         }
       }
     });

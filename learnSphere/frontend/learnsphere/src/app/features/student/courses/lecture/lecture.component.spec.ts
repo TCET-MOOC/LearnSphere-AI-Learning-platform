@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { LectureComponent } from './lecture.component';
 import { StudentService } from '../../services/student.service';
 import { AssignmentService } from '@core/services/assignment.service';
@@ -250,6 +250,52 @@ describe('LectureComponent (DS-11 / AUD-09)', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.querySelector('.empty-workspace-card')).toBeTruthy();
       expect(compiled.querySelector('.workspace-grid')).toBeNull();
+    });
+  });
+  describe('Watch progress and completion (post-W6 audit, BR-25)', () => {
+    let student: any;
+    let notify: any;
+    const lecture = { ...mockLecture, contentId: 42, duration: 600 };
+
+    beforeEach(() => {
+      student = TestBed.inject(StudentService) as any;
+      notify = TestBed.inject(NotificationService) as any;
+      (TestBed.inject(LectureContextService) as any).updateContext = vi.fn();
+      student.saveProgress = vi.fn().mockReturnValue(of({ progressPercent: 10, completedAt: null }));
+      student.markLectureComplete = vi.fn().mockReturnValue(of({ progressPercent: 100, completedAt: '2026-11-01T10:00:00' }));
+      component.currentLecture = lecture;
+      component.hasLectureQuiz = false;
+    });
+
+    function play(from: number, to: number) {
+      for (let t = from; t <= to; t += 1) component.onTimeUpdate({ currentTime: t, duration: 600 } as any);
+    }
+
+    it('reports honest watch time to the server every 15 s', () => {
+      play(0, 16);
+      expect(student.saveProgress).toHaveBeenCalledTimes(1);
+      expect(student.saveProgress.mock.calls[0][0]).toEqual({ content: { contentId: 42 }, secondsWatched: 15 });
+    });
+
+    it('does not complete when the student seeks to the end without watching', () => {
+      component.onTimeUpdate({ currentTime: 0, duration: 600 } as any);
+      component.onTimeUpdate({ currentTime: 599, duration: 600 } as any);
+      component.onVideoEnded();
+      expect(student.markLectureComplete).not.toHaveBeenCalled();
+    });
+
+    it('marks the lecture complete once the server reports completion', () => {
+      student.saveProgress = vi.fn().mockReturnValue(of({ progressPercent: 90, completedAt: '2026-11-01T10:00:00' }));
+      play(0, 16);
+      expect(student.markLectureComplete).toHaveBeenCalledTimes(1);
+      expect(component.completedIds.has(lecture.id)).toBe(true);
+    });
+
+    it("shows the server's reason when a manual completion is refused", () => {
+      student.markLectureComplete = vi.fn().mockReturnValue(
+        throwError(() => ({ status: 400, error: { detail: 'Watch at least 90% of this lecture before marking it complete' } })));
+      component.markComplete(true);
+      expect(notify.error).toHaveBeenCalledWith('Watch at least 90% of this lecture before marking it complete');
     });
   });
 });

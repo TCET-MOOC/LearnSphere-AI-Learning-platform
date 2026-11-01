@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
+import { WatchProgressPayload } from '../courses/lecture/watch-progress';
 import { Course, Lecture, LectureProgress, Note, PlaybackDescriptor, ResumeTarget } from '@core/models/course.model';
 
 export interface ExploreCourseFilters {
@@ -79,6 +80,11 @@ export class StudentService {
   /** Resolves signed media playback descriptor for content (W2-12). */
   getPlaybackDescriptor(contentId: number): Observable<PlaybackDescriptor> {
     return this.apiService.get<PlaybackDescriptor>(`/contents/${contentId}/playback`);
+  }
+
+  /** Reports honest watch time; the server derives the percentage and decides completion (BR-25). */
+  saveProgress(payload: WatchProgressPayload): Observable<LectureProgress> {
+    return this.apiService.post<LectureProgress>('/progress', payload);
   }
 
   markLectureComplete(lectureId: number): Observable<LectureProgress> {
