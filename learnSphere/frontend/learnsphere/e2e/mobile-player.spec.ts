@@ -105,3 +105,28 @@ test.describe('Lesson player at 1280 px keeps its layout', () => {
     await expect(page.locator('video')).toHaveAttribute('controls', '');
   });
 });
+
+test.describe('Lesson player at 1280 px: meta card actions', () => {
+  test('every action button sits inside the card, on one line, without overlapping', async ({ page }) => {
+    await openPlayer(page, 1280, { quiz: true });
+    const card = (await page.locator('.lecture-meta-card').boundingBox())!;
+    const buttons = page.locator('.lecture-meta-card .meta-actions .action-btn');
+    const count = await buttons.count();
+    expect(count).toBeGreaterThanOrEqual(3);
+    const boxes = [];
+    for (let i = 0; i < count; i++) {
+      const b = (await buttons.nth(i).boundingBox())!;
+      expect(b.x).toBeGreaterThanOrEqual(card.x);
+      expect(b.x + b.width).toBeLessThanOrEqual(card.x + card.width);
+      expect(b.height).toBeLessThanOrEqual(40); // label on one line
+      boxes.push(b);
+    }
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i], b = boxes[j];
+        const overlap = a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+        expect(overlap).toBe(false);
+      }
+    }
+  });
+});
