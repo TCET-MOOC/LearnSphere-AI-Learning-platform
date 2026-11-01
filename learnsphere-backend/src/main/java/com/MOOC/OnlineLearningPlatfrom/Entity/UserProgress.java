@@ -21,7 +21,14 @@ public class UserProgress {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lecture_id")
+    // Accepted on write; never serialised (it would drag in course -> teacher, incl. e-mail and royalty balance).
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     private Lecture lecture;
+
+    @com.fasterxml.jackson.annotation.JsonProperty(value = "lectureId", access = com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY)
+    public Long getLectureId() {
+        return lecture != null ? lecture.getId() : null;
+    }
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;

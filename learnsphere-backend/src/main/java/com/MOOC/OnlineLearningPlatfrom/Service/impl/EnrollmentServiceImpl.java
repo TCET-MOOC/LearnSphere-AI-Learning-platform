@@ -145,6 +145,23 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             }
         }
 
+        // AC-12 / BR-25: when the content's length is known, the percentage is derived on the
+        // server from seconds watched; the client's own percentage is ignored.
+        Integer lengthSeconds = null;
+        if (content != null && content.getDurationSeconds() != null && content.getDurationSeconds() > 0) {
+            lengthSeconds = content.getDurationSeconds();
+        } else if (userProgress.getLecture() != null && userProgress.getLecture().getId() != null) {
+            lengthSeconds = lectureRepository.findById(userProgress.getLecture().getId())
+                    .map(l -> l.getDuration() != null && l.getDuration() > 0 ? l.getDuration() : null)
+                    .orElse(null);
+        }
+        if (lengthSeconds != null && userProgress.getSecondsWatched() != null) {
+            int watched = Math.max(0, Math.min(userProgress.getSecondsWatched(), lengthSeconds));
+            userProgress.setSecondsWatched(watched);
+            percent = BigDecimal.valueOf(watched).multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(lengthSeconds), 2, RoundingMode.HALF_UP);
+        }
+
         // Check for existing progress record for (userId, contentId) to perform upsert
         UserProgress target;
         if (content != null && content.getContentId() != null) {

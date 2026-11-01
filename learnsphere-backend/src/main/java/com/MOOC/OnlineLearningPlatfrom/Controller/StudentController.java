@@ -182,6 +182,14 @@ public class StudentController {
                 return p;
             });
         }
+        // BR-25: a video cannot be completed client-side. With a known length, the server must
+        // already have recorded >= 90 % watched (via POST /api/progress).
+        boolean hasLength = (content != null && content.getDurationSeconds() != null && content.getDurationSeconds() > 0)
+                || (lecture.getDuration() != null && lecture.getDuration() > 0);
+        if (hasLength && (progress.getProgressPercent() == null
+                || progress.getProgressPercent().compareTo(BigDecimal.valueOf(90)) < 0)) {
+            throw new BadRequestException("Watch at least 90% of this lecture before marking it complete");
+        }
         progress.setProgressPercent(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP));
         if (progress.getCompletedAt() == null) {
             progress.setCompletedAt(LocalDateTime.now());

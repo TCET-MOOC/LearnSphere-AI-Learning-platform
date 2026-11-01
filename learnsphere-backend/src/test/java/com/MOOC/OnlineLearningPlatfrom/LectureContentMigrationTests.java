@@ -217,7 +217,14 @@ class LectureContentMigrationTests extends PostgresIntegrationTest {
         content.setDurationSeconds(900);
         content.setPosition(1);
         content.setLegacyLectureId(lecture.getId());
-        courseContentRepository.save(content);
+        content = courseContentRepository.save(content);
+
+        // BR-25: a video is completed only after the server has recorded >= 90 % watched.
+        mockMvc.perform(post("/api/progress")
+                        .with(asUser(student))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":{\"contentId\":" + content.getContentId() + "},\"secondsWatched\":810}"))
+                .andExpect(status().isOk());
 
         mockMvc.perform(post("/api/student/lectures/" + lecture.getId() + "/complete")
                         .with(asUser(student)))

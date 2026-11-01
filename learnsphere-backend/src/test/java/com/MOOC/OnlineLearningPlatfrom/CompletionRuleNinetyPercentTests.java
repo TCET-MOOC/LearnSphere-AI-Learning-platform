@@ -202,7 +202,8 @@ class CompletionRuleNinetyPercentTests extends PostgresIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.progressPercent").value(89.99))
+                // Server-derived from 1079 s of a 1200 s video (BR-25), not the client's 89.99
+                .andExpect(jsonPath("$.progressPercent").value(89.92))
                 .andExpect(jsonPath("$.completedAt").isEmpty());
 
         UserProgress saved = userProgressRepository
@@ -305,6 +306,7 @@ class CompletionRuleNinetyPercentTests extends PostgresIntegrationTest {
     @Test
     @DisplayName("Student endpoint: POST /api/student/lectures/{id}/complete sets 100 % and completedAt")
     void shouldMarkLectureCompleteWithPrivateNoStoreHeader() throws Exception {
+        recordNinetyPercentOfContent1(); // BR-25: a video is completed only after 90 % is recorded
         mockMvc.perform(post("/api/student/lectures/" + lecture1.getId() + "/complete")
                         .with(as(student.getEmail())))
                 .andExpect(status().isOk())
@@ -324,7 +326,8 @@ class CompletionRuleNinetyPercentTests extends PostgresIntegrationTest {
     @Test
     @DisplayName("Student endpoint: POST /api/student/lectures/{id}/uncomplete clears progress and completedAt")
     void shouldUnmarkLectureCompleteWithPrivateNoStoreHeader() throws Exception {
-        // First complete it
+        // First complete it (after recording 90 % watched, BR-25)
+        recordNinetyPercentOfContent1();
         mockMvc.perform(post("/api/student/lectures/" + lecture1.getId() + "/complete")
                         .with(as(student.getEmail())))
                 .andExpect(status().isOk());
@@ -415,5 +418,13 @@ class CompletionRuleNinetyPercentTests extends PostgresIntegrationTest {
                         .with(as(student.getEmail())))
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.CACHE_CONTROL, "private, no-store"));
+    }
+
+    private void recordNinetyPercentOfContent1() throws Exception {
+        mockMvc.perform(post("/api/progress")
+                        .with(as(student.getEmail()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":{\"contentId\":" + content1.getContentId() + "},\"secondsWatched\":1080}"))
+                .andExpect(status().isOk());
     }
 }
