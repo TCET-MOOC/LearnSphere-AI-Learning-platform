@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { HttpContext } from '@angular/common/http';
+import { firstValueFrom, of } from 'rxjs';
+import { SILENT_AUTH } from './auth.context';
 import { AuthService } from './auth.service';
 import { AuthStore } from './auth.store';
 import { ApiService } from '@core/services/api.service';
@@ -84,18 +86,23 @@ describe('AuthService (W1-06 memory-only session & refresh)', () => {
     expect(localStorage.getItem('ls_user')).toBeNull();
   });
 
-  it('rotates access token in memory via POST /auth/refresh without touching localStorage', () => {
+  it('rotates access token in memory via POST /auth/refresh without touching localStorage', async () => {
     const refreshedResponse: AuthResponse = {
       token: 'new-rotated-token-123',
       user: mockUser,
     };
     apiServiceSpy.post.mockReturnValue(of(refreshedResponse));
 
-    service.refreshToken().subscribe((res) => {
-      expect(res.token).toBe('new-rotated-token-123');
-    });
+    // Refreshes are serialised (session restore), so the call resolves asynchronously.
+    const res = await firstValueFrom(service.refreshToken());
+    expect(res.token).toBe('new-rotated-token-123');
 
-    expect(apiServiceSpy.post).toHaveBeenCalledWith('/auth/refresh', {}, { withCredentials: true });
+    expect(apiServiceSpy.post).toHaveBeenCalledTimes(1);
+    const [url, body, options] = apiServiceSpy.post.mock.calls[0];
+    expect(url).toBe('/auth/refresh');
+    expect(body).toEqual({});
+    expect(options.withCredentials).toBe(true);
+    expect((options.context as HttpContext).get(SILENT_AUTH)).toBe(false); // ordinary refresh may log out on 401
     expect(service.getAccessToken()).toBe('new-rotated-token-123');
     expect(localStorage.getItem('ls_token')).toBeNull();
   });

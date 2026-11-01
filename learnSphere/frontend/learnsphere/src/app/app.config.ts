@@ -6,6 +6,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { routes } from './app.routes';
 import { tokenInterceptor } from '@core/auth/token.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
+import { provideSessionRestore } from '@core/auth/session-restore';
 
 import {
   LucideAngularModule,
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([tokenInterceptor, errorInterceptor])),
+    provideSessionRestore(),
     provideAnimationsAsync(),
     importProvidersFrom(
       MatSnackBarModule,

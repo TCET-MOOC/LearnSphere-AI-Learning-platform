@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '@core/auth/auth.service';
+import { SILENT_AUTH } from '@core/auth/auth.context';
 import { NotificationService } from '@core/services/notification.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
 
@@ -33,6 +34,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse && error.status === 401) {
+        // An expected 401 (start-up session restore): the caller handles it; no logout, no redirect.
+        if (req.context.get(SILENT_AUTH)) {
+          return throwError(() => error);
+        }
+
         // Do not attempt refresh on auth entrypoints or already retried requests
         if (isAuthEndpoint(req.url) || req.headers.has(AUTH_RETRY_HEADER)) {
           authService.logout();

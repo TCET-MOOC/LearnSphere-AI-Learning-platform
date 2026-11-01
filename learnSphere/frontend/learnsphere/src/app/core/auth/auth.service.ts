@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Observable, catchError, finalize, of, tap } from 'rxjs';
+import { HttpContext } from '@angular/common/http';
+import { Observable, catchError, defer, finalize, firstValueFrom, from, map, of, tap, timeout } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
 import { AuthStore } from './auth.store';
+import { SILENT_AUTH } from './auth.context';
+
+const REFRESH_LOCK = 'learnsphere-auth-refresh';
+const REFRESH_TIMEOUT_MS = 15_000;
+const RESTORE_TIMEOUT_MS = 5_000;
 import { User, UserRole } from '@core/models/user.model';
 import {
   AuthResponse,
@@ -21,6 +27,7 @@ import {
 })
 export class AuthService {
   readonly currentUser$: Observable<User | null>;
+  private refreshQueue: Promise<unknown> = Promise.resolve();
 
   constructor(
     private apiService: ApiService,
@@ -53,10 +60,43 @@ export class AuthService {
     );
   }
 
-  refreshToken(): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/refresh', {}, { withCredentials: true }).pipe(
+  /**
+   * Rotates the refresh cookie and stores the new access token.
+   * Refreshes are serialised (across tabs where the browser supports Web Locks, otherwise
+   * within this tab): W1-05 revokes the whole token family when a rotated refresh token is
+   * reused, so two concurrent refreshes carrying the same cookie would sign the user out.
+   */
+  refreshToken(options: { silent?: boolean; timeoutMs?: number } = {}): Observable<AuthResponse> {
+    const { silent = false, timeoutMs = REFRESH_TIMEOUT_MS } = options;
+    const request = () => firstValueFrom(
+      this.apiService.post<AuthResponse>('/auth/refresh', {}, {
+        withCredentials: true,
+        context: new HttpContext().set(SILENT_AUTH, silent)
+      }).pipe(timeout(timeoutMs))
+    );
+    return defer(() => from(this.exclusive(request))).pipe(
       tap((res) => this.authStore.setSession(res.token, res.user))
     );
+  }
+
+  /** Start-up restore: true when the refresh cookie produced a session; never redirects. */
+  restoreSession(): Observable<boolean> {
+    return this.refreshToken({ silent: true, timeoutMs: RESTORE_TIMEOUT_MS }).pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
+  }
+
+  private exclusive<T>(work: () => Promise<T>): Promise<T> {
+    const locks = typeof navigator !== 'undefined'
+      ? (navigator as Navigator & { locks?: { request<R>(name: string, cb: () => Promise<R>): Promise<R> } }).locks
+      : undefined;
+    if (locks?.request) {
+      return locks.request<T>(REFRESH_LOCK, work);
+    }
+    const run: Promise<T> = this.refreshQueue.then(() => work(), () => work());
+    this.refreshQueue = run.catch(() => undefined);
+    return run;
   }
 
   fetchCurrentUser(): Observable<User> {
