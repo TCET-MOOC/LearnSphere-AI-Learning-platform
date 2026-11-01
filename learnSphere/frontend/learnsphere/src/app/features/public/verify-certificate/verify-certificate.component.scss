@@ -117,6 +117,7 @@
         .search-input-wrapper {
           position: relative;
           flex: 1;
+          min-width: 0;
 
           .search-icon {
             position: absolute;
@@ -127,6 +128,7 @@
           }
 
           .search-input {
+            box-sizing: border-box; // width 100% includes the padding (it ran under the button)
             width: 100%;
             padding: 12px 16px 12px 42px;
             background: var(--bg-surface);
@@ -147,7 +149,7 @@
 
         .search-btn {
           background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-hover) 100%);
-          color: var(--text-inverse);
+          color: white; // --text-inverse is dark in the dark theme
           border: none;
           border-radius: var(--border-radius-lg);
           padding: 0 24px;

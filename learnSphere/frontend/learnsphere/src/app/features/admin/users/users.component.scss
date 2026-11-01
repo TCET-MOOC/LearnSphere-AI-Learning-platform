@@ -317,6 +317,11 @@
   gap: 10px;
   min-width: 0;
 
+  // lets the e-mail line shrink and end in an ellipsis instead of running into the Role column
+  > div {
+    min-width: 0;
+  }
+
   strong,
   small,
   em {
@@ -592,7 +597,11 @@
   .admin-users {
     padding: 18px;
   }
+}
 
+// The table needs ~730 px; beside the 330 px side panel it only gets ~580 px at 1280,
+// so the actions slid under the Moderation card (1280 px audit). Stack until there is room.
+@media (max-width: 1359.98px) {
   .admin-layout {
     grid-template-columns: 1fr;
   }

@@ -1,0 +1,242 @@
+// Profile & settings blocks, used only by the profile and settings pages (restored, 1280 px audit).
+// Commit 8000ccd rewrote this partial and dropped these rules, which left the student and
+// teacher profile/settings pages unstyled (bare buttons, invisible switches, run-together
+// text). Values follow the admin pages, which kept their own copies; tokens only.
+
+.profile-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.info-card,
+.security-card,
+.danger-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow);
+}
+
+.info-card {
+  padding: 24px;
+}
+
+.card-heading {
+  margin-bottom: 8px;
+}
+
+.card-heading h2,
+.security-card h2,
+.danger-card h2,
+.settings-heading h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.card-heading p,
+.security-card p,
+.danger-card p,
+.settings-heading p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.security-card,
+.danger-card {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.danger-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-full);
+  background: var(--status-green-bg);
+  color: var(--status-green-text);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.profile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+
+  a {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--brand-primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.settings-nav button {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: var(--border-radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  font: 500 12.5px inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover:not(.active) {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  &.active {
+    background: var(--brand-surface);
+    color: var(--brand-primary);
+    font-weight: 600;
+  }
+}
+
+.settings-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border-color);
+
+  > div,
+  .user-avatar-badge {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-full);
+    background: var(--brand-surface);
+    color: var(--brand-primary);
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  b,
+  small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  b {
+    font-size: 12px;
+    color: var(--text-primary);
+  }
+
+  small {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.settings-heading {
+  padding-bottom: 14px;
+}
+
+.setting-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.setting-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.text-btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+  padding: 2px;
+  border: 0;
+  border-radius: var(--border-radius-full);
+  background: var(--border-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  span {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--border-radius-full);
+    background: white;
+    transition: transform 0.2s ease;
+  }
+
+  &.on {
+    background: var(--brand-primary);
+
+    span {
+      transform: translateX(18px);
+    }
+  }
+}
+
+.saved-toast {
+  padding: 8px 12px;
+  border-radius: var(--border-radius-md);
+  background: var(--status-green-bg);
+  color: var(--status-green-text);
+  font-size: 12px;
+}
