@@ -21,7 +21,7 @@
           <a
             class="btn btn--soft"
             *ngIf="bookmark.courseId && bookmark.lectureId"
-            [routerLink]="['/student/courses', bookmark.courseId, 'lecture', bookmark.lectureId]"
+            [routerLink]="['/student/courses', bookmark.courseId, 'lectures', bookmark.lectureId]"
             [queryParams]="{ t: bookmark.timestampSeconds }">
             Jump to lecture
           </a>

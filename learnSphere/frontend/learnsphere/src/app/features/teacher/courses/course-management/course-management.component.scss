@@ -300,3 +300,37 @@
     }
   }
 }
+
+// ⋮ menu for the header actions: phones only (360 px audit); desktop keeps the buttons.
+.head-more {
+  display: none;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-full);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+@media (max-width: 767.98px) {
+  .page-head {
+    align-items: center;
+
+    h1 {
+      font-size: 22px;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .head-actions {
+    display: none;
+  }
+
+  .head-more {
+    display: inline-flex;
+  }
+}

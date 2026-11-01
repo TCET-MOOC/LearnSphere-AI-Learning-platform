@@ -477,3 +477,31 @@
     color: var(--status-green-text);
   }
 }
+
+// Phones (360 px audit): the page grows naturally instead of squeezing the list and the
+// chat into one screen (the message box sat on the last message); the header wraps.
+@media (max-width: 767.98px) {
+  .messages-page {
+    height: auto;
+    padding: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+
+    .search-box {
+      flex: 1 1 180px;
+      min-width: 0;
+    }
+  }
+
+  .conv-panel {
+    max-height: 45vh;
+  }
+
+  .chat-panel {
+    height: 70vh;
+    min-height: 420px;
+  }
+}

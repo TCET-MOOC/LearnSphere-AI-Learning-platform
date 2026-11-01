@@ -130,7 +130,7 @@
   gap: 20px;
 
   @media (max-width: 900px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr); // plain 1fr could not shrink below the rows
   }
 }
 
@@ -296,5 +296,36 @@
     font-size: 13px;
     color: var(--text-secondary);
     margin: 0;
+  }
+}
+
+// Phones (360 px audit): each payout is two lines (teacher, then amount + Disburse) instead
+// of one squeezed row with Disburse running past the card; panel headers wrap.
+@media (max-width: 767.98px) {
+  .panel {
+    padding: 16px;
+    min-width: 0;
+
+    &__header {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  }
+
+  .payout-item {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+
+    &__info {
+      flex: 1 1 calc(100% - 52px);
+    }
+
+    &__amount {
+      margin: 0 0 0 50px;
+    }
+
+    .btn--pay {
+      margin-left: auto;
+    }
   }
 }

@@ -82,8 +82,8 @@
         <div class="lb-item__avatar" [style.background]="getBg(entry.name)" [style.color]="getColor(entry.name)">{{ getInitials(entry.name) }}</div>
         <div class="lb-item__info">
           <div class="lb-item__name">
-            {{ entry.name }}
-            <span class="pill pill--purple" *ngIf="entry.studentId === myEntry?.studentId" style="margin-left: 8px; font-size: 10px; padding: 2px 8px;">You</span>
+            <span class="lb-item__name-text">{{ entry.name }}</span>
+            <span class="pill pill--purple" *ngIf="entry.studentId === myEntry?.studentId" style="font-size: 10px; padding: 2px 8px;">You</span>
           </div>
         </div>
         <div class="lb-item__points">{{ entry.points | number }} pts</div>

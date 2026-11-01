@@ -718,3 +718,45 @@
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
+// Phones (360 px audit): the row wraps (Reject ran past the edge); the facts become a
+// wrapping list without "·" separators; the actions drop below.
+@media (max-width: 767.98px) {
+  .colleges-list .college-row {
+    flex-wrap: wrap;
+  }
+
+  .colleges-list .college-row .college-info {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .colleges-list .college-row .college-info .college-sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+  }
+
+  .meta-sep {
+    display: none;
+  }
+
+  .colleges-list .college-row .college-actions {
+    flex-wrap: wrap;
+  }
+
+  // Affiliation requests: avatar + name, then the three actions on their own line.
+  .requests-list .request-row {
+    flex-wrap: wrap;
+
+    .request-info {
+      flex: 1 1 calc(100% - 60px);
+      min-width: 0;
+    }
+
+    .request-actions {
+      flex-basis: 100%;
+      flex-wrap: wrap;
+    }
+  }
+}

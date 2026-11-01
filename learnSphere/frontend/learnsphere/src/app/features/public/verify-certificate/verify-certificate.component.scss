@@ -62,6 +62,15 @@
         padding: 6px 12px;
         border-radius: var(--border-radius-round);
         border: 1px solid var(--border-color-subtle);
+
+        // Phones: icon only (the label wrapped to three lines beside the brand).
+        @media (max-width: 479.98px) {
+          padding: 6px;
+
+          span {
+            display: none;
+          }
+        }
       }
     }
   }
@@ -70,8 +79,13 @@
     flex: 1;
     max-width: 900px;
     width: 100%;
+    box-sizing: border-box; // width 100% includes the padding (the page was 48 px wider than a phone)
     margin: 0 auto;
     padding: 48px 24px 80px;
+
+    @media (max-width: 479.98px) {
+      padding: 28px 16px 48px;
+    }
 
     .portal-hero {
       text-align: center;
@@ -98,6 +112,10 @@
         margin: 0 0 12px 0;
         color: var(--text-primary);
         letter-spacing: -0.02em;
+
+        @media (max-width: 479.98px) {
+          font-size: 1.6rem;
+        }
       }
 
       .hero-sub {
@@ -110,13 +128,14 @@
 
       .search-box {
         display: flex;
+        flex-wrap: wrap; // phones: the button drops below the field
         gap: 12px;
         max-width: 580px;
         margin: 0 auto;
 
         .search-input-wrapper {
           position: relative;
-          flex: 1;
+          flex: 1 1 260px;
           min-width: 0;
 
           .search-icon {
@@ -158,6 +177,11 @@
           cursor: pointer;
           transition: opacity 0.2s ease;
           white-space: nowrap;
+
+          @media (max-width: 479.98px) {
+            flex: 1 1 100%;
+            min-height: 46px;
+          }
 
           &:hover:not(:disabled) {
             opacity: 0.9;

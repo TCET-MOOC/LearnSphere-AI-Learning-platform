@@ -130,3 +130,24 @@
     filter: brightness(0.95);
   }
 }
+
+// Phones (360 px audit): the title got squeezed to one word per line beside the time chip
+// and two buttons, which then sat on top of it. Stack: time + text, then the buttons.
+@media (max-width: 767.98px) {
+  .bookmark-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px 12px;
+  }
+
+  .bookmark-main {
+    flex: 1 1 calc(100% - 70px);
+  }
+
+  .bookmark-actions {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

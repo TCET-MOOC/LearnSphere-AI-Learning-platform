@@ -8,6 +8,8 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+  box-sizing: border-box; // width 100% includes the padding (cards ran 40 px past the column)
+  min-width: 0;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -85,6 +87,12 @@
     &:hover {
       background-color: var(--bg-hover);
       color: var(--text-primary);
+    }
+
+    // touch screens: a finger-sized target
+    @media (pointer: coarse) {
+      width: 40px;
+      height: 40px;
     }
   }
 

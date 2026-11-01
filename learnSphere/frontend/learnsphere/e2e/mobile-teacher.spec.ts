@@ -17,9 +17,13 @@ const get = (r: Route, body: unknown) =>
 async function openTeacherHome(page: Page, width: number) {
   await page.setViewportSize({ width, height: width === 360 ? 800 : 900 });
   await installApiStubs(page, 'teacher');
-  const later = new Date();
-  later.setHours(later.getHours() + 2, 0, 0, 0);
-  const recent = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+  // Fixed midday clock: "two hours from now" must stay on the same day whenever the suite runs.
+  const now = new Date();
+  now.setHours(12, 0, 0, 0);
+  await page.clock.setFixedTime(now);
+  const later = new Date(now);
+  later.setHours(14, 0, 0, 0);
+  const recent = new Date(now.getTime() - 10 * 60 * 1000).toISOString();
   await page.route('**/api/teacher/live-sessions', (r) =>
     get(r, [{ id: 4, courseId: 1, courseTitle: 'Engineering Mathematics III', title: 'Live revision: Laplace transforms', status: 'SCHEDULED', scheduledAt: later.toISOString(), joinUrl: null }]));
   await page.route('**/api/conversations', (r) =>

@@ -710,3 +710,35 @@
     padding: 6px 12px;
   }
 }
+
+// Phones (360 px audit): the header stacks, actions go full width, tabs scroll sideways.
+@media (max-width: 767.98px) {
+  .detail-head {
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 16px;
+  }
+
+  .detail-actions {
+    align-self: stretch;
+    align-items: stretch;
+
+    .btn {
+      justify-content: center;
+    }
+  }
+
+  .course-tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      flex: none;
+      white-space: nowrap;
+    }
+  }
+}

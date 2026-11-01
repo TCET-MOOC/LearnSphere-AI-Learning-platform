@@ -516,3 +516,26 @@
 .action-icon--danger {
   color: var(--status-red-text);
 }
+// Phones (360 px audit): the composer's Post button drops below the fields instead of
+// running past the edge; the fields take the full width.
+@media (max-width: 767.98px) {
+  .new-post-input {
+    flex-wrap: wrap;
+    padding: 12px;
+
+    > div:not(.ava) {
+      flex: 1 1 200px !important; // overrides the inline flex: 1 so the column can shrink
+      min-width: 0;
+    }
+
+    .input-box {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .new-post-btn {
+      margin-left: auto;
+    }
+  }
+}

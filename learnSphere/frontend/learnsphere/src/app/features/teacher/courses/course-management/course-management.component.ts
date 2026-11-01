@@ -10,6 +10,7 @@ import { LectureListComponent } from './components/lecture-list.component';
 import { QuizBuilderComponent } from '../../upload/components/quiz-builder.component';
 import { NotificationService } from '@core/services/notification.service';
 import { LucideAngularModule } from 'lucide-angular';
+import { MatMenuModule } from '@angular/material/menu';
 
 interface ImportedLecture {
   videoId: string;
@@ -31,7 +32,8 @@ interface ImportedLecture {
     CourseEditorComponent, 
     LectureListComponent, 
     QuizBuilderComponent,
-    LucideAngularModule
+    LucideAngularModule,
+    MatMenuModule
   ],
   templateUrl: './course-management.component.html',
   styleUrls: ['./course-management.component.scss']

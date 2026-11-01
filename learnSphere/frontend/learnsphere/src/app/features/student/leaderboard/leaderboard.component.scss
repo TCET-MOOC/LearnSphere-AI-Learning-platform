@@ -307,10 +307,23 @@
 
   &__info { flex: 1; min-width: 0; }
 
+  // The name truncates; the "You" pill beside it always shows (it was clipped into the points).
   &__name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
     font-size: 13px;
     font-weight: 600;
     color: $text-primary;
+
+    .pill {
+      flex: none;
+    }
+  }
+
+  &__name-text {
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

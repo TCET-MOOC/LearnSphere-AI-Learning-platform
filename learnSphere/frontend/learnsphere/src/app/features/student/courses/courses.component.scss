@@ -93,13 +93,25 @@
     }
   }
 
+  // The search (320 px) + Browse Catalog (121 px) did not fit the 352 px this box got,
+  // so the button ran off the page at 768/1280 (layout gate). Wrap, and let the search shrink.
   .head-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
     gap: 12px;
-    flex-shrink: 0;
+    flex: 0 1 auto;
+    min-width: 0;
+
+    .search-box {
+      flex: 1 1 220px;
+      max-width: 320px;
+    }
 
     .btn--explore-nav {
+      flex: none;
+      white-space: nowrap;
       background: var(--brand-surface);
       color: var(--brand-primary);
       border: 1px solid var(--brand-primary);

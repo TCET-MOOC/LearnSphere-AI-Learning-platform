@@ -167,6 +167,7 @@
   align-items: center;
   gap: 16px;
   min-width: 0;
+  flex: 1 1 auto; // takes the room left by the price box and can shrink (IDs ran into it at 1280)
 }
 
 .course-badge-icon {
@@ -200,6 +201,16 @@
 
   .order-meta {
     margin: 0;
+
+    code {
+      overflow-wrap: anywhere; // long gateway IDs may break instead of overflowing
+    }
+
+    // separators live here, not in the markup, so phones can put each fact on its own line
+    > span + span::before {
+      content: ' · ';
+    }
+
     font-size: 12px;
     color: var(--text-secondary);
 
@@ -220,6 +231,7 @@
     .order-id,
     .order-date {
       white-space: nowrap;
+      display: inline-block; // a unit of its own, so the line can break between facts (the date ran into the price at 1280)
     }
   }
 }
@@ -375,6 +387,43 @@
   .order-financials {
     width: 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  // 360 px audit: long order/payment IDs ran ~270 px past the card. One fact per line,
+  // IDs may break, and the title row wraps around the status pill.
+  .order-main {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .order-details {
+    flex: 1;
+
+    .order-title-row {
+      flex-wrap: wrap;
+    }
+
+    .order-meta {
+      span {
+        display: block;
+
+        &::before {
+          content: none !important;
+        }
+      }
+
+      code {
+        overflow-wrap: anywhere;
+      }
+    }
+  }
+
+  .actions-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 }
 

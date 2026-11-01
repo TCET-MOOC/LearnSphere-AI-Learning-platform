@@ -83,10 +83,10 @@
                 </span>
               </div>
               <p class="order-meta">
-                <span *ngIf="order.courseDepartment" class="dept-tag">{{ order.courseDepartment }} · </span>
+                <span *ngIf="order.courseDepartment" class="dept-tag">{{ order.courseDepartment }}</span>
                 <span *ngIf="order.gatewayOrderId" class="order-id">Order Ref: <code>{{ order.gatewayOrderId }}</code></span>
-                <span *ngIf="order.gatewayPaymentId" class="order-id"> · Payment ID: <code>{{ order.gatewayPaymentId }}</code></span>
-                <span *ngIf="order.displayAtLabel" class="order-date"> · {{ order.displayAtLabel }}</span>
+                <span *ngIf="order.gatewayPaymentId" class="order-id">Payment ID: <code>{{ order.gatewayPaymentId }}</code></span>
+                <span *ngIf="order.displayAtLabel" class="order-date">{{ order.displayAtLabel }}</span>
               </p>
             </div>
           </div>

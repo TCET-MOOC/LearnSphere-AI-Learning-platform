@@ -1,8 +1,8 @@
 /**
- * Desktop (1280 px) layout gate, requested after the post-W6 audit: on every screen nothing
- * is drawn over anything else, nothing is cut off by its container and nothing pushes the
- * page sideways (e2e/layout-audit.ts). Profile and settings also get explicit checks for the
- * shared blocks whose styles were lost in commit 8000ccd (switches, text buttons, user card).
+ * Layout gate at 360, 768 and 1280 px (post-W6 audit, requested by the user): on every
+ * screen nothing is drawn over anything else, nothing is cut off by its container and
+ * nothing pushes the page sideways (e2e/layout-audit.ts). Some defects the detector cannot
+ * see (squeezed rows, crowded headers, wrong links) get explicit checks below.
  */
 import { test, expect, Page } from '@playwright/test';
 import { CAPTURED_CONTRACTS } from './visual/screen-contracts';
@@ -11,8 +11,8 @@ import { auditLayout } from './layout-audit';
 
 type Role = 'student' | 'teacher' | 'admin';
 
-async function open(page: Page, route: string, role: Role | 'public') {
-  await page.setViewportSize({ width: 1280, height: 900 });
+async function open(page: Page, route: string, role: Role | 'public', width = 1280) {
+  await page.setViewportSize({ width, height: width === 360 ? 800 : width === 768 ? 1024 : 900 });
   await installApiStubs(page, role);
   await seedSession(page, role, 'light');
   await page.goto(route, { waitUntil: 'domcontentloaded' });
@@ -20,13 +20,53 @@ async function open(page: Page, route: string, role: Role | 'public') {
   await page.waitForTimeout(300);
 }
 
-test.describe('Desktop layout at 1280 px: no overlaps, cut-offs or sideways scroll', () => {
-  for (const c of CAPTURED_CONTRACTS) {
-    test(`${c.id} ${c.title}`, async ({ page }) => {
-      await open(page, c.route!, c.role);
-      expect(await auditLayout(page)).toEqual([]);
-    });
-  }
+for (const width of [360, 768, 1280]) {
+  test.describe(`Layout at ${width} px: no overlaps, cut-offs or sideways scroll`, () => {
+    for (const c of CAPTURED_CONTRACTS) {
+      test(`${c.id} ${c.title}`, async ({ page }) => {
+        await open(page, c.route!, c.role, width);
+        expect(await auditLayout(page)).toEqual([]);
+      });
+    }
+  });
+}
+
+test.describe('Phone layouts the detector cannot judge (360 px)', () => {
+  test('bookmarks: the title gets the row width and Jump to lecture opens that lecture at the time', async ({ page }) => {
+    await open(page, '/student/bookmarks', 'student', 360);
+    const row = page.locator('.bookmark-row').first();
+    const main = (await row.locator('.bookmark-main').boundingBox())!;
+    expect(main.width).toBeGreaterThanOrEqual(150); // not squeezed to one word per line (was ~55 px)
+    const actions = (await row.locator('.bookmark-actions').boundingBox())!;
+    expect(actions.y).toBeGreaterThanOrEqual(main.y + main.height - 1); // buttons below the text, not on it
+    await expect(row.getByRole('link', { name: 'Jump to lecture' })).toHaveAttribute('href', /^\/student\/courses\/\d+\/lectures\/\d+\?t=\d+$/);
+  });
+
+  test('course editor: secondary actions live behind a ⋮ menu on phones', async ({ page }) => {
+    await open(page, '/teacher/courses/1/manage', 'teacher', 360);
+    const head = page.locator('.course-management .page-head');
+    await expect(head.getByRole('button', { name: /Import YouTube/ })).toBeHidden();
+    await head.getByRole('button', { name: 'More course actions' }).click();
+    const menu = page.getByRole('menu');
+    await expect(menu.getByRole('menuitem')).toHaveText([/Import YouTube video or playlist/, /Back to courses/, /Delete course/]);
+  });
+
+  test('course editor keeps its buttons on desktop', async ({ page }) => {
+    await open(page, '/teacher/courses/1/manage', 'teacher', 1280);
+    const head = page.locator('.course-management .page-head');
+    await expect(head.getByRole('button', { name: /Import YouTube/ })).toBeVisible();
+    await expect(head.getByRole('button', { name: 'More course actions' })).toBeHidden();
+  });
+
+  test('payouts: each teacher row keeps name, amount and Disburse inside the card', async ({ page }) => {
+    await open(page, '/admin/payouts', 'admin', 360);
+    const card = page.locator('.payout-item').first();
+    const box = (await card.boundingBox())!;
+    const btn = (await card.getByRole('button', { name: /Disburse/ }).boundingBox())!;
+    expect(btn.x + btn.width).toBeLessThanOrEqual(box.x + box.width + 1);
+    const name = (await card.locator('.payout-item__name').boundingBox())!;
+    expect(name.width).toBeGreaterThanOrEqual(120); // name not squeezed to one word per line
+  });
 });
 
 test.describe('Profile and settings blocks are styled (1280 px)', () => {

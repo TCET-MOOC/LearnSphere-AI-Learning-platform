@@ -387,3 +387,28 @@
     border-top: 1px solid var(--border-color);
   }
 }
+
+// Phones (360 px audit): the five-column table becomes one card per course; the column
+// headings hide and the actions wrap (Inspect/Archive ran past the card).
+@media (max-width: 767.98px) {
+  .course-table {
+    .course-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      padding: 14px 16px;
+
+      &--head {
+        display: none;
+      }
+    }
+
+    .course-info-cell > div {
+      min-width: 0;
+    }
+
+    .action-set {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+  }
+}

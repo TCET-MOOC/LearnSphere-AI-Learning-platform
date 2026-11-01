@@ -17,8 +17,12 @@ function json(body: unknown) {
 async function openHome(page: Page, width: number, opts: { allComplete?: boolean } = {}) {
   await page.setViewportSize({ width, height: width === 360 ? 800 : 900 });
   await installApiStubs(page, 'student');
-  const later = new Date();
-  later.setHours(later.getHours() + 2, 0, 0, 0);
+  // Fixed midday clock so "two hours from now" never crosses midnight.
+  const now = new Date();
+  now.setHours(12, 0, 0, 0);
+  await page.clock.setFixedTime(now);
+  const later = new Date(now);
+  later.setHours(14, 0, 0, 0);
   const get = (r: import('@playwright/test').Route, body: unknown) => (r.request().method() === 'OPTIONS' ? r.fallback() : r.fulfill(json(body)));
   await page.route('**/api/student/courses/1/resume', (r) =>
     get(r, { courseId: 1, lectureId: 2, title: 'Features, labels and leakage', contentType: 'VIDEO', position: 1, progressPercent: 62, secondsWatched: 565, completed: false }));

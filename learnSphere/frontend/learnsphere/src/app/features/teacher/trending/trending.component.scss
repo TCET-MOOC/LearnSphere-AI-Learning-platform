@@ -126,7 +126,7 @@
   align-items: start;
 
   @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr); // plain 1fr could not shrink below the ranking rows
   }
 }
 
@@ -439,3 +439,23 @@
   to { transform: rotate(360deg); }
 }
 
+// Phones (360 px audit): cards can shrink, headers and ranking rows wrap.
+@media (max-width: 767.98px) {
+  .card {
+    min-width: 0;
+    padding: 16px;
+
+    .card-header {
+      flex-wrap: wrap;
+    }
+  }
+
+  .trending-item {
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+
+  .item-actions {
+    flex-basis: 100%;
+  }
+}

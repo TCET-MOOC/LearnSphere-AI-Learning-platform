@@ -60,8 +60,12 @@ import { Course, CourseStatus } from '@core/models/course.model';
   styles: [`
     .course-form {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
+    }
+    /* Phones (360 px audit): one column; fields ran ~100 px past the card. */
+    @media (max-width: 599.98px) {
+      .course-form { grid-template-columns: minmax(0, 1fr); }
     }
     label {
       display: flex;
@@ -81,6 +85,9 @@ import { Course, CourseStatus } from '@core/models/course.model';
       background: var(--bg-input);
       transition: border-color 0.15s ease, background 0.15s ease;
       resize: vertical;
+      box-sizing: border-box;
+      width: 100%;
+      min-width: 0;
     }
     input:focus, textarea:focus, select:focus {
       outline: none;
