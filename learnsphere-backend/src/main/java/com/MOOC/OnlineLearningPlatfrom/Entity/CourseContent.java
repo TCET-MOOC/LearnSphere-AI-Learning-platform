@@ -37,6 +37,8 @@ public class CourseContent {
     @Column(name = "title")
     private String title;
 
+    // Storage internals are accepted on write but never serialised (W2-12: playback only via the signed descriptor).
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "file_path", columnDefinition = "TEXT")
     private String filePath;
 
@@ -58,9 +60,13 @@ public class CourseContent {
     @Column(name = "provider_video_id")
     private String providerVideoId;
 
+    // Storage internals are accepted on write but never serialised (W2-12: playback only via the signed descriptor).
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "storage_key")
     private String storageKey;
 
+    // Storage internals are accepted on write but never serialised (W2-12: playback only via the signed descriptor).
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "external_url", columnDefinition = "TEXT")
     private String externalUrl;
 

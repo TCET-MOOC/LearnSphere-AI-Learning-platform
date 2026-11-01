@@ -451,7 +451,7 @@ public class MediaPlaybackSecurityTests extends PostgresIntegrationTest {
     @Test
     @DisplayName("A-25: Content authoring with valid storageKey successfully links canonical source")
     void shouldCreateContentWithValidStorageKey() throws Exception {
-        mockMvc.perform(post("/api/modules/" + module.getModuleId() + "/contents")
+        String body = mockMvc.perform(post("/api/modules/" + module.getModuleId() + "/contents")
                         .with(asTeacher())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Valid Upload Video\",\"contentType\":\"VIDEO\",\"sourceType\":\"UPLOAD\",\"storageKey\":\""
@@ -459,6 +459,12 @@ public class MediaPlaybackSecurityTests extends PostgresIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.contentId").isNumber())
                 .andExpect(jsonPath("$.sourceType").value("UPLOAD"))
-                .andExpect(jsonPath("$.storageKey").value(testVideoFile.getFileKey()));
+                // W2-12 no-path-leak: the key is stored but never echoed back.
+                .andExpect(jsonPath("$.storageKey").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        Long contentId = com.jayway.jsonpath.JsonPath.parse(body).read("$.contentId", Long.class);
+        assertThat(courseContentRepository.findById(contentId).orElseThrow().getStorageKey())
+                .isEqualTo(testVideoFile.getFileKey());
     }
 }
