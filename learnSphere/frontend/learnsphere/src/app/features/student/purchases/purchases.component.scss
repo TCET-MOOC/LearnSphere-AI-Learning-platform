@@ -582,4 +582,24 @@
     width: 100%;
     padding: 20px;
   }
+
+  // W6-13 / audit A5: print matches the monochrome PDF and is never clipped.
+  .receipt-modal-backdrop,
+  .receipt-modal-card {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  #printable-receipt,
+  #printable-receipt * {
+    color: black !important;
+    background: none !important;
+    border-color: black !important;
+    box-shadow: none !important;
+    print-color-adjust: economy;
+  }
 }

@@ -97,8 +97,8 @@
             </div>
 
             <div class="actions-box">
-              <button 
-                *ngIf="order.status === 'PAID'" 
+              <button
+                *ngIf="order.receipt"
                 type="button"
                 class="btn btn--sm btn--outline mr-8"
                 title="View & Download Payment Receipt"
@@ -151,8 +151,8 @@
     <div class="receipt-modal-card" (click)="$event.stopPropagation()">
       <div class="receipt-header">
         <div class="receipt-brand">
-          <span class="brand-badge">Official Tax Receipt</span>
-          <h2>LearnSphere Learning Platform</h2>
+          <span class="brand-badge">{{ receiptCopy.modalBadge }}</span>
+          <h2>{{ receiptCopy.issuer }}</h2>
         </div>
         <button class="btn-close-icon" type="button" (click)="closeReceipt()">
           <lucide-icon name="x" [size]="20"></lucide-icon>
@@ -162,50 +162,53 @@
       <div class="receipt-body" id="printable-receipt">
         <div class="receipt-top-row">
           <div class="meta-block">
-            <span class="meta-label">Receipt Number</span>
-            <span class="meta-val font-mono">INV-{{ selectedReceipt.id ? (selectedReceipt.id + 1000) : '2026' }}</span>
+            <span class="meta-label">{{ receiptCopy.receiptNumber }}</span>
+            <span class="meta-val font-mono">{{ selectedReceipt.receiptNumber }}</span>
           </div>
           <div class="meta-block text-right">
-            <span class="meta-label">Payment Date</span>
-            <span class="meta-val">{{ (selectedReceipt.createdAt | date:'medium') || 'Completed' }}</span>
+            <span class="meta-label">{{ receiptCopy.paidAt }}</span>
+            <span class="meta-val">{{ selectedReceipt.paidAtLabel }}</span>
           </div>
         </div>
 
         <div class="receipt-status-banner">
           <lucide-icon name="check-circle" [size]="18" class="text-success"></lucide-icon>
-          <span>Payment Verified & Course Enrolled</span>
+          <span>{{ receiptCopy.status }}: {{ selectedReceipt.statusLabel }}</span>
         </div>
 
         <div class="receipt-grid">
           <div class="grid-item">
-            <span class="item-label">Billed To</span>
-            <strong class="item-val">{{ currentUser?.fullName || 'Student' }}</strong>
-            <span class="item-sub">{{ currentUser?.email }}</span>
+            <span class="item-label">{{ receiptCopy.billedTo }}</span>
+            <strong class="item-val">{{ selectedReceipt.studentName }}</strong>
+            <span class="item-sub">{{ selectedReceipt.studentEmail }}</span>
           </div>
           <div class="grid-item">
-            <span class="item-label">Gateway Reference</span>
-            <strong class="item-val font-mono">{{ selectedReceipt.razorpayOrderId }}</strong>
-            <span class="item-sub">Razorpay Standard Checkout</span>
+            <span class="item-label">{{ receiptCopy.gateway }} ({{ receiptCopy.gatewayName }})</span>
+            <span class="item-sub">{{ receiptCopy.orderId }}</span>
+            <strong class="item-val font-mono">{{ selectedReceipt.orderId }}</strong>
+            <span class="item-sub">{{ receiptCopy.paymentId }}</span>
+            <strong class="item-val font-mono">{{ selectedReceipt.paymentId }}</strong>
           </div>
         </div>
 
         <div class="receipt-item-table">
           <div class="item-row header-row">
-            <span>Item Description</span>
-            <span class="text-right">Amount</span>
+            <span>{{ receiptCopy.item }}</span>
+            <span class="text-right">{{ receiptCopy.amount }}</span>
           </div>
           <div class="item-row">
             <div>
-              <strong>{{ selectedReceipt.courseTitle || 'Course Access (Lifetime)' }}</strong>
-              <p class="table-sub">{{ selectedReceipt.courseDepartment || 'Online Learning Program' }} · Lifetime Access</p>
+              <strong>{{ selectedReceipt.courseTitle }}</strong>
+              <p class="table-sub" *ngIf="selectedReceipt.courseDepartment">{{ selectedReceipt.courseDepartment }}</p>
             </div>
-            <strong class="text-right">{{ formatAmount(selectedReceipt.amount) }}</strong>
+            <strong class="text-right">{{ selectedReceipt.amountLabel }}</strong>
           </div>
           <div class="item-row total-row">
-            <span>Total Paid (incl. Taxes)</span>
-            <span class="total-amount">{{ formatAmount(selectedReceipt.amount) }} {{ selectedReceipt.currency }}</span>
+            <span>{{ receiptCopy.total }}</span>
+            <span class="total-amount">{{ selectedReceipt.amountLabel }}</span>
           </div>
         </div>
+        <p class="table-sub">{{ receiptCopy.notice }}</p>
       </div>
 
       <div class="receipt-footer">

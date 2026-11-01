@@ -6,12 +6,16 @@ import { PaymentsService, Order } from '../services/payments.service';
 import { StudentService } from '../services/student.service';
 import { Course } from '@core/models/course.model';
 import { PdfExportService } from '@core/services/pdf-export.service';
+import { Receipt, buildReceipt } from '@core/services/receipt';
+import { RECEIPT_COPY } from '@core/content/receipt.content';
 import { LucideAngularModule } from 'lucide-angular';
 
 export interface OrderWithCourse extends Order {
   courseTitle?: string;
   courseDepartment?: string;
   courseThumbnail?: string;
+  /** Present only for a captured ledger payment (W6-13). */
+  receipt?: Receipt | null;
 }
 
 export type PaymentFilterType = 'ALL' | 'PAID' | 'PENDING' | 'FAILED';
@@ -29,8 +33,9 @@ export class PurchasesComponent implements OnInit {
   selectedFilter: PaymentFilterType = 'ALL';
 
   // Receipt Modal State
-  selectedReceipt: OrderWithCourse | null = null;
+  selectedReceipt: Receipt | null = null;
   currentUser: any = null;
+  readonly receiptCopy = RECEIPT_COPY;
 
   constructor(
     private paymentsService: PaymentsService,
@@ -124,7 +129,8 @@ export class PurchasesComponent implements OnInit {
             amount: Math.round(Number(p.amount || 0) * 100), // convert to paise
             currency: p.currency || 'INR',
             status: 'PAID',
-            createdAt: p.paidAt || p.createdAt
+            createdAt: p.paidAt || p.createdAt,
+            receipt: buildReceipt(p, user)
           }));
 
         // 2. Fetch pending checkout drafts from payments microservice
@@ -185,9 +191,9 @@ export class PurchasesComponent implements OnInit {
   private consolidateAndEnrich(allRaw: OrderWithCourse[]): void {
     const courseMap = new Map<number, OrderWithCourse>();
 
-    // First pass: register all PAID orders
+    // First pass: register all PAID orders; a ledger row with a receipt is never replaced (W6-13)
     for (const ord of allRaw) {
-      if (ord.status === 'PAID') {
+      if (ord.status === 'PAID' && !courseMap.get(ord.courseId)?.receipt) {
         courseMap.set(ord.courseId, ord);
       }
     }
@@ -238,7 +244,8 @@ export class PurchasesComponent implements OnInit {
   // --- Receipt Modal & PDF Export ---
 
   openReceipt(order: OrderWithCourse): void {
-    this.selectedReceipt = order;
+    if (!order.receipt) return;
+    this.selectedReceipt = order.receipt;
     this.cdr.markForCheck();
   }
 
@@ -252,21 +259,9 @@ export class PurchasesComponent implements OnInit {
   }
 
   downloadPdfReceipt(order?: OrderWithCourse): void {
-    const o = order || this.selectedReceipt;
-    if (!o) return;
-
-    this.pdfExportService.generateStudentReceipt({
-      receiptNumber: `INV-${o.id ? (o.id + 1000) : '2026'}`,
-      orderId: o.razorpayOrderId,
-      studentName: this.currentUser?.fullName || 'Student',
-      studentEmail: this.currentUser?.email || 'student@learnsphere.io',
-      courseTitle: o.courseTitle || 'Course Access (Lifetime)',
-      courseDepartment: o.courseDepartment || 'Online Learning Program',
-      amount: (o.amount || 0) / 100,
-      currency: o.currency || 'INR',
-      paymentDate: o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Completed',
-      status: 'PAID'
-    });
+    const receipt = order ? order.receipt : this.selectedReceipt;
+    if (!receipt) return;
+    this.pdfExportService.generateStudentReceipt(receipt);
   }
 
   // --- Helpers ---
