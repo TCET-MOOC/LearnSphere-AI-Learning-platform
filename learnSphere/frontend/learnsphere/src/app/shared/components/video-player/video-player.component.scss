@@ -254,9 +254,9 @@
   align-items: center;
   gap: 6px;
   background: rgba(220, 38, 38, 0.9);
-  color: #fff;
+  color: white; // always white on the red LIVE badge, in both themes
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -267,8 +267,8 @@
   .live-stream-dot {
     width: 7px;
     height: 7px;
-    border-radius: 50%;
-    background: #fff;
+    border-radius: var(--border-radius-full);
+    background: white;
     animation: livePulse 1.4s infinite;
   }
 }
