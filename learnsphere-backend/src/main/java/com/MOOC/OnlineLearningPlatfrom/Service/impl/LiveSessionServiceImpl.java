@@ -63,7 +63,7 @@ public class LiveSessionServiceImpl implements LiveSessionService {
                         if (b.getScheduledAt() == null) return -1;
                         return b.getScheduledAt().compareTo(a.getScheduledAt());
                     })
-                    .map(LiveSessionResponseDto::from)
+                    .map(LiveSessionResponseDto::forStudentList)
                     .toList();
         }
 
@@ -94,7 +94,7 @@ public class LiveSessionServiceImpl implements LiveSessionService {
                     if (b.getScheduledAt() == null) return -1;
                     return b.getScheduledAt().compareTo(a.getScheduledAt());
                 })
-                .map(LiveSessionResponseDto::from)
+                .map(LiveSessionResponseDto::forStudentList)
                 .toList();
     }
 
@@ -107,7 +107,7 @@ public class LiveSessionServiceImpl implements LiveSessionService {
         } else if (!ownershipService.isAdmin(principal)) {
             throw new ResourceNotFoundException("Live session not found with id: " + id);
         }
-        return LiveSessionResponseDto.from(session);
+        return LiveSessionResponseDto.forStudent(session);
     }
 
     @Override
@@ -221,8 +221,10 @@ public class LiveSessionServiceImpl implements LiveSessionService {
         session.setStatus(LiveSession.Status.LIVE);
         session.setStartedAt(LocalDateTime.now());
         session.setJoinUrl("/live/" + UUID.randomUUID());
-        LiveSessionResponseDto dto = LiveSessionResponseDto.from(liveSessionRepository.save(session));
-        messagingTemplate.convertAndSend("/topic/live-sessions/" + id, dto);
+        LiveSession saved = liveSessionRepository.save(session);
+        LiveSessionResponseDto dto = LiveSessionResponseDto.from(saved);
+        // Subscribers are enrolled students: broadcast the student view (no raw source fields).
+        messagingTemplate.convertAndSend("/topic/live-sessions/" + id, LiveSessionResponseDto.forStudent(saved));
         messagingTemplate.convertAndSend("/topic/live-sessions/" + id + "/status", Map.of("status", "LIVE", "sessionId", id));
         return dto;
     }
@@ -237,8 +239,10 @@ public class LiveSessionServiceImpl implements LiveSessionService {
         ownershipService.requireCourseStaff(session.getCourse().getId(), principal);
         session.setStatus(LiveSession.Status.ENDED);
         session.setEndedAt(LocalDateTime.now());
-        LiveSessionResponseDto dto = LiveSessionResponseDto.from(liveSessionRepository.save(session));
-        messagingTemplate.convertAndSend("/topic/live-sessions/" + id, dto);
+        LiveSession saved = liveSessionRepository.save(session);
+        LiveSessionResponseDto dto = LiveSessionResponseDto.from(saved);
+        // Subscribers are enrolled students: broadcast the student view (no raw source fields).
+        messagingTemplate.convertAndSend("/topic/live-sessions/" + id, LiveSessionResponseDto.forStudent(saved));
         messagingTemplate.convertAndSend("/topic/live-sessions/" + id + "/status", Map.of("status", "ENDED", "sessionId", id));
         return dto;
     }

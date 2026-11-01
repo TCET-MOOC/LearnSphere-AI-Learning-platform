@@ -15,7 +15,9 @@ public class LiveSessionResponseDto {
     private String status;
     private String joinUrl;
     private String sourceType;
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
     private String providerVideoId;
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
     private String sourceUrl;
     private String playbackMode;
     private LocalDateTime startedAt;
@@ -43,6 +45,25 @@ public class LiveSessionResponseDto {
         public LocalDateTime getStartedAt() { return startedAt; }
     }
 
+    /**
+     * Student view of one session (W5-10): the stream is reachable only through the playback
+     * descriptor while LIVE; the raw source fields are never sent to students.
+     */
+    public static LiveSessionResponseDto forStudent(LiveSession session) {
+        LiveSessionResponseDto dto = from(session);
+        dto.sourceUrl = null;
+        dto.providerVideoId = null;
+        return dto;
+    }
+
+    /** Student list view: no stream at all, not even a descriptor (api-catalogue "List only"). */
+    public static LiveSessionResponseDto forStudentList(LiveSession session) {
+        LiveSessionResponseDto dto = forStudent(session);
+        dto.playbackDescriptor = null;
+        return dto;
+    }
+
+    /** Full view for course staff and admins, including the configured source. */
     public static LiveSessionResponseDto from(LiveSession session) {
         LiveSessionResponseDto dto = new LiveSessionResponseDto();
         dto.id = session.getId();
