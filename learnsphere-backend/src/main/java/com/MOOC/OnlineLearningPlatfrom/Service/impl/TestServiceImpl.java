@@ -219,6 +219,12 @@ public class TestServiceImpl implements TestService {
         TestAttempt attempt = testAttemptRepository.findById(attemptId)
                 .orElseThrow(() -> new ResourceNotFoundException("Attempt not found with id: " + attemptId));
 
+        // Replays are harmless: a finished attempt is returned as stored. It is not re-graded,
+        // never flipped to ABANDONED after its deadline, and publishes no second completion event.
+        if ("COMPLETED".equalsIgnoreCase(attempt.getStatus()) || "ABANDONED".equalsIgnoreCase(attempt.getStatus())) {
+            return attempt;
+        }
+
         List<StudentAnswer> answers = studentAnswerRepository.findByAttempt_AttemptId(attemptId);
 
         LocalDateTime startTime = attempt.getStartedAt() != null ? attempt.getStartedAt() : attempt.getAttemptedAt();
