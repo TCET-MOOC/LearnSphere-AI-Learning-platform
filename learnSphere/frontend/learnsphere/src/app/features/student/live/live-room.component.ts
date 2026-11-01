@@ -213,13 +213,8 @@ export class StudentLiveRoomComponent implements OnInit, OnDestroy {
           this.notificationService.info('Notice: Inappropriate words were censored to maintain classroom etiquette.');
         }
 
-        const chatPayload = {
-          sender: this.authService.currentUser?.fullName || 'Student',
-          isTeacher: false,
-          text: result.maskedText,
-          isQuestion: this.activeTab === 'qa',
-          isCensored: !result.isClean
-        };
+        // The server sets sender, faculty badge and moderation; it only reads text and isQuestion.
+        const chatPayload = { text: result.maskedText, isQuestion: this.activeTab === 'qa' };
 
         this.messages.push({
           id: Date.now().toString(),
@@ -239,12 +234,8 @@ export class StudentLiveRoomComponent implements OnInit, OnDestroy {
       },
       error: () => {
         // Fallback local delivery
-        const chatPayload = {
-          sender: this.authService.currentUser?.fullName || 'Student',
-          isTeacher: false,
-          text,
-          isQuestion: this.activeTab === 'qa'
-        };
+        // The server still censors this text before relaying it.
+        const chatPayload = { text, isQuestion: this.activeTab === 'qa' };
 
         this.messages.push({
           id: Date.now().toString(),

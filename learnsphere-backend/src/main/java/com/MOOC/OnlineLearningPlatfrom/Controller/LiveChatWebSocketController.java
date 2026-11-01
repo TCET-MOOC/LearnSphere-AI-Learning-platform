@@ -4,6 +4,7 @@ import com.MOOC.OnlineLearningPlatfrom.Entity.LiveSession;
 import com.MOOC.OnlineLearningPlatfrom.Repository.LiveSessionRepository;
 import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService;
+import com.MOOC.OnlineLearningPlatfrom.Service.ProfanityFilterService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -25,16 +27,21 @@ import java.util.Map;
 @Controller
 public class LiveChatWebSocketController {
 
+    private static final int MAX_CHAT_LENGTH = 1000;
+
     private final SimpMessagingTemplate messagingTemplate;
     private final LiveSessionRepository liveSessionRepository;
     private final OwnershipService ownershipService;
+    private final ProfanityFilterService profanityFilterService;
 
     public LiveChatWebSocketController(SimpMessagingTemplate messagingTemplate,
                                        LiveSessionRepository liveSessionRepository,
-                                       OwnershipService ownershipService) {
+                                       OwnershipService ownershipService,
+                                       ProfanityFilterService profanityFilterService) {
         this.messagingTemplate = messagingTemplate;
         this.liveSessionRepository = liveSessionRepository;
         this.ownershipService = ownershipService;
+        this.profanityFilterService = profanityFilterService;
     }
 
     @MessageMapping("/live-sessions/{sessionId}/chat")
@@ -42,15 +49,33 @@ public class LiveChatWebSocketController {
                                     @Payload Map<String, Object> payload,
                                     Principal principal) {
         CustomUserDetails user = extractUser(principal);
-        verifyEnrolledInSession(sessionId, user);
+        LiveSession session = verifyEnrolledInSession(sessionId, user);
 
-        // Never trust client-supplied userId or sender!
-        payload.put("userId", user.getUser().getUserId());
-        payload.put("sender", user.getUser().getFullName());
-        payload.put("senderEmail", user.getUsername());
-        payload.put("timestamp", LocalDateTime.now().toString());
+        // The client supplies only the text (and whether it is a question). Identity, the
+        // faculty badge and moderation are decided here; nothing else from the payload is relayed.
+        Object rawText = payload != null ? payload.get("text") : null;
+        String text = rawText == null ? "" : rawText.toString().trim();
+        if (text.isEmpty()) {
+            return;
+        }
+        if (text.length() > MAX_CHAT_LENGTH) {
+            text = text.substring(0, MAX_CHAT_LENGTH);
+        }
+        ProfanityFilterService.CensorResult censored = profanityFilterService.censor(text);
+        boolean isTeacher = session.getCourse() != null
+                ? ownershipService.isCourseStaff(session.getCourse(), user)
+                : ownershipService.isAdmin(user);
 
-        messagingTemplate.convertAndSend("/topic/live-sessions/" + sessionId + "/chat", payload);
+        Map<String, Object> message = new LinkedHashMap<>();
+        message.put("userId", user.getUser().getUserId());
+        message.put("sender", user.getUser().getFullName());
+        message.put("isTeacher", isTeacher);
+        message.put("text", censored.maskedText());
+        message.put("isQuestion", Boolean.TRUE.equals(payload.get("isQuestion")));
+        message.put("isCensored", !censored.isClean());
+        message.put("timestamp", LocalDateTime.now().toString());
+
+        messagingTemplate.convertAndSend("/topic/live-sessions/" + sessionId + "/chat", message);
     }
 
     @MessageMapping("/live-sessions/{sessionId}/reaction")
@@ -74,7 +99,7 @@ public class LiveChatWebSocketController {
         throw new AccessDeniedException("Authentication required to participate in live chat");
     }
 
-    private void verifyEnrolledInSession(Long sessionId, CustomUserDetails user) {
+    private LiveSession verifyEnrolledInSession(Long sessionId, CustomUserDetails user) {
         LiveSession session = liveSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new AccessDeniedException("Live session not found: " + sessionId));
         if (session.getCourse() != null) {
@@ -84,5 +109,6 @@ public class LiveChatWebSocketController {
                 throw new AccessDeniedException("Enrolment required for live session: " + sessionId);
             }
         }
+        return session;
     }
 }

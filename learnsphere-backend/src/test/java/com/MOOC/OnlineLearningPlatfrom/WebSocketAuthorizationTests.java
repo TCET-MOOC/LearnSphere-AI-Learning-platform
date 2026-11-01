@@ -218,7 +218,7 @@ class WebSocketAuthorizationTests extends PostgresIntegrationTest {
         Map<String, Object> payload = new HashMap<>();
         payload.put("userId", 999999L);
         payload.put("sender", "MaliciousAttacker");
-        payload.put("message", "Hello live class!");
+        payload.put("text", "Hello live class!"); // the client's field (live-room.component.ts)
 
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(studentPrincipal, null, studentPrincipal.getAuthorities());
@@ -232,8 +232,62 @@ class WebSocketAuthorizationTests extends PostgresIntegrationTest {
         Map<String, Object> broadcasted = captor.getValue();
         assertThat(broadcasted.get("userId")).isEqualTo(studentPrincipal.getUser().getUserId());
         assertThat(broadcasted.get("sender")).isEqualTo(studentPrincipal.getUser().getFullName());
-        assertThat(broadcasted.get("message")).isEqualTo("Hello live class!");
+        assertThat(broadcasted.get("text")).isEqualTo("Hello live class!");
         assertThat(broadcasted.get("timestamp")).isNotNull();
+    }
+
+    // --- Post-W6 audit: the server builds the chat message; the client supplies only text ---
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> broadcastFrom(CustomUserDetails who, Map<String, Object> payload) {
+        org.mockito.Mockito.clearInvocations(messagingTemplate);
+        liveChatWebSocketController.sendLiveChatMessage(liveSessionId, payload,
+                new UsernamePasswordAuthenticationToken(who, null, who.getAuthorities()));
+        ArgumentCaptor<Map<String, Object>> captor = ArgumentCaptor.forClass(Map.class);
+        verify(messagingTemplate).convertAndSend(eq("/topic/live-sessions/" + liveSessionId + "/chat"), captor.capture());
+        return captor.getValue();
+    }
+
+    @Test
+    void liveChat_studentCannotClaimTheFacultyBadgeOrSkipModeration() {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("text", "you are an idiot");
+        payload.put("isTeacher", true);
+        payload.put("isCensored", false);
+        payload.put("senderEmail", "spoof@example.test");
+        payload.put("role", "ADMIN");
+
+        Map<String, Object> out = broadcastFrom(studentPrincipal, payload);
+
+        assertThat(out.get("isTeacher")).isEqualTo(false);
+        assertThat(out.get("isCensored")).isEqualTo(true);
+        assertThat((String) out.get("text")).doesNotContain("idiot");
+        assertThat(out.keySet()).containsExactlyInAnyOrder("userId", "sender", "isTeacher", "text", "isQuestion", "isCensored", "timestamp");
+    }
+
+    @Test
+    void liveChat_courseTeacherGetsTheFacultyBadge() {
+        CustomUserDetails teacherPrincipal = (CustomUserDetails) userDetailsService.loadUserByUsername("teacher@learnsphere.com");
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("text", "Welcome everyone");
+        payload.put("isQuestion", true);
+
+        Map<String, Object> out = broadcastFrom(teacherPrincipal, payload);
+
+        assertThat(out.get("isTeacher")).isEqualTo(true);
+        assertThat(out.get("isCensored")).isEqualTo(false);
+        assertThat(out.get("text")).isEqualTo("Welcome everyone");
+        assertThat(out.get("isQuestion")).isEqualTo(true);
+    }
+
+    @Test
+    void liveChat_blankMessagesAreDropped() {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("text", "   ");
+        liveChatWebSocketController.sendLiveChatMessage(liveSessionId, payload,
+                new UsernamePasswordAuthenticationToken(studentPrincipal, null, studentPrincipal.getAuthorities()));
+        verify(messagingTemplate, org.mockito.Mockito.never())
+                .convertAndSend(eq("/topic/live-sessions/" + liveSessionId + "/chat"), org.mockito.ArgumentMatchers.<Object>any());
     }
 
     @Test
