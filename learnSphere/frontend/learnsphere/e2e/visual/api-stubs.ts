@@ -838,6 +838,23 @@ function resolveFixture(path: string): unknown {
     case '/student/live-sessions':
       return LIVE_SESSIONS;
     case '/payments/history':
+      // W6-14: the ledger is the authority for a paid purchase.
+      return [
+        {
+          id: 1,
+          courseId: 1,
+          courseTitle: 'Applied Machine Learning',
+          department: 'Computer Science',
+          amount: 1299,
+          currency: 'INR',
+          status: 'PAID',
+          gatewayOrderId: 'RZP-ORD-2026-0001',
+          gatewayPaymentId: 'pay_RZP2026000001',
+          createdAt: '2026-06-01T09:00:00',
+          paidAt: '2026-06-01T09:05:00',
+        },
+      ];
+    case '/payments/orders/me':
       return [];
     case '/payments/status':
       return { paid: false };
@@ -859,6 +876,8 @@ function resolveFixture(path: string): unknown {
   if (/^\/student\/courses\/\d+$/.test(path)) return COURSES[0];
   if (/^\/courses\/\d+$/.test(path)) return COURSES[0];
   if (/^\/courses\/\d+\/modules$/.test(path)) return MODULES;
+  // W6-11: the baseline student is not covered by a same-college entitlement.
+  if (/^\/courses\/\d+\/entitlement$/.test(path)) return { eligible: false, collegeName: null };
   if (/^\/courses\/\d+\/lectures$/.test(path)) return LECTURES;
   if (/^\/courses\/\d+\/leaderboard$/.test(path)) {
     return LEADERBOARD.map((row) => ({
@@ -942,32 +961,6 @@ function resolveFixture(path: string): unknown {
   }
   if (/^\/bookmarks\/lecture\/\d+$/.test(path)) return BOOKMARKS;
   if (/^\/lectures\/\d+\/discussion$/.test(path)) return DISCUSSION_POSTS;
-  if (/^\/payments\/orders\/\d+$/.test(path)) {
-    return [
-      {
-        id: 1,
-        razorpayOrderId: 'RZP-ORD-2026-0001',
-        userId: 1,
-        courseId: 1,
-        amount: 129900,
-        currency: 'INR',
-        status: 'PAID',
-        createdAt: '2026-06-01T09:00:00Z',
-        updatedAt: '2026-06-01T09:05:00Z',
-      },
-      {
-        id: 2,
-        razorpayOrderId: 'RZP-ORD-2026-0002',
-        userId: 1,
-        courseId: 3,
-        amount: 0,
-        currency: 'INR',
-        status: 'CREATED',
-        createdAt: '2026-09-03T09:00:00Z',
-        updatedAt: '2026-09-03T09:00:00Z',
-      },
-    ];
-  }
   if (/^\/assessments\/\d+\/start$/.test(path)) {
     return { attemptId: 1, testId: 1, status: 'IN_PROGRESS', score: null };
   }
@@ -1024,13 +1017,32 @@ export async function installApiStubs(page: Page, role: keyof typeof VISUAL_USER
     const method = request.method();
     const url = new URL(request.url());
 
+    // Since W1-06 every request is credentialed, so CORS must echo the exact origin.
+    const cors = {
+      ...CORS_HEADERS,
+      'access-control-allow-origin': request.headers()['origin'] ?? 'http://127.0.0.1:4200',
+      'access-control-allow-credentials': 'true',
+      'access-control-allow-headers': 'authorization,content-type,x-request-id,x-trace-id',
+    };
+
     if (method === 'OPTIONS') {
-      await route.fulfill({ status: 204, headers: CORS_HEADERS });
+      await route.fulfill({ status: 204, headers: cors });
       return;
     }
 
     const path = url.pathname.replace(/^\/api/, '');
     let body: unknown;
+
+    // Session restore on page load: signed-in contracts get their user, public ones a 401.
+    if (path === '/auth/refresh') {
+      const user = VISUAL_USERS[role];
+      await route.fulfill(
+        user
+          ? { status: 200, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify({ token: 'visual-baseline-token', user }) }
+          : { status: 401, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify({ code: 'UNAUTHORIZED' }) },
+      );
+      return;
+    }
 
     if (path === '/users/me') {
       body = VISUAL_USERS[role] ?? VISUAL_USERS.student;
@@ -1050,7 +1062,7 @@ export async function installApiStubs(page: Page, role: keyof typeof VISUAL_USER
 
     await route.fulfill({
       status: 200,
-      headers: { ...CORS_HEADERS, 'content-type': 'application/json' },
+      headers: { ...cors, 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
   });
@@ -1064,20 +1076,17 @@ export async function seedSession(
   role: keyof typeof VISUAL_USERS,
   theme: 'light' | 'dark',
 ): Promise<void> {
-  const user = VISUAL_USERS[role];
+  void role; // the role's session comes from /auth/refresh (installApiStubs)
   await page.addInitScript(
-    ({ snapshot, mode }) => {
+    ({ mode }) => {
       try {
         localStorage.clear();
         localStorage.setItem('ls_theme_mode', mode);
-        if (snapshot) {
-          localStorage.setItem('ls_token', 'visual-baseline-token');
-          localStorage.setItem('ls_user', JSON.stringify(snapshot));
-        }
+        // The session is restored from /auth/refresh at start-up (see installApiStubs).
       } catch {
         // about:blank has no storage origin; the real document gets its own run.
       }
     },
-    { snapshot: user, mode: theme },
+    { mode: theme },
   );
 }

@@ -215,6 +215,12 @@
       background: var(--bg-surface-alt, rgba(0, 0, 0, 0.05));
       border-radius: 4px;
     }
+
+    // Keep each reference and the date/time whole when the line wraps (W6-14).
+    .order-id,
+    .order-date {
+      white-space: nowrap;
+    }
   }
 }
 
