@@ -158,24 +158,8 @@ public class TestController {
     }
 
     // --- Attempts ---
-
-    @PostMapping("/tests/{testId}/attempts")
-    public ResponseEntity<TestAttempt> startTest(
-            @PathVariable Long testId,
-            @RequestBody(required = false) Map<String, Long> payload,
-            @AuthenticationPrincipal CustomUserDetails principal) {
-        Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new ResourceNotFoundException("Test not found with id: " + testId));
-        if (test.getCourse() != null) {
-            ownershipService.requireEnrolled(test.getCourse().getId(), principal);
-        }
-        Long userId = principal != null && principal.getUser() != null ? principal.getUser().getUserId()
-                : (payload != null && payload.get("userId") != null ? payload.get("userId") : 1L);
-        ownershipService.requireSelf(userId, principal);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
-                .body(testService.startTestAttempt(testId, userId));
-    }
+    // The student attempt flow (start, answer, submit, finalize, my attempts) lives only on
+    // /api/assessments/** (W4-02). What remains here is staff/owner reads and grading.
 
     @GetMapping("/attempts/{attemptId}")
     public ResponseEntity<TestAttempt> getAttemptById(
@@ -187,32 +171,6 @@ public class TestController {
                 .body(attempt);
     }
 
-    @PostMapping("/attempts/{attemptId}/submit")
-    public ResponseEntity<TestAttempt> submitTest(
-            @PathVariable Long attemptId,
-            @AuthenticationPrincipal CustomUserDetails principal) {
-        TestAttempt attempt = ownershipService.requireAttemptOwnerOrStaff(attemptId, principal);
-        ownershipService.requireSelf(attempt.getUserId(), principal);
-        return ResponseEntity.ok(testService.calculateAndFinalizeScore(attemptId));
-    }
-
-    @PostMapping("/attempts/{attemptId}/finalize")
-    public ResponseEntity<TestAttempt> finalizeTest(
-            @PathVariable Long attemptId,
-            @AuthenticationPrincipal CustomUserDetails principal) {
-        TestAttempt attempt = ownershipService.requireAttemptOwnerOrStaff(attemptId, principal);
-        ownershipService.requireSelf(attempt.getUserId(), principal);
-        return ResponseEntity.ok(testService.calculateAndFinalizeScore(attemptId));
-    }
-
-    @GetMapping("/tests/{testId}/attempts/me")
-    public ResponseEntity<List<TestAttempt>> getMyAttempts(
-            @PathVariable Long testId,
-            @AuthenticationPrincipal CustomUserDetails principal) {
-        Long userId = principal != null && principal.getUser() != null ? principal.getUser().getUserId() : 0L;
-        return ResponseEntity.ok(testAttemptRepository.findByUserIdAndTest_TestId(userId, testId));
-    }
-
     @GetMapping("/tests/{testId}/attempts")
     public ResponseEntity<List<TestAttempt>> getAllAttemptsForTest(
             @PathVariable Long testId,
@@ -222,16 +180,6 @@ public class TestController {
     }
 
     // --- Answers & Grading ---
-
-    @PostMapping("/attempts/{attemptId}/answers")
-    public ResponseEntity<StudentAnswer> submitAnswer(
-            @PathVariable Long attemptId,
-            @RequestBody StudentAnswer studentAnswer,
-            @AuthenticationPrincipal CustomUserDetails principal) {
-        TestAttempt attempt = ownershipService.requireAttemptOwnerOrStaff(attemptId, principal);
-        ownershipService.requireSelf(attempt.getUserId(), principal);
-        return ResponseEntity.ok(testService.submitAnswer(attemptId, studentAnswer.getQuestion().getQuestionId(), studentAnswer));
-    }
 
     @GetMapping("/attempts/{attemptId}/answers")
     public ResponseEntity<List<StudentAnswer>> getAttemptAnswers(

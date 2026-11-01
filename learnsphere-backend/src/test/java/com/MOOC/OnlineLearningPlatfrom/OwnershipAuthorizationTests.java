@@ -378,14 +378,14 @@ class OwnershipAuthorizationTests extends PostgresIntegrationTest {
     @Test
     void unenrolledStudentCannotStartTest_returns404() throws Exception {
         // external@learnsphere.com is NOT enrolled in CS201
-        mockMvc.perform(post("/api/tests/{testId}/attempts", testId)
+        mockMvc.perform(post("/api/assessments/{testId}/start", testId)
                         .with(as("external@learnsphere.com")))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.code").value("NOT_FOUND"));
 
         // student@learnsphere.com IS enrolled in CS201
-        mockMvc.perform(post("/api/tests/{testId}/attempts", testId)
+        mockMvc.perform(post("/api/assessments/{testId}/start", testId)
                         .with(as("student@learnsphere.com")))
                 .andExpect(status().isOk());
     }

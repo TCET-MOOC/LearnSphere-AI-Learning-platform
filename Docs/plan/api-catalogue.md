@@ -232,9 +232,9 @@ Companion to [`../PLAN.md`](../PLAN.md) §6.2 (API conventions), [`waves.md`](wa
 | GET | `/api/assessments/lecture/{lectureId}` | self | Harden | Legacy alias; W4-11 moves clients to content; do not extend |
 | GET | `/api/attempts/{attemptId}` | auth | Retire |  |
 | GET | `/api/attempts/{attemptId}/answers` | auth | Retire |  |
-| POST | `/api/attempts/{attemptId}/answers` | auth | Retire | append-only; duplicate inflation |
-| POST | `/api/attempts/{attemptId}/finalize` | auth | Retire |  |
-| POST | `/api/attempts/{attemptId}/submit` | auth | Retire |  |
+| POST | `/api/attempts/{attemptId}/answers` | auth | Retired (2026-11-01, `LegacyAttemptFlowRetirementTests`) | append-only; duplicate inflation; use `/api/assessments/attempts/{id}/answers` |
+| POST | `/api/attempts/{attemptId}/finalize` | auth | Retired (2026-11-01, `LegacyAttemptFlowRetirementTests`) | use `/api/assessments/attempts/{id}/finalize` |
+| POST | `/api/attempts/{attemptId}/submit` | auth | Retired (2026-11-01, `LegacyAttemptFlowRetirementTests`) | use `/api/assessments/attempts/{id}/finalize` |
 | GET | `/api/courses/{courseId}/tests` | enrolled | Live |  |
 | POST | `/api/courses/{courseId}/tests` | teacher | Harden |  |
 | DELETE | `/api/questions/{id}` | auth | Retire | leaks correctAnswer |
@@ -255,8 +255,8 @@ Companion to [`../PLAN.md`](../PLAN.md) §6.2 (API conventions), [`waves.md`](wa
 | GET | `/api/tests/{testId}` | auth | Retire |  |
 | PUT | `/api/tests/{testId}` | auth | Retire |  |
 | GET | `/api/tests/{testId}/attempts` | auth | Retire |  |
-| POST | `/api/tests/{testId}/attempts` | auth | Retire |  |
-| GET | `/api/tests/{testId}/attempts/me` | auth | Retire |  |
+| POST | `/api/tests/{testId}/attempts` | auth | Retired (2026-11-01, `LegacyAttemptFlowRetirementTests`) | use `/api/assessments/{id}/start` |
+| GET | `/api/tests/{testId}/attempts/me` | auth | Retired (2026-11-01, `LegacyAttemptFlowRetirementTests`) |  |
 | GET | `/api/tests/{testId}/questions` | auth | Retire | leaks correctAnswer |
 | POST | `/api/tests/{testId}/questions` | auth | Retire | leaks correctAnswer |
 

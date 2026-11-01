@@ -552,7 +552,7 @@ public class LearningRegressionSuiteTests extends PostgresIntegrationTest {
         testService.submitAnswer(attempt.getAttemptId(), q1.getQuestionId(), answer);
 
         // Finalize test -> event triggers recalculateCourseLeaderboard
-        mockMvc.perform(post("/api/attempts/" + attempt.getAttemptId() + "/finalize")
+        mockMvc.perform(post("/api/assessments/attempts/" + attempt.getAttemptId() + "/finalize")
                         .with(user(userDetailsService.loadUserByUsername(student1.getEmail()))))
                 .andExpect(status().isOk());
 

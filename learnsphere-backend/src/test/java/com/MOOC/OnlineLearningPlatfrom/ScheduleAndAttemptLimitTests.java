@@ -119,11 +119,9 @@ class ScheduleAndAttemptLimitTests extends PostgresIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail", containsString("scheduled for a future time")));
 
-        // Legacy attempts start
-        mockMvc.perform(post("/api/tests/" + test.getTestId() + "/attempts")
-                        .with(studentAuth()))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail", containsString("scheduled for a future time")));
+        // The legacy start route is retired (W4-02 audit fix): no second way round the schedule.
+        assertThat(mockMvc.perform(post("/api/tests/" + test.getTestId() + "/attempts")
+                        .with(studentAuth())).andReturn().getResponse().getStatus()).isIn(404, 405);
     }
 
     @Test
@@ -163,10 +161,9 @@ class ScheduleAndAttemptLimitTests extends PostgresIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail", containsString("Maximum attempt limit")));
 
-        mockMvc.perform(post("/api/tests/" + test.getTestId() + "/attempts")
-                        .with(studentAuth()))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail", containsString("Maximum attempt limit")));
+        // The legacy start route is retired (W4-02 audit fix): no second way round the limit.
+        assertThat(mockMvc.perform(post("/api/tests/" + test.getTestId() + "/attempts")
+                        .with(studentAuth())).andReturn().getResponse().getStatus()).isIn(404, 405);
     }
 
     @Test
@@ -228,9 +225,9 @@ class ScheduleAndAttemptLimitTests extends PostgresIntegrationTest {
                         .with(foreignAuth()))
                 .andExpect(status().isNotFound());
 
-        mockMvc.perform(post("/api/tests/" + test.getTestId() + "/attempts")
-                        .with(foreignAuth()))
-                .andExpect(status().isNotFound());
+        // The legacy start route is retired (W4-02 audit fix).
+        assertThat(mockMvc.perform(post("/api/tests/" + test.getTestId() + "/attempts")
+                        .with(foreignAuth())).andReturn().getResponse().getStatus()).isIn(404, 405);
     }
 
     @Test

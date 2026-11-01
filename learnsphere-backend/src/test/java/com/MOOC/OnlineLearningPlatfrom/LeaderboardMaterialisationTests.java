@@ -164,7 +164,7 @@ class LeaderboardMaterialisationTests extends PostgresIntegrationTest {
         testService.submitAnswer(a1.getAttemptId(), q2.getQuestionId(), sa2);
 
         // Finalize student 1
-        mockMvc.perform(post("/api/attempts/" + a1.getAttemptId() + "/finalize")
+        mockMvc.perform(post("/api/assessments/attempts/" + a1.getAttemptId() + "/finalize")
                         .with(as(student1.getEmail())))
                 .andExpect(status().isOk());
 
@@ -178,7 +178,7 @@ class LeaderboardMaterialisationTests extends PostgresIntegrationTest {
         testService.submitAnswer(a2.getAttemptId(), q2.getQuestionId(), sa4);
 
         // Finalize student 2
-        mockMvc.perform(post("/api/attempts/" + a2.getAttemptId() + "/finalize")
+        mockMvc.perform(post("/api/assessments/attempts/" + a2.getAttemptId() + "/finalize")
                         .with(as(student2.getEmail())))
                 .andExpect(status().isOk());
 

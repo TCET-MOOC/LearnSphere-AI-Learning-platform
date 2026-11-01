@@ -331,7 +331,7 @@ public class SecurityRegressionSuiteTests extends PostgresIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("NOT_FOUND"));
 
-        mockMvc.perform(post("/api/attempts/" + attempt1.getAttemptId() + "/submit")
+        mockMvc.perform(post("/api/assessments/attempts/" + attempt1.getAttemptId() + "/finalize")
                         .with(principal(student2.getEmail())))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("NOT_FOUND"));
