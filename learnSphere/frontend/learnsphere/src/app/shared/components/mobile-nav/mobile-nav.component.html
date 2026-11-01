@@ -1,0 +1,71 @@
+<nav class="mobile-bar" [attr.aria-label]="copy.barLabel">
+  @for (item of config().bar; track item.route) {
+    <a class="mobile-bar__item" [routerLink]="item.route" routerLinkActive="is-active" ariaCurrentWhenActive="page">
+      <span class="mobile-bar__icon"><lucide-icon [name]="item.icon" [size]="20" aria-hidden="true"></lucide-icon></span>
+      <span class="mobile-bar__label">{{ item.label }}</span>
+    </a>
+  }
+  <button type="button" class="mobile-bar__item mobile-bar__more" aria-haspopup="dialog" [attr.aria-expanded]="open()" (click)="openMore()">
+    <span class="mobile-bar__icon"><lucide-icon name="layout-grid" [size]="20" aria-hidden="true"></lucide-icon></span>
+    <span class="mobile-bar__label">{{ copy.more }}</span>
+  </button>
+</nav>
+
+@if (open()) {
+  <div class="more-backdrop" (click)="close()"></div>
+  <section class="more-sheet" role="dialog" aria-modal="true" aria-labelledby="more-sheet-title">
+    <div class="more-sheet__handle" aria-hidden="true"></div>
+    <div class="more-sheet__head">
+      <h2 id="more-sheet-title">{{ copy.more }}</h2>
+      <button #closeButton type="button" class="more-sheet__close" [attr.aria-label]="copy.close" (click)="close()">
+        <lucide-icon name="x" [size]="22" aria-hidden="true"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="more-sheet__body">
+      <a class="more-profile" [routerLink]="config().profileRoute" [replaceUrl]="true" (click)="chose()">
+        <span class="more-profile__avatar" aria-hidden="true">{{ initials }}</span>
+        <span class="more-profile__text">
+          <span class="more-profile__name">{{ userName }}</span>
+          <span class="more-profile__role">{{ config().roleLabel }}</span>
+        </span>
+        <span class="more-profile__link">{{ copy.profile }}</span>
+      </a>
+
+      @for (group of config().groups; track group.title) {
+        <div class="more-group">
+          <h3 class="more-group__title">{{ group.title }}</h3>
+          @if (group.layout === 'tiles') {
+            <div class="more-tiles">
+              @for (item of group.items; track item.route) {
+                <a class="more-tile" [routerLink]="item.route" [replaceUrl]="true" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="chose()">
+                  <lucide-icon [name]="item.icon" [size]="22" aria-hidden="true"></lucide-icon>
+                  <span>{{ item.label }}</span>
+                </a>
+              }
+            </div>
+          } @else {
+            <div class="more-rows">
+              @for (item of group.items; track item.route) {
+                <a class="more-row" [routerLink]="item.route" [replaceUrl]="true" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="chose()">
+                  <lucide-icon [name]="item.icon" [size]="20" aria-hidden="true"></lucide-icon>
+                  <span class="more-row__label">{{ item.label }}</span>
+                  <lucide-icon name="chevron-right" [size]="18" class="more-row__chevron" aria-hidden="true"></lucide-icon>
+                </a>
+              }
+              <label class="more-row">
+                <lucide-icon name="moon" [size]="20" aria-hidden="true"></lucide-icon>
+                <span class="more-row__label">{{ copy.darkTheme }}</span>
+                <input type="checkbox" role="switch" class="more-switch" [checked]="darkTheme" (change)="toggleTheme()">
+              </label>
+              <button type="button" class="more-row more-row--danger" (click)="signOut()">
+                <lucide-icon name="log-out" [size]="20" aria-hidden="true"></lucide-icon>
+                <span class="more-row__label">{{ copy.signOut }}</span>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}

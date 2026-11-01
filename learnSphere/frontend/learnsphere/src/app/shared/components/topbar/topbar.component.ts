@@ -10,6 +10,7 @@ import { timeAgo } from '../../../core/utils/time.util';
 import { SidebarService } from '../../../core/services/sidebar.service';
 import { WebSocketService } from '../../../core/services/websocket.service';
 import { Subscription } from 'rxjs';
+import { mobilePageTitle } from '../../../core/content/mobile-nav.content';
 import { 
   LucideAngularModule, 
   Bell, 
@@ -156,6 +157,11 @@ export class TopbarComponent implements OnInit {
       this.notificationApi.markRead(n.id).subscribe({ error: () => {} });
     }
     this.closeNotifications();
+  }
+
+  /** Phone header title (approved 360 px redesign): the current destination's name. */
+  get pageTitle(): string {
+    return mobilePageTitle(this.role.toUpperCase() as 'STUDENT' | 'TEACHER' | 'ADMIN', this.router.url);
   }
 
   get role(): 'student' | 'teacher' | 'admin' {

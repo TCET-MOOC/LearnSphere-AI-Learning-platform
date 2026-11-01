@@ -14,7 +14,8 @@ import {
   RotateCcw, RotateCw, Volume2, VolumeX, Maximize, Minimize, PictureInPicture2, Sparkles,
   Subtitles, MoreVertical, Download, ChevronRight, ChevronDown, SlidersHorizontal, Layers, Share2, Bookmark, Code, Check,
   Sun, Moon, SunMoon, Languages, Bell, BellRing, HelpCircle, CheckCheck, Loader2, Menu,
-  CreditCard, ArrowUpRight, Printer, ShoppingBag, Calculator, Pencil, Hand, PlayCircle
+  CreditCard, ArrowUpRight, Printer, ShoppingBag, Calculator, Pencil, Hand, PlayCircle,
+  House, Compass, ClipboardList, LayoutGrid, LogOut, Upload, Building2
 } from 'lucide-angular';
 
 export const appConfig: ApplicationConfig = {
@@ -34,7 +35,8 @@ export const appConfig: ApplicationConfig = {
         RotateCcw, RotateCw, Volume2, VolumeX, Maximize, Minimize, PictureInPicture2, Sparkles,
         Subtitles, MoreVertical, Download, ChevronRight, ChevronDown, SlidersHorizontal, Layers, Share2, Bookmark, Code, Check,
         Sun, Moon, SunMoon, Languages, Bell, BellRing, HelpCircle, CheckCheck, Loader2, Menu,
-        CreditCard, ArrowUpRight, Printer, ShoppingBag, Calculator, Pencil, Hand, PlayCircle
+        CreditCard, ArrowUpRight, Printer, ShoppingBag, Calculator, Pencil, Hand, PlayCircle,
+  House, Compass, ClipboardList, LayoutGrid, LogOut, Upload, Building2
       })
     ),
   ]

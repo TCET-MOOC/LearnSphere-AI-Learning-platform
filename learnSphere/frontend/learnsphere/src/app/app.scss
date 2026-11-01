@@ -56,3 +56,10 @@ html, body {
   overflow-x: hidden;
 }
 
+
+/* Approved 360 px redesign: leave room for the phone bottom bar. */
+@media (max-width: 767.98px) {
+  .layout-wrapper.has-mobile-bar .content-area {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+}

@@ -3,7 +3,7 @@
 </ng-container>
 
 <ng-container *ngIf="!isStandalonePage">
-  <div class="layout-wrapper">
+  <div class="layout-wrapper" [class.has-mobile-bar]="!isFocusRoute">
     <app-sidebar *ngIf="userRole === 'STUDENT'"></app-sidebar> 
     <app-teacher-sidebar *ngIf="userRole === 'TEACHER'"></app-teacher-sidebar>
     <app-admin-sidebar *ngIf="userRole === 'ADMIN'"></app-admin-sidebar>
@@ -16,5 +16,6 @@
       </main>
     </div>
     <app-ai-chatbot></app-ai-chatbot>
+    <app-mobile-nav *ngIf="!isFocusRoute" [role]="mobileRole"></app-mobile-nav>
   </div>
 </ng-container>

@@ -3,6 +3,7 @@
     <button class="icon-btn mobile-menu-btn" (click)="toggleMobileSidebar()" aria-label="Toggle navigation menu">
       <lucide-icon name="menu" [size]="20" aria-hidden="true"></lucide-icon>
     </button>
+    <h1 class="topbar__title">{{ pageTitle }}</h1>
     <div class="search-box">
       <lucide-icon name="search" [size]="16" class="search-icon" aria-hidden="true"></lucide-icon>
       <input type="text" placeholder="Search courses, notes..." aria-label="Search courses"
@@ -14,17 +15,17 @@
 
     <!-- Universal Theme Toggle Button (Light/Dark Switch) -->
     <button 
-      class="icon-btn theme-btn" 
+      class="icon-btn theme-btn topbar__desktop-only" 
       [title]="isDarkMode ? 'Switch to Light theme' : 'Switch to Dark theme'" 
       (click)="toggleTheme()">
       <lucide-icon [name]="isDarkMode ? 'sun' : 'moon'" [size]="18" aria-hidden="true"></lucide-icon>
     </button>
   
-    <button class="icon-btn" title="Messages" [routerLink]="getMessagesRoute()">
+    <button class="icon-btn topbar__desktop-only" title="Messages" [routerLink]="getMessagesRoute()">
       <lucide-icon name="message-square" [size]="18" aria-hidden="true"></lucide-icon>
     </button>
 
-    <button class="icon-btn" title="Announcements" [routerLink]="getRoleRoute('announcements')" routerLinkActive="active">
+    <button class="icon-btn topbar__desktop-only" title="Announcements" [routerLink]="getRoleRoute('announcements')" routerLinkActive="active">
       <lucide-icon name="megaphone" [size]="18" aria-hidden="true"></lucide-icon>
     </button>
 
@@ -84,7 +85,7 @@
       </div>
     </div>
 
-    <div class="profile-container">
+    <div class="profile-container topbar__desktop-only">
       
       <div class="avatar" (click)="toggleMenu()">
         {{ userInitials }}

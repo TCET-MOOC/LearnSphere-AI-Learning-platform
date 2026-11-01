@@ -528,3 +528,87 @@ $topbar-height: 72px;
     transform: scale(1) translateY(0);
   }
 }
+
+// ── Approved 360 px redesign: slim phone header (title, search, notifications) ──
+.topbar__title {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .topbar {
+    position: relative;
+    height: 56px;
+    padding: 0 8px 0 16px;
+  }
+
+  .topbar__left {
+    gap: 8px;
+  }
+
+  .topbar__left .mobile-menu-btn,
+  .topbar__desktop-only {
+    display: none !important;
+  }
+
+  .topbar__title {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font: 700 20px var(--font-display);
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Search collapses to a 40 px icon; tapping it focuses the field, which then opens over the title.
+  .topbar .search-box {
+    position: relative;
+    flex: none;
+    width: 40px;
+    max-width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    border-color: transparent;
+    background: transparent;
+
+    .search-icon {
+      margin: 0;
+    }
+
+    input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      padding: 0;
+      opacity: 0;
+      font-size: 16px; // stops iOS zooming on focus
+      cursor: pointer;
+    }
+
+    &:focus-within {
+      position: absolute;
+      left: 8px;
+      right: 56px;
+      width: auto;
+      max-width: none;
+      padding: 0 12px;
+      justify-content: flex-start;
+      background: var(--bg-input);
+      border-color: var(--brand-primary);
+
+      .search-icon {
+        margin-right: 8px;
+      }
+
+      input {
+        position: static;
+        opacity: 1;
+        padding: 0;
+        cursor: text;
+      }
+    }
+  }
+}

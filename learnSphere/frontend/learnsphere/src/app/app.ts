@@ -6,6 +6,8 @@ import { TopbarComponent } from './shared/components/topbar/topbar.component';
 import { TeacherSidebarComponent } from './shared/components/teacher-sidebar/teacher-sidebar.component';
 import { AdminSidebarComponent } from './shared/components/admin-sidebar/admin-sidebar.component';
 import { AiChatbotComponent } from './shared/components/ai-chatbot/ai-chatbot.component';
+import { MobileNavComponent } from './shared/components/mobile-nav/mobile-nav.component';
+import { MobileRole } from './core/content/mobile-nav.content';
 
 import { ThemeService } from './core/services/theme.service';
 
@@ -19,7 +21,8 @@ import { ThemeService } from './core/services/theme.service';
     TeacherSidebarComponent, 
     AdminSidebarComponent, 
     TopbarComponent, 
-    AiChatbotComponent
+    AiChatbotComponent,
+    MobileNavComponent
   ],
   templateUrl: './app.html', 
   styleUrls: ['./app.scss'] 
@@ -30,6 +33,12 @@ export class App {
   // 👉 THIS IS THE FIX: Declaring the variable at the class level
   isStandalonePage = false; 
   userRole = 'STUDENT';
+  /** Lesson player and quiz player are focus mode on phones: no bottom bar. */
+  isFocusRoute = false;
+
+  get mobileRole(): MobileRole {
+    return this.userRole as MobileRole;
+  }
 
   constructor(private router: Router, private themeService: ThemeService) {
     this.router.events.subscribe((event) => {
@@ -43,7 +52,9 @@ export class App {
           cleanUrl === '/' || 
           cleanUrl.includes('/login') || 
           cleanUrl.includes('/register');
-        
+
+        this.isFocusRoute = /\/lectures\/|\/player(\/|$)/.test(cleanUrl);
+
         // 3. Set Roles
         if (cleanUrl.includes('/teacher')) {
           this.userRole = 'TEACHER';
