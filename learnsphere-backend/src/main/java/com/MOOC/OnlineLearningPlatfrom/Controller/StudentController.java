@@ -152,6 +152,7 @@ public class StudentController {
                                                                          @AuthenticationPrincipal CustomUserDetails principal) {
         Lecture lecture = courseService.getLectureEntity(id);
         Long userId = requireUserId(principal);
+        assertEnrolledInLecture(userId, lecture);
         CourseContent content = courseContentRepository.findByLegacyLectureId(id).orElse(null);
 
         Optional<Test> testOpt = Optional.empty();
@@ -205,6 +206,7 @@ public class StudentController {
                                                                              @AuthenticationPrincipal CustomUserDetails principal) {
         Long userId = requireUserId(principal);
         Lecture lecture = courseService.getLectureEntity(id);
+        assertEnrolledInLecture(userId, lecture);
         CourseContent content = courseContentRepository.findByLegacyLectureId(id).orElse(null);
         UserProgress progress = null;
         if (content != null) {
@@ -237,6 +239,7 @@ public class StudentController {
     public ResponseEntity<UserProgressResponseDto> getProgress(@PathVariable Long id,
                                                                  @AuthenticationPrincipal CustomUserDetails principal) {
         Long userId = requireUserId(principal);
+        assertEnrolledInLecture(userId, courseService.getLectureEntity(id));
         CourseContent content = courseContentRepository.findByLegacyLectureId(id).orElse(null);
         Optional<UserProgress> progressOpt = Optional.empty();
         if (content != null) {
@@ -267,6 +270,14 @@ public class StudentController {
             enrollmentRepository.save(enrollment);
         }
         return ResponseEntity.ok(courseService.getCourseById(id));
+    }
+
+    /** Stealth 404 unless the caller is enrolled in the lecture's course (IDOR rule). */
+    private void assertEnrolledInLecture(Long userId, Lecture lecture) {
+        if (lecture.getCourse() == null) {
+            throw new ResourceNotFoundException("Lecture not found: " + lecture.getId());
+        }
+        assertEnrolled(userId, lecture.getCourse().getId());
     }
 
     private void assertEnrolled(Long userId, Long courseId) {
