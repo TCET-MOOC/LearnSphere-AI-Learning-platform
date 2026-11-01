@@ -78,8 +78,10 @@ for (const viewport of VIEWPORTS) {
             true,
           );
 
-          // Stub responses resolve immediately; this lets Angular flush the
-          // last render before the capture.
+          // Wait for every stubbed request to finish (a fixed delay alone was not enough
+          // under parallel workers: Moderation was sometimes captured before its list
+          // rendered), then let Angular flush the last render.
+          await page.waitForLoadState('networkidle');
           await page.waitForTimeout(400);
 
           await expect(page).toHaveScreenshot(
