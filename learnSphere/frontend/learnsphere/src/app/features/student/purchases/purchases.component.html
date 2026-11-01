@@ -15,17 +15,17 @@
   <div class="stats-grid">
     <div class="stat-box">
       <span class="stat-label">Total Invested</span>
-      <span class="stat-value">₹{{ totalSpent.toLocaleString('en-IN') }}</span>
+      <span class="stat-value">₹{{ summary.totalPaidRupees.toLocaleString('en-IN') }}</span>
       <span class="stat-subtext text-success">Lifetime learning spend</span>
     </div>
     <div class="stat-box">
       <span class="stat-label">Paid Courses</span>
-      <span class="stat-value">{{ successfulPurchasesCount }}</span>
+      <span class="stat-value">{{ summary.paidCourses }}</span>
       <span class="stat-subtext text-purple">Active lifetime access</span>
     </div>
     <div class="stat-box">
       <span class="stat-label">Pending / Processing</span>
-      <span class="stat-value">{{ activeOrdersCount }}</span>
+      <span class="stat-value">{{ summary.pending }}</span>
       <span class="stat-subtext text-amber">Awaiting webhook / payment</span>
     </div>
   </div>
@@ -39,28 +39,28 @@
           class="tab-btn" 
           [class.active]="selectedFilter === 'ALL'" 
           (click)="setFilter('ALL')">
-          All Orders ({{ allCount }})
+          All Orders ({{ summary.all }})
         </button>
         <button 
           type="button" 
           class="tab-btn" 
           [class.active]="selectedFilter === 'PAID'" 
           (click)="setFilter('PAID')">
-          Successful ({{ paidCount }})
+          Successful ({{ summary.paid }})
         </button>
         <button 
           type="button" 
           class="tab-btn" 
           [class.active]="selectedFilter === 'PENDING'" 
           (click)="setFilter('PENDING')">
-          Pending ({{ pendingCount }})
+          Pending ({{ summary.pending }})
         </button>
         <button 
           type="button" 
           class="tab-btn" 
           [class.active]="selectedFilter === 'FAILED'" 
           (click)="setFilter('FAILED')">
-          Failed ({{ failedCount }})
+          Failed ({{ summary.failed }})
         </button>
       </div>
     </div>
@@ -79,20 +79,21 @@
               <div class="order-title-row">
                 <h3 class="course-title">{{ order.courseTitle || 'Course #' + order.courseId }}</h3>
                 <span class="order-pill" [ngClass]="getStatusClass(order.status)">
-                  {{ getStatusLabel(order.status) }}
+                  {{ order.statusLabel }}
                 </span>
               </div>
               <p class="order-meta">
                 <span *ngIf="order.courseDepartment" class="dept-tag">{{ order.courseDepartment }} · </span>
-                <span class="order-id">Order Ref: <code>{{ order.razorpayOrderId }}</code></span>
-                <span *ngIf="order.createdAt" class="order-date"> · {{ order.createdAt | date:'mediumDate' }}</span>
+                <span *ngIf="order.gatewayOrderId" class="order-id">Order Ref: <code>{{ order.gatewayOrderId }}</code></span>
+                <span *ngIf="order.gatewayPaymentId" class="order-id"> · Payment ID: <code>{{ order.gatewayPaymentId }}</code></span>
+                <span *ngIf="order.displayAtLabel" class="order-date"> · {{ order.displayAtLabel }}</span>
               </p>
             </div>
           </div>
 
           <div class="order-financials">
             <div class="price-box">
-              <span class="price-val">{{ formatAmount(order.amount) }}</span>
+              <span class="price-val">{{ formatAmount(order.amountRupees) }}</span>
               <span class="currency-label">{{ order.currency }}</span>
             </div>
 

@@ -89,6 +89,55 @@ describe('PurchasesComponent receipt (W6-13)', () => {
     expect(orderFor(7).receipt?.paymentId).toBe('pay_A');
   });
 
+  describe('history (W6-14 / AUD-02)', () => {
+    const cards = () => Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.order-card'));
+    const cardFor = (title: string) => cards().find((c) => c.textContent?.includes(title))!;
+
+    it('labels each row with its real status: Paid / Pending', () => {
+      expect(cardFor('Distributed Systems').querySelector('.order-pill')!.textContent!.trim()).toBe('Paid');
+      expect(cardFor('Compilers').querySelector('.order-pill')!.textContent!.trim()).toBe('Pending');
+    });
+
+    it('counts and totals only real paid rows', () => {
+      expect(component.summary).toMatchObject({ all: 2, paid: 1, pending: 1, failed: 0, paidCourses: 1, totalPaidRupees: 2500 });
+      const stats = (fixture.nativeElement as HTMLElement).querySelector('.stats-grid')!.textContent!;
+      expect(stats).toContain('2,500');
+    });
+
+    it('shows the pending row under the Pending filter', () => {
+      component.setFilter('PENDING');
+      fixture.detectChanges();
+      expect(cards().map((c) => c.querySelector('.course-title')!.textContent!.trim())).toEqual(['Compilers']);
+    });
+
+    it('shows the payment id and capture time on a paid row', () => {
+      const meta = cardFor('Distributed Systems').querySelector('.order-meta')!.textContent!;
+      expect(meta).toContain('pay_A');
+      expect(meta).toContain('01 Nov 2026, 14:05:09');
+    });
+
+    it('keeps a failed gateway attempt alongside the paid ledger row for the same course', async () => {
+      TestBed.resetTestingModule();
+      microserviceOrders = [
+        { id: 901, razorpayOrderId: 'order_FAILED', userId: 2, courseId: 7, amount: 250000, currency: 'INR', status: 'FAILED', createdAt: '2026-11-01T13:00:00' }
+      ];
+      await setUp();
+      expect(component.summary).toMatchObject({ all: 3, paid: 1, failed: 1, pending: 1 });
+      expect(component.orders.filter((o) => o.courseId === 7).map((o) => o.status).sort()).toEqual(['FAILED', 'PAID']);
+    });
+
+    it('names an untitled attempt from a sibling row and never overwrites a known title', async () => {
+      TestBed.resetTestingModule();
+      microserviceOrders = [
+        { id: 901, razorpayOrderId: 'order_FAILED', userId: 2, courseId: 7, amount: 250000, currency: 'INR', status: 'FAILED', createdAt: '2026-11-01T13:00:00' }
+      ];
+      await setUp();
+      const course7 = component.orders.filter((o) => o.courseId === 7);
+      expect(course7.map((o) => o.courseTitle)).toEqual(['Distributed Systems', 'Distributed Systems']);
+      expect(TestBed.inject(StudentService).getPublicCourse).not.toHaveBeenCalled();
+    });
+  });
+
   it('does not open a receipt for a row without one', () => {
     component.openReceipt(orderFor(8));
     expect(component.selectedReceipt).toBeNull();

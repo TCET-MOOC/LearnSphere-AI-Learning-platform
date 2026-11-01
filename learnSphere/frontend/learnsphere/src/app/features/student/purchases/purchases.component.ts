@@ -1,24 +1,22 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '@core/auth/auth.service';
 import { PaymentsService, Order } from '../services/payments.service';
 import { StudentService } from '../services/student.service';
 import { Course } from '@core/models/course.model';
 import { PdfExportService } from '@core/services/pdf-export.service';
-import { Receipt, buildReceipt } from '@core/services/receipt';
+import { LedgerPayment, Receipt } from '@core/services/receipt';
 import { RECEIPT_COPY } from '@core/content/receipt.content';
 import { LucideAngularModule } from 'lucide-angular';
+import { HistoryRow, HistorySummary, PaymentStatus, mergeHistory, summarize } from './payment-history';
 
-export interface OrderWithCourse extends Order {
-  courseTitle?: string;
-  courseDepartment?: string;
-  courseThumbnail?: string;
-  /** Present only for a captured ledger payment (W6-13). */
-  receipt?: Receipt | null;
-}
+/** One row of the purchases list (W6-14): see payment-history.ts for the rules. */
+export type OrderWithCourse = HistoryRow;
 
-export type PaymentFilterType = 'ALL' | 'PAID' | 'PENDING' | 'FAILED';
+export type PaymentFilterType = 'ALL' | PaymentStatus;
 
 @Component({
   selector: 'app-purchases',
@@ -29,6 +27,7 @@ export type PaymentFilterType = 'ALL' | 'PAID' | 'PENDING' | 'FAILED';
 })
 export class PurchasesComponent implements OnInit {
   orders: OrderWithCourse[] = [];
+  summary: HistorySummary = summarize([]);
   loading = true;
   selectedFilter: PaymentFilterType = 'ALL';
 
@@ -50,50 +49,10 @@ export class PurchasesComponent implements OnInit {
     this.loadOrders();
   }
 
-  // --- Pure Computed Getters (100% Deterministic Filtering) ---
-
   get filteredOrders(): OrderWithCourse[] {
-    switch (this.selectedFilter) {
-      case 'PAID':
-        return this.orders.filter(o => o.status === 'PAID');
-      case 'PENDING':
-        return this.orders.filter(o => o.status === 'CREATED');
-      case 'FAILED':
-        return this.orders.filter(o => o.status === 'FAILED');
-      default:
-        return this.orders;
-    }
-  }
-
-  get allCount(): number {
-    return this.orders.length;
-  }
-
-  get paidCount(): number {
-    return this.orders.filter(o => o.status === 'PAID').length;
-  }
-
-  get pendingCount(): number {
-    return this.orders.filter(o => o.status === 'CREATED').length;
-  }
-
-  get failedCount(): number {
-    return this.orders.filter(o => o.status === 'FAILED').length;
-  }
-
-  get successfulPurchasesCount(): number {
-    return this.paidCount;
-  }
-
-  get activeOrdersCount(): number {
-    return this.pendingCount;
-  }
-
-  get totalSpent(): number {
-    const totalPaise = this.orders
-      .filter(o => o.status === 'PAID')
-      .reduce((sum, o) => sum + (o.amount || 0), 0);
-    return totalPaise / 100;
+    return this.selectedFilter === 'ALL'
+      ? this.orders
+      : this.orders.filter(o => o.status === this.selectedFilter);
   }
 
   setFilter(filter: PaymentFilterType): void {
@@ -101,7 +60,7 @@ export class PurchasesComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  // --- Data Fetching & Course Consolidation (1 Card Per Course) ---
+  // --- Data: ledger history (authority) + payments-service orders (supplementary) ---
 
   loadOrders(): void {
     const user = this.authService.currentUser;
@@ -111,120 +70,41 @@ export class PurchasesComponent implements OnInit {
     }
 
     this.loading = true;
-    const userId = user.id;
-
-    // 1. Fetch authoritative verified payment history from Main Backend
-    this.paymentsService.getPaymentHistory().subscribe({
-      next: (history) => {
-        const verifiedOrders: OrderWithCourse[] = (history || [])
-          .filter((p: any) => p && p.courseId)
-          .map((p: any) => ({
-            id: p.id,
-            razorpayOrderId: p.gatewayOrderId || `RZP-ORD-${p.id}`,
-            userId: userId,
-            courseId: p.courseId,
-            courseTitle: p.courseTitle,
-            courseDepartment: p.department,
-            courseThumbnail: p.thumbnail,
-            amount: Math.round(Number(p.amount || 0) * 100), // convert to paise
-            currency: p.currency || 'INR',
-            status: 'PAID',
-            createdAt: p.paidAt || p.createdAt,
-            receipt: buildReceipt(p, user)
-          }));
-
-        // 2. Fetch pending checkout drafts from payments microservice
-        this.paymentsService.getMyOrders().subscribe({
-          next: (msOrders) => {
-            const rawDrafts: OrderWithCourse[] = (msOrders || [])
-              .filter(o => o && o.courseId && o.amount > 0)
-              .map(o => ({
-                ...o,
-                status: this.normalizeStatus(o.status)
-              }));
-
-            this.consolidateAndEnrich([...verifiedOrders, ...rawDrafts]);
-          },
-          error: () => {
-            this.consolidateAndEnrich(verifiedOrders);
-          }
-        });
-      },
-      error: () => {
-        // Fallback to microservice if main backend is restarting
-        this.paymentsService.getMyOrders().subscribe({
-          next: (msOrders) => {
-            const rawDrafts: OrderWithCourse[] = (msOrders || [])
-              .filter(o => o && o.courseId && o.amount > 0)
-              .map(o => ({
-                ...o,
-                status: this.normalizeStatus(o.status)
-              }));
-            this.consolidateAndEnrich(rawDrafts);
-          },
-          error: () => {
-            this.orders = [];
-            this.loading = false;
-            this.cdr.markForCheck();
-          }
-        });
-      }
+    forkJoin({
+      ledger: this.paymentsService.getPaymentHistory().pipe(catchError(() => of([] as LedgerPayment[]))),
+      gateway: this.paymentsService.getMyOrders().pipe(catchError(() => of([] as Order[])))
+    }).subscribe(({ ledger, gateway }) => {
+      this.orders = mergeHistory(ledger as LedgerPayment[], gateway, user);
+      this.summary = summarize(this.orders);
+      this.loading = false;
+      this.enrichWithCourseDetails();
+      this.cdr.detectChanges();
     });
   }
 
-  private normalizeStatus(rawStatus: any): 'PAID' | 'FAILED' | 'CREATED' {
-    const s = String(rawStatus || '').toUpperCase().trim();
-    if (s === 'SUCCESS' || s === 'PAID' || s === 'COMPLETED') {
-      return 'PAID';
-    }
-    if (s === 'FAILED' || s === 'CANCELLED' || s === 'REJECTED') {
-      return 'FAILED';
-    }
-    return 'CREATED';
-  }
-
-  /**
-   * Consolidates all orders by Course ID so that each course has exactly ONE card:
-   * 1. If course is PAID, keep the PAID order and discard all pending/failed drafts for that course.
-   * 2. If course is not paid, keep only the latest single pending attempt.
-   */
-  private consolidateAndEnrich(allRaw: OrderWithCourse[]): void {
-    const courseMap = new Map<number, OrderWithCourse>();
-
-    // First pass: register all PAID orders; a ledger row with a receipt is never replaced (W6-13)
-    for (const ord of allRaw) {
-      if (ord.status === 'PAID' && !courseMap.get(ord.courseId)?.receipt) {
-        courseMap.set(ord.courseId, ord);
-      }
-    }
-
-    // Second pass: for courses not yet paid, keep only one latest pending/failed draft
-    for (const ord of allRaw) {
-      if (!courseMap.has(ord.courseId)) {
-        courseMap.set(ord.courseId, ord);
-      }
-    }
-
-    this.orders = Array.from(courseMap.values());
-    this.enrichWithCourseDetails();
-    this.loading = false;
-    this.cdr.detectChanges();
-  }
-
+  /** Fills missing course names: first from another row of the same course, then from the catalogue. */
   private enrichWithCourseDetails(): void {
-    const missing = this.orders.filter(o => !o.courseTitle && o.courseId);
-    const courseIds = Array.from(new Set(missing.map(o => o.courseId)));
+    const known = new Map<number, OrderWithCourse>();
+    for (const o of this.orders) {
+      if (o.courseTitle && !known.has(o.courseId)) known.set(o.courseId, o);
+    }
+    for (const o of this.orders) {
+      const sibling = known.get(o.courseId);
+      if (!o.courseTitle && sibling) {
+        o.courseTitle = sibling.courseTitle;
+        o.courseDepartment = o.courseDepartment ?? sibling.courseDepartment;
+      }
+    }
 
-    if (courseIds.length === 0) return;
-
+    const courseIds = Array.from(new Set(this.orders.filter(o => !o.courseTitle).map(o => o.courseId)));
     for (const courseId of courseIds) {
       this.studentService.getPublicCourse(courseId).subscribe({
         next: (course: Course) => {
           this.orders.forEach(order => {
-            if (order.courseId === courseId) {
-              order.courseTitle = course.title;
-              order.courseDepartment = course.department;
-              order.courseThumbnail = course.thumbnail;
+            if (order.courseId === courseId && !order.courseTitle) {
+              order.courseTitle = course?.title || `Course #${courseId}`;
+              order.courseDepartment = order.courseDepartment ?? course?.department;
+              order.courseThumbnail = order.courseThumbnail ?? course?.thumbnail;
             }
           });
           this.cdr.markForCheck();
@@ -266,32 +146,18 @@ export class PurchasesComponent implements OnInit {
 
   // --- Helpers ---
 
-  formatAmount(paiseAmount: number): string {
-    if (paiseAmount == null || isNaN(paiseAmount)) {
-      return '₹0.00';
-    }
-    return (paiseAmount / 100).toLocaleString('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2
-    });
+  /** Formats a rupee amount (every row and total is in rupees, W6-14). */
+  formatAmount(rupees: number): string {
+    const value = Number.isFinite(rupees) ? rupees : 0;
+    return value.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
   }
 
-  getStatusClass(status: string): string {
+  getStatusClass(status: PaymentStatus): string {
     switch (status) {
       case 'PAID': return 'pill--paid';
       case 'FAILED': return 'pill--failed';
-      case 'CREATED': return 'pill--created';
+      case 'PENDING': return 'pill--created';
       default: return 'pill--grey';
-    }
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'PAID': return 'COMPLETED';
-      case 'FAILED': return 'FAILED';
-      case 'CREATED': return 'PENDING CONFIRMATION';
-      default: return status;
     }
   }
 }
