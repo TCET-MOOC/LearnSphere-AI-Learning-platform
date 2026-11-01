@@ -23,13 +23,16 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final LectureRepository lectureRepository;
     private final CourseContentRepository courseContentRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService;
 
     public BookmarkServiceImpl(BookmarkRepository bookmarkRepository,
                                LectureRepository lectureRepository,
-                               CourseContentRepository courseContentRepository) {
+                               CourseContentRepository courseContentRepository,
+                               com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService) {
         this.bookmarkRepository = bookmarkRepository;
         this.lectureRepository = lectureRepository;
         this.courseContentRepository = courseContentRepository;
+        this.ownershipService = ownershipService;
     }
 
     @Override
@@ -79,6 +82,18 @@ public class BookmarkServiceImpl implements BookmarkService {
                 courseContentRepository.findByLegacyLectureId(request.getLectureId())
                         .ifPresent(bookmark::setContent);
             }
+        }
+
+        // Ownership rule "enrolled": bookmarks attach only to courses the caller is enrolled in or teaches.
+        Long courseId = null;
+        if (bookmark.getContent() != null && bookmark.getContent().getModule() != null
+                && bookmark.getContent().getModule().getCourse() != null) {
+            courseId = bookmark.getContent().getModule().getCourse().getId();
+        } else if (bookmark.getLecture() != null && bookmark.getLecture().getCourse() != null) {
+            courseId = bookmark.getLecture().getCourse().getId();
+        }
+        if (courseId != null) {
+            ownershipService.requireEnrolled(courseId, principal);
         }
 
         if (request.getTimestampSeconds() != null) {

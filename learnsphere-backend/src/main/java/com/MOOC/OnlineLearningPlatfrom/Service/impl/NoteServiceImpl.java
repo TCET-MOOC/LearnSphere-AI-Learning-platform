@@ -25,15 +25,25 @@ public class NoteServiceImpl implements NoteService {
     private final CourseRepository courseRepository;
     private final LectureRepository lectureRepository;
     private final CourseContentRepository courseContentRepository;
+    private final com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService;
 
     public NoteServiceImpl(NoteRepository noteRepository,
                            CourseRepository courseRepository,
                            LectureRepository lectureRepository,
-                           CourseContentRepository courseContentRepository) {
+                           CourseContentRepository courseContentRepository,
+                           com.MOOC.OnlineLearningPlatfrom.Security.OwnershipService ownershipService) {
         this.noteRepository = noteRepository;
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
         this.courseContentRepository = courseContentRepository;
+        this.ownershipService = ownershipService;
+    }
+
+    /** Ownership rule "enrolled": notes attach only to courses the caller is enrolled in or teaches (404 otherwise). */
+    private void requireEnrolledInNoteCourse(Note note, CustomUserDetails principal) {
+        if (note.getCourse() != null) {
+            ownershipService.requireEnrolled(note.getCourse().getId(), principal);
+        }
     }
 
     @Override
@@ -55,6 +65,7 @@ public class NoteServiceImpl implements NoteService {
         Note note = new Note();
         note.setUser(principal.getUser());
         applyRequest(note, request);
+        requireEnrolledInNoteCourse(note, principal);
         return NoteResponseDto.from(noteRepository.save(note));
     }
 
@@ -62,6 +73,7 @@ public class NoteServiceImpl implements NoteService {
     public NoteResponseDto updateNote(Long id, NoteRequestDto request, CustomUserDetails principal) {
         Note note = getOwnedNote(id, principal);
         applyRequest(note, request);
+        requireEnrolledInNoteCourse(note, principal);
         return NoteResponseDto.from(noteRepository.save(note));
     }
 

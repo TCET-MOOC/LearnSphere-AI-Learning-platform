@@ -67,6 +67,9 @@ class NotesBookmarksRebindTests extends PostgresIntegrationTest {
     @Autowired
     private CourseContentRepository courseContentRepository;
 
+    @Autowired
+    private com.MOOC.OnlineLearningPlatfrom.Repository.EnrollmentRepository enrollmentRepository;
+
     private UserAccount teacher;
     private UserAccount student;
     private UserAccount otherStudent;
@@ -93,6 +96,15 @@ class NotesBookmarksRebindTests extends PostgresIntegrationTest {
         course.setPrice(BigDecimal.ZERO);
         course.setStatus(Course.Status.LIVE);
         course = courseRepository.save(course);
+
+        // Notes/bookmarks attach only to courses the student is enrolled in (post-W6 audit);
+        // otherStudent stays unenrolled as the foreign user.
+        com.MOOC.OnlineLearningPlatfrom.Entity.Enrollment enrollment = new com.MOOC.OnlineLearningPlatfrom.Entity.Enrollment();
+        enrollment.setUserId(student.getUserId());
+        enrollment.setCourse(course);
+        enrollment.setRole("STUDENT");
+        enrollment.setEnrolledAt(java.time.LocalDateTime.now().minusDays(1));
+        enrollmentRepository.save(enrollment);
 
         module = new Module();
         module.setCourse(course);
