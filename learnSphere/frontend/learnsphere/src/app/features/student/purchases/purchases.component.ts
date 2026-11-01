@@ -34,7 +34,10 @@ export class PurchasesComponent implements OnInit {
   // Receipt Modal State
   selectedReceipt: Receipt | null = null;
   currentUser: any = null;
-  readonly receiptCopy = RECEIPT_COPY;
+  /** Read at render time (not captured at construction) so module load order cannot leave it undefined. */
+  get receiptCopy(): typeof RECEIPT_COPY {
+    return RECEIPT_COPY;
+  }
 
   constructor(
     private paymentsService: PaymentsService,
