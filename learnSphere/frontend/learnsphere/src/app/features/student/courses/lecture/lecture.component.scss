@@ -965,7 +965,7 @@
 
 @media (max-width: 767.98px) {
   .workspace-page {
-    padding: 0 0 calc(76px + env(safe-area-inset-bottom, 0px));
+    padding: 0 0 calc(148px + env(safe-area-inset-bottom, 0px)); // sticky bar + AI button
   }
 
   .workspace-grid {
@@ -1171,7 +1171,7 @@
 
       .upnext-item__num {
         background: var(--brand-primary);
-        color: var(--text-inverse);
+        color: white;
       }
     }
 
@@ -1251,6 +1251,6 @@
   .player-actionbar__next {
     border: 0;
     background: var(--brand-primary);
-    color: var(--text-inverse);
+    color: white; // --text-inverse is dark in the dark theme
   }
 }

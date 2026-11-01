@@ -1,4 +1,68 @@
 <div class="dashboard">
+  <!-- Approved 360 px Home (phones only) -->
+  <div class="home-phone" *ngIf="isPhone && !loading && !errorMessage">
+    <p class="home-phone__greeting">{{ phoneGreeting }}</p>
+
+    <section class="resume-card" *ngIf="phoneResume" aria-labelledby="resume-title">
+      <h2 id="resume-title" class="resume-card__eyebrow">{{ homeCopy.resumeTitle }}</h2>
+      <p class="resume-card__title">{{ phoneResume.title }}</p>
+      <p class="resume-card__context">{{ phoneResume.context }}</p>
+      <div class="resume-card__progress">
+        <div class="resume-card__track" role="progressbar" [attr.aria-label]="homeCopy.progressLabel"
+          aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="phoneResume.percent">
+          <div class="resume-card__fill" [style.width.%]="phoneResume.percent"></div>
+        </div>
+        <span class="resume-card__pct">{{ phoneResume.percent }}%</span>
+      </div>
+      <a class="resume-card__action" [routerLink]="phoneResume.route">
+        <lucide-icon name="play" [size]="18" aria-hidden="true"></lucide-icon>
+        <span>{{ homeCopy.resumeAction }}</span>
+      </a>
+    </section>
+
+    <section class="home-done" *ngIf="phoneCourseTotal > 0 && !phoneHasOpenCourse">
+      <h2 class="resume-card__title">{{ homeCopy.allDoneTitle }}</h2>
+      <p class="resume-card__context">{{ homeCopy.allDoneBody }}</p>
+      <a class="resume-card__action" routerLink="/student/explore">{{ homeCopy.explore }}</a>
+    </section>
+
+    <section class="coming-up" aria-labelledby="coming-up-title">
+      <h2 id="coming-up-title" class="home-phone__section-title">{{ homeCopy.comingUp }}</h2>
+      <p class="home-phone__empty" *ngIf="phoneComingUp.length === 0">{{ homeCopy.nothingComingUp }}</p>
+      <a class="coming-up__item" *ngFor="let item of phoneComingUp" [routerLink]="item.route">
+        <span class="coming-up__when" [class.is-live]="item.live">
+          <ng-container *ngIf="item.day; else noDate">
+            <span class="coming-up__day">{{ item.day }}</span>
+            <span class="coming-up__time" *ngIf="item.time">{{ item.time }}</span>
+          </ng-container>
+          <ng-template #noDate>
+            <lucide-icon [name]="item.kind === 'test' ? 'clipboard-list' : 'radio'" [size]="18" aria-hidden="true"></lucide-icon>
+          </ng-template>
+        </span>
+        <span class="coming-up__text">
+          <span class="coming-up__title">{{ item.title }}</span>
+          <span class="coming-up__detail">{{ item.detail }}</span>
+        </span>
+        <span class="coming-up__action" [class.is-live]="item.live">{{ item.action }}</span>
+      </a>
+    </section>
+
+    <section class="home-courses" aria-labelledby="home-courses-title">
+      <div class="home-phone__section-head">
+        <h2 id="home-courses-title" class="home-phone__section-title">{{ homeCopy.myCourses }}</h2>
+        <a *ngIf="phoneCourseTotal > 0" routerLink="/student/courses">{{ homeCopy.seeAll(phoneCourseTotal) }}</a>
+      </div>
+      <ng-container *ngIf="phoneCourseTotal === 0">
+        <p class="home-phone__empty">{{ homeCopy.noCourses }}</p>
+        <a class="home-courses__explore" routerLink="/student/explore">{{ homeCopy.explore }}</a>
+      </ng-container>
+      <a class="home-courses__row" *ngFor="let c of phoneCourses" [routerLink]="['/student/courses', c.id, 'player']">
+        <span class="home-courses__title">{{ c.title }}</span>
+        <span class="home-courses__state" [class.is-done]="c.completed">{{ c.completed ? homeCopy.completed : c.percent + '%' }}</span>
+      </a>
+    </section>
+  </div>
+
  
   <!-- ── Header ── -->
   <div class="dashboard__header">

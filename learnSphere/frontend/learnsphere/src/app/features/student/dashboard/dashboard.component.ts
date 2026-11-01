@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -10,6 +10,25 @@ import { StudentService } from '../services/student.service';
 import { CertificateService } from '../services/certificate.service';
 import { AssessmentService } from '../services/assessment.service';
 import { Course } from '@core/models/course.model';
+import { HOME_MOBILE_COPY } from '@core/content/home-mobile.content';
+import { ComingUpItem, comingUp, firstName, pickResumeCourse } from './home-mobile';
+
+/** Phones get the approved 360 px Home; its extra requests are only made there. */
+const PHONE_QUERY = '(max-width: 767.98px)';
+
+interface PhoneResume {
+  title: string;
+  context: string;
+  percent: number;
+  route: (string | number)[];
+}
+
+interface PhoneCourseRow {
+  id: number;
+  title: string;
+  percent: number;
+  completed: boolean;
+}
 
 interface KpiCard {
   icon: string;
@@ -67,6 +86,7 @@ interface RecommendedCourse {
   imports: [
     CommonModule, 
     DatePipe,
+    RouterLink,
     LucideAngularModule
   ],
   templateUrl: './dashboard.component.html',
@@ -100,6 +120,23 @@ export class DashboardComponent implements OnInit {
 
   recommendedCourses: RecommendedCourse[] = [];
 
+  // Approved 360 px Home
+  isPhone = false;
+  phoneResume: PhoneResume | null = null;
+  phoneComingUp: ComingUpItem[] = [];
+  phoneCourses: PhoneCourseRow[] = [];
+  phoneCourseTotal = 0;
+  phoneHasOpenCourse = false;
+
+  /** Getter, not a field: in the combined unit run the content module can initialise after this one. */
+  get homeCopy() {
+    return HOME_MOBILE_COPY;
+  }
+
+  get phoneGreeting(): string {
+    return HOME_MOBILE_COPY.greeting(this.getGreeting(), firstName(this.authService.currentUser?.fullName));
+  }
+
   constructor(
     private router: Router, 
     private authService: AuthService,
@@ -109,6 +146,7 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.isPhone = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(PHONE_QUERY).matches;
     this.loadDashboardData();
   }
 
@@ -175,6 +213,10 @@ export class DashboardComponent implements OnInit {
           this.pendingAssessments = [];
         }
 
+        if (this.isPhone) {
+          this.loadPhoneHome(enrolled, assessments || []);
+        }
+
         // Recommended Courses
         this.recommendedCourses = (explore || []).slice(0, 3).map(c => ({
           id: c.id,
@@ -191,6 +233,41 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
         this.errorMessage = 'Unable to load dashboard data. Please check connection and try again.';
       }
+    });
+  }
+
+  /** Resume card, "Coming up" and the course rows for phones (real data only). */
+  private loadPhoneHome(enrolled: Course[], assessments: any[]): void {
+    this.phoneCourseTotal = enrolled.length;
+    this.phoneCourses = enrolled.slice(0, 3).map((c) => ({
+      id: c.id,
+      title: c.title,
+      percent: Math.round(c.progressPercent ?? 0),
+      completed: !!(c.completed || (c.progressPercent ?? 0) >= 100)
+    }));
+
+    const course = pickResumeCourse(enrolled);
+    this.phoneHasOpenCourse = !!course;
+    this.phoneResume = null;
+    if (course) {
+      forkJoin({
+        target: this.studentService.getResumeTarget(course.id).pipe(catchError(() => of(null))),
+        lectures: this.studentService.getCourseLectures(course.id).pipe(catchError(() => of([])))
+      }).subscribe(({ target, lectures }) => {
+        const index = target?.lectureId ? lectures.findIndex((l) => l.id === target.lectureId) + 1 : 0;
+        this.phoneResume = {
+          title: target?.title || course.title,
+          context: HOME_MOBILE_COPY.resumeContext(course.title, index, lectures.length),
+          percent: Math.round(target?.progressPercent ?? course.progressPercent ?? 0),
+          route: target?.lectureId
+            ? ['/student/courses', course.id, 'lectures', target.lectureId]
+            : ['/student/courses', course.id, 'player']
+        };
+      });
+    }
+
+    this.studentService.getLiveSessions().pipe(catchError(() => of([]))).subscribe((sessions) => {
+      this.phoneComingUp = comingUp(sessions || [], assessments);
     });
   }
 

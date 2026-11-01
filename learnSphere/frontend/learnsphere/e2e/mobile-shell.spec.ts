@@ -89,3 +89,19 @@ test.describe('Desktop at 1280 px is unchanged', () => {
     await expect(page.getByTitle('Messages')).toBeVisible();
   });
 });
+
+test.describe('Phone pages scroll clear of the floating AI button', () => {
+  test('at the bottom of Home the last row is not under the AI button', async ({ page }) => {
+    await open(page, '/student/dashboard', 'student', 360);
+    await page.locator('.home-courses__row').last().waitFor();
+    await page.evaluate(() => {
+      for (const sel of ['.content-area', '.scroll-container']) {
+        const el = document.querySelector(sel) as HTMLElement;
+        el.scrollTo(0, el.scrollHeight);
+      }
+    });
+    const last = await page.locator('.home-courses__row').last().boundingBox();
+    const ai = await page.getByRole('button', { name: 'Toggle AI Assistant' }).boundingBox();
+    expect(last!.y + last!.height).toBeLessThanOrEqual(ai!.y);
+  });
+});

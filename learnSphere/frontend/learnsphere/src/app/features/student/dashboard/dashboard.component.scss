@@ -701,3 +701,250 @@
   margin: 0;
 }
  
+// ── Approved 360 px Home (phones only; desktop >= 768 px is unchanged) ──
+@media (max-width: 767.98px) {
+  .dashboard:has(.home-phone) {
+    .dashboard__header,
+    .kpi-grid,
+    .content-grid {
+      display: none;
+    }
+  }
+}
+
+.home-phone {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.home-phone__greeting {
+  margin: 0;
+  font: 700 22px/1.25 var(--font-display);
+  color: var(--text-primary);
+}
+
+.home-phone__section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    font: 600 14px var(--font-body);
+    color: var(--brand-primary);
+  }
+}
+
+.home-phone__section-title {
+  margin: 0 0 8px;
+  font: 700 17px var(--font-display);
+  color: var(--text-primary);
+}
+
+.home-phone__section-head .home-phone__section-title {
+  margin: 0;
+}
+
+.home-phone__empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.resume-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  border-radius: var(--border-radius-xl);
+  background: var(--brand-deep);
+  border: 1px solid var(--brand-deep);
+  color: white;
+}
+
+.resume-card__eyebrow {
+  margin: 0;
+  font: 500 13px var(--font-body);
+  color: var(--brand-text-soft);
+}
+
+.resume-card__title {
+  margin: 0;
+  font: 700 19px/1.3 var(--font-display);
+  color: white;
+}
+
+.resume-card__context {
+  margin: 0;
+  font-size: 14px;
+  color: var(--brand-text-soft);
+}
+
+.resume-card__progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.resume-card__track {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--border-radius-full);
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.resume-card__fill {
+  height: 100%;
+  border-radius: var(--border-radius-full);
+  background: white;
+}
+
+.resume-card__pct {
+  font: 600 13px var(--font-body);
+}
+
+.resume-card__action {
+  align-self: flex-start;
+  min-height: 48px;
+  margin-top: 6px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--border-radius-lg);
+  background: white;
+  color: var(--brand-deep);
+  font: 700 15px var(--font-body);
+}
+
+.coming-up,
+.home-courses {
+  display: flex;
+  flex-direction: column;
+}
+
+.coming-up__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color-subtle);
+  color: var(--text-primary);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.coming-up__when {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+
+  &.is-live {
+    background: var(--status-red-bg);
+    border-color: var(--status-red-text);
+    color: var(--status-red-text);
+  }
+}
+
+.coming-up__day {
+  font: 600 12px var(--font-body);
+}
+
+.coming-up__time {
+  font: 700 14px var(--font-body);
+  color: var(--text-primary);
+}
+
+.coming-up__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.coming-up__title {
+  font: 600 15px/1.3 var(--font-body);
+}
+
+.coming-up__detail {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.coming-up__action {
+  flex: none;
+  font: 600 14px var(--font-body);
+  color: var(--brand-primary);
+
+  &.is-live {
+    color: var(--status-red-text);
+  }
+}
+
+.home-courses__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  border-bottom: 1px solid var(--border-color-subtle);
+  color: var(--text-primary);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.home-courses__title {
+  flex: 1;
+  min-width: 0;
+  font: 500 15px/1.3 var(--font-body);
+}
+
+.home-courses__state {
+  flex: none;
+  font: 600 14px var(--font-body);
+  color: var(--brand-primary);
+
+  &.is-done {
+    color: var(--status-green-text);
+  }
+}
+
+.home-courses__explore {
+  align-self: flex-start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font: 600 14px var(--font-body);
+  color: var(--brand-primary);
+}
+
+// Every course finished: same surface as the resume card, no progress.
+.home-done {
+  @extend .resume-card;
+}

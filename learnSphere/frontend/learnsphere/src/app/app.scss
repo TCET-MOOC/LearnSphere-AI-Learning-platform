@@ -59,8 +59,10 @@ html, body {
 
 /* Approved 360 px redesign: leave room for the phone bottom bar. */
 @media (max-width: 767.98px) {
-  .layout-wrapper.has-mobile-bar .content-area {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  /* End-of-scroll room for the bottom bar (64 px) and the floating AI button above it.
+     It sits inside the scrolled content, so it works whichever wrapper is scrolling. */
+  .layout-wrapper.has-mobile-bar .scroll-container {
+    padding-bottom: calc(136px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Focus mode (lesson player): the page brings its own header and sticky action bar. */
