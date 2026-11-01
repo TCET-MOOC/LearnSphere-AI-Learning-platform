@@ -1,0 +1,79 @@
+// W6-13 / AUD-01 (audit.md A5): printing an open receipt prints the receipt alone,
+// black on white, from the top of the page.
+// Global on purpose: component styles are scoped and cannot reach <body> or the app shell.
+@media print {
+  // White paper in every theme: the dark theme paints <html> and <body>.
+  // Theme colour transitions must not run while printing.
+  html:has(#printable-receipt) {
+    background: white !important;
+
+    &,
+    * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+
+  body:has(#printable-receipt) {
+    background: white !important;
+
+    // Everything that neither contains the receipt nor sits inside it is not printed.
+    * {
+      &:not(:has(#printable-receipt)):not(#printable-receipt):not(#printable-receipt *) {
+        display: none !important;
+      }
+    }
+
+    // The receipt's ancestors (app shell, modal backdrop and card) become plain blocks.
+    :has(> #printable-receipt),
+    :has(#printable-receipt) {
+      display: block !important;
+      position: static !important;
+      inset: auto !important;
+      transform: none !important;
+      width: auto !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      overflow: visible !important;
+    }
+
+    #printable-receipt {
+      position: static !important;
+      width: 100% !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+
+    // Same heading as the downloaded PDF.
+    .receipt-print-title {
+      display: flex !important;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid black;
+
+      strong {
+        font-size: 18px;
+        letter-spacing: 0.04em;
+      }
+    }
+
+    #printable-receipt,
+    #printable-receipt * {
+      color: black !important;
+      background: none !important;
+      border-color: black !important;
+      box-shadow: none !important;
+      print-color-adjust: economy;
+    }
+  }
+}

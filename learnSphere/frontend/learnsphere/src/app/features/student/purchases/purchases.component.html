@@ -148,7 +148,8 @@
 
   <!-- Official Printable Payment Receipt Modal -->
   <div class="receipt-modal-backdrop" *ngIf="selectedReceipt" (click)="closeReceipt()">
-    <div class="receipt-modal-card" (click)="$event.stopPropagation()">
+    <!-- The receipt card is always light; scope the light tokens so its buttons stay readable in dark mode. -->
+    <div class="receipt-modal-card" data-theme="light" (click)="$event.stopPropagation()">
       <div class="receipt-header">
         <div class="receipt-brand">
           <span class="brand-badge">{{ receiptCopy.modalBadge }}</span>
@@ -160,6 +161,10 @@
       </div>
 
       <div class="receipt-body" id="printable-receipt">
+        <div class="receipt-print-title">
+          <strong>{{ receiptCopy.documentTitle }}</strong>
+          <span>{{ receiptCopy.issuer }}</span>
+        </div>
         <div class="receipt-top-row">
           <div class="meta-block">
             <span class="meta-label">{{ receiptCopy.receiptNumber }}</span>
