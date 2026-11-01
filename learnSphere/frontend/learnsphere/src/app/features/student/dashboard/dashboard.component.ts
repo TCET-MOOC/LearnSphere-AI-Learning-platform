@@ -12,6 +12,7 @@ import { AssessmentService } from '../services/assessment.service';
 import { Course } from '@core/models/course.model';
 import { HOME_MOBILE_COPY } from '@core/content/home-mobile.content';
 import { ComingUpItem, comingUp, firstName, pickResumeCourse } from './home-mobile';
+import { loadResumeLesson } from '../resume-lesson';
 
 /** Phones get the approved 360 px Home; its extra requests are only made there. */
 const PHONE_QUERY = '(max-width: 767.98px)';
@@ -250,18 +251,12 @@ export class DashboardComponent implements OnInit {
     this.phoneHasOpenCourse = !!course;
     this.phoneResume = null;
     if (course) {
-      forkJoin({
-        target: this.studentService.getResumeTarget(course.id).pipe(catchError(() => of(null))),
-        lectures: this.studentService.getCourseLectures(course.id).pipe(catchError(() => of([])))
-      }).subscribe(({ target, lectures }) => {
-        const index = target?.lectureId ? lectures.findIndex((l) => l.id === target.lectureId) + 1 : 0;
+      loadResumeLesson(this.studentService, course).subscribe((lesson) => {
         this.phoneResume = {
-          title: target?.title || course.title,
-          context: HOME_MOBILE_COPY.resumeContext(course.title, index, lectures.length),
-          percent: Math.round(target?.progressPercent ?? course.progressPercent ?? 0),
-          route: target?.lectureId
-            ? ['/student/courses', course.id, 'lectures', target.lectureId]
-            : ['/student/courses', course.id, 'player']
+          title: lesson.title,
+          context: HOME_MOBILE_COPY.resumeContext(lesson.courseTitle, lesson.index, lesson.total),
+          percent: lesson.percent,
+          route: lesson.route
         };
       });
     }

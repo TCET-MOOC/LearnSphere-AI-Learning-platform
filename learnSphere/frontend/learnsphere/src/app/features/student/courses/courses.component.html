@@ -1,4 +1,55 @@
 <div class="student-courses">
+  <!-- Approved 360 px My Courses (phones only) -->
+  <div class="courses-phone" *ngIf="isPhone && !loading && !errorMessage">
+    <div class="mc-chips" role="group" [attr.aria-label]="mcCopy.filterLabel">
+      <button type="button" class="mc-chip" *ngFor="let key of chipKeys"
+        [class.is-active]="activeFilter === key" [attr.aria-pressed]="activeFilter === key" (click)="setFilter(key)">
+        {{ mcCopy.chips[key] }} <span class="mc-chip__count">{{ chipCounts[key] }}</span>
+      </button>
+    </div>
+
+    <p class="mc-search" *ngIf="searchQuery">
+      <span>{{ mcCopy.searching(searchQuery) }}</span>
+      <button type="button" class="mc-search__clear" (click)="clearSearch()">{{ mcCopy.clearSearch }}</button>
+    </p>
+
+    <p class="mc-empty" *ngIf="filteredCourses.length === 0">{{ mcCopy.empty }}</p>
+
+    <div class="mc-row" *ngFor="let course of filteredCourses">
+      <a class="mc-row__main" [routerLink]="['/student/courses', course.id, 'player']">
+        <span class="mc-row__title">{{ course.title }}</span>
+        <span class="mc-row__byline" *ngIf="byline(course)">{{ byline(course) }}</span>
+        <ng-container *ngIf="rowState(course) as st">
+          <span class="mc-row__progress" *ngIf="!st.completed">
+            <span class="mc-row__track"><span class="mc-row__fill" [style.width.%]="st.percent"></span></span>
+            <span class="mc-row__count" *ngIf="st.progress">{{ st.progress }}</span>
+          </span>
+          <span class="mc-row__action" [class.is-done]="st.completed">{{ st.action }}</span>
+        </ng-container>
+      </a>
+      <a class="mc-row__info" [routerLink]="['/student/courses', course.id]" [attr.aria-label]="mcCopy.details(course.title)">
+        <lucide-icon name="info" [size]="20" aria-hidden="true"></lucide-icon>
+      </a>
+    </div>
+
+    <a class="mc-find" routerLink="/student/explore">
+      <lucide-icon name="compass" [size]="18" aria-hidden="true"></lucide-icon>
+      <span>{{ mcCopy.findNew }}</span>
+    </a>
+
+    <div class="continue-bar" *ngIf="continueLesson">
+      <a [routerLink]="continueLesson.route" [attr.aria-label]="mcCopy.continueLabel + ': ' + continueLesson.title">
+        <span class="continue-bar__play" aria-hidden="true"><lucide-icon name="play" [size]="16"></lucide-icon></span>
+        <span class="continue-bar__text">
+          <span class="continue-bar__title">{{ continueLesson.title }}</span>
+          <span class="continue-bar__meta">{{ mcCopy.continueWatched(continueLesson.percent) }}</span>
+        </span>
+        <lucide-icon name="chevron-right" [size]="18" aria-hidden="true"></lucide-icon>
+      </a>
+      <span class="continue-bar__track" aria-hidden="true"><span class="continue-bar__fill" [style.width.%]="continueLesson.percent"></span></span>
+    </div>
+  </div>
+
   <header class="page-head">
     <div>
       <p class="eyebrow">Enrolled University Curriculum</p>

@@ -8,6 +8,15 @@ import { StudentService } from '../services/student.service';
 import { Course } from '@core/models/course.model';
 import { LucideAngularModule } from 'lucide-angular';
 import { CourseCardComponent } from './components/course-card.component';
+import { MY_COURSES_MOBILE_COPY } from '@core/content/my-courses-mobile.content';
+import { CourseRowState, courseRowState, filterCounts } from './my-courses-mobile';
+import { pickResumeCourse } from '../dashboard/home-mobile';
+import { ResumeLesson, loadResumeLesson } from '../resume-lesson';
+
+/** Phones get the approved 360 px My Courses; the Continue bar's requests are only made there. */
+const PHONE_QUERY = '(max-width: 767.98px)';
+/** Lets the floating AI button lift above the Continue bar (it lives in the app shell). */
+const CONTINUE_BAR_BODY_CLASS = 'has-continue-bar';
 
 type CourseFilterKey = 'ALL' | 'IN_PROGRESS' | 'COMPLETED';
 
@@ -39,6 +48,28 @@ export class CoursesComponent implements OnInit, OnDestroy {
     { key: 'COMPLETED', label: 'Completed' }
   ];
 
+  // Approved 360 px My Courses
+  isPhone = false;
+  continueLesson: ResumeLesson | null = null;
+  readonly chipKeys: CourseFilterKey[] = ['ALL', 'IN_PROGRESS', 'COMPLETED'];
+
+  /** Getter, not a field: in the combined unit run the content module can initialise after this one. */
+  get mcCopy() {
+    return MY_COURSES_MOBILE_COPY;
+  }
+
+  get chipCounts() {
+    return filterCounts(this.enrolledCourses.filter((c) => this.matchesSearch(c)));
+  }
+
+  byline(course: Course): string {
+    return [course.teacherName, course.department].filter(Boolean).join(', ');
+  }
+
+  rowState(course: Course): CourseRowState {
+    return courseRowState(course);
+  }
+
   constructor(
     private studentService: StudentService,
     private router: Router,
@@ -47,6 +78,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.isPhone = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(PHONE_QUERY).matches;
     this.searchSub = this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
@@ -71,6 +103,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.body.classList.remove(CONTINUE_BAR_BODY_CLASS);
     this.searchSub?.unsubscribe();
     this.queryParamSub?.unsubscribe();
   }
@@ -83,6 +116,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.enrolledCourses = courses || [];
         this.loading = false;
         this.cdr.markForCheck();
+        if (this.isPhone) this.loadContinueLesson();
       },
       error: () => {
         this.enrolledCourses = [];
@@ -90,6 +124,17 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.errorMessage = 'Could not load your enrolled courses. Please check connection and try again.';
         this.cdr.markForCheck();
       }
+    });
+  }
+
+  /** Continue bar: the lesson to resume in the unfinished course with the most progress. */
+  private loadContinueLesson(): void {
+    const course = pickResumeCourse(this.enrolledCourses);
+    if (!course) return;
+    loadResumeLesson(this.studentService, course).subscribe((lesson) => {
+      this.continueLesson = lesson;
+      document.body.classList.add(CONTINUE_BAR_BODY_CLASS);
+      this.cdr.markForCheck();
     });
   }
 

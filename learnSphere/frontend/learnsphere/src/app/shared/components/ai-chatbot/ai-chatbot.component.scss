@@ -280,6 +280,11 @@
     right: 16px;
   }
 
+  // My Courses Continue bar (body class set by that page): sit above it.
+  :host-context(.has-continue-bar) .chatbot-floating-wrapper {
+    bottom: calc(144px + env(safe-area-inset-bottom, 0px));
+  }
+
   // Focus mode: sit above the player's sticky action bar.
   :host-context(.is-focus) .chatbot-floating-wrapper {
     bottom: calc(84px + env(safe-area-inset-bottom, 0px));
