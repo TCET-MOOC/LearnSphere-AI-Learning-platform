@@ -1,4 +1,55 @@
 <div class="dashboard-container">
+  <!-- Approved 360 px teacher Home (phones only, real data) -->
+  <div class="teacher-phone" *ngIf="isPhone">
+    <p class="teacher-phone__greeting">{{ phoneGreeting }}</p>
+
+    <section class="next-class" [class.is-live]="phoneNextClass?.live">
+      <ng-container *ngIf="phoneNextClass; else noClass">
+        <p class="next-class__when">{{ phoneNextClass.when }}</p>
+        <p class="next-class__title">{{ phoneNextClass.title }}</p>
+        <p class="next-class__course" *ngIf="phoneNextClass.course">{{ phoneNextClass.course }}</p>
+        <a class="next-class__action" routerLink="/teacher/live">
+          <lucide-icon name="radio" [size]="18" aria-hidden="true"></lucide-icon>
+          <span>{{ tCopy.openLive }}</span>
+        </a>
+      </ng-container>
+      <ng-template #noClass>
+        <p class="next-class__title">{{ tCopy.noClass }}</p>
+        <a class="next-class__action" routerLink="/teacher/live">{{ tCopy.schedule }}</a>
+      </ng-template>
+    </section>
+
+    <section class="awaiting" aria-labelledby="awaiting-title">
+      <div class="teacher-phone__section-head">
+        <h2 id="awaiting-title" class="teacher-phone__section-title">{{ tCopy.awaitingTitle }}</h2>
+        <a *ngIf="phoneAwaitingTotal > 0" routerLink="/teacher/messages">{{ tCopy.awaitingAll(phoneAwaitingTotal) }}</a>
+      </div>
+      <p class="teacher-phone__empty" *ngIf="phoneAwaitingTotal === 0">{{ tCopy.nothingAwaiting }}</p>
+      <a class="awaiting__row" *ngFor="let m of phoneAwaiting" [routerLink]="m.route" [queryParams]="m.query">
+        <span class="awaiting__avatar" aria-hidden="true">{{ m.initials }}</span>
+        <span class="awaiting__text">
+          <span class="awaiting__top">
+            <span class="awaiting__name">{{ m.name }}</span>
+            <span class="awaiting__ago">{{ m.ago }}</span>
+          </span>
+          <span class="awaiting__msg">{{ m.text }}</span>
+        </span>
+      </a>
+    </section>
+
+    <section class="teacher-courses" aria-labelledby="teacher-courses-title">
+      <div class="teacher-phone__section-head">
+        <h2 id="teacher-courses-title" class="teacher-phone__section-title">{{ tCopy.coursesTitle }}</h2>
+        <a routerLink="/teacher/courses">{{ tCopy.manageCourses }}</a>
+      </div>
+      <p class="teacher-phone__empty" *ngIf="phoneLoaded && phoneCourses.length === 0">{{ tCopy.noCourses }}</p>
+      <a class="teacher-courses__row" *ngFor="let c of phoneCourses" routerLink="/teacher/courses">
+        <span class="teacher-courses__title">{{ c.title }}</span>
+        <span class="teacher-courses__status" *ngIf="c.status">{{ c.status }}</span>
+      </a>
+    </section>
+  </div>
+
   <div class="page-header">
     <p class="eyebrow">Faculty Workspace</p>
     <h1 class="page-greeting">Welcome back, {{ teacherName }}</h1>

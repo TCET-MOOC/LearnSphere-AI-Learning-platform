@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessagingService } from '../services/messaging.service';
@@ -49,6 +50,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
   private convWsSub?: Subscription;
   private userWsSub?: Subscription;
 
+  /** Optional deep link from the phone Home: /teacher/messages?c=<conversationId>. */
+  private readonly route = inject(ActivatedRoute, { optional: true });
+
   constructor(
     private messagingService: MessagingService,
     private authService: AuthService,
@@ -93,7 +97,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
         this.conversations = dtos.map((dto) => this.toConversation(dto));
         this.loading = false;
         if (this.conversations.length > 0) {
-          this.selectConversation(this.conversations[0]);
+          const wanted = Number(this.route?.snapshot.queryParamMap.get('c'));
+          this.selectConversation(this.conversations.find((c) => c.id === wanted) ?? this.conversations[0]);
         }
       },
       error: () => {

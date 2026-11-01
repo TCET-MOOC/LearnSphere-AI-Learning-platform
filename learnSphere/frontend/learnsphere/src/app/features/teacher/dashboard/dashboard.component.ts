@@ -1,17 +1,70 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LucideAngularModule } from 'lucide-angular';
+import { Course } from '@core/models/course.model';
+import { TEACHER_HOME_MOBILE_COPY } from '@core/content/teacher-home-mobile.content';
+import { TeacherService } from '../services/teacher.service';
+import { LiveSessionService } from '../services/live-session.service';
+import { MessagingService } from '../services/messaging.service';
+import { AwaitingItem, NextClass, awaitingReply, courseStatusLabel, nextClass } from './teacher-home-mobile';
+import { firstName } from '../../student/dashboard/home-mobile';
+
+/** Phones get the approved 360 px teacher Home; its requests are only made there. */
+const PHONE_QUERY = '(max-width: 767.98px)';
 
 @Component({
   selector: 'app-teacher-dashboard',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   constructor(private authService: AuthService) {}
+
+  // Approved 360 px teacher Home (real data only)
+  private readonly teacherService = inject(TeacherService);
+  private readonly liveSessions = inject(LiveSessionService);
+  private readonly messaging = inject(MessagingService);
+  isPhone = false;
+  phoneLoaded = false;
+  phoneNextClass: NextClass | null = null;
+  phoneAwaiting: AwaitingItem[] = [];
+  phoneAwaitingTotal = 0;
+  phoneCourses: { id: number; title: string; status: string }[] = [];
+
+  /** Getter, not a field: in the combined unit run the content module can initialise after this one. */
+  get tCopy() {
+    return TEACHER_HOME_MOBILE_COPY;
+  }
+
+  get phoneGreeting(): string {
+    const hour = new Date().getHours();
+    const salutation = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    const name = firstName(this.authService.currentUser?.fullName);
+    return name ? `${salutation}, ${name}` : salutation;
+  }
+
+  ngOnInit(): void {
+    this.isPhone = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(PHONE_QUERY).matches;
+    if (!this.isPhone) return;
+    this.liveSessions.getSessions().pipe(catchError(() => of([]))).subscribe((sessions) => {
+      this.phoneNextClass = nextClass(sessions || []);
+    });
+    this.messaging.getConversations().pipe(catchError(() => of([]))).subscribe((conversations) => {
+      const result = awaitingReply(conversations || []);
+      this.phoneAwaiting = result.items;
+      this.phoneAwaitingTotal = result.total;
+    });
+    this.teacherService.getCourses().pipe(catchError(() => of([] as Course[]))).subscribe((courses) => {
+      this.phoneCourses = (courses || []).slice(0, 4).map((c) => ({ id: c.id, title: c.title, status: courseStatusLabel(c.status) }));
+      this.phoneLoaded = true;
+    });
+  }
 
   get teacherName(): string {
     return this.authService.currentUser?.fullName || 'Teacher';
