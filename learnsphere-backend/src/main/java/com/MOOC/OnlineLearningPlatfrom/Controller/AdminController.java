@@ -31,7 +31,8 @@ public class AdminController {
         this.auditService = auditService;
     }
 
-    @GetMapping("/audit-logs")
+    // Canonical path is /api/admin/audit (W1-03, api-catalogue); /audit-logs is a W6-10 alias.
+    @GetMapping({"/audit", "/audit-logs"})
     public ResponseEntity<PageResponse<AuditLogResponseDto>> getAuditLogs(
             @RequestParam(required = false) Long actorId,
             @RequestParam(required = false) String resourceType,

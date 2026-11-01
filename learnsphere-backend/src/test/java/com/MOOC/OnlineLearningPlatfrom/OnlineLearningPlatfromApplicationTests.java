@@ -182,10 +182,16 @@ class OnlineLearningPlatfromApplicationTests extends PostgresIntegrationTest {
 				courseRepository.findFirstByTitle(DemoDataSeeder.CS201_TITLE).orElseThrow().getId()))
 				.isTrue();
 
-		assertThat(affiliationRequestRepository.count()).isEqualTo(1);
-		AffiliationRequest affiliation = affiliationRequestRepository.findAll().get(0);
-		assertThat(affiliation.getTeacher().getEmail()).isEqualTo(DemoDataSeeder.PENDING_TEACHER_EMAIL);
-		assertThat(affiliation.getStatus()).isEqualTo(AffiliationRequest.Status.PENDING);
+		// W6-10 (A-24): the demo teacher holds the APPROVED affiliation the authoring gate
+		// requires; the pending teacher holds the single PENDING request. Exactly these two rows.
+		assertThat(affiliationRequestRepository.findAll())
+				.extracting(a -> a.getTeacher().getEmail(), AffiliationRequest::getStatus,
+						a -> a.getClaimedCollege().getId())
+				.containsExactlyInAnyOrder(
+						org.assertj.core.groups.Tuple.tuple(DemoDataSeeder.TEACHER_EMAIL,
+								AffiliationRequest.Status.APPROVED, teacher.getCollege().getId()),
+						org.assertj.core.groups.Tuple.tuple(DemoDataSeeder.PENDING_TEACHER_EMAIL,
+								AffiliationRequest.Status.PENDING, teacher.getCollege().getId()));
 
 		assertThat(passwordEncoder.matches(seedPassword, student.getPassword()))
 				.as("demo users must authenticate with the configured seed password")
