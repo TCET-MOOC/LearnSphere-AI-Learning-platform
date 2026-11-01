@@ -161,7 +161,7 @@ export class RoyaltiesComponent implements OnInit {
 
     this.pdfExportService.generateTeacherStatement({
       teacherName: teacher?.fullName || 'Instructor',
-      teacherEmail: teacher?.email || 'instructor@learnsphere.io',
+      teacherEmail: teacher?.email || '',
       statementPeriod: currentPeriod,
       generatedDate: formattedDate,
       thisMonthTotal: this.thisMonthTotal,
