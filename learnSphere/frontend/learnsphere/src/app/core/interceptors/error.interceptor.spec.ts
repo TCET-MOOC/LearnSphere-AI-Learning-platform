@@ -9,12 +9,14 @@ import { NotificationService } from '@core/services/notification.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { AuthResponse } from '@core/auth/auth.models';
 import { UserRole } from '@core/models/user.model';
+import { SESSION_COPY } from '@core/content/session.content';
 
 describe('errorInterceptor (W1-06 refresh retry & logout)', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
   let authServiceSpy: { refreshToken: ReturnType<typeof vi.fn>; logout: ReturnType<typeof vi.fn> };
-  let routerSpy: { navigate: ReturnType<typeof vi.fn> };
+  let routerSpy: { url: string; navigate: ReturnType<typeof vi.fn> };
+  let notifySpy: { error: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> };
 
   const mockAuthResponse: AuthResponse = {
     token: 'refreshed-jwt-token-999',
@@ -33,14 +35,16 @@ describe('errorInterceptor (W1-06 refresh retry & logout)', () => {
       logout: vi.fn(),
     };
     routerSpy = {
+      url: '/student/notes',
       navigate: vi.fn(),
     };
+    notifySpy = { error: vi.fn(), info: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: NotificationService, useValue: { error: vi.fn() } },
+        { provide: NotificationService, useValue: notifySpy },
         ErrorHandlerService,
         provideHttpClient(withInterceptors([errorInterceptor])),
         provideHttpClientTesting(),
@@ -93,7 +97,7 @@ describe('errorInterceptor (W1-06 refresh retry & logout)', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
   });
 
-  it('logs out and redirects to /login when silent refresh fails', () => {
+  it('when silent refresh fails: logs out, says the session expired and returns to login with the current page (W7-04)', () => {
     authServiceSpy.refreshToken.mockReturnValue(throwError(() => new Error('Refresh failed')));
 
     http.get('/api/protected/data').subscribe({
@@ -105,6 +109,7 @@ describe('errorInterceptor (W1-06 refresh retry & logout)', () => {
 
     expect(authServiceSpy.refreshToken).toHaveBeenCalled();
     expect(authServiceSpy.logout).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+    expect(notifySpy.info).toHaveBeenCalledWith(SESSION_COPY.expiredToast);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login'], { queryParams: { redirectTo: '/student/notes', reason: 'expired' } });
   });
 });

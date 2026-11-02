@@ -10,6 +10,7 @@
       <p>Please enter your details to sign in.</p>
     </div>
 
+    <div class="session-notice" role="status" *ngIf="sessionNotice && !errorMessage">{{ sessionNotice }}</div>
     <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">

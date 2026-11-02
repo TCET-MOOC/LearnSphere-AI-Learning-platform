@@ -7,6 +7,7 @@ import { routes } from './app.routes';
 import { tokenInterceptor } from '@core/auth/token.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
 import { provideSessionRestore } from '@core/auth/session-restore';
+import { provideSessionKeeper } from '@core/auth/session-keeper';
 import { RolePreloadingStrategy } from '@core/auth/role-preloading.strategy';
 
 import {
@@ -30,6 +31,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withPreloading(RolePreloadingStrategy)),
     provideHttpClient(withInterceptors([tokenInterceptor, errorInterceptor])),
     provideSessionRestore(),
+    provideSessionKeeper(),
     provideAnimationsAsync(),
     importProvidersFrom(
       MatSnackBarModule,

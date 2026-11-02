@@ -6,6 +6,8 @@ import { AuthService } from '@core/auth/auth.service';
 import { SILENT_AUTH } from '@core/auth/auth.context';
 import { NotificationService } from '@core/services/notification.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
+import { expiredLoginExtras } from '@core/auth/session';
+import { SESSION_COPY } from '@core/content/session.content';
 
 const AUTH_RETRY_HEADER = 'X-Auth-Retry';
 
@@ -67,8 +69,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             catchError((refreshErr) => {
               isRefreshing = false;
               refreshTokenSubject.next(null);
+              // W7-04: say why, and come back to this page after signing in again.
+              const extras = expiredLoginExtras(router.url);
               authService.logout();
-              router.navigate(['/login']);
+              notificationService.info(SESSION_COPY.expiredToast);
+              router.navigate(['/login'], extras);
               return throwError(() => refreshErr);
             })
           );

@@ -109,9 +109,10 @@ async function flatten(list: Routes, prefix = '', inherited: string[] = []): Pro
 }
 
 describe('app routes (W7-02)', () => {
+  // Imports all ~60 lazy screens; give it room when the whole suite runs in parallel.
   it('keeps every URL, component, guard and role from the eager table', async () => {
     expect(await flatten(routes)).toEqual(EXPECTED);
-  });
+  }, 30_000);
 
   it('loads the student, teacher and admin areas as lazy route groups', () => {
     for (const area of ['student', 'teacher', 'admin']) {

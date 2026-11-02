@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '@core/auth/auth.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { NotificationService } from '@core/services/notification.service';
 import { passwordValidator } from '@core/validators/password.validator';
+import { safeReturnUrl } from '@core/auth/session';
+import { SESSION_COPY } from '@core/content/session.content';
 
 @Component({
   selector: 'app-login',
@@ -19,14 +21,21 @@ export class LoginComponent {
   loginForm: FormGroup;
   submitting = false;
   errorMessage = '';
+  /** Shown after the app signed the user out because the session could not be renewed (W7-04). */
+  readonly sessionNotice: string | null;
+  private readonly returnUrl: string | null;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
     private errorHandler: ErrorHandlerService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    route: ActivatedRoute
   ) {
+    const query = route.snapshot.queryParamMap;
+    this.returnUrl = safeReturnUrl(query.get('redirectTo'));
+    this.sessionNotice = query.get('reason') === 'expired' ? SESSION_COPY.expiredNotice : null;
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, passwordValidator()]]
@@ -49,7 +58,8 @@ export class LoginComponent {
       next: (res) => {
         this.submitting = false;
         this.notificationService.success(`Welcome back, ${res.user.fullName.split(' ')[0]}!`);
-        this.router.navigateByUrl(this.authService.dashboardPathForRole(res.user.role));
+        // W7-04: back to the page the user was sent away from, else their dashboard.
+        this.router.navigateByUrl(this.returnUrl ?? this.authService.dashboardPathForRole(res.user.role));
       },
       error: (err: HttpErrorResponse) => {
         this.submitting = false;

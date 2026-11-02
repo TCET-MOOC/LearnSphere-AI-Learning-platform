@@ -11,13 +11,15 @@ import { User } from '@core/models/user.model';
   providedIn: 'root'
 })
 export class AuthStore {
-  private _accessToken: string | null = null;
+  private readonly accessTokenSubject = new BehaviorSubject<string | null>(null);
   private currentUserSubject = new BehaviorSubject<User | null>(null);
 
   readonly currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
+  /** Emits on every new access token and on sign-out (null); drives SessionKeeper (W7-04). */
+  readonly accessToken$: Observable<string | null> = this.accessTokenSubject.asObservable();
 
   get accessToken(): string | null {
-    return this._accessToken;
+    return this.accessTokenSubject.value;
   }
 
   get currentUser(): User | null {
@@ -25,17 +27,17 @@ export class AuthStore {
   }
 
   get isAuthenticated(): boolean {
-    return !!this._accessToken;
+    return !!this.accessTokenSubject.value;
   }
 
   setSession(token: string, user: User): void {
-    this._accessToken = token;
     this.currentUserSubject.next(user);
+    this.accessTokenSubject.next(token);
     this.purgeLegacyStorage();
   }
 
   setAccessToken(token: string): void {
-    this._accessToken = token;
+    this.accessTokenSubject.next(token);
     this.purgeLegacyStorage();
   }
 
@@ -44,7 +46,7 @@ export class AuthStore {
   }
 
   clearSession(): void {
-    this._accessToken = null;
+    this.accessTokenSubject.next(null);
     this.currentUserSubject.next(null);
     this.purgeLegacyStorage();
   }

@@ -20,6 +20,17 @@
   border: 1px solid var(--border-color);
 }
 
+/* W7-04: same banner shape as .error-banner, informational colours. */
+.session-notice {
+  background: var(--status-blue-bg);
+  color: var(--status-blue-text);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
 .error-banner {
   background: var(--status-red-bg);
   color: var(--status-red-text);
