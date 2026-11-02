@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { APP_ENDPOINTS } from '@core/config/app-endpoints';
 
 /**
  * ApiService is a central wrapper around Angular's HttpClient.
- * It prepends the environment's base apiUrl and handles common options.
+ * It prepends the injected API base (APP_ENDPOINTS, W7-03) and handles common options.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = environment.apiUrl;
+  private baseUrl = inject(APP_ENDPOINTS).api;
 
   constructor(private http: HttpClient) {}
 

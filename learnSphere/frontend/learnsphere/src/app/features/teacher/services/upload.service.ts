@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { environment } from '../../../../environments/environment';
+import { APP_ENDPOINTS } from '@core/config/app-endpoints';
 
 export interface UploadEvent {
   type: 'progress' | 'done';
@@ -21,6 +21,8 @@ export interface UploadEvent {
   providedIn: 'root'
 })
 export class UploadService {
+  private readonly api = inject(APP_ENDPOINTS).api;
+
   constructor(private http: HttpClient) {}
 
   uploadVideo(file: File): Observable<UploadEvent> {
@@ -36,7 +38,7 @@ export class UploadService {
     formData.append('file', file);
 
     return this.http
-      .post<{ url: string }>(`${environment.apiUrl}${path}`, formData, {
+      .post<{ url: string }>(`${this.api}${path}`, formData, {
         reportProgress: true,
         observe: 'events'
       })

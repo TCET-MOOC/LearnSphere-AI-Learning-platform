@@ -85,6 +85,9 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+      # nginx proxies /api/payments/orders|webhook here (W7-03) and resolves the name at startup.
+      payments:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/healthz | grep -q '^ok'"]
       interval: 10s

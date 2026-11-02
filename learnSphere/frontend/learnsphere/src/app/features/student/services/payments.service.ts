@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { environment } from 'src/environments/environment';
+import { APP_ENDPOINTS } from '@core/config/app-endpoints';
 
 export interface PaymentOrderRequest {
   userId?: number;
@@ -34,8 +34,9 @@ export interface Order {
 })
 export class PaymentsService {
 
-  // Default to 8081 for local development
-  private baseUrl = 'http://localhost:8081/api/payments';
+  private readonly endpoints = inject(APP_ENDPOINTS);
+  /** Payments service (orders/verify); payment history lives on the main API. */
+  private baseUrl = this.endpoints.payments;
 
   constructor(private http: HttpClient) { }
 
@@ -56,6 +57,6 @@ export class PaymentsService {
   }
 
   getPaymentHistory(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/payments/history`);
+    return this.http.get<any[]>(`${this.endpoints.api}/payments/history`);
   }
 }

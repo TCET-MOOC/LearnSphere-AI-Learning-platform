@@ -13,11 +13,12 @@ import {
   HostListener,
   NgZone,
   ViewEncapsulation,
-  AfterViewInit
+  AfterViewInit,
+  inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { APP_ENDPOINTS, apiOrigin } from '@core/config/app-endpoints';
 import { YouTubeLoaderService } from '@core/services/youtube-loader.service';
 import { 
   LucideAngularModule, 
@@ -128,6 +129,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnChanges, O
 
   // Built-in Subtitle Cues
   private cues: SubtitleCue[] = [];
+  private readonly endpoints = inject(APP_ENDPOINTS);
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -276,7 +278,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnChanges, O
   get resolvedSrc(): string | null {
     if (!this.src || this.isYouTube) return null;
     if (/^https?:\/\//i.test(this.src)) return this.src;
-    const origin = environment.apiUrl.replace(/\/api\/?$/, '');
+    const origin = apiOrigin(this.endpoints.api);
     return this.src.startsWith('/') ? `${origin}${this.src}` : `${origin}/${this.src}`;
   }
 

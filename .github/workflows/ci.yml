@@ -133,6 +133,9 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: No dev-machine URLs in the production bundle (W7-03)
+        run: npm run check:prod-urls
+
       - name: Upload frontend build
         if: always()
         uses: actions/upload-artifact@v4

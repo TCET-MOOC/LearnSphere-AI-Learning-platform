@@ -1650,7 +1650,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 ### Wave 7 — Client experience and performance
 - [~] W7-01 Angular 21 baseline + docs correction
 - [x] W7-02 Lazy-load role route groups
-- [ ] W7-03 API base URL injection
+- [x] W7-03 API base URL injection
 - [ ] W7-04 Session UX: refresh/expiry/logout
 - [~] W7-05 Remove dead `store/` scaffolding
 - [~] W7-06 Route ↔ SCR matrix
@@ -1670,7 +1670,15 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - `RolePreloadingStrategy` (`core/auth/role-preloading.strategy.ts`, wired with `withPreloading`) preloads only the signed-in user's own area (`data.preloadFor`); nothing preloads while signed out and another role's area is never fetched ahead of use.
 - Initial bundle: **2.57 MB raw / 455.40 kB transfer → 767.27 kB raw / 187.73 kB transfer** (`ng build`); the 2 MB initial-budget warning is gone. The 18 `canvg` "not ESM" warnings are unchanged from before.
 - Found by the split: 12 Lucide icons used in templates were never registered (`alert-octagon`, `arrow-right`, `ban`, `bot`, `copy`, `file-question`, `frown`, `maximize-2`, `minus-circle`, `refresh-cw`, `smile`, `x-circle`). Each threw inside the render, so Moderation (SCR-56) and Sentiment (SCR-57) stayed half-drawn once the eager table's extra change-detection passes were gone. All are registered in `app.config.ts`; `icon-registry.spec.ts` now fails on any unregistered icon a template names. With the user's approval the 12 SCR-56/57 baselines were re-captured complete (no layout/style change); the SCR-57 1-in-36 flake from the Wave 6 gate is gone (36/36 repeat runs pass).
-- Tests (red first): `app.routes.spec.ts` — characterisation of all 63 entries (path, component, guards, roles, redirects; passed on the eager table) plus three lazy checks (red: `student group: expected undefined to be defined`, eager list `['', 'login', …(58)]`, static role imports found); `role-preloading.strategy.spec.ts` 4 tests (red: module missing); `icon-registry.spec.ts` (red: 12 missing icons). Green: `npm test` 31 files / 189 tests; `lint:styles` passed; `ng build` ok; Playwright chromium 238/238; `e2e:visual` 277 passed / 1 skipped.
+- Tests (red first): `app.routes.spec.ts` — characterisation of all 63 entries (path, component, guards, roles, redirects; passed on the eager table) plus three lazy checks (red: `student group: expected undefined to be defined`, eager list `['', 'login', …(58)]`, static role imports found); `role-preloading.strategy.spec.ts` 4 tests (red: module missing); `icon-registry.spec.ts` (red: 12 missing icons). Green: `npm test` 31 files / 189 tests; `lint:styles` passed; `ng build` ok; Playwright chromium 238/238; `e2e:visual` 277 passed / 1 skipped.
+
+**W7-03 evidence (2026-11-02) — API base URL injection:**
+- Rules: `[G-F7]`; Exit "no `localhost` in a production build".
+- Before: the production build never swapped environments (no `fileReplacements`), so it shipped `production: false`, `http://localhost:8080/api`, `http://localhost:8081/api/payments` (hard-coded in `PaymentsService`) and `ws://localhost:8080/ws-native` (hard-coded in `WebSocketService`).
+- Now: `APP_ENDPOINTS` (`core/config/app-endpoints.ts`) carries `api`, `payments` and `websocket` from `environment*.ts`; `ApiService`, `PaymentsService`, `UploadService`, `WebSocketService` and the video player read it. Development keeps the local services; production uses same-origin `/api`, `/api/payments`, `/ws-native` (websocket resolved to `ws(s)://<page host>`). `angular.json` production now replaces `environment.ts`.
+- `nginx.conf` proxies `/api/payments/orders` and `/api/payments/webhook` to `payments:8081`, every other `/api/` path (incl. `/api/payments/history`, `^~` so `.png` API paths are not caught by the static rule) and `/ws-native` (upgrade) to `backend:8080`; `client_max_body_size 200m` matches the backend multipart limit; `/internal/**` is not exposed. Compose `frontend` now also waits for `payments` to be healthy. Verified with `nginx -t` and a routing run against stand-in upstreams (each path reached the expected service; `/internal/enroll` served the SPA shell).
+- Gate: `npm run check:prod-urls` (`scripts/check-prod-urls.mjs`) fails on `localhost`, `127.0.0.1`, `:8080` or `:8081` in `dist/learnsphere/browser`; added to CI after the build.
+- Tests (red first): `check:prod-urls` on the old build — 3 URLs (`ws://localhost:8080/ws-native`, `http://localhost:8081/api/payments`, `http://localhost:8080/api`); `app-endpoints.spec.ts` 8 tests (red: module missing / `endpoints` not on environment). Green: `npm test` 32 files / 197 tests; `ng build` ok (767.72 kB / 187.52 kB); `check:prod-urls` passed (118 files); `lint:styles` passed; Playwright chromium 238/238 (a first run had 135 failures when the reused dev server restarted after the `angular.json` change; a clean run passed); `e2e:visual` 277 passed / 1 skipped.
 
 ### Wave 8 — Intelligence, discovery and release
 - [~] W8-01 AI quiz generation into `extra`

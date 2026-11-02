@@ -1,8 +1,9 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { StorageService } from './storage.service';
+import { APP_ENDPOINTS } from '@core/config/app-endpoints';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class WebSocketService implements OnDestroy {
   public isConnected$ = this.isConnectedSubject.asObservable();
 
   private subscriptions: Map<string, Subject<any>> = new Map();
+  private readonly brokerURL = inject(APP_ENDPOINTS).websocket;
 
   constructor(
     private authService: AuthService,
@@ -37,7 +39,7 @@ export class WebSocketService implements OnDestroy {
 
     // Connect using standard native WebSockets supported by all modern browsers
     this.stompClient = new Client({
-      brokerURL: 'ws://localhost:8080/ws-native',
+      brokerURL: this.brokerURL,
       connectHeaders: {
         Authorization: token ? `Bearer ${token}` : ''
       },

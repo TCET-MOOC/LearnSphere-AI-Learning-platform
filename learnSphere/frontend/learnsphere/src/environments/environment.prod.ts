@@ -1,4 +1,12 @@
+/**
+ * Production: same-origin paths only (W7-03). nginx proxies /api and /ws-native to the
+ * backend and /api/payments/orders|webhook to the payments service (nginx.conf).
+ */
 export const environment = {
   production: true,
-  apiUrl: 'https://api.learnsphere.in/api'
+  endpoints: {
+    api: '/api',
+    payments: '/api/payments',
+    websocket: '/ws-native',
+  },
 };

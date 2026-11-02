@@ -12,6 +12,7 @@
     "e2e:ui": "playwright test --project=chromium --ui",
     "e2e:visual": "playwright test --project=visual",
     "e2e:visual:update": "playwright test --project=visual --update-snapshots",
+    "check:prod-urls": "node scripts/check-prod-urls.mjs",
     "lint:styles": "node scripts/stylelint-ratchet.mjs",
     "lint:styles:update": "node scripts/stylelint-ratchet.mjs --update"
   },
