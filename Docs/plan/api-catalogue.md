@@ -371,6 +371,13 @@ These are the only new endpoints this phase adds. They are ordered by wave.
 | W6-09 | GET | `/api/teacher/payouts/statement` | teacher | New | Own monthly statement + payout history (A-22) |
 | W6-11 | POST | `/api/admin/entitlements` | admin | New | Grant/revoke same-college override; audit (A-20) |
 | W6-11 | DELETE | `/api/admin/entitlements/{id}` | admin | New | Revoke an override; audit |
+| W8-10 | GET | `/api/courses/{id}` | public | Harden | Adds overview fields, server-computed stats and instructor summary (id, name, avatar, headline); `LIVE` only; public cache + `ETag`; invalidated after commit on course edit, enrolment, feedback, teacher-profile update; never e-mail/source/key (A-29; AC-25, AC-27) |
+| W8-10 | PUT | `/api/courses/{id}` | staff | Harden | Accepts overview fields; validates lengths, ≤10 list items, `previewContentId` is a `VIDEO` of this course; ownership helper; invalidates detail/outline cache (BR-28) |
+| W8-10 | PUT | `/api/teacher/courses/{id}` | staff | Harden | Same overview-field contract as `PUT /api/courses/{id}` (alias mapping) |
+| W8-11 | GET | `/api/courses/{id}/outline` | public | New | Modules → item title/type/length/`isPreview`; `LIVE` only, else 404; no source/key/URL fields; public cache + `ETag`; invalidated on curriculum/preview edits (A-29; AC-25) |
+| W8-12 | GET | `/api/instructors/{id}` | public | New | Public teacher profile + aggregates + `LIVE` course cards; 404 identical to unknown id unless `TEACHER`, `ACTIVE`, ≥1 `LIVE` course; never e-mail/status/balances; public cache + `ETag`; invalidated on profile update, publish/archive, enrolment, feedback (A-29; AC-26) |
+| W8-12 | PUT | `/api/users/me` | self | Harden | Adds `headline` (≤120) for teachers; invalidates the instructor and course-detail caches after commit |
+| W8-13 | GET | `/api/contents/{contentId}/playback` | enrolled / public preview | Harden | Exception: the course's current preview item of a `LIVE` course is issued without enrolment; still `private, no-store`, expiry ≤ 5 min; every other item unchanged (A-29; BR-26; AC-28) |
 
 ---
 

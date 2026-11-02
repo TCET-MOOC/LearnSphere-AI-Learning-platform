@@ -1,6 +1,6 @@
 # LearnSphere AI — Specification
 
-**Version:** v1.0.1 · 2026-10-22
+**Version:** v1.1 · 2026-11-02 (contract addition in §11; §1–§10 unchanged except the appended Q-13 row and version-history row)
 **Status:** frozen. v1.0.1 is an editorial correction (cross-reference + route-coverage note); no
 contract changed. Later contract changes are appended as v1.1 …; substantive sections are never
 rewritten. Editorial corrections are logged here and do not require a new assumption.
@@ -345,6 +345,7 @@ Every question is resolved by a numbered assumption in `PLAN.md` §3. None stays
 | Q-10 | `Score`/`marksAwarded` are `Integer` in code but `BigDecimal(8,2)` in the reference — migrate? | A-10 |
 | Q-11 | Registration lets a user pick `TEACHER`/`ADMIN` — is self-service role selection intended? | A-11 |
 | Q-12 | AI MCQ options go to `question_options` (code) but must live in `extra` (reference) — which storage wins? | A-12 |
+| Q-13 | Learners cannot evaluate a course or its teacher before signing in, and there is no public teacher profile — what is public, and what does it show? (v1.1) | A-29 |
 
 ---
 
@@ -354,3 +355,60 @@ Every question is resolved by a numbered assumption in `PLAN.md` §3. None stays
 |---|---|---|
 | v1.0 | 2026-10-22 | Initial frozen consolidation of `AGENTS.md`, the entity reference PDF and the preserved non-PDF features. |
 | v1.0.1 | 2026-10-22 | Editorial: corrected AC-06 cross-reference; added §4 coverage note (61 route entries / 47 screens). No contract change. |
+| v1.1 | 2026-11-02 | Contract addition (§11): public course page (SCR-12 public state), public instructor profile (SCR-62), course overview fields, instructor headline, one free preview item per course; AC-25…AC-29; Q-13 → A-29. |
+
+---
+
+## 11. v1.1 — Public course page and instructor profile (2026-11-02)
+
+> Appended contract change. It adds to §3.3, §4 and §5; it does not rewrite them. Resolved by A-29
+> (`PLAN.md` §3). Reference shape: the course landing and instructor pages of large course
+> marketplaces, limited to what the existing data can back with real values.
+
+### 11.1 SCR-12 — Course detail: public state (amends §4 SCR-12)
+SCR-12 gains a **public** state on the route `/courses/:id`, readable without signing in, for `LIVE`
+courses only. In every state the page also shows an **overview** above the curriculum:
+
+- **Header:** title, subtitle, department, level, language, rating (average and count, only when at least one
+  review exists), enrolled-student count, total video length, item count, last updated, price or "Included
+  by your college".
+- **What you'll learn**, **Requirements**, **Who this course is for** — each a short list written by the
+  teacher; a section with no entries is hidden, never filled with placeholder text.
+- **Curriculum outline:** modules → item title, type and length. Item media is not playable in the public
+  state except the single preview item (§11.4).
+- **Instructor card:** avatar, name, headline, short bio, verified college, and a link to SCR-62.
+- **Reviews:** the public feedback list and average (AC-23).
+
+Course discussion, leaderboard, progress and certificate state remain enrolled-only (A-14). Actions in the
+public state: enrol / buy / preview; enrol and buy go to login and return to the page afterwards.
+
+### 11.2 SCR-62 — Instructor profile (public)
+Purpose: decide whether to learn from this teacher. Route `/instructors/:id`. Shows: avatar, name,
+headline, bio, verified college and department, aggregate stats (live courses, students taught, average
+rating and review count), and the teacher's `LIVE` courses as course cards. Actions: open a course.
+States: loading, not found (non-teacher, not `ACTIVE`, or no `LIVE` course — all return the same not-found).
+
+### 11.3 Data (amends §5)
+- **Course** (`courses`): `subtitle` (≤ 160 chars), `level` (`BEGINNER | INTERMEDIATE | ADVANCED |
+  ALL_LEVELS`, optional), `language` (BCP-47 tag, default `en`), `learning_outcomes`, `requirements`,
+  `target_audience` (each a JSON array of ≤ 10 strings of ≤ 160 chars), `preview_content_id` (optional FK to
+  a `VIDEO` `course_content` of the same course), `updated_at`.
+- **UserAccount** (`users`): `headline` (≤ 120 chars). `bio` and `avatar_url` already exist.
+- **Derived, never stored or client-supplied:** enrolled count, rating average/count, total video length,
+  item count, instructor aggregates.
+
+### 11.4 Acceptance criteria
+**AC-25** An anonymous user can read a `LIVE` course's public page and outline; any other status returns
+not-found. The public responses never contain a media source, storage key, signed URL, `correctAnswer`,
+discussion, leaderboard, other learners' identities or the teacher's e-mail.
+**AC-26** The instructor profile returns only the public fields of §11.2. A user who is not a teacher, is not
+`ACTIVE`, or has no `LIVE` course returns the same not-found as an unknown id.
+**AC-27** Counts, ratings and lengths on SCR-12 and SCR-62 are computed by the server from `enrollments`,
+`feedback` and `course_content`; overview fields are written only by course staff and validated server-side.
+**AC-28** A course has at most one preview item, a `VIDEO` of that course. Only that item yields a playback
+descriptor without enrolment, only while the course is `LIVE`, with the same expiry and `private, no-store`
+rules as any descriptor; every other item still requires enrolment.
+**AC-29** The public course, outline and instructor reads are public cached reads (TTL ≤ 60 s, `ETag`) and are
+invalidated after commit by course/curriculum edits, publish/archive, profile updates, feedback writes and
+enrolments.
+

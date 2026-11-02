@@ -24,6 +24,8 @@ entries; W7-06 maps each to a canonical screen below or retires it. They add no 
 | Payment success | SCR-08 | `payments`, `enrollments`, `courses` | — | Must call status/verify; never trust the query string (`spec §3.5`; `[F-F3]`) |
 | Student dashboard | SCR-10 | `enrollments`, `user_progress`, `test_attempts`, `notifications`, `leaderboard` | — | Completion computed on the fly (AC-13) |
 | Course detail | SCR-12 | `courses`, `module`, `course_content`, `feedback`, `users` | `enrollments` (free/entitled) | Published only; same-college entitlement (A-20); My Courses is enrolled-only and Explore is separate (`audit.md` C1–C3; BR-23) |
+| Course detail — public state (v1.1) | SCR-12 | `courses` (+ M-16 overview fields), `module`, `course_content` (outline + preview only), `feedback`, `enrollments` (count), `users` (instructor summary) | — | Anonymous, `LIVE` only; stats server-computed; no source/key/e-mail (A-29; AC-25, AC-27, AC-28; W8-10, W8-11, W8-13, W8-14) |
+| Instructor profile (public, v1.1) | SCR-62 | `users` (+ `headline`), `user_roles`, `affiliation_requests`, `colleges`, `departments`, `courses`, `enrollments`, `feedback` | — | Eligible teacher only, else unknown-id 404; public fields only (A-29; AC-26; W8-12, W8-15) |
 | Lecture player | SCR-13 | `course_content` + media descriptor, `user_progress`, `notes`, `bookmarks`, `tests` (content-bound), `enrollments` | `user_progress` | `CourseContent` canonical (A-05); media descriptor is short-lived and `private, no-store` (A-25; W2-12); 90 % rule plus required quiz gate (A-08, A-27); server-side enrolment check; resume first incomplete (`audit.md` C2–C7; BR-23, BR-25, BR-26) |
 | Notes / bookmarks | SCR-14, SCR-15 | `notes`, `bookmarks`, `course_content` | `notes`, `bookmarks` | Content-bound; timestamp bounded (A-15) |
 | Assessments / quiz attempt | SCR-16, SCR-17 | `tests` (+ `content_id` for post-video), `questions`, `test_attempts`, `student_answers`, `enrollments`, `course_content` | `test_attempts`, `student_answers` | Server timer; TEXT manual (AC-17, AC-18); post-video quiz is content-bound and gates completion only on a server-verified pass (A-27; W4-11) |
@@ -74,6 +76,7 @@ The initial `V1__baseline.sql` in each service is the deployed-schema capture (3
 | M-13 | `youtube_channel_connections` (teacher, channel, encrypted refresh token, scopes, revoked_at) and `media_publish_jobs` (content, idempotency key, status, attempts, provider video id, error code); unique/index constraints | A-25; W2-13 |
 | M-14 | `tests.content_id` FK + backfill from `lectures` via `legacy_lecture_id`; `placement`, `required_for_completion` (default false), `pass_threshold` (default 60), `max_attempts` (default 3; 0 = unlimited); unique partial index for one required post-video quiz per content | A-27; F23; W4-11 |
 | M-15 | `live_sessions`: `source_type` (`YOUTUBE_LIVE`/`HLS`), `provider_video_id`, `source_url` (HTTPS playback URL only), `playback_mode`, `started_at`, `ended_at`; retire the generated `join_url` placeholder; reject RTMP/stream keys | A-26; F22; W5-10 |
+| M-16 | `courses`: `subtitle` VARCHAR(160), `level` (CHECK `BEGINNER`/`INTERMEDIATE`/`ADVANCED`/`ALL_LEVELS`, nullable), `language` VARCHAR(35) default `en`, `learning_outcomes`/`requirements`/`target_audience` JSONB default `[]`, `preview_content_id` FK → `course_content` `ON DELETE SET NULL`, `updated_at` (backfill = `created_at`); `users.headline` VARCHAR(120). Additive; migration test on an existing `LIVE` course | A-29; F25; W8-10 |
 
 **Shipped so far:** `V2__audit_log.sql` implements the `audit_log` slice of M-08 (append-only table, actor/resource/created-at indexes, `actor_id → users` with `ON DELETE SET NULL`) and adds the unique `(user_id, role_id)` index on `user_roles`, deduplicating legacy rows first. `refresh_tokens` and `notification_outbox` from M-08 are still pending.
 
@@ -166,6 +169,9 @@ The initial `V1__baseline.sql` in each service is the deployed-schema capture (3
 | Department list/detail | Caffeine, TTL ≤ 60 s, `ETag` | Department create/update/delete (after commit) |
 | Public rating average (W5-09) | Caffeine, TTL ≤ 60 s | Feedback create/update/delete |
 | Trending snapshot (W8-06) | Caffeine, TTL ≤ 60 s | Enrolment or rating write |
+| Public course detail + outline (W8-10, W8-11) | Caffeine, TTL ≤ 60 s, `ETag` | Course/module/content edit, preview change, publish/archive, enrolment, feedback, teacher-profile update (after commit) |
+| Public instructor profile (W8-12) | Caffeine, TTL ≤ 60 s, `ETag` | Teacher-profile update, affiliation/college status change, course publish/archive, enrolment, feedback (after commit); ineligible ids are not negative-cached |
+| Preview playback descriptor (W8-13) | None | Same as any media descriptor: per request, `private, no-store`, expiry ≤ 5 min |
 | Course leaderboard | No shared cache; read materialised rows | Attempt-completion worker; response is `private, no-store` |
 | Uploaded file download (W2-07) | None | Owner or linked-content entitlement; `private, no-store`; no directory listing |
 | Media playback descriptor / signed URL (W2-12) | None | Generated per request from the stored source; `private, no-store`; expiry ≤ 5 min |
