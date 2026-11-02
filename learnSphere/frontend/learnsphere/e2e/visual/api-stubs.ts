@@ -876,6 +876,14 @@ function resolveFixture(path: string): unknown {
   if (/^\/student\/courses\/\d+$/.test(path)) return COURSES[0];
   if (/^\/courses\/\d+$/.test(path)) return COURSES[0];
   if (/^\/courses\/\d+\/modules$/.test(path)) return MODULES;
+  // 360 px student Home / Browse resume card (W7-09 phone redesign).
+  if (/^\/student\/courses\/\d+\/resume$/.test(path)) {
+    return {
+      courseId: 1, contentId: 1, lectureId: 1, moduleId: 1, moduleTitle: 'Foundations',
+      title: 'What machine learning actually solves', contentType: 'VIDEO', position: 1,
+      progressPercent: 40, secondsWatched: 300, completed: false,
+    };
+  }
   // W6-11: the baseline student is not covered by a same-college entitlement.
   if (/^\/courses\/\d+\/entitlement$/.test(path)) return { eligible: false, collegeName: null };
   if (/^\/courses\/\d+\/lectures$/.test(path)) return LECTURES;
