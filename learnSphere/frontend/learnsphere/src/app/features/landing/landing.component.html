@@ -1,36 +1,50 @@
 <div class="LS">
 
-  <header style="background:#12102e;padding:0 28px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;height:60px;border-bottom:0.5px solid rgba(255,255,255,0.08);">
-      <div style="display:flex;align-items:center;gap:32px;">
+  <header class="landing-header" style="background:#12102e;">
+    <div class="landing-bar" style="display:flex;align-items:center;justify-content:space-between;height:60px;border-bottom:0.5px solid rgba(255,255,255,0.08);">
+      <div style="display:flex;align-items:center;gap:32px;min-width:0;">
         <a routerLink="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
           <img src="/logo-mark.svg" alt="LearnSphere AI Mark" style="width:32px;height:32px;" />
           <span style="font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.3px;font-family:'Plus Jakarta Sans',sans-serif;">Learn<span style="font-weight:500;">Sphere</span></span>
           <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:linear-gradient(135deg, #4F46E5, #8B5CF6);color:#fff;letter-spacing:0.5px;">AI</span>
         </a>
         <nav class="desktop-nav">
-          <a href="#courses" class="nav-link">Explore courses</a>
-          <a href="#departments" class="nav-link">Departments</a>
-          <a href="#colleges" class="nav-link">For colleges</a>
-          <a routerLink="/register" class="nav-link">Teach with us</a>
+          @for (link of copy.links; track link.label) {
+            @if (link.route) {
+              <a [routerLink]="link.href" class="nav-link">{{ link.label }}</a>
+            } @else {
+              <a [href]="link.href" class="nav-link">{{ link.label }}</a>
+            }
+          }
         </nav>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <a routerLink="/login" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.8);padding:8px 16px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;text-decoration:none;">Log in</a>
-        <a routerLink="/register" style="font-size:13px;color:#12102e;background:#fff;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;text-decoration:none;">Sign up free</a>
-        <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [attr.aria-expanded]="isMobileMenuOpen" aria-label="Toggle navigation menu" style="background:none;border:none;color:#fff;cursor:pointer;padding:6px;">
+      <div class="bar-actions" style="display:flex;align-items:center;">
+        <a routerLink="/login" class="bar-cta bar-cta--wide" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.8);padding:8px 16px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;text-decoration:none;">{{ copy.logIn }}</a>
+        <a routerLink="/register" class="bar-cta bar-cta--wide" style="font-size:13px;color:#12102e;background:#fff;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;text-decoration:none;">{{ copy.signUpFree }}</a>
+        <a routerLink="/register" class="bar-cta bar-cta--phone" style="font-size:13px;color:#12102e;background:#fff;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;text-decoration:none;">{{ copy.signUpShort }}</a>
+        <button type="button" class="mobile-menu-btn" (click)="toggleMobileMenu()" [attr.aria-expanded]="isMobileMenuOpen" aria-controls="landing-menu" [attr.aria-label]="isMobileMenuOpen ? copy.closeMenu : copy.openMenu" style="background:none;border:none;color:#fff;cursor:pointer;width:40px;height:40px;padding:0;">
           <lucide-icon [name]="isMobileMenuOpen ? 'x' : 'menu'" style="width:24px;height:24px;"></lucide-icon>
         </button>
       </div>
     </div>
 
     <!-- Mobile Drawer -->
-    <div class="mobile-nav" *ngIf="isMobileMenuOpen" style="padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;gap:12px;">
-      <a href="#courses" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">Explore courses</a>
-      <a href="#departments" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">Departments</a>
-      <a href="#colleges" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">For colleges</a>
-      <a routerLink="/register" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">Teach with us</a>
-    </div>
+    @if (isMobileMenuOpen) {
+      <nav id="landing-menu" class="mobile-nav" [attr.aria-label]="copy.menuLabel" style="padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;gap:12px;">
+        @for (link of copy.links; track link.label) {
+          @if (link.route) {
+            <a [routerLink]="link.href" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">{{ link.label }}</a>
+          } @else {
+            <a [href]="link.href" (click)="isMobileMenuOpen = false" class="nav-link" style="display:block;padding:8px 0;">{{ link.label }}</a>
+          }
+        }
+        <div class="drawer-actions">
+          <a routerLink="/login" (click)="isMobileMenuOpen = false" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.8);padding:10px 16px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;text-decoration:none;text-align:center;">{{ copy.logIn }}</a>
+          <a routerLink="/register" (click)="isMobileMenuOpen = false" style="font-size:13px;color:#12102e;background:#fff;padding:10px 16px;border-radius:8px;font-weight:600;text-decoration:none;text-align:center;">{{ copy.signUpFree }}</a>
+        </div>
+      </nav>
+    }
+
     
     <div id="departments" style="display:flex;align-items:center;gap:24px;height:48px;overflow-x:auto;">
       <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);white-space:nowrap;">Browse:</span>

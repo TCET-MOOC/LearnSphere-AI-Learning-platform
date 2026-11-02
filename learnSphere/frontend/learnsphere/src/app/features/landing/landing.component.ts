@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, GraduationCap, Globe, FileText, Monitor, Ruler, Search, User, Play, Settings, Menu, X, ShieldCheck } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { LANDING_HEADER_COPY } from '../../core/content/landing-header.content';
 
 @Component({
   selector: 'app-landing',
@@ -11,9 +12,10 @@ import { LucideAngularModule, GraduationCap, Globe, FileText, Monitor, Ruler, Se
   styleUrls: ['./landing.component.scss']
 })
 export class LandingComponent {
+  readonly copy = LANDING_HEADER_COPY;
   isMobileMenuOpen = false;
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
-}
+}

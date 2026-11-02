@@ -95,4 +95,42 @@
     align-items: center;
     justify-content: center;
   }
-}
+}
+/* Top bar (approved 360 px redesign, 2026-11-02): below 600 px the bar shows the logo,
+   one short "Sign up" and the menu; "Log in" lives in the drawer. */
+.landing-header {
+  padding: 0 28px;
+
+  @media (max-width: 599px) {
+    padding: 0 16px;
+  }
+}
+
+.bar-actions {
+  gap: 12px;
+  flex-shrink: 0;
+
+  @media (max-width: 599px) {
+    gap: 8px;
+  }
+}
+
+.bar-cta { white-space: nowrap; }
+
+.bar-cta--phone { display: none; }
+
+@media (max-width: 599px) {
+  .bar-cta--wide { display: none; }
+  .bar-cta--phone { display: inline-block; }
+}
+
+.drawer-actions {
+  display: none;
+
+  @media (max-width: 599px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding-top: 8px;
+  }
+}
