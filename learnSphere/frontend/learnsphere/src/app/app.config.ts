@@ -1,5 +1,5 @@
 import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withPreloading } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -7,6 +7,7 @@ import { routes } from './app.routes';
 import { tokenInterceptor } from '@core/auth/token.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
 import { provideSessionRestore } from '@core/auth/session-restore';
+import { RolePreloadingStrategy } from '@core/auth/role-preloading.strategy';
 
 import {
   LucideAngularModule,
@@ -15,7 +16,8 @@ import {
   Subtitles, MoreVertical, Download, ChevronRight, ChevronDown, SlidersHorizontal, Layers, Share2, Bookmark, Code, Check,
   Sun, Moon, SunMoon, Languages, Bell, BellRing, HelpCircle, CheckCheck, Loader2, Menu,
   CreditCard, ArrowUpRight, Printer, ShoppingBag, Calculator, Pencil, Hand, PlayCircle,
-  House, Compass, ClipboardList, LayoutGrid, LogOut, Upload, Building2, ArrowLeft, Info, ShieldCheck
+  House, Compass, ClipboardList, LayoutGrid, LogOut, Upload, Building2, ArrowLeft, Info, ShieldCheck,
+  AlertOctagon, ArrowRight, Ban, Bot, Copy, FileQuestion, Frown, Maximize2, MinusCircle, RefreshCw, Smile, XCircle
 } from 'lucide-angular';
 
 export const appConfig: ApplicationConfig = {
@@ -24,7 +26,8 @@ export const appConfig: ApplicationConfig = {
     // The app's components update state inside subscriptions, timers and websocket callbacks
     // without notifying Angular; they were written for zone-based change detection (post-W6 audit).
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    // W7-02: role areas are lazy; after sign-in only the user's own area is preloaded.
+    provideRouter(routes, withPreloading(RolePreloadingStrategy)),
     provideHttpClient(withInterceptors([tokenInterceptor, errorInterceptor])),
     provideSessionRestore(),
     provideAnimationsAsync(),
@@ -36,7 +39,8 @@ export const appConfig: ApplicationConfig = {
         Subtitles, MoreVertical, Download, ChevronRight, ChevronDown, SlidersHorizontal, Layers, Share2, Bookmark, Code, Check,
         Sun, Moon, SunMoon, Languages, Bell, BellRing, HelpCircle, CheckCheck, Loader2, Menu,
         CreditCard, ArrowUpRight, Printer, ShoppingBag, Calculator, Pencil, Hand, PlayCircle,
-  House, Compass, ClipboardList, LayoutGrid, LogOut, Upload, Building2, ArrowLeft, Info, ShieldCheck
+  House, Compass, ClipboardList, LayoutGrid, LogOut, Upload, Building2, ArrowLeft, Info, ShieldCheck,
+  AlertOctagon, ArrowRight, Ban, Bot, Copy, FileQuestion, Frown, Maximize2, MinusCircle, RefreshCw, Smile, XCircle
       })
     ),
   ]
