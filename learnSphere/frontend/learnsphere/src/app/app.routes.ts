@@ -17,7 +17,8 @@ export const routes: Routes = [
   { path: 'verify-college', loadComponent: () => import('./features/auth/verify-college/verify-college.component').then((m) => m.VerifyCollegeComponent), canActivate: [authGuard] },
   { path: 'verify-certificate', loadComponent: () => import('./features/public/verify-certificate/verify-certificate.component').then((m) => m.VerifyCertificateComponent) },
   { path: 'verify-certificate/:code', loadComponent: () => import('./features/public/verify-certificate/verify-certificate.component').then((m) => m.VerifyCertificateComponent) },
-  { path: 'verify/certificate/:code', loadComponent: () => import('./features/public/verify-certificate/verify-certificate.component').then((m) => m.VerifyCertificateComponent) },
+  // Older alias of the certificate link; one canonical screen route (W7-06).
+  { path: 'verify/certificate/:code', redirectTo: '/verify-certificate/:code' },
   { path: 'payment/checkout/:courseId', loadComponent: () => import('./features/payment/checkout.component').then((m) => m.CheckoutComponent), canActivate: [authGuard] },
   { path: 'payment/success', loadComponent: () => import('./features/payment/payment-success.component').then((m) => m.PaymentSuccessComponent), canActivate: [authGuard] },
   {

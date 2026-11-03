@@ -3,6 +3,9 @@
  *
  * The characterisation table below was taken from the eager route file before the split
  * (2026-11-02, `0bf5243`): every URL keeps its component, guards and roles, in order.
+ * W7-06 (2026-11-03) changed only redirects: `/student`, `/teacher` and `/admin` open their
+ * dashboard, `verify/certificate/:code` redirects to the canonical `verify-certificate/:code`, and
+ * the legacy `courses/:courseId/lecture/:lectureId` link opens that lecture, not the resume point.
  */
 import { Route, Routes } from '@angular/router';
 import { routes } from './app.routes';
@@ -17,16 +20,17 @@ const EXPECTED: Row[] = [
   ['verify-college', 'VerifyCollegeComponent', 'authGuard', ''],
   ['verify-certificate', 'VerifyCertificateComponent', '', ''],
   ['verify-certificate/:code', 'VerifyCertificateComponent', '', ''],
-  ['verify/certificate/:code', 'VerifyCertificateComponent', '', ''],
+  ['verify/certificate/:code', '->verify-certificate/:code'],
   ['payment/checkout/:courseId', 'CheckoutComponent', 'authGuard', ''],
   ['payment/success', 'PaymentSuccessComponent', 'authGuard', ''],
+  ['student', '->student/dashboard'],
   ['student/dashboard', 'DashboardComponent', 'authGuard,roleGuard', 'STUDENT'],
   ['student/courses', 'CoursesComponent', 'authGuard,roleGuard', 'STUDENT'],
   ['student/explore', 'ExploreComponent', 'authGuard,roleGuard', 'STUDENT'],
   ['student/courses/:id', 'CourseDetailComponent', 'authGuard,roleGuard', 'STUDENT'],
   ['student/courses/:courseId/player', 'PlayerResolverComponent', 'authGuard,roleGuard', 'STUDENT'],
   ['student/courses/:courseId/lectures/:lectureId', 'LectureComponent', 'authGuard,roleGuard', 'STUDENT'],
-  ['student/courses/:courseId/lecture/:lectureId', '->student/courses/:courseId/player'],
+  ['student/courses/:courseId/lecture/:lectureId', '->student/courses/:courseId/lectures/:lectureId'],
   ['student/lectures', '->student/explore'],
   ['student/notes', 'NotesComponent', 'authGuard,roleGuard', 'STUDENT'],
   ['student/bookmarks', 'BookmarksComponent', 'authGuard,roleGuard', 'STUDENT'],
@@ -43,6 +47,7 @@ const EXPECTED: Row[] = [
   ['student/announcements', 'AnnouncementsComponent', 'authGuard,roleGuard', 'STUDENT'],
   ['student/notifications', 'NotificationsComponent', 'authGuard,roleGuard', 'STUDENT'],
   ['student/profile', 'ProfileComponent', 'authGuard,roleGuard', 'STUDENT'],
+  ['teacher', '->teacher/dashboard'],
   ['teacher/dashboard', 'DashboardComponent', 'authGuard,roleGuard', 'TEACHER'],
   ['teacher/courses', 'CoursesComponent', 'authGuard,roleGuard', 'TEACHER'],
   ['teacher/students', 'StudentsComponent', 'authGuard,roleGuard', 'TEACHER'],
@@ -58,6 +63,7 @@ const EXPECTED: Row[] = [
   ['teacher/announcements', 'AnnouncementsComponent', 'authGuard,roleGuard', 'TEACHER'],
   ['teacher/notifications', 'NotificationsComponent', 'authGuard,roleGuard', 'TEACHER'],
   ['teacher/profile', 'ProfileComponent', 'authGuard,roleGuard', 'TEACHER'],
+  ['admin', '->admin/dashboard'],
   ['admin/dashboard', 'DashboardComponent', 'authGuard,roleGuard', 'ADMIN'],
   ['admin/users', 'UsersComponent', 'authGuard,roleGuard', 'ADMIN'],
   ['admin/messages', 'MessagesComponent', 'authGuard,roleGuard', 'ADMIN'],

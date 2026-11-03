@@ -10,6 +10,7 @@ import { UserRole } from '@core/models/user.model';
 const ADMIN = [UserRole.ADMIN];
 
 export const ADMIN_ROUTES: Routes = [
+  { path: '', redirectTo: '/admin/dashboard', pathMatch: 'full' },
   { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then((m) => m.DashboardComponent), canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
   { path: 'users', loadComponent: () => import('./users/users.component').then((m) => m.UsersComponent), canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },
   { path: 'messages', loadComponent: () => import('./messages/messages.component').then((m) => m.MessagesComponent), canActivate: [authGuard, roleGuard], data: { roles: ADMIN } },

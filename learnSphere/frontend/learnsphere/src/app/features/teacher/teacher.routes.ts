@@ -10,6 +10,7 @@ import { UserRole } from '@core/models/user.model';
 const TEACHER = [UserRole.TEACHER];
 
 export const TEACHER_ROUTES: Routes = [
+  { path: '', redirectTo: '/teacher/dashboard', pathMatch: 'full' },
   { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then((m) => m.DashboardComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'courses', loadComponent: () => import('./courses/courses.component').then((m) => m.CoursesComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'students', loadComponent: () => import('./students/students.component').then((m) => m.StudentsComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },

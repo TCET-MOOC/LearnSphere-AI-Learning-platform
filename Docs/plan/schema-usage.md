@@ -8,9 +8,10 @@ Companion to [`../PLAN.md`](../PLAN.md) §8 (data plan), [`waves.md`](waves.md) 
 
 ## 1. Screen / feature → table map
 
-**Coverage:** 61 client route entries → 47 distinct screens. The 14 route entries without a separate
+**Coverage:** 61 client route entries → 47 distinct screens at planning time. The 14 route entries without a separate
 screen heading (IDs 09, 27–29, 39–40, 42–49) are **derived** to be aliases, redirects or legacy
 entries; W7-06 maps each to a canonical screen below or retires it. They add no table surface of their own.
+The route-level matrix is §1a (W7-06, 2026-11-03).
 
 | Screen / feature | SCR | Reads | Writes | Notes |
 |---|---|---|---|---|
@@ -52,6 +53,38 @@ entries; W7-06 maps each to a canonical screen below or retires it. They add no 
 | AI quiz generation | SCR-35 (assist) | `course_content`, `questions` | `questions.extra` | NVIDIA NIM; fallback (`spec §6`; A-12) |
 | YouTube import / publish | SCR-33 | `module`, `course_content`, `lectures` (legacy), `youtube_channel_connections`, `media_publish_jobs` | `course_content`, `youtube_channel_connections`, `media_publish_jobs` | Import is link/import only; publish is opt-in, OAuth, unlisted and idempotent; local fallback retained (A-25; W2-09, W2-13, W8-04) |
 | Search / trending | SCR-11 | `courses`, `enrollments`, `feedback`, `departments` | — | Indexed; p95 < 1 s (`spec §7`) |
+
+### 1a. Route ↔ SCR matrix (W7-06, 2026-11-03)
+
+65 route entries plus the `**` not-found catch-all (`app.routes.ts`, `features/<role>/<role>.routes.ts`). Each entry is a screen route or a named redirect to one; 46 of the 47 `spec §4` screens have a route. Guarded by `src/app/route-screen-matrix.spec.ts` (every route in the matrix and back, aliases are redirects, spec coverage, no NgModule route tables) and `e2e/route-redirects.spec.ts`. The visual contracts (`e2e/visual/screen-contracts.ts`) use the same IDs.
+
+| SCR | Canonical route(s) | Redirects / legacy entries |
+|---|---|---|
+| SCR-01 | `/` | — |
+| SCR-02 … SCR-05 | `/login`, `/register`, `/forgot-password` (request + reset step), `/verify-college` | — |
+| SCR-06 | `/verify-certificate`, `/verify-certificate/:code` | `/verify/certificate/:code` → `/verify-certificate/:code` (was a second copy of the screen; kept as a redirect for links already shared) |
+| SCR-07 | `/payment/checkout/:courseId` | Legacy entry since W6-01: the screen sends the student to course detail, where the one Razorpay rail opens (A-06) |
+| SCR-08 | `/payment/success` | — |
+| SCR-10 | `/student/dashboard` | `/student` → dashboard (was a 404) |
+| SCR-11 | `/student/courses` (My Courses), `/student/explore` (catalogue) | `/student/lectures` → `/student/explore` |
+| SCR-12 | `/student/courses/:id` | — |
+| SCR-13 | `/student/courses/:courseId/lectures/:lectureId`; `/student/courses/:courseId/player` (resolves the resume lecture) | `/student/courses/:courseId/lecture/:lectureId` → that lecture (previously dropped the lecture and opened the resume point) |
+| SCR-14, SCR-15 | `/student/notes`, `/student/bookmarks` | — |
+| SCR-16, SCR-17 | `/student/assessments`, `/student/assessments/:id` | — |
+| SCR-18, SCR-19, SCR-20 | `/student/leaderboard`, `/student/discussion` + `/teacher/discussion`, `/student/live` + `/student/live/:id` | — |
+| SCR-21, SCR-22 | `/student/certificates`, `/student/purchases` | — |
+| SCR-23, SCR-24, SCR-25 | `/{student,teacher}/messages`; `/{student,teacher,admin}/notifications`; `/{student,teacher}/announcements` | — |
+| SCR-26 / SCR-41 / SCR-61 | `/student/{profile,settings}`, `/teacher/{profile,settings}`, `/admin/{profile,settings}` | — |
+| SCR-30 | `/teacher/dashboard` | `/teacher` → dashboard (was a 404) |
+| SCR-31, SCR-32 | `/teacher/courses`; `/teacher/courses/new`, `/teacher/courses/:id/manage` | — |
+| SCR-33, SCR-34 | `/teacher/upload`, `/teacher/students` | — |
+| **SCR-35** | **none — open gap** | Test authoring is inside `/teacher/upload` (quiz builder) and the course editor; no screen grades TEXT answers (`PATCH /api/answers/{id}/grade` has no client). Recorded in `TRACKER.md` §6. |
+| SCR-36, SCR-37, SCR-38 | `/teacher/live`, `/teacher/trending`, `/teacher/royalties` | — |
+| SCR-50 | `/admin/dashboard` | `/admin` → dashboard (was a 404) |
+| SCR-51 … SCR-60 | `/admin/users`, `/admin/courses` (approvals), `/admin/revenue`, `/admin/reports`, `/admin/payouts`, `/admin/flagged`, `/admin/sentiment`, `/admin/colleges`, `/admin/announcements`, `/admin/messages` | — |
+| SCR-62 | — (v1.1, built in W8-15) | — |
+
+Retired with W7-06: ten legacy NgModule files (`core.module.ts`, `shared.module.ts`, `{admin,auth,student,teacher}.module.ts` and their `-routing.module.ts`); all were empty except `student-routing.module.ts`, a stale second student route table that nothing loaded.
 
 ---
 

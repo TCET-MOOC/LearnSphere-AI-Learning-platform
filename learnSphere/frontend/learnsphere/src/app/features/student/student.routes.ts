@@ -10,13 +10,15 @@ import { UserRole } from '@core/models/user.model';
 const STUDENT = [UserRole.STUDENT];
 
 export const STUDENT_ROUTES: Routes = [
+  { path: '', redirectTo: '/student/dashboard', pathMatch: 'full' },
   { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then((m) => m.DashboardComponent), canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'courses', loadComponent: () => import('./courses/courses.component').then((m) => m.CoursesComponent), canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'explore', loadComponent: () => import('./explore/explore.component').then((m) => m.ExploreComponent), canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'courses/:id', loadComponent: () => import('./courses/course-details/course-detail.component').then((m) => m.CourseDetailComponent), canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'courses/:courseId/player', loadComponent: () => import('./courses/lecture/player-resolver.component').then((m) => m.PlayerResolverComponent), canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'courses/:courseId/lectures/:lectureId', loadComponent: () => import('./courses/lecture/lecture.component').then((m) => m.LectureComponent), canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
-  { path: 'courses/:courseId/lecture/:lectureId', redirectTo: '/student/courses/:courseId/player' },
+  // Legacy lecture link: open that lecture, not the course's resume point (W7-06).
+  { path: 'courses/:courseId/lecture/:lectureId', redirectTo: '/student/courses/:courseId/lectures/:lectureId' },
   { path: 'lectures', redirectTo: '/student/explore', pathMatch: 'full' },
   { path: 'notes', loadComponent: () => import('./notes/notes.component').then((m) => m.NotesComponent), canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
   { path: 'bookmarks', loadComponent: () => import('./bookmarks/bookmarks.component').then((m) => m.BookmarksComponent), canActivate: [authGuard, roleGuard], data: { roles: STUDENT } },
