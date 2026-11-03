@@ -5,7 +5,7 @@
 
 | | |
 |---|---|
-| Last updated | 2026-11-02 |
+| Last updated | 2026-11-03 |
 | Current phase | **Wave 6 complete (2026-11-02, `wave-6-done`).** Phase 0 and Waves 1–6 are complete with gates recorded and tagged (`wave-0-done`…`wave-6-done`). Wave 7 — Client experience and performance — is next; parts of W7-01, W7-05, W7-06, W7-09 (phone redesign) and W7-13 were pulled forward with the user's approval (§4). `spec` v1.1 (2026-11-02) adds the public course page and instructor profile as W8-10…W8-15 (docs only). |
 | Next milestone | **Wave 7:** W7-02 (lazy-load role route groups) first, then W7-03…W7-15 in backlog order; Wave 7 closes `AUD-10`…`AUD-13` and `DS-12`/`DS-13`. |
 | Plan | [`Docs/PLAN.md`](Docs/PLAN.md) · **Backlog: [`Docs/plan/waves.md`](Docs/plan/waves.md)** · API: [`Docs/plan/api-catalogue.md`](Docs/plan/api-catalogue.md) · Data: [`Docs/plan/schema-usage.md`](Docs/plan/schema-usage.md) |
@@ -1648,7 +1648,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
   - Verified frontend test suite (16 files / 79 tests) passed GREEN.
 
 ### Wave 7 — Client experience and performance
-- [~] W7-01 Angular 21 baseline + docs correction
+- [x] W7-01 Angular 21 baseline + docs correction
 - [x] W7-02 Lazy-load role route groups
 - [x] W7-03 API base URL injection
 - [x] W7-04 Session UX: refresh/expiry/logout
@@ -1663,6 +1663,13 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started. Every ID below mirrors
 - [ ] W7-13 Frontend performance + visual-preservation guard
 - [ ] W7-14 Teacher/admin consoles on the system (DS-12)
 - [ ] W7-15 Motion restraint + copy pass (DS-13)
+
+**W7-01 evidence (2026-11-03) — Angular 21 baseline + docs correction:**
+- Rules: `[G-F1]`; ADR-06. Finished after W7-02…W7-04 (it was `[~]` and the previous session started at W7-02).
+- Pinned: every `@angular/*` package now uses a patch-only `~21.2.x` range (was `^`, which allowed 21.x minors); TypeScript already `~5.9.2`. `engines.node` `^22.12.0 || ^24.0.0` and `.nvmrc` `22` added; CI `NODE_VERSION` and the Dockerfile were already Node 22. `package-lock.json` changed only in the root ranges/engines — no installed version moved (`npm ci --dry-run` in sync).
+- Docs: `Docs/Architecture.md`, `Docs/Frontend.md`, `Docs/Progress.md` and `Docs/learnsphere_system_design.md` said Angular 19; each now says 21.2 and carries a dated correction note pointing to the frozen revision (`Docs/source/MANIFEST.md`) and ADR-01. `Docs/Frontend.md` gained "Toolchain and upgrade policy" (patch updates in any story; minor/major as their own story via `ng update`, one major at a time, full frontend + visual suite as the gate, a visual diff is a regression). `AGENTS.md` ("Angular 19+") is frozen and still true, so untouched.
+- Gate (red first): `npm run check:toolchain` (`scripts/check-toolchain.mjs`, added to CI before the unit tests) failed with 23 problems — 12 `^` Angular ranges, missing `engines.node`/`.nvmrc`, and Angular 19 claims in the 4 docs; green after the changes. Edge cases checked by hand: `.nvmrc` 24 → "Node major differs"; TypeScript `^5.9.2` → "must be a ~ range".
+- Suite: `npm test` 36 files / 220 tests; `lint:styles` passed; `ng build` ok (770.26 kB / 188.78 kB, unchanged); `check:prod-urls` passed. No runtime code changed.
 
 **W7-02 evidence (2026-11-02) — Lazy-load role route groups:**
 - Rules: `[G-F2]`, `spec §7`; Exit "initial JS ≤ 500 kB gzip; every role group lazy-loads".

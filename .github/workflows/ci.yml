@@ -124,6 +124,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Toolchain pinned to Angular 21.2 (W7-01)
+        run: npm run check:toolchain
+
       - name: Run frontend unit tests
         run: npm test
 

@@ -1,8 +1,10 @@
 # LearnSphere Project Progress & Status Report
 
+> **Corrected 2026-11-03 (W7-01, ADR-06):** the frontend is Angular 21.2 (this document first said version 19). Toolchain and upgrade policy: [`Docs/Frontend.md`](Frontend.md#toolchain-and-upgrade-policy). The rest of this document is the source revision frozen on 2026-10-22 (`Docs/source/MANIFEST.md`); where it differs from `Docs/source/spec.md` or the code, those win (ADR-01).
+
 ## 🌟 Current Status: Production Candidate (Feature-Complete MVP)
 
-LearnSphere is a full-stack AI-powered learning management platform featuring distinct dashboards for **Students**, **Teachers**, and **Institutional Administrators**, supported by a dual Spring Boot backend and an Angular 19 frontend.
+LearnSphere is a full-stack AI-powered learning management platform featuring distinct dashboards for **Students**, **Teachers**, and **Institutional Administrators**, supported by a dual Spring Boot backend and an Angular 21.2 frontend.
 
 ---
 
@@ -21,7 +23,7 @@ LearnSphere is a full-stack AI-powered learning management platform featuring di
 - **NVIDIA NIM LLM Service**: Production integration with `meta/llama-3.1-70b-instruct` for automated quiz generation from lecture transcripts and interactive floating AI assistant.
 - **Real-Time WebSockets**: STOMP over SockJS for live announcements, direct messaging, and notification broadcasts.
 
-### 4. Frontend Architecture & Design System (Angular 19)
+### 4. Frontend Architecture & Design System (Angular 21.2)
 - **Multi-Role Governance**: Full role-based routing (`STUDENT`, `TEACHER`, `ADMIN`) with route guards and session management.
 - **Institutional Admin Command Suite (14 Routes)**:
   - Dashboard telemetry with Gold/Silver/Bronze medals.

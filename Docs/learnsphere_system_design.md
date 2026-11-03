@@ -1,5 +1,7 @@
 # LearnSphere AI — System Design Document
 
+> **Corrected 2026-11-03 (W7-01, ADR-06):** the frontend is Angular 21.2 (this document first said version 19). Toolchain and upgrade policy: [`Docs/Frontend.md`](Frontend.md#toolchain-and-upgrade-policy). The rest of this document is the source revision frozen on 2026-10-22 (`Docs/source/MANIFEST.md`); where it differs from `Docs/source/spec.md` or the code, those win (ADR-01).
+
 > A deep-dive into the architecture, data flow, design decisions, and trade-offs of the LearnSphere AI Online Learning Platform.
 
 ---
@@ -10,7 +12,7 @@ LearnSphere is a **distributed, 3-tier web application** composed of three indep
 
 ```mermaid
 graph TD
-    Browser["🌐 Browser\n(Angular 19+)"]
+    Browser["🌐 Browser\n(Angular 21.2)"]
 
     subgraph Services
         Backend["⚙️ Main Backend\nSpring Boot 3.3.5\nPort :8080"]
@@ -34,7 +36,7 @@ graph TD
 
 ---
 
-## 2. Frontend Architecture (Angular 19)
+## 2. Frontend Architecture (Angular 21.2)
 
 ### 2.1 Feature-Based Module Structure
 

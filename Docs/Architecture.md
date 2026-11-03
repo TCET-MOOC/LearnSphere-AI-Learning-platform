@@ -1,12 +1,14 @@
 # LearnSphere Architecture Documentation
 
+> **Corrected 2026-11-03 (W7-01, ADR-06):** the frontend is Angular 21.2 (this document first said version 19). Toolchain and upgrade policy: [`Docs/Frontend.md`](Frontend.md#toolchain-and-upgrade-policy). The rest of this document is the source revision frozen on 2026-10-22 (`Docs/source/MANIFEST.md`); where it differs from `Docs/source/spec.md` or the code, those win (ADR-01).
+
 ## High-Level Architecture
 
-LearnSphere follows a modern decoupled web application architecture combining an **Angular 19** Single-Page Application (SPA) with a **Dual Spring Boot** microservice backend, **PostgreSQL** relational persistence, **YouTube Data API v3** for streaming, and **NVIDIA NIM** for LLM intelligence.
+LearnSphere follows a modern decoupled web application architecture combining an **Angular 21.2** Single-Page Application (SPA) with a **Dual Spring Boot** microservice backend, **PostgreSQL** relational persistence, **YouTube Data API v3** for streaming, and **NVIDIA NIM** for LLM intelligence.
 
 ```
 +-------------------------------------------------------------+
-|               Client Tier (Angular 19 SPA)                  |
+|              Client Tier (Angular 21.2 SPA)                 |
 |  - Student Portal  - Teacher Workspace  - Admin Command     |
 +------------------------------+------------------------------+
                                | (HTTP / REST / WebSocket)
@@ -36,7 +38,7 @@ LearnSphere follows a modern decoupled web application architecture combining an
 ## Service Breakdown
 
 1. **Frontend (`learnSphere/frontend/learnsphere/`)**:
-   - Angular 19 standalone components, Lucide icons, responsive SCSS design tokens, and tabular numeric typography.
+   - Angular 21.2 standalone components, Lucide icons, responsive SCSS design tokens, and tabular numeric typography.
 2. **Main Backend (`learnsphere-backend/`, Port 8080)**:
    - Spring Boot 3.3.5, Spring Security with stateless JWT, Spring Data JPA, and WebSocket STOMP.
 3. **Payments Microservice (`learnsphere-payments-service/`, Port 8081)**:
