@@ -1,0 +1,23 @@
+/** Register copy (SCR-03, W7-07), moved verbatim. One content file per screen (see `login.content.ts`). */
+export const REGISTER_COPY = {
+  homeLinkTitle: 'LearnSphere Home',
+  logoAlt: 'LearnSphere AI',
+  title: 'Create an Account',
+  subtitle: 'Join LearnSphere to start learning or teaching.',
+  roles: { STUDENT: 'Student', TEACHER: 'Teacher', ADMIN: 'Admin' },
+  fullNameLabel: 'Full Name',
+  fullNamePlaceholder: 'e.g. Arjun Mehta',
+  emailLabel: 'College Email',
+  emailPlaceholder: 'name@college.edu',
+  passwordLabel: 'Password',
+  passwordPlaceholder: '8–16 chars (e.g. Pass@123)',
+  passwordHint: 'Must be 8–16 characters with at least 1 uppercase letter, 1 number, and 1 special character.',
+  passwordRequired: 'Password is required.',
+  passwordInvalid: 'Password does not meet the complexity requirements.',
+  submit: 'Create Account',
+  submitting: 'Creating account…',
+  haveAccount: 'Already have an account?',
+  signIn: 'Sign in',
+  created: 'Account created! Welcome to LearnSphere.',
+  failed: 'Could not create your account.',
+} as const;

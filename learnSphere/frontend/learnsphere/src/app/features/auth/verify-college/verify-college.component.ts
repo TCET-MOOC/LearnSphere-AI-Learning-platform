@@ -8,6 +8,7 @@ import { CollegeService } from '@core/services/college.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { NotificationService } from '@core/services/notification.service';
 import { College, UserRole } from '@core/models/user.model';
+import { VERIFY_COLLEGE_COPY } from '@core/content/verify-college.content';
 
 @Component({
   selector: 'app-verify-college',
@@ -17,6 +18,7 @@ import { College, UserRole } from '@core/models/user.model';
   styleUrls: ['./verify-college.component.scss']
 })
 export class VerifyCollegeComponent implements OnInit {
+  protected readonly copy = VERIFY_COLLEGE_COPY;
   colleges: College[] = [];
   isTeacher = false;
   submitting = false;
@@ -48,7 +50,7 @@ export class VerifyCollegeComponent implements OnInit {
     }
     this.collegeService.getColleges().subscribe({
       next: (colleges) => (this.colleges = colleges),
-      error: () => this.notificationService.error('Could not load the list of colleges.')
+      error: () => this.notificationService.error(VERIFY_COLLEGE_COPY.collegesFailed)
     });
   }
 
@@ -64,15 +66,15 @@ export class VerifyCollegeComponent implements OnInit {
         this.submitting = false;
         this.submitted = true;
         if (this.isTeacher) {
-          this.notificationService.success('Affiliation request submitted for admin review.');
+          this.notificationService.success(VERIFY_COLLEGE_COPY.teacherSubmitted);
         } else {
-          this.notificationService.success('College linked to your account.');
+          this.notificationService.success(VERIFY_COLLEGE_COPY.studentLinked);
           this.router.navigateByUrl(this.authService.dashboardPathForRole(this.authService.currentUser?.role));
         }
       },
       error: (err: HttpErrorResponse) => {
         this.submitting = false;
-        this.errorMessage = this.errorHandler.extractMessage(err, 'Could not submit your college details.');
+        this.errorMessage = this.errorHandler.extractMessage(err, VERIFY_COLLEGE_COPY.failed);
       }
     });
   }

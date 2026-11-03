@@ -7,6 +7,7 @@ import { AuthService } from '@core/auth/auth.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { NotificationService } from '@core/services/notification.service';
 import { passwordValidator } from '@core/validators/password.validator';
+import { FORGOT_PASSWORD_COPY } from '@core/content/forgot-password.content';
 
 @Component({
   selector: 'app-forgot-password',
@@ -16,6 +17,7 @@ import { passwordValidator } from '@core/validators/password.validator';
   styleUrls: ['./forgot-password.component.scss']
 })
 export class ForgotPasswordComponent {
+  protected readonly copy = FORGOT_PASSWORD_COPY;
   step: 'request' | 'reset' | 'done' = 'request';
   submitting = false;
   errorMessage = '';
@@ -59,14 +61,14 @@ export class ForgotPasswordComponent {
           // Dev-mode convenience: no SMTP is configured, so the backend returns the
           // reset token directly instead of emailing it. Pre-fill it for the user.
           this.resetForm.patchValue({ token: res.resetToken });
-          this.infoMessage = 'No email service is configured for this project, so your reset code has been filled in automatically below.';
+          this.infoMessage = FORGOT_PASSWORD_COPY.codePrefilled;
         } else {
-          this.infoMessage = 'If an account exists for that email, a reset code has been generated. Enter it below.';
+          this.infoMessage = FORGOT_PASSWORD_COPY.codeGenerated;
         }
       },
       error: (err: HttpErrorResponse) => {
         this.submitting = false;
-        this.errorMessage = this.errorHandler.extractMessage(err, 'Could not process your request.');
+        this.errorMessage = this.errorHandler.extractMessage(err, FORGOT_PASSWORD_COPY.requestFailed);
       }
     });
   }
@@ -82,11 +84,11 @@ export class ForgotPasswordComponent {
       next: () => {
         this.submitting = false;
         this.step = 'done';
-        this.notificationService.success('Your password has been reset. Please sign in.');
+        this.notificationService.success(FORGOT_PASSWORD_COPY.resetDone);
       },
       error: (err: HttpErrorResponse) => {
         this.submitting = false;
-        this.errorMessage = this.errorHandler.extractMessage(err, 'That reset code is invalid or has expired.');
+        this.errorMessage = this.errorHandler.extractMessage(err, FORGOT_PASSWORD_COPY.resetFailed);
       }
     });
   }

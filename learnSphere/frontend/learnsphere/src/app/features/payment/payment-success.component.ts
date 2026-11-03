@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LucideAngularModule, CheckCircle2 } from 'lucide-angular';
+import { PAYMENT_SUCCESS_COPY } from '@core/content/payment-success.content';
 
 /** Simple confirmation page shown after a successful (simulated) course payment. */
 @Component({
@@ -14,14 +15,12 @@ import { LucideAngularModule, CheckCircle2 } from 'lucide-angular';
         <div class="success-icon" style="display:flex; justify-content:center;">
           <lucide-icon name="check-circle-2" style="width:40px; height:40px; color:#1D9E75;"></lucide-icon>
         </div>
-        <h1 class="success-title">Payment successful</h1>
-        <p class="success-sub">
-          You're all set — you now have full access to this course. Happy learning!
-        </p>
+        <h1 class="success-title">{{ copy.title }}</h1>
+        <p class="success-sub">{{ copy.body }}</p>
         <a *ngIf="courseId" [routerLink]="['/student/courses', courseId]" class="primary-link">
-          Go to course
+          {{ copy.toCourse }}
         </a>
-        <a routerLink="/student/courses" class="secondary-link">Back to my courses</a>
+        <a routerLink="/student/courses" class="secondary-link">{{ copy.toMyCourses }}</a>
       </div>
     </div>
   `,
@@ -75,6 +74,7 @@ import { LucideAngularModule, CheckCircle2 } from 'lucide-angular';
   `]
 })
 export class PaymentSuccessComponent implements OnInit {
+  protected readonly copy = PAYMENT_SUCCESS_COPY;
   courseId: string | null = null;
 
   constructor(private route: ActivatedRoute) {}

@@ -1,14 +1,14 @@
 <div class="auth-layout">
   <div class="auth-card">
     <div class="brand">
-      <a routerLink="/" class="logo-link" title="LearnSphere Home">
+      <a routerLink="/" class="logo-link" [title]="copy.homeLinkTitle">
         <div class="logo-box">
-          <img src="/logo-mark.svg" alt="LearnSphere AI" class="logo-img" />
+          <img src="/logo-mark.svg" [alt]="copy.logoAlt" class="logo-img" />
         </div>
       </a>
-      <h2>{{ isTeacher ? 'Verify your college affiliation' : 'Link your college' }}</h2>
-      <p *ngIf="isTeacher">Admins review teacher affiliation requests before granting course-publishing access.</p>
-      <p *ngIf="!isTeacher">Select your college so we can personalize your dashboard.</p>
+      <h2>{{ isTeacher ? copy.teacherTitle : copy.studentTitle }}</h2>
+      <p *ngIf="isTeacher">{{ copy.teacherIntro }}</p>
+      <p *ngIf="!isTeacher">{{ copy.studentIntro }}</p>
     </div>
 
     <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -16,34 +16,34 @@
     <div *ngIf="!submitted">
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
         <div class="form-group">
-          <label for="collegeId">College</label>
+          <label for="collegeId">{{ copy.collegeLabel }}</label>
           <select id="collegeId" formControlName="collegeId" class="custom-select">
-            <option [ngValue]="null" disabled>Select your college</option>
+            <option [ngValue]="null" disabled>{{ copy.collegePlaceholder }}</option>
             <option *ngFor="let college of colleges" [ngValue]="college.id">{{ college.name }} — {{ college.city }}</option>
           </select>
         </div>
 
         <div class="form-group" *ngIf="isTeacher">
-          <label for="claimedDepartment">Department</label>
-          <input type="text" id="claimedDepartment" formControlName="claimedDepartment" placeholder="e.g. Computer Science" />
+          <label for="claimedDepartment">{{ copy.departmentLabel }}</label>
+          <input type="text" id="claimedDepartment" formControlName="claimedDepartment" [placeholder]="copy.departmentPlaceholder" />
         </div>
 
         <div class="form-group" *ngIf="isTeacher">
-          <label for="idDocumentUrl">ID document URL</label>
-          <input type="text" id="idDocumentUrl" formControlName="idDocumentUrl" placeholder="Link to your faculty ID / proof" />
+          <label for="idDocumentUrl">{{ copy.documentLabel }}</label>
+          <input type="text" id="idDocumentUrl" formControlName="idDocumentUrl" [placeholder]="copy.documentPlaceholder" />
         </div>
 
         <button type="submit" class="btn-submit" [disabled]="form.invalid || submitting">
-          {{ submitting ? 'Submitting…' : (isTeacher ? 'Submit for review' : 'Link college') }}
+          {{ submitting ? copy.submitting : (isTeacher ? copy.submitTeacher : copy.submitStudent) }}
         </button>
       </form>
 
-      <button type="button" class="btn-secondary" (click)="skipForNow()">Skip for now</button>
+      <button type="button" class="btn-secondary" (click)="skipForNow()">{{ copy.skip }}</button>
     </div>
 
     <div *ngIf="submitted && isTeacher" class="submitted-state">
-      <p>Your affiliation request has been submitted. An admin will review your document and approve access shortly.</p>
-      <button type="button" class="btn-submit" (click)="skipForNow()">Go to dashboard</button>
+      <p>{{ copy.submitted }}</p>
+      <button type="button" class="btn-submit" (click)="skipForNow()">{{ copy.toDashboard }}</button>
     </div>
   </div>
 </div>

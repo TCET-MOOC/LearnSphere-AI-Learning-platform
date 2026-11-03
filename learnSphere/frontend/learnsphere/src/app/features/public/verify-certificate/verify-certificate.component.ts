@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CertificateService } from '../../student/services/certificate.service';
 import { CertificateVerificationResult } from '@core/models/assessment.model';
 import { LucideAngularModule } from 'lucide-angular';
+import { VERIFY_CERTIFICATE_COPY } from '@core/content/verify-certificate.content';
 
 @Component({
   selector: 'app-verify-certificate',
@@ -14,6 +15,7 @@ import { LucideAngularModule } from 'lucide-angular';
   styleUrls: ['./verify-certificate.component.scss']
 })
 export class VerifyCertificateComponent implements OnInit {
+  protected readonly copy = VERIFY_CERTIFICATE_COPY;
   searchCode: string = '';
   loading = false;
   hasSearched = false;
@@ -56,7 +58,7 @@ export class VerifyCertificateComponent implements OnInit {
         this.result = {
           valid: false,
           verificationCode: code,
-          message: 'Unable to verify credential. Please ensure the code is correct.'
+          message: VERIFY_CERTIFICATE_COPY.lookupFailed
         };
         this.cdr.markForCheck();
       }

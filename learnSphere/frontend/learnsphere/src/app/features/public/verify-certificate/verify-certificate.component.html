@@ -3,12 +3,12 @@
   <header class="portal-header">
     <div class="portal-header-inner">
       <a routerLink="/" class="portal-brand">
-        <div class="brand-logo">LS</div>
-        <span class="brand-name">LearnSphere<span class="brand-ai">.AI</span></span>
+        <div class="brand-logo">{{ copy.brandMark }}</div>
+        <span class="brand-name">{{ copy.brandName }}<span class="brand-ai">{{ copy.brandSuffix }}</span></span>
       </a>
       <div class="header-tag">
         <lucide-icon name="shield-alert" [size]="15" aria-hidden="true"></lucide-icon>
-        <span>Official Verification Registry</span>
+        <span>{{ copy.registryTag }}</span>
       </div>
     </div>
   </header>
@@ -17,12 +17,10 @@
     <div class="portal-hero">
       <div class="hero-badge">
         <lucide-icon name="award" [size]="14" aria-hidden="true"></lucide-icon>
-        <span>Credential Verification</span>
+        <span>{{ copy.heroBadge }}</span>
       </div>
-      <h1 class="hero-title">Verify Official Academic Certificate</h1>
-      <p class="hero-sub">
-        Validate the authenticity and accreditation of credentials issued by LearnSphere AI learning programs.
-      </p>
+      <h1 class="hero-title">{{ copy.heroTitle }}</h1>
+      <p class="hero-sub">{{ copy.heroSub }}</p>
 
       <!-- Search Box -->
       <form class="search-box" (ngSubmit)="onSearch()">
@@ -32,13 +30,13 @@
             type="text" 
             [(ngModel)]="searchCode" 
             name="searchCode"
-            placeholder="Enter Certificate ID (e.g. LS-2026-A1B2-C3D4)" 
+            [placeholder]="copy.searchPlaceholder" 
             class="search-input"
             required />
         </div>
         <button type="submit" class="search-btn" [disabled]="loading || !searchCode.trim()">
-          <span *ngIf="!loading">Verify Credential</span>
-          <span *ngIf="loading">Verifying...</span>
+          <span *ngIf="!loading">{{ copy.verify }}</span>
+          <span *ngIf="loading">{{ copy.verifying }}</span>
         </button>
       </form>
     </div>
@@ -46,7 +44,7 @@
     <!-- Loading State -->
     <div class="loading-state" *ngIf="loading">
       <div class="spinner"></div>
-      <p>Validating cryptographic registry records...</p>
+      <p>{{ copy.loading }}</p>
     </div>
 
     <!-- Verification Result -->
@@ -59,11 +57,11 @@
             <lucide-icon name="check-circle-2" [size]="24" aria-hidden="true"></lucide-icon>
           </div>
           <div class="banner-text">
-            <h2>Authentic Certificate Verified</h2>
+            <h2>{{ copy.validTitle }}</h2>
             <p>{{ result.message }}</p>
           </div>
           <div class="banner-badge">
-            <span>OFFICIAL RECORD</span>
+            <span>{{ copy.officialRecord }}</span>
           </div>
         </div>
 
@@ -71,40 +69,40 @@
           <!-- Diploma Details View -->
           <div class="cert-details">
             <div class="detail-row header-row">
-              <span class="label">Course Program</span>
+              <span class="label">{{ copy.courseLabel }}</span>
               <h3 class="course-name">{{ result.courseTitle || result.title }}</h3>
             </div>
 
             <div class="meta-columns">
               <div class="meta-col">
-                <span class="label">Recipient Student</span>
+                <span class="label">{{ copy.studentLabel }}</span>
                 <p class="val student-val">{{ result.studentName }}</p>
               </div>
 
               <div class="meta-col">
-                <span class="label">Course Instructor</span>
-                <p class="val">{{ result.instructorName || 'LearnSphere Faculty Board' }}</p>
+                <span class="label">{{ copy.instructorLabel }}</span>
+                <p class="val">{{ result.instructorName || copy.instructorFallback }}</p>
               </div>
 
               <div class="meta-col">
-                <span class="label">Issue Date</span>
+                <span class="label">{{ copy.issuedLabel }}</span>
                 <p class="val">{{ formatDate(result.issuedAt) }}</p>
               </div>
 
               <div class="meta-col">
-                <span class="label">Distinction / Grade</span>
-                <p class="val grade-val">{{ result.grade || 'Pass with Distinction' }}</p>
+                <span class="label">{{ copy.gradeLabel }}</span>
+                <p class="val grade-val">{{ result.grade || copy.gradeFallback }}</p>
               </div>
             </div>
 
             <div class="cert-id-bar">
               <div class="id-item">
-                <span class="label">Certificate ID:</span>
+                <span class="label">{{ copy.idLabel }}</span>
                 <code class="code-val">{{ result.verificationCode }}</code>
               </div>
               <div class="id-item">
-                <span class="label">Status:</span>
-                <span class="status-active">Active & Recognized</span>
+                <span class="label">{{ copy.statusLabel }}</span>
+                <span class="status-active">{{ copy.statusActive }}</span>
               </div>
             </div>
           </div>
@@ -112,13 +110,13 @@
           <!-- QR and Actions -->
           <div class="cert-side-pane">
             <div class="qr-preview">
-              <img [src]="getQrCodeUrl(result.verificationCode)" alt="Official QR Code" class="qr-image" />
-              <span class="qr-caption">Scan to re-verify</span>
+              <img [src]="getQrCodeUrl(result.verificationCode)" [alt]="copy.qrAlt" class="qr-image" />
+              <span class="qr-caption">{{ copy.qrCaption }}</span>
             </div>
 
             <button class="btn-print" (click)="printCertificate()">
               <lucide-icon name="download" [size]="16" aria-hidden="true"></lucide-icon>
-              <span>Download / Print Verification</span>
+              <span>{{ copy.print }}</span>
             </button>
           </div>
         </div>
@@ -131,19 +129,17 @@
             <lucide-icon name="shield-alert" [size]="24" aria-hidden="true"></lucide-icon>
           </div>
           <div class="banner-text">
-            <h2>Certificate Not Recognized</h2>
-            <p>No valid credential record was found matching <code>{{ result.verificationCode }}</code>.</p>
+            <h2>{{ copy.invalidTitle }}</h2>
+            <p>{{ copy.invalidPrefix }} <code>{{ result.verificationCode }}</code>.</p>
           </div>
         </div>
 
         <div class="invalid-advice">
-          <h3>Possible Reasons:</h3>
+          <h3>{{ copy.reasonsTitle }}</h3>
           <ul>
-            <li>The certificate ID was mistyped or contains extra spaces.</li>
-            <li>The certificate was issued under a different format or academic semester.</li>
-            <li>The record has not yet been synced with the national verification ledger.</li>
+            <li *ngFor="let reason of copy.reasons">{{ reason }}</li>
           </ul>
-          <p class="support-note">If you believe this is an error, please contact the institution at <a href="mailto:support@learnsphere.ai">support&#64;learnsphere.ai</a>.</p>
+          <p class="support-note">{{ copy.supportPrefix }} <a [href]="'mailto:' + copy.supportEmail">{{ copy.supportEmail }}</a>.</p>
         </div>
       </div>
 

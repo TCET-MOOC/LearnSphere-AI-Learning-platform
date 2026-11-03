@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { CHECKOUT_COPY } from '@core/content/checkout.content';
 
 /**
  * Legacy simulated checkout redirector.
@@ -14,13 +15,10 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
   template: `
     <div class="checkout-page">
       <div class="checkout-card">
-        <h1 class="checkout-title">Redirecting to Course Checkout</h1>
-        <p class="sim-note">
-          The simulated checkout rail has been retired. All course enrollments and payments
-          now proceed directly through our secure Razorpay modal on the course details page.
-        </p>
+        <h1 class="checkout-title">{{ copy.title }}</h1>
+        <p class="sim-note">{{ copy.note }}</p>
         <a [routerLink]="courseId ? ['/student/courses', courseId] : '/student/courses'" class="pay-btn">
-          Go to Course Details
+          {{ copy.toCourse }}
         </a>
       </div>
     </div>
@@ -73,6 +71,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
   `]
 })
 export class CheckoutComponent implements OnInit {
+  protected readonly copy = CHECKOUT_COPY;
   courseId: number | null = null;
 
   constructor(

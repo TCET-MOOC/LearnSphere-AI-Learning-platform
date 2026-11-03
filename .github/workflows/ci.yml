@@ -133,6 +133,9 @@ jobs:
       - name: Style ratchet (DS-01)
         run: npm run lint:styles
 
+      - name: Copy ratchet (W7-07)
+        run: npm run lint:copy
+
       - name: Build frontend
         run: npm run build
 

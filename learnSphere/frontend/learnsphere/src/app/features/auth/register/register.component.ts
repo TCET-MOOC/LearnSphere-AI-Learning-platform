@@ -7,6 +7,7 @@ import { AuthService } from '@core/auth/auth.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { NotificationService } from '@core/services/notification.service';
 import { passwordValidator } from '@core/validators/password.validator';
+import { REGISTER_COPY } from '@core/content/register.content';
 
 @Component({
   selector: 'app-register',
@@ -16,15 +17,16 @@ import { passwordValidator } from '@core/validators/password.validator';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
+  protected readonly copy = REGISTER_COPY;
   registerForm: FormGroup;
   selectedRole: 'STUDENT' | 'TEACHER' | 'ADMIN' = 'STUDENT'; // Default role
   submitting = false;
   errorMessage = '';
 
   roles = [
-    { value: 'STUDENT', label: 'Student' },
-    { value: 'TEACHER', label: 'Teacher' },
-    { value: 'ADMIN', label: 'Admin' }
+    { value: 'STUDENT', label: REGISTER_COPY.roles.STUDENT },
+    { value: 'TEACHER', label: REGISTER_COPY.roles.TEACHER },
+    { value: 'ADMIN', label: REGISTER_COPY.roles.ADMIN }
   ];
 
   constructor(
@@ -66,7 +68,7 @@ export class RegisterComponent {
     this.authService.register(payload).subscribe({
       next: (res) => {
         this.submitting = false;
-        this.notificationService.success('Account created! Welcome to LearnSphere.');
+        this.notificationService.success(REGISTER_COPY.created);
         if (this.selectedRole === 'TEACHER') {
           this.router.navigateByUrl('/verify-college');
         } else {
@@ -75,7 +77,7 @@ export class RegisterComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.submitting = false;
-        this.errorMessage = this.errorHandler.extractMessage(err, 'Could not create your account.');
+        this.errorMessage = this.errorHandler.extractMessage(err, REGISTER_COPY.failed);
       }
     });
   }

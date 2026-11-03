@@ -14,6 +14,7 @@
     "e2e:visual:update": "playwright test --project=visual --update-snapshots",
     "check:prod-urls": "node scripts/check-prod-urls.mjs",
     "check:toolchain": "node scripts/check-toolchain.mjs",
+    "lint:copy": "node scripts/copy-ratchet.mjs",
     "lint:styles": "node scripts/stylelint-ratchet.mjs",
     "lint:styles:update": "node scripts/stylelint-ratchet.mjs --update"
   },

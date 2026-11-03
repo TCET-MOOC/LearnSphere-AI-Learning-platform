@@ -9,6 +9,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { passwordValidator } from '@core/validators/password.validator';
 import { safeReturnUrl } from '@core/auth/session';
 import { SESSION_COPY } from '@core/content/session.content';
+import { LOGIN_COPY } from '@core/content/login.content';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +19,7 @@ import { SESSION_COPY } from '@core/content/session.content';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
+  protected readonly copy = LOGIN_COPY;
   loginForm: FormGroup;
   submitting = false;
   errorMessage = '';
@@ -63,7 +65,7 @@ export class LoginComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.submitting = false;
-        this.errorMessage = this.errorHandler.extractMessage(err, 'Invalid email or password.');
+        this.errorMessage = this.errorHandler.extractMessage(err, LOGIN_COPY.failed);
       }
     });
   }
