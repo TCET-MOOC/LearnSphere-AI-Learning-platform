@@ -86,7 +86,7 @@ export const VISUAL_USERS = {
   },
 } as const;
 
-const COURSES = [
+export const COURSES = [
   {
     id: 1,
     title: 'Applied Machine Learning',

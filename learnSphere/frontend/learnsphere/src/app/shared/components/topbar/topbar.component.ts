@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { NotificationStateService } from '../../../core/services/notification-state.service';
 import { NotificationApiService } from '../../../core/services/notification-api.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { UserRole } from '../../../core/models/user.model';
 import { ThemeService } from '../../../core/services/theme.service';
 import { timeAgo } from '../../../core/utils/time.util';
 import { SidebarService } from '../../../core/services/sidebar.service';
@@ -166,6 +167,12 @@ export class TopbarComponent implements OnInit {
   }
 
   get role(): 'student' | 'teacher' | 'admin' {
+    // The signed-in user's role, not the URL: with lazy role groups the first navigation may
+    // not have finished when the notification count arrives (W7-10 regression).
+    const userRole = this.authService.currentUser?.role;
+    if (userRole === UserRole.TEACHER) return 'teacher';
+    if (userRole === UserRole.ADMIN) return 'admin';
+    if (userRole === UserRole.STUDENT) return 'student';
     if (this.router.url.startsWith('/teacher')) return 'teacher';
     if (this.router.url.startsWith('/admin')) return 'admin';
     return 'student';
