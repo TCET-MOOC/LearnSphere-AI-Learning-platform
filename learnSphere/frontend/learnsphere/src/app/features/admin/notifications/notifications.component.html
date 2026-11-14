@@ -27,7 +27,7 @@
 
   <div class="feed-layout">
     <div class="feed-list">
-      <article 
+      <article appActivate 
         class="feed-card" 
         *ngFor="let item of filteredItems" 
         [class.unread]="!readItems.has(item.id)" 

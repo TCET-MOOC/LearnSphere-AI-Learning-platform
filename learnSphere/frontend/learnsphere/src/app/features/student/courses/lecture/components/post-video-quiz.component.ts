@@ -1,3 +1,4 @@
+import { DialogDirective } from '@shared/directives/dialog.directive';
 import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -23,7 +24,7 @@ import {
 @Component({
   selector: 'app-post-video-quiz',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [DialogDirective, CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './post-video-quiz.component.html',
   styleUrls: ['./post-video-quiz.component.scss']
 })

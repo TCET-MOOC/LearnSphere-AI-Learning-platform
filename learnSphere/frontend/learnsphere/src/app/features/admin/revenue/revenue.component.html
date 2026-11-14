@@ -97,12 +97,12 @@
     <div class="section-card">
       <div class="section-header">
         <div>
-          <h2 class="section-title">Course Monetization Ledger</h2>
+          <h2 class="section-title" id="revenue-ledger-title">Course Monetization Ledger</h2>
           <p class="section-desc">Top-performing curriculum modules ranked by aggregate student checkout revenue.</p>
         </div>
       </div>
 
-      <div class="course-table-wrapper" *ngIf="summary?.byCourse && summary!.byCourse.length > 0; else noCourses">
+      <div class="course-table-wrapper" tabindex="0" role="region" aria-labelledby="revenue-ledger-title" *ngIf="summary?.byCourse && summary!.byCourse.length > 0; else noCourses">
         <table class="course-table">
           <thead>
             <tr>

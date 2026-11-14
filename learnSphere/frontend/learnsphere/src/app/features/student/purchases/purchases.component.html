@@ -150,13 +150,13 @@
   <!-- Official Printable Payment Receipt Modal -->
   <div class="receipt-modal-backdrop" *ngIf="selectedReceipt" (click)="closeReceipt()">
     <!-- The receipt card is always light; scope the light tokens so its buttons stay readable in dark mode. -->
-    <div class="receipt-modal-card" data-theme="light" (click)="$event.stopPropagation()">
+    <div appDialog aria-labelledby="receipt-title" (dialogClose)="closeReceipt()" class="receipt-modal-card" data-theme="light" (click)="$event.stopPropagation()">
       <div class="receipt-header">
         <div class="receipt-brand">
           <span class="brand-badge">{{ receiptCopy.modalBadge }}</span>
-          <h2>{{ receiptCopy.issuer }}</h2>
+          <h2 id="receipt-title">{{ receiptCopy.issuer }}</h2>
         </div>
-        <button class="btn-close-icon" type="button" (click)="closeReceipt()">
+        <button [attr.aria-label]="a11y.closeDialog" class="btn-close-icon" type="button" (click)="closeReceipt()">
           <lucide-icon name="x" [size]="20"></lucide-icon>
         </button>
       </div>

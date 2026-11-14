@@ -104,17 +104,17 @@
 
   <!-- Course Inspection Modal -->
   <div class="modal-backdrop" *ngIf="selectedCourseForInspect" (click)="closeInspect()">
-    <div class="modal-container inspect-modal" (click)="$event.stopPropagation()">
+    <div appDialog aria-labelledby="course-inspect-title" (dialogClose)="closeInspect()" class="modal-container inspect-modal" (click)="$event.stopPropagation()">
       <div class="modal-top">
         <div>
           <span class="pill" [ngClass]="statusClass(selectedCourseForInspect.status)">
             <span class="status-dot"></span>
             {{ selectedCourseForInspect.status || 'LIVE' }}
           </span>
-          <h2 class="modal-title">{{ selectedCourseForInspect.title || 'Course Details' }}</h2>
+          <h2 id="course-inspect-title" class="modal-title">{{ selectedCourseForInspect.title || 'Course Details' }}</h2>
           <p class="modal-sub">By {{ selectedCourseForInspect.teacherName || 'Faculty' }} · {{ selectedCourseForInspect.department || 'General' }}</p>
         </div>
-        <button class="close-btn" (click)="closeInspect()">
+        <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="closeInspect()">
           <lucide-icon name="x" [size]="18"></lucide-icon>
         </button>
       </div>

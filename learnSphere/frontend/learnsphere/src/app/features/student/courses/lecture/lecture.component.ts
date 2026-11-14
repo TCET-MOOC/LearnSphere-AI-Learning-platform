@@ -1,3 +1,4 @@
+import { ActivateDirective } from '@shared/directives/activate.directive';
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -44,7 +45,7 @@ const PHONE_QUERY = '(max-width: 767.98px)';
 @Component({
   selector: 'app-student-lecture',
   standalone: true,
-  imports: [
+  imports: [ActivateDirective, 
     CommonModule, 
     RouterModule, 
     FormsModule,

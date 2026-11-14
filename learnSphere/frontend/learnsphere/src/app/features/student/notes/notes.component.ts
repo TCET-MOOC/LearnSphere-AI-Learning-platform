@@ -10,6 +10,7 @@ import { NoteEditorComponent } from './components/note-editor.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { NotificationService } from '@core/services/notification.service';
 import { LucideAngularModule, Search, Plus } from 'lucide-angular';
+import { ActivateDirective } from '@shared/directives/activate.directive';
 
 /**
  * NotesComponent is the parent page component for managing student notes.
@@ -19,7 +20,7 @@ import { LucideAngularModule, Search, Plus } from 'lucide-angular';
 @Component({
   selector: 'app-notes',
   standalone: true,
-  imports: [
+  imports: [ActivateDirective, 
     CommonModule,
     FormsModule,
     MatDialogModule,

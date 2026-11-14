@@ -30,7 +30,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     margin: 0 0 6px 0;
   }
 
@@ -211,7 +211,7 @@
     .reply-author {
       font-size: 13px;
       font-weight: 600;
-      color: $brand-purple;
+      color: $brand-text;
     }
 
     .reply-text {
@@ -244,11 +244,11 @@
       padding: 0;
 
       &:hover {
-        color: $brand-purple;
+        color: $brand-text;
       }
 
       &.reply-btn {
-        color: $brand-purple;
+        color: $brand-text;
       }
     }
   }
@@ -265,7 +265,7 @@
   font-weight: 600;
   flex-shrink: 0;
   background: var(--brand-surface);
-  color: var(--brand-primary);
+  color: var(--brand-text);
 }
 
 .pill {
@@ -279,7 +279,7 @@
 
   &.p-pu {
     background: $brand-purple-lt;
-    color: $brand-purple;
+    color: $brand-text;
   }
 
   &.p-gr {
@@ -401,7 +401,7 @@
   height: 24px;
   vertical-align: bottom;
   margin-right: 8px;
-  color: var(--brand-primary);
+  color: var(--brand-text);
 }
 
 .action-icon {

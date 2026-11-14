@@ -10,6 +10,7 @@ import { StatusPillComponent } from '@shared/components/status-pills/status-pill
 import { TimeAgoPipe } from '@shared/pipes/time-ago.pipe';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { LucideAngularModule, Medal, PartyPopper } from 'lucide-angular';
+import { ActivateDirective } from '@shared/directives/activate.directive';
 
 /**
  * StudentsComponent displays the student standings, KPI stats, top performers,
@@ -18,7 +19,7 @@ import { LucideAngularModule, Medal, PartyPopper } from 'lucide-angular';
 @Component({
   selector: 'app-students',
   standalone: true,
-  imports: [
+  imports: [ActivateDirective, 
     CommonModule,
     StatCardComponent,
     ProgressBarComponent,

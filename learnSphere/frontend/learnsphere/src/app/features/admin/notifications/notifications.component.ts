@@ -6,6 +6,7 @@ import { NotificationStateService } from '../../../core/services/notification-st
 import { NotificationApiService } from '@core/services/notification-api.service';
 import { NotificationService } from '@core/services/notification.service';
 import { timeAgo } from '@core/utils/time.util';
+import { ActivateDirective } from '@shared/directives/activate.directive';
 
 interface NotificationItem {
   id: number;
@@ -18,7 +19,7 @@ interface NotificationItem {
 @Component({ 
   selector: 'app-admin-notifications', 
   standalone: true, 
-  imports: [CommonModule, FormsModule, LucideAngularModule], 
+  imports: [ActivateDirective, CommonModule, FormsModule, LucideAngularModule], 
   templateUrl: './notifications.component.html', 
   styleUrls: ['./notifications.component.scss'] 
 })

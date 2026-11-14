@@ -38,7 +38,7 @@
 
 .eyebrow {
   margin: 0 0 6px 0;
-  color: var(--brand-primary);
+  color: var(--brand-text);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -82,9 +82,9 @@
     font-size: 11.5px;
     font-weight: 500;
 
-    &.text-success { color: #10b981; }
-    &.text-purple { color: #8b5cf6; }
-    &.text-amber { color: #f59e0b; }
+    &.text-success { color: var(--status-green-text); }
+    &.text-purple { color: var(--brand-text); }
+    &.text-amber { color: var(--status-amber-text); }
   }
 }
 
@@ -125,7 +125,7 @@
     }
 
     &.active {
-      color: var(--brand-primary);
+      color: var(--brand-text);
       background: var(--brand-surface, rgba(59, 130, 246, 0.1));
       border-color: var(--brand-primary);
     }
@@ -175,7 +175,7 @@
   height: 44px;
   border-radius: 10px;
   background: var(--brand-surface, #eff6ff);
-  color: var(--brand-primary, #3b82f6);
+  color: var(--brand-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -245,8 +245,8 @@
   letter-spacing: 0.04em;
 
   &.pill--paid {
-    background: #ecfdf5;
-    color: #059669;
+    background: var(--status-green-bg);
+    color: var(--status-green-text);
   }
 
   &.pill--created {

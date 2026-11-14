@@ -30,7 +30,7 @@
 
   .eyebrow {
     margin: 0 0 6px 0;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -170,7 +170,7 @@
   }
 
   &--green strong { color: $green; }
-  &--purple strong { color: $brand; }
+  &--purple strong { color: $brand-text; }
   &--blue strong { color: $blue; }
   &--red strong { color: $red; }
 }
@@ -278,7 +278,7 @@
     padding-right: 8px;
     padding-left: 8px;
     border-radius: 8px;
-    background: rgba(252, 235, 235, 0.45);
+    background: var(--status-red-bg);
   }
 }
 
@@ -359,9 +359,9 @@
   font-size: 11px;
   font-weight: 700;
 
-  &--purple { background: $brand-soft; color: $brand; }
-  &--green { background: $green-soft; color: #27500a; }
-  &--amber { background: $amber-soft; color: #633806; }
+  &--purple { background: $brand-soft; color: $brand-text; }
+  &--green { background: $green-soft; color: $green; }
+  &--amber { background: $amber-soft; color: $amber; }
   &--red { background: $red-soft; color: $red; }
   &--grey { background: $grey-soft; color: $muted; }
 }
@@ -435,7 +435,7 @@
     margin-top: 2px;
 
     a {
-      color: $brand;
+      color: $brand-text;
       text-decoration: none;
       font-weight: 500;
 
@@ -509,7 +509,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: $brand;
+      color: $brand-text;
       margin-bottom: 2px;
     }
 

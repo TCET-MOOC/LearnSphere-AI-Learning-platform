@@ -9,7 +9,7 @@
     <app-admin-sidebar *ngIf="userRole === 'ADMIN'"></app-admin-sidebar>
     <div class="main-wrapper">
       <app-topbar></app-topbar> 
-      <main class="content-area">
+      <main class="content-area" tabindex="0">
         <div class="scroll-container">
           <router-outlet></router-outlet> 
         </div>

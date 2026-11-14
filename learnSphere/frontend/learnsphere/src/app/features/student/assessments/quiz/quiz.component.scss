@@ -24,7 +24,7 @@
 
 .eyebrow {
   margin: 0;
-  color: var(--brand-primary);
+  color: var(--brand-text);
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
@@ -51,7 +51,7 @@
 .meta {
   font-size: 12px;
   font-weight: 600;
-  color: $brand;
+  color: $brand-text;
   margin: 0 0 6px;
 }
 
@@ -111,6 +111,12 @@
   font: 600 13px inherit;
   cursor: pointer;
   transition: all 0.15s ease;
+}
+
+// W7-08: "Back to assessments" became a real link (focusable); keep the look it had without an href.
+a.btn--ghost {
+  color: inherit;
+  text-decoration: none;
 }
 
 .btn--primary {

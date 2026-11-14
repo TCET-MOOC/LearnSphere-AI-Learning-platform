@@ -1,6 +1,7 @@
 // ── Color Palette Design Tokens (Theme-Reactive via CSS Variables) ──
 $brand: var(--brand-primary);
 $brand-purple: var(--brand-primary);
+$brand-text: var(--brand-text); // W7-08: brand-coloured text (AA in both themes)
 $brand-purple-light: var(--brand-surface);
 $brand-purple-lt: var(--brand-surface);
 $brand-purple-dark: var(--brand-primary-hover);

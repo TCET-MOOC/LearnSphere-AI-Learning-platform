@@ -9,11 +9,13 @@ import { ApiService } from '@core/services/api.service';
 import { NotificationService } from '@core/services/notification.service';
 import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confirm-dialog.component';
 import { Course, CourseStatus } from '@core/models/course.model';
+import { A11yCopy } from '@core/content/a11y.content';
+import { DialogDirective } from '@shared/directives/dialog.directive';
 
 @Component({
   selector: 'app-admin-courses',
   standalone: true,
-  imports: [
+  imports: [DialogDirective, 
     CommonModule,
     FormsModule,
     MatDialogModule,
@@ -23,6 +25,7 @@ import { Course, CourseStatus } from '@core/models/course.model';
   styleUrls: ['./courses.component.scss']
 })
 export class CoursesComponent implements OnInit {
+  protected readonly a11y = A11yCopy.text;
   loading = false;
   allCourses: Course[] = [];
   courses: Course[] = [];

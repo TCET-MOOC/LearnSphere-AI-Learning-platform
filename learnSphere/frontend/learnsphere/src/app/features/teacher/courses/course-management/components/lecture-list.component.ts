@@ -1,3 +1,4 @@
+import { DialogDirective } from '@shared/directives/dialog.directive';
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -25,7 +26,7 @@ import {
 @Component({
   selector: 'app-lecture-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DurationPipe, LucideAngularModule],
+  imports: [DialogDirective, CommonModule, FormsModule, ReactiveFormsModule, DurationPipe, LucideAngularModule],
   templateUrl: './lecture-list.component.html',
   styleUrls: ['./lecture-list.component.scss']
 })

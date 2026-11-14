@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Download, Share2, X, Check, Copy, ExternalLink, Award } from 'lucide-angular';
 import { NotificationService } from '@core/services/notification.service';
+import { DialogDirective } from '@shared/directives/dialog.directive';
+import { A11yCopy } from '@core/content/a11y.content';
 
 export interface CertificateModalData {
   id?: number;
@@ -18,11 +20,12 @@ export interface CertificateModalData {
 @Component({
   selector: 'app-certificate-modal',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [DialogDirective, CommonModule, LucideAngularModule],
   templateUrl: './certificate-modal.component.html',
   styleUrls: ['./certificate-modal.component.scss']
 })
 export class CertificateModalComponent {
+  protected readonly a11y = A11yCopy.text;
   @Input() certificate: CertificateModalData | null = null;
   @Output() close = new EventEmitter<void>();
 

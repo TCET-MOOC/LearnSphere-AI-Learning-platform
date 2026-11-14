@@ -11,6 +11,7 @@ import { QuizBuilderComponent } from '../../upload/components/quiz-builder.compo
 import { NotificationService } from '@core/services/notification.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { MatMenuModule } from '@angular/material/menu';
+import { DialogDirective } from '@shared/directives/dialog.directive';
 
 interface ImportedLecture {
   videoId: string;
@@ -25,7 +26,7 @@ interface ImportedLecture {
 @Component({
   selector: 'app-course-management',
   standalone: true,
-  imports: [
+  imports: [DialogDirective, 
     CommonModule, 
     FormsModule,
     RouterModule, 

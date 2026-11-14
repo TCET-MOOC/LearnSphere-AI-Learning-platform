@@ -41,7 +41,7 @@
   height: 22px;
   border-radius: 50%;
   background: $brand-soft;
-  color: $brand;
+  color: $brand-text;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,7 +70,7 @@
 .link-btn {
   border: none;
   background: transparent;
-  color: $brand;
+  color: $brand-text;
   font: 600 11px inherit;
   cursor: pointer;
   padding: 0;
@@ -137,7 +137,7 @@
   font: 600 11.5px inherit;
   cursor: pointer;
 }
-.btn--soft { background: $brand-soft; color: $brand; }
+.btn--soft { background: $brand-soft; color: $brand-text; }
 .btn--primary { background: $brand; color: #fff; }
 .btn--primary:disabled { opacity: 0.6; cursor: default; }
 .btn--ghost { background: transparent; color: $muted; border: 1px solid $border; }
@@ -166,7 +166,7 @@
 }
 
 .link-btn--quiz {
-  color: #ec4899;
+  color: var(--status-purple-text);
   font-weight: 700;
   &:hover { text-decoration: underline; }
 }

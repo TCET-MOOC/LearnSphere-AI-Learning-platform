@@ -1,7 +1,7 @@
 <!-- Floating Chat Widget -->
 <div class="chatbot-floating-wrapper">
   <!-- Trigger Button -->
-  <button class="chatbot-trigger-btn" [class.active]="isOpen" (click)="toggleChat()" aria-label="Toggle AI Assistant">
+  <button class="chatbot-trigger-btn" [class.active]="isOpen" (click)="toggleChat()" [attr.aria-label]="isOpen ? a11y.chatbotClose : a11y.chatbotOpen" [attr.aria-expanded]="isOpen">
     <lucide-icon name="sparkles" [size]="18" *ngIf="!isOpen"></lucide-icon>
     <lucide-icon name="x" [size]="18" *ngIf="isOpen"></lucide-icon>
     <span class="trigger-label" *ngIf="!isOpen">Ask AI</span>

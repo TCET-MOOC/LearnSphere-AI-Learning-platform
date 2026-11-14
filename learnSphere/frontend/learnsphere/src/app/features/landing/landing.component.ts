@@ -1,3 +1,4 @@
+import { ActivateDirective } from '@shared/directives/activate.directive';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -7,7 +8,7 @@ import { LANDING_HEADER_COPY } from '../../core/content/landing-header.content';
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [ActivateDirective, CommonModule, RouterModule, LucideAngularModule],
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss']
 })

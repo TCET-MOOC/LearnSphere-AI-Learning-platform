@@ -1,3 +1,5 @@
+import { ActivateDirective } from '@shared/directives/activate.directive';
+import { DialogDirective } from '@shared/directives/dialog.directive';
 import { 
   Component, 
   Input, 
@@ -48,7 +50,7 @@ export interface LanguageOption {
 @Component({
   selector: 'app-interactive-transcript',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [DialogDirective, ActivateDirective, CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './interactive-transcript.component.html',
   styleUrls: ['./interactive-transcript.component.scss']
 })

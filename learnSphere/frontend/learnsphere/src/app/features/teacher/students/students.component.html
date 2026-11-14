@@ -6,20 +6,20 @@
   </div>
 
   <!-- Course filter tabs -->
-  <div class="stabs">
-    <div class="stab" 
+  <div class="stabs" role="tablist">
+    <div appActivate role="tab" class="stab" 
          *ngFor="let course of courses" 
-         [class.on]="selectedTab === course" 
+         [class.on]="selectedTab === course" [attr.aria-selected]="selectedTab === course" 
          (click)="selectTab(course)">
       {{ course }}
     </div>
-    <div class="stab" 
-         [class.on]="selectedTab === 'All courses'" 
+    <div appActivate role="tab" class="stab" 
+         [class.on]="selectedTab === 'All courses'" [attr.aria-selected]="selectedTab === 'All courses'" 
          (click)="selectTab('All courses')">
       All courses
     </div>
-    <div class="stab" 
-         [class.on]="selectedTab === 'At-risk students'" 
+    <div appActivate role="tab" class="stab" 
+         [class.on]="selectedTab === 'At-risk students'" [attr.aria-selected]="selectedTab === 'At-risk students'" 
          (click)="selectTab('At-risk students')">
       At-risk students
     </div>

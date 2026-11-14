@@ -10,6 +10,8 @@ import { NotificationService } from '@core/services/notification.service';
 import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confirm-dialog.component';
 import { timeAgo } from '@core/utils/time.util';
 import { getInitials } from '@core/utils/avatar.util';
+import { A11yCopy } from '@core/content/a11y.content';
+import { DialogDirective } from '@shared/directives/dialog.directive';
 
 type DisplayStatus = 'Active' | 'Flagged' | 'Blacklisted';
 
@@ -30,7 +32,7 @@ export interface AdminUserRow {
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [
+  imports: [DialogDirective, 
     CommonModule,
     FormsModule,
     RouterModule,
@@ -41,6 +43,7 @@ export interface AdminUserRow {
   styleUrls: ['./users.component.scss']
 })
 export class UsersComponent implements OnInit {
+  protected readonly a11y = A11yCopy.text;
   allUsers: AdminUserRow[] = [];
   users: AdminUserRow[] = [];
   tabs: string[] = ['All users'];

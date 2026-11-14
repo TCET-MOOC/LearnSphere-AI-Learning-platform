@@ -365,7 +365,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
       border: 1px solid var(--brand-primary);
       padding: 12px 16px;
       border-radius: 10px;
-      color: var(--brand-primary);
+      color: var(--brand-text);
 
       .active-label { font-size: 12px; font-weight: 500; opacity: 0.85; margin-right: 6px; }
       strong { font-size: 14px; font-weight: 700; color: var(--text-primary); }
@@ -494,7 +494,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
       &--primary { background: var(--brand-primary); color: #fff; }
       &--primary:hover:not(:disabled) { background: var(--brand-primary-hover); }
       &--primary:disabled { opacity: 0.5; cursor: not-allowed; }
-      &--soft { background: var(--brand-surface); color: var(--brand-primary); border-color: var(--border-color); }
+      &--soft { background: var(--brand-surface); color: var(--brand-text); border-color: var(--border-color); }
       &--soft:hover { background: var(--brand-primary); color: #fff; }
       &--ghost { background: var(--bg-surface-elevated); border-color: var(--border-color); color: var(--text-primary); }
       &--ghost:hover { background: var(--bg-hover); }

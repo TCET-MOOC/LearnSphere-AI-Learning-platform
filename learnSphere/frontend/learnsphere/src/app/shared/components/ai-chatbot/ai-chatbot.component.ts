@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { LectureContextService } from '@core/services/lecture-context.service';
 import { LucideAngularModule } from 'lucide-angular';
+import { A11yCopy } from '@core/content/a11y.content';
 
 interface ChatMessage {
   id: string;
@@ -20,6 +21,7 @@ interface ChatMessage {
   styleUrls: ['./ai-chatbot.component.scss']
 })
 export class AiChatbotComponent implements OnInit {
+  protected readonly a11y = A11yCopy.text;
   isOpen = false;
   inputMessage = '';
   loading = false;

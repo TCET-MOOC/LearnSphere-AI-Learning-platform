@@ -101,7 +101,7 @@
         <!-- Case A: 3-Tier Modules Exist -->
         <div class="modules-tree" *ngIf="modules.length > 0">
           <div class="module-card" *ngFor="let m of modules; let i = index">
-            <div class="module-header" (click)="toggleModule(m.moduleId || m.id)">
+            <div appActivate class="module-header" (click)="toggleModule(m.moduleId || m.id)">
               <div class="module-title-box">
                 <span class="module-index">Module {{ m.position || (i + 1) }}</span>
                 <h3 class="module-name">{{ m.title }}</h3>

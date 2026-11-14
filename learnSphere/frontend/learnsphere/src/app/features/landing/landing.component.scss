@@ -12,7 +12,7 @@
 }
 
 .pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: var(--border-radius-full); }
-.pill-p { background: var(--brand-surface); color: var(--brand-primary); }
+.pill-p { background: var(--brand-surface); color: var(--brand-text); }
 .pill-g { background: var(--status-green-bg); color: var(--status-green-text); }
 .pill-a { background: var(--status-amber-bg); color: var(--status-amber-text); }
 .pill-t { background: var(--status-blue-bg); color: var(--status-blue-text); }
@@ -54,7 +54,7 @@
 
 /* Buttons */
 .btn-primary { 
-  background: var(--brand-primary); color: var(--text-inverse); font-size: 13px; font-weight: 600; 
+  background: var(--brand-primary); color: var(--text-on-brand); font-size: 13px; font-weight: 600; 
   padding: 12px 24px; border-radius: var(--border-radius-md); border: none; cursor: pointer; 
   white-space: nowrap; transition: background 0.2s; 
 }
@@ -68,14 +68,14 @@
 .btn-outline-dark:hover { background: rgba(255, 255, 255, 0.1); }
 
 .btn-outline-purple { 
-  border: 1.5px solid var(--brand-primary); color: var(--brand-primary); font-size: 13px; font-weight: 600; 
+  border: 1.5px solid var(--brand-primary); color: var(--brand-text); font-size: 13px; font-weight: 600; 
   padding: 12px 24px; border-radius: var(--border-radius-md); background: transparent; 
   cursor: pointer; white-space: nowrap; transition: background 0.2s; 
 }
 .btn-outline-purple:hover { background: var(--brand-surface); }
 
 .star { color: var(--status-amber-text); }
-.check { color: var(--brand-primary); font-weight: bold; }
+.check { color: var(--brand-text); font-weight: bold; }
 
 .desktop-nav {
   display: flex;

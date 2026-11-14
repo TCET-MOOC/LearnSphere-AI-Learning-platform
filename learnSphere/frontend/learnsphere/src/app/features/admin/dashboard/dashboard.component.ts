@@ -11,6 +11,7 @@ import { ApiService } from '@core/services/api.service';
 import { NotificationService } from '@core/services/notification.service';
 import { Course } from '@core/models/course.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
+import { ActivateDirective } from '@shared/directives/activate.directive';
 
 interface KpiCard {
   label: string;
@@ -36,7 +37,7 @@ interface RankedPerson {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [ActivateDirective, CommonModule, LucideAngularModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -44,7 +45,7 @@ export class DashboardComponent implements OnInit {
   loading = false;
   kpiCards: KpiCard[] = [
     { label: 'Gross Volume', value: '₹1,499', sub: '30% platform cut', subColor: 'var(--status-green-text)', icon: 'dollar-sign', tone: 'primary' },
-    { label: 'Registered Users', value: '8', sub: '4 learners enrolled', subColor: 'var(--brand-primary)', icon: 'users', tone: 'blue' },
+    { label: 'Registered Users', value: '8', sub: '4 learners enrolled', subColor: 'var(--brand-text)', icon: 'users', tone: 'blue' },
     { label: 'Curriculum Offerings', value: '3', sub: 'Catalog active', subColor: 'var(--status-amber-text)', icon: 'book-open', tone: 'amber' },
     { label: 'Open Moderation', value: '0', sub: 'Queue clean', subColor: 'var(--status-green-text)', icon: 'flag', tone: 'primary' }
   ];

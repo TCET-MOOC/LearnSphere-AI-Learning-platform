@@ -1,3 +1,4 @@
+import { ActivateDirective } from '@shared/directives/activate.directive';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -41,7 +42,7 @@ export interface TopbarNotificationItem {
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
+  imports: [ActivateDirective, CommonModule, FormsModule, RouterModule, LucideAngularModule],
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.scss']
 })

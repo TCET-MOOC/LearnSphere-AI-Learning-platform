@@ -58,26 +58,26 @@
 
         <div class="form-grid">
           <div class="form-field form-field--full">
-            <label class="form-field__label">Course</label>
-            <select class="form-field__select" [(ngModel)]="selectedCourseId" name="courseId">
+            <label class="form-field__label" for="live-course">Course</label>
+            <select id="live-course" class="form-field__select" [(ngModel)]="selectedCourseId" name="courseId">
               <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
             </select>
           </div>
 
           <div class="form-field form-field--full">
-            <label class="form-field__label">Session Title</label>
-            <input class="form-field__input" placeholder="e.g. Unit 2 Deep-Dive & Midterm Q&A"
+            <label class="form-field__label" for="live-title">Session Title</label>
+            <input id="live-title" class="form-field__input" placeholder="e.g. Unit 2 Deep-Dive & Midterm Q&A"
                    [(ngModel)]="sessionTitle" name="sessionTitle" />
           </div>
 
           <div class="form-field">
-            <label class="form-field__label">Date</label>
-            <input class="form-field__input" type="date" [(ngModel)]="sessionDate" name="sessionDate" />
+            <label class="form-field__label" for="live-date">Date</label>
+            <input id="live-date" class="form-field__input" type="date" [(ngModel)]="sessionDate" name="sessionDate" />
           </div>
 
           <div class="form-field">
-            <label class="form-field__label">Time</label>
-            <input class="form-field__input" type="time" [(ngModel)]="sessionTime" name="sessionTime" />
+            <label class="form-field__label" for="live-time">Time</label>
+            <input id="live-time" class="form-field__input" type="time" [(ngModel)]="sessionTime" name="sessionTime" />
           </div>
         </div>
 

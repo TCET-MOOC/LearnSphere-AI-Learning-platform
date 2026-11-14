@@ -14,13 +14,14 @@ import { ApiService } from '@core/services/api.service';
 import { Module, Assignment, CourseFeedback, CourseRatingSummary } from '@core/models/course.model';
 import { LucideAngularModule, Award, Download, CheckCircle, BookOpen, Star, FileText, MessageSquare, Layers, Trophy, ChevronDown, ChevronRight } from 'lucide-angular';
 import { PaymentsService } from '../../services/payments.service';
+import { ActivateDirective } from '@shared/directives/activate.directive';
 
 declare var Razorpay: any;
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, LucideAngularModule, CertificateModalComponent],
+  imports: [ActivateDirective, CommonModule, RouterModule, FormsModule, LucideAngularModule, CertificateModalComponent],
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.scss']
 })

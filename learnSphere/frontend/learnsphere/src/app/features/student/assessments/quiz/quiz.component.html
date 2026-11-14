@@ -4,7 +4,7 @@
       <p class="eyebrow">Student view</p>
       <h1>{{ assessment?.title || 'Assessment' }}</h1>
     </div>
-    <a class="btn btn--ghost" (click)="backToList()">Back to assessments</a>
+    <a class="btn btn--ghost" routerLink="/student/assessments">Back to assessments</a>
   </header>
 
   <p class="hint" *ngIf="stage === 'loading'">Loading…</p>

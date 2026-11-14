@@ -248,7 +248,7 @@
             <div class="assignments-tab-pane" *ngIf="activeBottomTab === 'assignments'">
               <div class="assignments-workspace">
                 <div class="assign-list-col">
-                  <div 
+                  <div appActivate 
                     class="assign-nav-card" 
                     *ngFor="let a of assignments"
                     [class.is-selected]="selectedAssignment?.assignmentId === a.assignmentId"
@@ -420,7 +420,7 @@
 
           <!-- Scrollable Lecture Cards -->
           <div class="playlist-scroll-list">
-            <div 
+            <div appActivate 
               *ngFor="let lec of lectures" 
               class="playlist-item" 
               [class.is-current]="lec.id === currentLecture.id"

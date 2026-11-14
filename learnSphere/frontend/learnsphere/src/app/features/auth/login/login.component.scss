@@ -151,7 +151,7 @@
     }
 
     .forgot-link {
-      color: var(--brand-primary);
+      color: var(--brand-text);
       text-decoration: none;
       font-weight: 500;
       &:hover { text-decoration: underline; }
@@ -160,7 +160,7 @@
 
   .btn-submit {
     background: var(--brand-primary);
-    color: var(--text-inverse);
+    color: var(--text-on-brand);
     border: none;
     padding: 14px;
     border-radius: var(--border-radius-md);
@@ -187,7 +187,7 @@
   color: var(--text-secondary);
 
   a {
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-weight: 600;
     text-decoration: none;
     &:hover { text-decoration: underline; }
@@ -198,7 +198,7 @@
   margin-top: 24px;
   padding: 12px;
   background: var(--brand-surface);
-  color: var(--brand-primary);
+  color: var(--brand-text);
   border-radius: var(--border-radius-md);
   text-align: center;
   line-height: 1.4;
@@ -224,7 +224,7 @@
     &.active {
       background: var(--brand-surface);
       border-color: var(--brand-primary);
-      color: var(--brand-primary);
+      color: var(--brand-text);
     }
   }
 }

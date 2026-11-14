@@ -22,7 +22,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     background: var(--brand-surface);
     padding: 3px 10px;
     border-radius: 20px;
@@ -166,7 +166,7 @@
     height: 30px;
     border-radius: 8px;
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -317,7 +317,7 @@
       height: 28px;
       border-radius: 6px;
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -360,7 +360,7 @@
   .amount-pill {
     font-size: 13px;
     font-weight: 700;
-    color: #10b981;
+    color: var(--status-green-text);
     background: var(--status-green-bg);
     padding: 4px 10px;
     border-radius: 8px;

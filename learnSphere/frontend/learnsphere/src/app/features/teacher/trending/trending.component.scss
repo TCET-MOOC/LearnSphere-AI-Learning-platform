@@ -19,7 +19,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     margin: 0 0 6px 0;
   }
 
@@ -68,7 +68,7 @@
     height: 44px;
     border-radius: 12px;
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -112,7 +112,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
 
-    &.text-brand { color: var(--brand-primary); }
+    &.text-brand { color: var(--brand-text); }
     &.text-success { color: var(--status-green-text); }
     &.text-muted { color: var(--text-muted); }
   }
@@ -229,7 +229,7 @@
   height: 34px;
   border-radius: 6px;
   background: var(--brand-surface);
-  color: var(--brand-primary);
+  color: var(--brand-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -397,7 +397,7 @@
         height: 24px;
         border-radius: 50%;
         background: var(--brand-surface);
-        color: var(--brand-primary);
+        color: var(--brand-text);
         font-size: 10px;
         font-weight: 700;
         display: flex;

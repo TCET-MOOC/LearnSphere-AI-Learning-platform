@@ -88,15 +88,15 @@
 
 <!-- Certificate Diploma Preview Modal -->
 <div class="modal-backdrop" *ngIf="selectedCertForPreview" (click)="closePreview()">
-  <div class="modal-container cert-modal" (click)="$event.stopPropagation()">
+  <div appDialog aria-labelledby="cert-preview-title" (dialogClose)="closePreview()" class="modal-container cert-modal" (click)="$event.stopPropagation()">
     <div class="modal-top">
-      <div class="top-title">Official Credential Document</div>
+      <div id="cert-preview-title" class="top-title">Official Credential Document</div>
       <div class="top-actions">
         <button class="action-btn print-btn" (click)="printCertificate()">
           <lucide-icon name="download" [size]="16"></lucide-icon>
           <span>Download / Print PDF</span>
         </button>
-        <button class="close-btn" (click)="closePreview()">
+        <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="closePreview()">
           <lucide-icon name="x" [size]="18"></lucide-icon>
         </button>
       </div>
@@ -149,10 +149,10 @@
 
 <!-- Share Modal -->
 <div class="modal-backdrop" *ngIf="selectedCertForShare" (click)="closeShare()">
-  <div class="modal-container share-modal" (click)="$event.stopPropagation()">
+  <div appDialog aria-labelledby="cert-share-title" (dialogClose)="closeShare()" class="modal-container share-modal" (click)="$event.stopPropagation()">
     <div class="modal-top">
-      <div class="top-title">Share Certificate</div>
-      <button class="close-btn" (click)="closeShare()">
+      <div id="cert-share-title" class="top-title">Share Certificate</div>
+      <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="closeShare()">
         <lucide-icon name="x" [size]="18"></lucide-icon>
       </button>
     </div>

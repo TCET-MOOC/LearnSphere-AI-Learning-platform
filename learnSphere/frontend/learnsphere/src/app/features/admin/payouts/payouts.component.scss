@@ -22,7 +22,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     background: var(--brand-surface);
     padding: 3px 10px;
     border-radius: 20px;
@@ -188,7 +188,7 @@
     height: 38px;
     border-radius: 50%;
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-size: 13px;
     font-weight: 700;
     display: flex;
@@ -217,7 +217,7 @@
   &__amount {
     font-size: 16px;
     font-weight: 700;
-    color: #10b981;
+    color: var(--status-green-text);
     margin-right: 8px;
   }
 
@@ -257,7 +257,7 @@
 
       .total-amount {
         font-size: 18px;
-        color: #10b981;
+        color: var(--status-green-text);
       }
     }
   }

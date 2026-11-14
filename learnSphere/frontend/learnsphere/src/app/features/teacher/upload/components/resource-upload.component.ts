@@ -14,11 +14,12 @@ import { NotificationService } from '@core/services/notification.service';
   imports: [CommonModule],
   template: `
     <div class="upload-box">
-      <h3>Upload resource</h3>
+      <h3 id="resource-upload-heading">Upload resource</h3>
       <p class="hint">PDF, DOC, PPT, or image files — handouts, slides, and reading material.</p>
       <input
         type="file"
         accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,image/*"
+        aria-labelledby="resource-upload-heading"
         (change)="onSelect($event)"
         [disabled]="uploading" />
       <div class="progress-track" *ngIf="uploading">

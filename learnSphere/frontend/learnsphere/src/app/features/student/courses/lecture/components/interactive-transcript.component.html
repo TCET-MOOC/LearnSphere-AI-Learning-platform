@@ -116,7 +116,7 @@
 
     <!-- Scrollable Lines Container -->
     <div class="transcript-list" #scrollContainer>
-      <div 
+      <div appActivate 
         *ngFor="let line of filteredLines"
         [id]="'transcript-line-' + line.id"
         class="transcript-row"
@@ -249,9 +249,9 @@
 
   <!-- Full Takeaway Modal -->
   <div class="modal-backdrop" *ngIf="showSummaryModal" (click)="showSummaryModal = false">
-    <div class="ai-modal-card" (click)="$event.stopPropagation()">
+    <div appDialog aria-labelledby="transcript-summary-title" (dialogClose)="showSummaryModal = false" class="ai-modal-card" (click)="$event.stopPropagation()">
       <div class="modal-head">
-        <div class="head-title">
+        <div id="transcript-summary-title" class="head-title">
           <div class="icon-wrap-purple">
             <lucide-icon name="sparkles" [size]="18"></lucide-icon>
           </div>
@@ -280,9 +280,9 @@
 
   <!-- Full Notes Modal -->
   <div class="modal-backdrop" *ngIf="showNotesDrawer" (click)="showNotesDrawer = false">
-    <div class="ai-modal-card notes-modal" (click)="$event.stopPropagation()">
+    <div appDialog aria-labelledby="transcript-notes-title" (dialogClose)="showNotesDrawer = false" class="ai-modal-card notes-modal" (click)="$event.stopPropagation()">
       <div class="modal-head">
-        <div class="head-title">
+        <div id="transcript-notes-title" class="head-title">
           <div class="icon-wrap-indigo">
             <lucide-icon name="file-text" [size]="18"></lucide-icon>
           </div>

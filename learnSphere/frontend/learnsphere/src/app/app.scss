@@ -53,7 +53,7 @@ html, body {
   min-height: 100%;
   min-width: 0;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip; // W7-08: clip, not hidden, so this wrapper is not a second (unfocusable) scroll container
 }
 
 

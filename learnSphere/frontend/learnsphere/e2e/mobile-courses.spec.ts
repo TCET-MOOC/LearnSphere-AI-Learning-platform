@@ -66,7 +66,7 @@ test.describe('My Courses at 360 px', () => {
     await expect(bar.getByRole('link')).toHaveAttribute('href', '/student/courses/1/lectures/2');
     const b = (await bar.boundingBox())!;
     const nav = (await page.locator('nav.mobile-bar').boundingBox())!;
-    const ai = (await page.getByRole('button', { name: 'Toggle AI Assistant' }).boundingBox())!;
+    const ai = (await page.getByRole('button', { name: 'Ask AI assistant' }).boundingBox())!;
     expect(b.y + b.height).toBeLessThanOrEqual(nav.y + 1);
     expect(ai.y + ai.height).toBeLessThanOrEqual(b.y);
   });

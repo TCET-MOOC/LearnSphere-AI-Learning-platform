@@ -22,7 +22,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     background: var(--brand-surface);
     padding: 3px 10px;
     border-radius: 20px;
@@ -51,7 +51,7 @@
     gap: 8px;
     font-size: 12px;
     font-weight: 600;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     background: var(--brand-surface);
     padding: 6px 14px;
     border-radius: 20px;
@@ -239,8 +239,8 @@
     }
 
     &.positive {
-      color: #10b981;
-      .block-top { color: #10b981; }
+      color: var(--status-green-text);
+      .block-top { color: var(--status-green-text); }
       .block-fill { background: #10b981; }
     }
 

@@ -104,7 +104,7 @@
 
     &.active {
       background: var(--bg-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       box-shadow: var(--card-shadow);
     }
   }
@@ -161,7 +161,7 @@
 
   .btn-submit {
     background: var(--brand-primary);
-    color: var(--text-inverse);
+    color: var(--text-on-brand);
     border: none;
     padding: 14px;
     border-radius: var(--border-radius-md);
@@ -189,7 +189,7 @@
   color: var(--text-secondary);
 
   a {
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-weight: 600;
     text-decoration: none;
     &:hover { text-decoration: underline; }

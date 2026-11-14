@@ -51,14 +51,14 @@
       width: fit-content;
 
       &:hover {
-        color: var(--brand-primary);
+        color: var(--brand-text);
         transform: translateX(4px);
       }
     }
 
     .contact-email {
       font-weight: 600;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       
       &:hover {
         text-decoration: underline;
@@ -95,7 +95,7 @@
           padding: 2px 6px;
           border-radius: var(--border-radius-sm);
           background: var(--brand-primary);
-          color: var(--text-inverse);
+          color: var(--text-on-brand);
           letter-spacing: 0.5px;
         }
       }
@@ -131,7 +131,7 @@
 
         &:hover {
           background: var(--brand-surface);
-          color: var(--brand-primary);
+          color: var(--brand-text);
         }
       }
     }

@@ -30,7 +30,7 @@
 
   .eyebrow {
     margin: 0 0 6px 0;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -71,11 +71,11 @@
 
 .btn--soft {
   background: $brand-soft;
-  color: $brand;
+  color: $brand-text;
 }
 
 .btn--ghost {
-  background: #fff;
+  background: var(--bg-surface);
   border-color: $border;
   color: $muted;
 }
@@ -101,7 +101,7 @@
   &--active {
     background: $brand-soft;
     border-color: #afa9ec;
-    color: #3c3489;
+    color: var(--status-purple-text);
   }
 }
 
@@ -137,7 +137,7 @@
     line-height: 1;
   }
 
-  &--purple strong { color: $brand; }
+  &--purple strong { color: $brand-text; }
   &--green strong { color: $green; }
   &--amber strong { color: $amber; }
   &--red strong { color: $red; }
@@ -173,7 +173,7 @@
   font-size: 11px;
   font-weight: 700;
 
-  &--purple { background: $brand-soft; color: $brand; }
+  &--purple { background: $brand-soft; color: $brand-text; }
   &--blue { background: $blue-soft; color: $blue; }
   &--amber { background: $amber-soft; color: #633806; }
   &--red { background: $red-soft; color: $red; }

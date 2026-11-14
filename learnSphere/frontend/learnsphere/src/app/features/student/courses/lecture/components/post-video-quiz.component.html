@@ -1,5 +1,5 @@
 <div class="post-quiz-overlay" *ngIf="quiz">
-  <div class="quiz-modal-card">
+  <div appDialog aria-labelledby="post-video-quiz-title" (dialogClose)="close.emit()" class="quiz-modal-card">
     
     <!-- Modal Header -->
     <div class="quiz-header">
@@ -8,7 +8,7 @@
           <lucide-icon name="help-circle" [size]="18"></lucide-icon>
         </div>
         <div>
-          <h3>Quick Check-in Quiz</h3>
+          <h3 id="post-video-quiz-title">Quick Check-in Quiz</h3>
           <p class="quiz-sub">{{ quiz.title || ('Lecture Assessment: ' + lectureTitle) }}</p>
         </div>
       </div>

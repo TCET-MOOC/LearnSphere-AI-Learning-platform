@@ -60,14 +60,14 @@
 
       <div class="user-table" role="table" aria-label="Users">
         <div class="user-row user-row--head" role="row">
-          <span>User Profile</span>
-          <span>Role</span>
-          <span>Status</span>
-          <span class="text-right">Actions</span>
+          <span role="columnheader">User Profile</span>
+          <span role="columnheader">Role</span>
+          <span role="columnheader">Status</span>
+          <span role="columnheader" class="text-right">Actions</span>
         </div>
 
         <div class="user-row" role="row" *ngFor="let user of users" [class.user-row--flagged]="user.status === 'Flagged'">
-          <div class="user-profile">
+          <div class="user-profile" role="cell">
             <div class="avatar" [class]="'avatar avatar--' + user.tone">{{ user.initials || 'U' }}</div>
             <div>
               <strong class="user-name">{{ user.name || 'Account #' + user.id }}</strong>
@@ -75,14 +75,14 @@
               <em class="user-activity">{{ user.meta || 'Active learner' }}</em>
             </div>
           </div>
-          <span class="user-role-text">{{ user.role }}</span>
-          <span>
+          <span class="user-role-text" role="cell">{{ user.role }}</span>
+          <span role="cell">
             <span class="pill" [ngClass]="getStatusClass(user.status)">
               <span class="status-dot"></span>
               {{ user.status || 'Active' }}
             </span>
           </span>
-          <div class="action-set">
+          <div class="action-set" role="cell">
             <button class="btn btn--ghost" type="button" (click)="viewUser(user)">
               <lucide-icon name="eye" [size]="13"></lucide-icon> Inspect
             </button>
@@ -135,7 +135,7 @@
 
 <!-- User Detail / Inspection Modal Drawer -->
 <div class="modal-backdrop" *ngIf="selectedUserForInspect" (click)="closeUserInspect()">
-  <div class="modal-container user-inspect-modal" (click)="$event.stopPropagation()">
+  <div appDialog aria-labelledby="user-inspect-title" (dialogClose)="closeUserInspect()" class="modal-container user-inspect-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div class="header-left">
         <div class="user-large-avatar" [class]="'avatar avatar--' + selectedUserForInspect.tone">
@@ -143,11 +143,11 @@
         </div>
         <div>
           <div class="inspect-tag">Account Telemetry</div>
-          <h2 class="inspect-name">{{ selectedUserForInspect.name }}</h2>
+          <h2 id="user-inspect-title" class="inspect-name">{{ selectedUserForInspect.name }}</h2>
           <p class="inspect-sub">{{ selectedUserForInspect.email }} · {{ selectedUserForInspect.role }}</p>
         </div>
       </div>
-      <button class="close-btn" (click)="closeUserInspect()">
+      <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="closeUserInspect()">
         <lucide-icon name="x" [size]="18"></lucide-icon>
       </button>
     </div>

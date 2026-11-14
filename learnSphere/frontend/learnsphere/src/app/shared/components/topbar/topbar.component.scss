@@ -137,17 +137,17 @@ $topbar-height: 72px;
 
       &.active {
         background: var(--brand-surface);
-        color: var(--brand-primary);
+        color: var(--brand-text);
 
         lucide-icon,
         svg {
-          color: var(--brand-primary);
+          color: var(--brand-text);
         }
       }
     }
 
     .theme-btn {
-      color: var(--brand-primary);
+      color: var(--brand-text);
       background: var(--brand-surface);
 
       &:hover {
@@ -181,7 +181,7 @@ $topbar-height: 72px;
     height: 38px;
     border-radius: 50%;
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
@@ -274,7 +274,7 @@ $topbar-height: 72px;
 
       lucide-icon,
       svg {
-        color: var(--brand-primary);
+        color: var(--brand-text);
       }
     }
 
@@ -330,7 +330,7 @@ $topbar-height: 72px;
 
     .btn-text {
       font-size: 11.5px;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       background: none;
       border: none;
       cursor: pointer;
@@ -381,7 +381,7 @@ $topbar-height: 72px;
         height: 36px;
         border-radius: 10px;
         background: var(--brand-surface);
-        color: var(--brand-primary);
+        color: var(--brand-text);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -505,7 +505,7 @@ $topbar-height: 72px;
       border-radius: 8px;
       font-size: 12.5px;
       font-weight: 600;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       background: transparent;
       border: none;
       cursor: pointer;

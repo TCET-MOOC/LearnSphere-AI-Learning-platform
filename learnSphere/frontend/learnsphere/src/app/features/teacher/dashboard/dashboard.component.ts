@@ -71,10 +71,10 @@ export class DashboardComponent implements OnInit {
   }
 
   kpiCards = [
-    { label: 'Total students', value: '486', sub: '+12 this week', subColor: '#0F6E56' },
-    { label: 'Active courses', value: '5', sub: '2 draft / 1 pending', subColor: '#6B6880' },
-    { label: 'Avg. rating', value: '4.7 ★', sub: 'Top 10% platform', subColor: '#0F6E56' },
-    { label: 'Royalty this month', value: '₹18,400', sub: 'Payout on 30 Jun', subColor: '#534AB7' }
+    { label: 'Total students', value: '486', sub: '+12 this week', subColor: 'var(--status-green-text)' },
+    { label: 'Active courses', value: '5', sub: '2 draft / 1 pending', subColor: 'var(--text-muted)' },
+    { label: 'Avg. rating', value: '4.7 ★', sub: 'Top 10% platform', subColor: 'var(--status-green-text)' },
+    { label: 'Royalty this month', value: '₹18,400', sub: 'Payout on 30 Jun', subColor: 'var(--brand-text)' }
   ];
 
   myCourses = [

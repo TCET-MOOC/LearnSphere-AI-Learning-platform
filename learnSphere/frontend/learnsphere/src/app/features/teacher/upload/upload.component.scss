@@ -13,7 +13,7 @@
   margin-bottom: 24px;
 
   .eyebrow {
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -79,7 +79,7 @@
     align-items: center;
     gap: 6px;
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-weight: 700;
     font-size: 0.85rem;
     padding: 4px 12px;
@@ -212,7 +212,7 @@
           .q-label {
             font-size: 0.8rem;
             font-weight: 700;
-            color: var(--brand-primary);
+            color: var(--brand-text);
             text-transform: uppercase;
           }
 
@@ -327,7 +327,7 @@
 .link-btn {
   background: none;
   border: none;
-  color: var(--brand-primary);
+  color: var(--brand-text);
   font-weight: 600;
   cursor: pointer;
 
@@ -344,7 +344,7 @@
 
   &--purple {
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
   }
 
   &--blue {

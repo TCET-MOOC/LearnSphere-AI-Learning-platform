@@ -43,7 +43,7 @@
       height: 38px;
       border-radius: var(--border-radius-md);
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -114,7 +114,7 @@
     .step-label {
       font-size: 12px;
       font-weight: 600;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       font-variant-numeric: tabular-nums;
@@ -185,7 +185,7 @@
         }
 
         .check-icon {
-          color: var(--brand-primary);
+          color: var(--brand-text);
         }
 
         &:hover {
@@ -203,11 +203,11 @@
 
           .opt-prefix {
             background: var(--brand-primary);
-            color: var(--text-inverse, #ffffff);
+            color: var(--text-on-brand);
           }
 
           .opt-text {
-            color: var(--brand-primary);
+            color: var(--brand-text);
             font-weight: 600;
           }
         }
@@ -424,7 +424,7 @@
 
   &--primary {
     background: var(--brand-primary);
-    color: var(--text-inverse, #ffffff);
+    color: var(--text-on-brand);
 
     &:hover:not(:disabled) {
       background: var(--brand-primary-hover);
@@ -433,7 +433,7 @@
 
   &--success {
     background: var(--brand-primary);
-    color: var(--text-inverse, #ffffff);
+    color: var(--text-on-brand);
 
     &:hover:not(:disabled) {
       background: var(--brand-primary-hover);

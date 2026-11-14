@@ -29,7 +29,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     margin: 0 0 6px 0;
   }
 
@@ -45,7 +45,7 @@
     gap: 8px;
 
     .title-icon {
-      color: var(--brand-primary);
+      color: var(--brand-text);
     }
   }
 
@@ -295,7 +295,7 @@
     .reply-author {
       font-size: 13px;
       font-weight: 600;
-      color: $brand-purple;
+      color: $brand-text;
     }
 
     .reply-text {
@@ -328,11 +328,11 @@
       padding: 0;
 
       &:hover {
-        color: $brand-purple;
+        color: $brand-text;
       }
 
       &.reply-btn {
-        color: $brand-purple;
+        color: $brand-text;
       }
     }
   }
@@ -356,7 +356,7 @@
 
   &.rs {
     background: $brand-purple-lt;
-    color: $brand-purple;
+    color: $brand-text;
   }
 }
 
@@ -371,7 +371,7 @@
 
   &.p-pu {
     background: $brand-purple-lt;
-    color: $brand-purple;
+    color: $brand-text;
   }
 
   &.p-gr {

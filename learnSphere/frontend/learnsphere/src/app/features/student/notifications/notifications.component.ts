@@ -5,6 +5,7 @@ import { NotificationStateService } from '../../../core/services/notification-st
 import { NotificationApiService } from '@core/services/notification-api.service';
 import { NotificationService } from '@core/services/notification.service';
 import { timeAgo } from '@core/utils/time.util';
+import { ActivateDirective } from '@shared/directives/activate.directive';
 
 interface NotificationItem {
   id: number;
@@ -14,7 +15,7 @@ interface NotificationItem {
   category: string;
 }
 
-@Component({ selector: 'app-student-notifications', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './notifications.component.html', styleUrls: ['./notifications.component.scss'] })
+@Component({ selector: 'app-student-notifications', standalone: true, imports: [ActivateDirective, CommonModule, FormsModule], templateUrl: './notifications.component.html', styleUrls: ['./notifications.component.scss'] })
 export class NotificationsComponent implements OnInit {
   query = '';
   activeFilter = 'All';

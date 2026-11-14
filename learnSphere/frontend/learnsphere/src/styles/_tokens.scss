@@ -28,12 +28,14 @@
   // Text
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-muted: #94a3b8; // W7-08: kept by user decision (2026-11-14) although 2.6:1 on white is below AA; recorded exception, TRACKER §4
   --text-inverse: #ffffff;
+  --text-on-brand: #ffffff; // W7-08: label on a --brand-primary fill (was referenced but undefined)
 
   // Brand Palette
   --brand-primary: #534ab7;
   --brand-primary-hover: #4338ca;
+  --brand-text: #534ab7; // W7-08: brand-coloured text; AA on light surfaces
   --brand-surface: #eeedfe;
   --brand-surface-hover: #e0e7ff;
   --brand-text-soft: #a5b4fc; // soft indigo text on a brand-tinted chip (course detail, W6-11)
@@ -93,6 +95,10 @@
   --bg-landing-footer: #0d0b1e;
   --text-landing-highlight: #afa9ec;
   --text-landing-white: #ffffff;
+
+  // Third-party mark: YouTube import button (W7-08: white label 5.9:1; #ff0000 was 4.0:1)
+  --youtube-red: #cc0000;
+  --youtube-red-hover: #a30000;
 }
 
 [data-theme="dark"],
@@ -118,10 +124,12 @@
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
   --text-inverse: #0f172a;
+  --text-on-brand: #ffffff; // W7-08: label on a --brand-primary fill (5.6:1)
 
   // Brand Palette
-  --brand-primary: #6366f1;
+  --brand-primary: #5850ec; // W7-08: white label 5.6:1 (was #6366f1, 4.47:1)
   --brand-primary-hover: #4f46e5;
+  --brand-text: #9099f8; // W7-08: brand-coloured text; the closest shade to #6366f1 with at least 4.5:1 on every dark surface, resting brand chip and chip-on-highlight (4.58:1 on #2c3269) (#6366f1 was 2.6 to 4.4:1)
   --brand-surface: rgba(99, 102, 241, 0.18);
   --brand-surface-hover: rgba(99, 102, 241, 0.28);
   --brand-text-soft: #a5b4fc;
@@ -181,6 +189,10 @@
   --bg-landing-footer: #0d0b1e;
   --text-landing-highlight: #afa9ec;
   --text-landing-white: #ffffff;
+
+  // Third-party mark: YouTube import button (W7-08: white label 5.9:1; #ff0000 was 4.0:1)
+  --youtube-red: #cc0000;
+  --youtube-red-hover: #a30000;
 }
 
 // Typography faces, sizes, line heights and weights

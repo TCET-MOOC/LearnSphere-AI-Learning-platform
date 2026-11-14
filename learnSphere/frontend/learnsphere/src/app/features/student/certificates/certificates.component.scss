@@ -13,7 +13,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       margin: 0 0 6px 0;
     }
 
@@ -67,7 +67,7 @@
         font-weight: 500;
 
         &.text-success { color: var(--status-green-text); }
-        &.text-purple { color: var(--brand-primary); }
+        &.text-purple { color: var(--brand-text); }
         &.text-amber { color: var(--status-amber-text); }
       }
     }
@@ -121,7 +121,7 @@
             height: 44px;
             border-radius: 10px;
             background: var(--brand-surface);
-            color: var(--brand-primary);
+            color: var(--brand-text);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -151,7 +151,7 @@
             .credential-id {
               font-size: 0.75rem;
               font-family: monospace;
-              color: var(--brand-primary);
+              color: var(--brand-text);
               background: var(--brand-surface);
               padding: 2px 6px;
               border-radius: 4px;
@@ -181,7 +181,7 @@
             gap: 6px;
             background: none;
             border: none;
-            color: var(--brand-primary);
+            color: var(--brand-text);
             font-weight: 600;
             font-size: 0.85rem;
             cursor: pointer;

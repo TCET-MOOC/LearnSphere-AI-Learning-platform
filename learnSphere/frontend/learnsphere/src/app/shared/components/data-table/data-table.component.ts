@@ -143,7 +143,7 @@ export interface TableColumn {
       height: 30px;
       border-radius: 50%;
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       display: flex;
       align-items: center;
       justify-content: center;

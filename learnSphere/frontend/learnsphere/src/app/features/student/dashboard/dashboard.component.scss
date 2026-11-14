@@ -44,7 +44,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--brand-primary);
+  color: var(--brand-text);
   margin-bottom: 2px;
 }
 
@@ -106,14 +106,14 @@
 
     &:hover {
       border-color: var(--brand-primary);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       background: var(--bg-hover);
     }
   }
 
   &--link {
     background: none;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     padding: 0;
     font-size: 12px;
     font-weight: 600;
@@ -212,7 +212,7 @@
     height: 40px;
     min-width: 40px;
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     border: 1px solid var(--brand-surface);
     border-radius: var(--border-radius-md);
     display: flex;
@@ -393,7 +393,7 @@
     font-weight: 700;
     min-width: 40px;
     text-align: right;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-variant-numeric: tabular-nums;
 
     &.is-completed {
@@ -404,7 +404,7 @@
 
 .course-avatar--brand {
   background: var(--brand-surface);
-  color: var(--brand-primary);
+  color: var(--brand-text);
   border: 1px solid var(--brand-primary);
 }
 
@@ -512,7 +512,7 @@
 
   &--red    { background: var(--status-red-bg);    color: var(--status-red-text);    border: 1px solid var(--status-red-bg); }
   &--amber  { background: var(--status-amber-bg);  color: var(--status-amber-text);  border: 1px solid var(--status-amber-bg); }
-  &--purple { background: var(--brand-surface);    color: var(--brand-primary);     border: 1px solid var(--brand-surface); }
+  &--purple { background: var(--brand-surface);    color: var(--brand-text);     border: 1px solid var(--brand-surface); }
   &--green  { background: var(--status-green-bg);  color: var(--status-green-text);  border: 1px solid var(--status-green-bg); }
   &--grey   { background: var(--status-grey-bg);   color: var(--status-grey-text);   border: 1px solid var(--status-grey-bg); }
 }
@@ -546,7 +546,7 @@
     justify-content: center;
     flex-shrink: 0;
     margin-top: 1px;
-    color: var(--brand-primary);
+    color: var(--brand-text);
   }
 
   &__body { flex: 1; min-width: 0; }
@@ -600,7 +600,7 @@
     height: 40px;
     min-width: 40px;
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     border: 1px solid var(--brand-primary);
     border-radius: var(--border-radius-sm);
     display: flex;
@@ -644,7 +644,7 @@
     font-size: 10px;
     font-weight: 600;
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     padding: 3px 8px;
     border-radius: var(--border-radius-full);
     white-space: nowrap;
@@ -742,7 +742,7 @@
     display: inline-flex;
     align-items: center;
     font: 600 14px var(--font-body);
-    color: var(--brand-primary);
+    color: var(--brand-text);
   }
 }
 
@@ -899,7 +899,7 @@
 .coming-up__action {
   flex: none;
   font: 600 14px var(--font-body);
-  color: var(--brand-primary);
+  color: var(--brand-text);
 
   &.is-live {
     color: var(--status-red-text);
@@ -928,7 +928,7 @@
 .home-courses__state {
   flex: none;
   font: 600 14px var(--font-body);
-  color: var(--brand-primary);
+  color: var(--brand-text);
 
   &.is-done {
     color: var(--status-green-text);
@@ -941,7 +941,7 @@
   display: inline-flex;
   align-items: center;
   font: 600 14px var(--font-body);
-  color: var(--brand-primary);
+  color: var(--brand-text);
 }
 
 // Every course finished: same surface as the resume card, no progress.

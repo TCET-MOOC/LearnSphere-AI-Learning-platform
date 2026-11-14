@@ -49,7 +49,7 @@
       <div style="width: 48px; height: 48px; border-radius: 50%; background: #EEEDFE; color: #534AB7; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
         <lucide-icon name="message-circle" style="width: 24px; height: 24px;"></lucide-icon>
       </div>
-      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #1a1830;">No Course Discussions Yet</h3>
+      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: var(--text-primary);">No Course Discussions Yet</h3>
       <p style="margin: 0 0 20px 0; color: #64748b; font-size: 14px; max-width: 400px; margin-left: auto; margin-right: auto;">
         Discussions are organized by course. Enroll in a course from your courses catalog to join discussions and ask questions.
       </p>
@@ -72,7 +72,7 @@
               {{ (thread.posts?.length || 0) > 0 ? ((thread.posts?.length || 0) + ' replies') : 'No replies' }}
             </span>
           </div>
-          <h4 style="margin: 8px 0 4px 0; font-size: 15px; font-weight: 600; color: #1a1830;">{{ thread.title }}</h4>
+          <h4 style="margin: 8px 0 4px 0; font-size: 15px; font-weight: 600; color: var(--text-primary);">{{ thread.title }}</h4>
           <div class="post-text">{{ thread.content }}</div>
 
           <div class="teacher-reply" *ngFor="let post of (thread.posts || [])">

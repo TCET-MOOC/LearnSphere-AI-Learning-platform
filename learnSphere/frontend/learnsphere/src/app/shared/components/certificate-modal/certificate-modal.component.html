@@ -1,10 +1,10 @@
 <!-- Certificate Diploma Preview Modal Backdrop -->
 <div class="modal-backdrop" *ngIf="certificate" (click)="onBackdropClick()">
-  <div class="modal-container cert-modal" (click)="$event.stopPropagation()">
+  <div appDialog aria-labelledby="certificate-title" (dialogClose)="onBackdropClick()" class="modal-container cert-modal" (click)="$event.stopPropagation()">
     
     <!-- Modal Header Actions -->
     <div class="modal-top">
-      <div class="top-title">
+      <div id="certificate-title" class="top-title">
         <lucide-icon name="award" [size]="18" class="award-head-icon"></lucide-icon>
         <span>Official Course Certificate</span>
       </div>
@@ -70,10 +70,10 @@
 
 <!-- Share Modal Sub-dialog -->
 <div class="modal-backdrop" *ngIf="showShareSubmodal && certificate" (click)="showShareSubmodal = false">
-  <div class="modal-container share-modal" (click)="$event.stopPropagation()">
+  <div appDialog aria-labelledby="certificate-share-title" (dialogClose)="showShareSubmodal = false" class="modal-container share-modal" (click)="$event.stopPropagation()">
     <div class="modal-top">
-      <div class="top-title">Share Certificate</div>
-      <button class="close-btn" (click)="showShareSubmodal = false" type="button">
+      <div id="certificate-share-title" class="top-title">Share Certificate</div>
+      <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="showShareSubmodal = false" type="button">
         <lucide-icon name="x" [size]="18"></lucide-icon>
       </button>
     </div>

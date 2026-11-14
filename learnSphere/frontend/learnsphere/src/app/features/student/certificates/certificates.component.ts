@@ -11,6 +11,8 @@ import { Assessment, Certificate } from '@core/models/assessment.model';
 import { Course } from '@core/models/course.model';
 import { NotificationService } from '@core/services/notification.service';
 import { LucideAngularModule } from 'lucide-angular';
+import { A11yCopy } from '@core/content/a11y.content';
+import { DialogDirective } from '@shared/directives/dialog.directive';
 
 export interface EarnedCertView {
   courseId: number;
@@ -41,11 +43,12 @@ export interface RemedialCertView {
 @Component({
   selector: 'app-certificates',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [DialogDirective, CommonModule, LucideAngularModule],
   templateUrl: './certificates.component.html',
   styleUrls: ['./certificates.component.scss']
 })
 export class CertificatesComponent implements OnInit {
+  protected readonly a11y = A11yCopy.text;
   loading = true;
 
   earnedCerts: EarnedCertView[] = [];

@@ -14,7 +14,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     margin: 0 0 6px 0;
   }
 
@@ -163,7 +163,7 @@
 
 /* Utilities */
 .text-link, .text-link-btn {
-  color: var(--brand-primary);
+  color: var(--brand-text);
   font-size: 14px;
   text-decoration: none;
   font-weight: 500;
@@ -186,4 +186,4 @@
 }
 
 .text-success { color: var(--status-green-text); }
-.text-purple { color: var(--brand-primary); }
+.text-purple { color: var(--brand-text); }

@@ -131,7 +131,7 @@
           </div>
 
           <div class="course-list" *ngIf="continueLearning.length > 0">
-            <div class="course-item" *ngFor="let course of continueLearning" (click)="navigateToCourse(course.id)">
+            <div appActivate role="link" class="course-item" *ngFor="let course of continueLearning" (click)="navigateToCourse(course.id)">
               <div class="course-item__avatar course-avatar--brand">
                 {{ course.thumbnail }}
               </div>
@@ -238,7 +238,7 @@
           </div>
 
           <div class="rec-list" *ngIf="recommendedCourses.length > 0">
-            <div class="rec-item" *ngFor="let rec of recommendedCourses" (click)="navigateToCourse(rec.id)">
+            <div appActivate role="link" class="rec-item" *ngFor="let rec of recommendedCourses" (click)="navigateToCourse(rec.id)">
               <div class="rec-item__avatar">{{ rec.thumbnail }}</div>
               <div class="rec-item__info">
                 <div class="rec-item__title">{{ rec.title }}</div>

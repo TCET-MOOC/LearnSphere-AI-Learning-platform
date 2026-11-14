@@ -38,7 +38,8 @@
     </a>
 
     <div class="continue-bar" *ngIf="continueLesson">
-      <a [routerLink]="continueLesson.route" [attr.aria-label]="mcCopy.continueLabel + ': ' + continueLesson.title">
+      <a [routerLink]="continueLesson.route">
+        <span class="sr-only">{{ mcCopy.continueLabel }}: </span>
         <span class="continue-bar__play" aria-hidden="true"><lucide-icon name="play" [size]="16"></lucide-icon></span>
         <span class="continue-bar__text">
           <span class="continue-bar__title">{{ continueLesson.title }}</span>

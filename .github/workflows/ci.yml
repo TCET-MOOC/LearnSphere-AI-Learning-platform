@@ -136,6 +136,9 @@ jobs:
       - name: Copy ratchet (W7-07)
         run: npm run lint:copy
 
+      - name: Accessibility lint (W7-08)
+        run: npm run lint:a11y
+
       - name: Build frontend
         run: npm run build
 

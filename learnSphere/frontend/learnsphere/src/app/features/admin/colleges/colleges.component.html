@@ -119,14 +119,14 @@
 
 <!-- Add College Modal Overlay -->
 <div class="modal-backdrop" *ngIf="showAddCollegeModal" (click)="closeAddCollegeModal()">
-  <div class="modal-container add-college-dialog" (click)="$event.stopPropagation()">
+  <div appDialog aria-labelledby="add-college-title" (dialogClose)="closeAddCollegeModal()" class="modal-container add-college-dialog" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div>
         <div class="dialog-tag">New Institution</div>
-        <h2 class="dialog-title">Register New College</h2>
+        <h2 id="add-college-title" class="dialog-title">Register New College</h2>
         <p class="dialog-sub">Add a verified campus partner or university to LearnSphere.</p>
       </div>
-      <button type="button" class="close-btn" (click)="closeAddCollegeModal()">
+      <button [attr.aria-label]="a11y.closeDialog" type="button" class="close-btn" (click)="closeAddCollegeModal()">
         <lucide-icon name="x" [size]="18"></lucide-icon>
       </button>
     </div>
@@ -182,16 +182,16 @@
 
 <!-- Institutional College Management Drawer / Modal -->
 <div class="modal-backdrop" *ngIf="selectedCollegeForManage" (click)="closeManageDrawer()">
-  <div class="modal-container college-detail-modal" (click)="$event.stopPropagation()">
+  <div appDialog aria-labelledby="college-detail-title" (dialogClose)="closeManageDrawer()" class="modal-container college-detail-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div>
         <div class="inst-tag">Institutional Dashboard</div>
-        <h2 class="inst-name">{{ selectedCollegeForManage.name }}</h2>
+        <h2 id="college-detail-title" class="inst-name">{{ selectedCollegeForManage.name }}</h2>
         <p class="inst-location">
           <lucide-icon name="map-pin" class="inline-icon"></lucide-icon> {{ selectedCollegeForManage.city }} · Verified Campus Partner
         </p>
       </div>
-      <button class="close-btn" (click)="closeManageDrawer()">
+      <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="closeManageDrawer()">
         <lucide-icon name="x" [size]="18"></lucide-icon>
       </button>
     </div>

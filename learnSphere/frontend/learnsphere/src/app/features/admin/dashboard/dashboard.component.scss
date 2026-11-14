@@ -30,7 +30,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     background: var(--brand-surface);
     padding: 3px 10px;
     border-radius: 20px;
@@ -59,7 +59,7 @@
     gap: 8px;
     font-size: 12px;
     font-weight: 600;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     background: var(--brand-surface);
     padding: 6px 14px;
     border-radius: 20px;
@@ -220,13 +220,13 @@
       gap: 8px;
 
       .hd-icon {
-        color: var(--brand-primary);
+        color: var(--brand-text);
       }
     }
 
     .card-link {
       font-size: 12px;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       cursor: pointer;
       font-weight: 600;
       transition: color 0.15s ease;
@@ -300,7 +300,7 @@
 
     &.course-ava {
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       border-radius: 8px;
     }
   }

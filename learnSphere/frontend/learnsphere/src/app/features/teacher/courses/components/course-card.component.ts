@@ -45,7 +45,7 @@ import { Course } from '@core/models/course.model';
     .course-card__head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .course-id {
       width: 40px; height: 40px; border-radius: 10px;
-      background: var(--brand-surface); color: var(--brand-primary);
+      background: var(--brand-surface); color: var(--brand-text);
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 12px; flex: 0 0 auto;
     }
@@ -54,7 +54,7 @@ import { Course } from '@core/models/course.model';
     .course-title p { margin: 4px 0 0; font-size: 11.5px; color: var(--text-muted); }
     .course-actions { display: flex; gap: 8px; }
     .btn { border: 1px solid transparent; border-radius: 8px; padding: 8px 14px; font: 600 12px 'Inter', sans-serif; cursor: pointer; text-decoration: none; transition: all 0.15s ease; }
-    .btn--soft { background: var(--brand-surface); color: var(--brand-primary); border-color: var(--border-color); }
+    .btn--soft { background: var(--brand-surface); color: var(--brand-text); border-color: var(--border-color); }
     .btn--soft:hover { background: var(--brand-primary); color: #fff; }
     .btn--danger { background: var(--status-red-bg); color: var(--status-red-text); }
     .btn--danger:hover { background: var(--status-red-text); color: #fff; }

@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { SidebarService } from '../../../core/services/sidebar.service';
 import { Observable } from 'rxjs';
+import { A11yCopy } from '@core/content/a11y.content';
 
 @Component({
   selector: 'app-admin-sidebar',
@@ -13,6 +14,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./admin-sidebar.component.scss'] // Using a custom dark SCSS file
 })
 export class AdminSidebarComponent {
+  protected readonly a11y = A11yCopy.text;
   isCollapsed$: Observable<boolean>;
   isMobileOpen$: Observable<boolean>;
 

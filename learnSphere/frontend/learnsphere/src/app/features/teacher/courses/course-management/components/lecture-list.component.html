@@ -24,9 +24,9 @@
 
   <!-- Quiz Management Modal -->
   <div class="quiz-mgmt-overlay" *ngIf="showQuizModal && quizLecture">
-    <div class="quiz-mgmt-modal">
+    <div appDialog aria-labelledby="quiz-mgmt-title" (dialogClose)="closeQuizModal()" class="quiz-mgmt-modal">
       <div class="modal-head">
-        <div class="head-title">
+        <div id="quiz-mgmt-title" class="head-title">
           <div class="badge-icon">
             <lucide-icon name="help-circle" [size]="18"></lucide-icon>
           </div>
@@ -216,7 +216,7 @@
       </label>
 
       <label class="full">
-        Video URL or File Upload
+        <span id="lecture-video-label">Video URL or File Upload</span>
         <input 
           type="text" 
           formControlName="videoUrl" 
@@ -224,7 +224,7 @@
           style="margin-bottom: 8px;"
         />
         <div class="file-upload-row" style="display: flex; align-items: center; gap: 8px;">
-          <input type="file" accept="video/*" (change)="onVideoSelected($event)" />
+          <input type="file" accept="video/*" aria-labelledby="lecture-video-label" (change)="onVideoSelected($event)" />
           <span class="upload-hint" *ngIf="uploadingVideo">Uploading… {{ uploadPercent }}%</span>
         </div>
       </label>

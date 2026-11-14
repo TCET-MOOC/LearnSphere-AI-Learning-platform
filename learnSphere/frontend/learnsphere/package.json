@@ -14,6 +14,7 @@
     "e2e:visual:update": "playwright test --project=visual --update-snapshots",
     "check:prod-urls": "node scripts/check-prod-urls.mjs",
     "check:toolchain": "node scripts/check-toolchain.mjs",
+    "lint:a11y": "node scripts/a11y-lint.mjs",
     "lint:copy": "node scripts/copy-ratchet.mjs",
     "lint:styles": "node scripts/stylelint-ratchet.mjs",
     "lint:styles:update": "node scripts/stylelint-ratchet.mjs --update"
@@ -48,6 +49,7 @@
     "@angular/build": "~21.2.16",
     "@angular/cli": "~21.2.16",
     "@angular/compiler-cli": "~21.2.17",
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.64.1",
     "@types/sockjs-client": "^1.5.4",
     "jsdom": "^28.0.0",

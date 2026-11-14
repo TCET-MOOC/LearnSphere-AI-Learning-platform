@@ -66,7 +66,7 @@ import { StudentService } from '../../services/student.service';
       height: 44px;
       border-radius: var(--border-radius-md);
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       border: 1px solid var(--brand-primary);
       display: flex;
       align-items: center;
@@ -89,7 +89,7 @@ import { StudentService } from '../../services/student.service';
       gap: 12px;
       flex: 0 0 auto;
     }
-    .course-progress { font-size: 13px; font-weight: 700; color: var(--brand-primary); min-width: 48px; text-align: right; font-variant-numeric: tabular-nums; }
+    .course-progress { font-size: 13px; font-weight: 700; color: var(--brand-text); min-width: 48px; text-align: right; font-variant-numeric: tabular-nums; }
     .course-progress.is-completed-text { color: var(--status-green-text); }
     .btn-continue {
       padding: 6px 14px;
@@ -97,7 +97,7 @@ import { StudentService } from '../../services/student.service';
       font-size: 12px;
       font-weight: 600;
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       border: 1px solid var(--brand-primary);
       cursor: pointer;
       transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -118,7 +118,7 @@ import { StudentService } from '../../services/student.service';
     .pill--draft { background: var(--status-amber-bg); color: var(--status-amber-text); border: 1px solid var(--status-amber-bg); }
     .pill--pending { background: var(--status-red-bg); color: var(--status-red-text); border: 1px solid var(--status-red-bg); }
     .pill--archived { background: var(--status-grey-bg); color: var(--status-grey-text); border: 1px solid var(--status-grey-bg); }
-    .pill--progress { background: var(--brand-surface); color: var(--brand-primary); border: 1px solid var(--brand-surface); font-weight: 600; }
+    .pill--progress { background: var(--brand-surface); color: var(--brand-text); border: 1px solid var(--brand-surface); font-weight: 600; }
     .pill--completed { background: var(--status-green-bg); color: var(--status-green-text); border: 1px solid var(--status-green-bg); font-weight: 700; }
   `]
 })

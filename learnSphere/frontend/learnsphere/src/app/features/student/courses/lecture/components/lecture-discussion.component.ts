@@ -76,7 +76,7 @@ import { timeAgo } from '@core/utils/time.util';
     .new-post { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
     .new-post textarea { border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); border-radius: var(--border-radius-md); padding: 8px 10px; font: 400 12.5px inherit; resize: vertical; outline: none; }
     .new-post textarea:focus { border-color: var(--brand-primary); }
-    .post-btn { align-self: flex-end; border: none; background: var(--brand-primary); color: var(--text-inverse, #fff); font: 600 11.5px inherit; padding: 6px 14px; border-radius: var(--border-radius-md); cursor: pointer; transition: background-color 0.15s ease; }
+    .post-btn { align-self: flex-end; border: none; background: var(--brand-primary); color: var(--text-on-brand); font: 600 11.5px inherit; padding: 6px 14px; border-radius: var(--border-radius-md); cursor: pointer; transition: background-color 0.15s ease; }
     .post-btn:hover:not(:disabled) { background: var(--brand-primary-hover); }
     .post-btn:disabled { opacity: .5; cursor: not-allowed; }
     .posts { display: flex; flex-direction: column; gap: 14px; }
@@ -89,7 +89,7 @@ import { timeAgo } from '@core/utils/time.util';
     .post-time { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
     .del-btn { margin-left: auto; border: none; background: transparent; color: var(--status-red-text); font-size: 11px; cursor: pointer; }
     .post-text { margin: 4px 0 6px; font: 400 12.5px inherit; color: var(--text-secondary); line-height: 1.45; }
-    .link-btn { border: none; background: transparent; color: var(--brand-primary); font: 600 11px inherit; cursor: pointer; padding: 0; }
+    .link-btn { border: none; background: transparent; color: var(--brand-text); font: 600 11px inherit; cursor: pointer; padding: 0; }
     .replies { margin: 8px 0 8px 10px; padding-left: 10px; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
     .reply { display: flex; gap: 8px; }
     .reply-input { display: flex; gap: 8px; margin-top: 8px; }

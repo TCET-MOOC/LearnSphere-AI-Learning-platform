@@ -56,9 +56,9 @@
 
   <!-- YouTube 1-Click Importer Modal -->
   <div class="modal-backdrop" *ngIf="showImportModal">
-    <div class="modal-card youtube-import-modal">
+    <div appDialog aria-labelledby="youtube-import-title" (dialogClose)="closeImportModal()" class="modal-card youtube-import-modal">
       <div class="modal-header">
-        <div class="header-title-box">
+        <div id="youtube-import-title" class="header-title-box">
           <span class="yt-icon">📺</span>
           <div>
             <h3>1-Click YouTube Video / Playlist Importer</h3>

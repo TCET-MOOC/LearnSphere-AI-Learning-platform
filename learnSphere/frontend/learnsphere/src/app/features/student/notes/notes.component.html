@@ -14,15 +14,15 @@
   </div>
 
   <!-- Dynamic course filter tabs -->
-  <div class="section-tabs">
-    <div class="stab" 
-         [class.on]="selectedCourse === 'all'" 
+  <div class="section-tabs" role="tablist">
+    <div appActivate role="tab" class="stab" 
+         [class.on]="selectedCourse === 'all'" [attr.aria-selected]="selectedCourse === 'all'" 
          (click)="selectTab('all')">
       All notes
     </div>
-    <div class="stab" 
+    <div appActivate role="tab" class="stab" 
          *ngFor="let course of courses" 
-         [class.on]="selectedCourse === course" 
+         [class.on]="selectedCourse === course" [attr.aria-selected]="selectedCourse === course" 
          (click)="selectTab(course)">
       {{ course }}
     </div>

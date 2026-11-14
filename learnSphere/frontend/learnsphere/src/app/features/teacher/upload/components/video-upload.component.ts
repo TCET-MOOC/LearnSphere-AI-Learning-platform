@@ -14,9 +14,9 @@ import { NotificationService } from '@core/services/notification.service';
   imports: [CommonModule],
   template: `
     <div class="upload-box">
-      <h3>Upload video</h3>
+      <h3 id="video-upload-heading">Upload video</h3>
       <p class="hint">MP4, MOV, or WebM. Copy the resulting URL into a lecture's video field in course management.</p>
-      <input type="file" accept="video/*" (change)="onSelect($event)" [disabled]="uploading" />
+      <input type="file" accept="video/*" aria-labelledby="video-upload-heading" (change)="onSelect($event)" [disabled]="uploading" />
       <div class="progress-track" *ngIf="uploading">
         <span [style.width.%]="percent"></span>
       </div>

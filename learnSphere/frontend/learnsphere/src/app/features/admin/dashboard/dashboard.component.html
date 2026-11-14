@@ -51,7 +51,7 @@
               <lucide-icon name="graduation-cap" [size]="16" class="hd-icon"></lucide-icon>
               <span>Top Faculty This Month</span>
             </div>
-            <span class="card-link" (click)="goToUsers()">All teachers →</span>
+            <span appActivate role="link" class="card-link" (click)="goToUsers()">All teachers →</span>
           </div>
           <div class="list-row" *ngFor="let t of topTeachers">
             <div class="rank-badge-wrap">
@@ -78,7 +78,7 @@
               <lucide-icon name="award" [size]="16" class="hd-icon"></lucide-icon>
               <span>Top Academic Learners</span>
             </div>
-            <span class="card-link" (click)="goToUsers()">All students →</span>
+            <span appActivate role="link" class="card-link" (click)="goToUsers()">All students →</span>
           </div>
           <div class="list-row" *ngFor="let s of topStudents">
             <div class="rank-badge-wrap">
@@ -168,7 +168,7 @@
               <lucide-icon name="check-square" [size]="16" class="hd-icon"></lucide-icon>
               <span>Curriculum Verification</span>
             </div>
-            <span class="card-link" (click)="goToCourses()">All ({{ courseApprovals.length }}) →</span>
+            <span appActivate role="link" class="card-link" (click)="goToCourses()">All ({{ courseApprovals.length }}) →</span>
           </div>
 
           <div class="list-row" *ngFor="let app of courseApprovals">

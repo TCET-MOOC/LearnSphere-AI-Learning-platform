@@ -71,14 +71,14 @@
 
 <!-- Create Announcement Modal -->
 <div class="modal-backdrop" *ngIf="showCreateModal" (click)="closeCreateModal()">
-  <div class="modal-container create-ann-modal" (click)="$event.stopPropagation()">
+  <div appDialog aria-labelledby="create-announcement-title" (dialogClose)="closeCreateModal()" class="modal-container create-ann-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div>
         <div class="modal-tag">Platform Notice</div>
-        <h2 class="modal-title">Publish Announcement</h2>
+        <h2 id="create-announcement-title" class="modal-title">Publish Announcement</h2>
         <p class="modal-sub">Broadcast to all students, teachers, and campus partners.</p>
       </div>
-      <button type="button" class="close-btn" (click)="closeCreateModal()">
+      <button [attr.aria-label]="a11y.closeDialog" type="button" class="close-btn" (click)="closeCreateModal()">
         <lucide-icon name="x" [size]="18"></lucide-icon>
       </button>
     </div>

@@ -5,6 +5,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LucideAngularModule } from 'lucide-angular';
+import { ActivateDirective } from '@shared/directives/activate.directive';
 
 import { StudentService } from '../services/student.service';
 import { CertificateService } from '../services/certificate.service';
@@ -84,7 +85,7 @@ interface RecommendedCourse {
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [
+  imports: [ActivateDirective, 
     CommonModule, 
     DatePipe,
     RouterLink,

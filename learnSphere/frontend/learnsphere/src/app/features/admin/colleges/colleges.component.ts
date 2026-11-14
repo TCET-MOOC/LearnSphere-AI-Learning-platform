@@ -8,6 +8,8 @@ import { College, AffiliationRequest } from '@core/models/user.model';
 import { StatCardComponent } from '@shared/components/stat-cards/stat-card.component';
 import { StatusPillComponent } from '@shared/components/status-pills/status-pill.component';
 import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confirm-dialog.component';
+import { A11yCopy } from '@core/content/a11y.content';
+import { DialogDirective } from '@shared/directives/dialog.directive';
 
 import { LucideAngularModule, Plus, MapPin, GraduationCap, Users, BookOpen, Search, PartyPopper } from 'lucide-angular';
 
@@ -19,7 +21,7 @@ import { LucideAngularModule, Plus, MapPin, GraduationCap, Users, BookOpen, Sear
 @Component({
   selector: 'app-colleges',
   standalone: true,
-  imports: [
+  imports: [DialogDirective, 
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
@@ -31,6 +33,7 @@ import { LucideAngularModule, Plus, MapPin, GraduationCap, Users, BookOpen, Sear
   styleUrls: ['./colleges.component.scss']
 })
 export class CollegesComponent implements OnInit {
+  protected readonly a11y = A11yCopy.text;
   /**
    * Reference to the inline template used for the manual college-addition modal.
    */

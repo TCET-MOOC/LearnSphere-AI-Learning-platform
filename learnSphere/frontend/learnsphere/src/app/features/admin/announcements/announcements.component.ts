@@ -5,6 +5,8 @@ import { LucideAngularModule } from 'lucide-angular';
 import { AnnouncementService } from '@core/services/announcement.service';
 import { NotificationService } from '@core/services/notification.service';
 import { timeAgo } from '@core/utils/time.util';
+import { A11yCopy } from '@core/content/a11y.content';
+import { DialogDirective } from '@shared/directives/dialog.directive';
 
 interface AnnouncementItem {
   id: number;
@@ -18,7 +20,7 @@ interface AnnouncementItem {
 @Component({ 
   selector: 'app-admin-announcements', 
   standalone: true, 
-  imports: [
+  imports: [DialogDirective, 
     CommonModule, 
     FormsModule, 
     ReactiveFormsModule,
@@ -28,6 +30,7 @@ interface AnnouncementItem {
   styleUrls: ['./announcements.component.scss'] 
 })
 export class AnnouncementsComponent implements OnInit {
+  protected readonly a11y = A11yCopy.text;
   query = '';
   activeFilter = 'All';
   items: AnnouncementItem[] = [];

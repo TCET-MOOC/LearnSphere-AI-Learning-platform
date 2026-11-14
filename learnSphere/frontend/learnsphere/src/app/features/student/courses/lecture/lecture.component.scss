@@ -49,7 +49,7 @@
     height: 60px;
     border-radius: var(--border-radius-full);
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,7 +71,7 @@
 
   .btn--primary {
     background: var(--brand-primary);
-    color: var(--text-inverse, #fff);
+    color: var(--text-on-brand);
     padding: 10px 20px;
     border-radius: var(--border-radius-md);
     text-decoration: none;
@@ -149,7 +149,7 @@
 
         &--purple {
           background: var(--brand-surface);
-          color: var(--brand-primary);
+          color: var(--brand-text);
         }
 
         &--outline {
@@ -192,7 +192,7 @@
         height: 34px;
         border-radius: var(--border-radius-full);
         background: var(--brand-surface);
-        color: var(--brand-primary);
+        color: var(--brand-text);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -318,7 +318,7 @@
       }
 
       &.is-active {
-        color: var(--brand-primary);
+        color: var(--brand-text);
         background: var(--brand-surface);
         border-color: var(--brand-primary);
       }
@@ -350,7 +350,7 @@
       height: 40px;
       border-radius: var(--border-radius-md);
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -377,7 +377,7 @@
     .res-btn {
       background: var(--brand-surface);
       border: 1px solid var(--brand-primary);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       padding: 6px 12px;
       border-radius: var(--border-radius-md);
       font-size: 12px;
@@ -390,7 +390,7 @@
 
       &:hover {
         background: var(--brand-primary);
-        color: var(--text-inverse, #ffffff);
+        color: var(--text-on-brand);
       }
     }
   }
@@ -590,7 +590,7 @@
       .btn-submit-assign {
         align-self: flex-start;
         background: var(--brand-primary);
-        color: var(--text-inverse, #ffffff);
+        color: var(--text-on-brand);
         border: none;
         padding: 8px 18px;
         border-radius: var(--border-radius-md);
@@ -672,11 +672,11 @@
 
     &.is-active {
       background: var(--brand-primary);
-      color: var(--text-inverse, #ffffff);
+      color: var(--text-on-brand);
 
       .tab-count {
         background: rgba(255, 255, 255, 0.25);
-        color: var(--text-inverse, #ffffff);
+        color: var(--text-on-brand);
       }
     }
   }
@@ -796,7 +796,7 @@
         padding: 8px 12px;
         border-radius: var(--border-radius-md);
         background: var(--brand-primary);
-        color: var(--text-inverse, #ffffff);
+        color: var(--text-on-brand);
         font-weight: 700;
         font-size: 12px;
         border: none;
@@ -887,7 +887,7 @@
           gap: 3px;
           font-size: 10px;
           font-weight: 700;
-          color: var(--brand-primary);
+          color: var(--brand-text);
           text-transform: uppercase;
           letter-spacing: 0.04em;
 
@@ -919,7 +919,7 @@
       border-color: var(--brand-primary);
 
       .item-title {
-        color: var(--brand-primary);
+        color: var(--brand-text);
         font-weight: 600;
       }
     }
@@ -1108,7 +1108,7 @@
     &.is-on {
       border-color: var(--brand-primary);
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
     }
   }
 
@@ -1167,7 +1167,7 @@
     text-decoration: none;
 
     &.is-current {
-      color: var(--brand-primary);
+      color: var(--brand-text);
 
       .upnext-item__num {
         background: var(--brand-primary);

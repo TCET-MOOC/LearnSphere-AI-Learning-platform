@@ -28,7 +28,7 @@
 
   .eyebrow {
     margin: 0 0 6px 0;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -125,12 +125,12 @@
 
     &:hover {
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
     }
 
     &--active {
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       border-color: var(--brand-primary);
     }
   }
@@ -165,7 +165,7 @@
 
   &--purple {
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
   }
 
   &--enrolled {
@@ -193,7 +193,7 @@
 
   &.is-free {
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     border-color: var(--brand-surface);
   }
 }
@@ -233,7 +233,7 @@
     height: 38px;
     border-radius: var(--radius-sm);
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     border: 1px solid var(--brand-primary);
     display: flex;
     align-items: center;
@@ -300,7 +300,7 @@
 
   &--explore {
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     border: 1px solid var(--brand-primary);
 
     &:hover:not(:disabled) {

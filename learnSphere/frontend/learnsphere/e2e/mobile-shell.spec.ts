@@ -68,7 +68,7 @@ test.describe('Mobile shell at 360 px', () => {
 
   test('the AI assistant button sits above the bottom bar', async ({ page }) => {
     await open(page, '/student/dashboard', 'student', 360);
-    const ai = await page.getByRole('button', { name: 'Toggle AI Assistant' }).boundingBox();
+    const ai = await page.getByRole('button', { name: 'Ask AI assistant' }).boundingBox();
     const nav = await bar(page).boundingBox();
     expect(ai!.y + ai!.height).toBeLessThanOrEqual(nav!.y);
   });
@@ -101,7 +101,7 @@ test.describe('Phone pages scroll clear of the floating AI button', () => {
       }
     });
     const last = await page.locator('.home-courses__row').last().boundingBox();
-    const ai = await page.getByRole('button', { name: 'Toggle AI Assistant' }).boundingBox();
+    const ai = await page.getByRole('button', { name: 'Ask AI assistant' }).boundingBox();
     expect(last!.y + last!.height).toBeLessThanOrEqual(ai!.y);
   });
 });

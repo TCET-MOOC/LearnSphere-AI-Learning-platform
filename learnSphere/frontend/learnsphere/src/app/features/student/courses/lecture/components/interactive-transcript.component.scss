@@ -27,7 +27,7 @@
     gap: 8px;
 
     .head-icon {
-      color: var(--brand-primary);
+      color: var(--brand-text);
     }
 
     h3 {
@@ -64,14 +64,14 @@
     transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
     lucide-icon {
-      color: var(--brand-primary);
+      color: var(--brand-text);
     }
 
     &:hover,
     &.is-active {
       background: var(--brand-surface);
       border-color: var(--brand-primary);
-      color: var(--brand-primary);
+      color: var(--brand-text);
     }
   }
 
@@ -96,7 +96,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       padding: 4px 8px;
     }
 
@@ -133,7 +133,7 @@
         background: var(--brand-surface);
         
         .item-name {
-          color: var(--brand-primary);
+          color: var(--brand-text);
         }
       }
     }
@@ -164,7 +164,7 @@
 
   &.is-active {
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     border-color: var(--brand-primary);
 
     .dot {
@@ -218,7 +218,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       padding: 6px 10px 4px 10px;
     }
 
@@ -243,12 +243,12 @@
       transition: background-color 0.15s ease;
 
       .item-icon-purple {
-        color: var(--brand-primary);
+        color: var(--brand-text);
         margin-top: 2px;
       }
 
       .item-icon-indigo {
-        color: var(--brand-primary);
+        color: var(--brand-text);
         margin-top: 2px;
       }
 
@@ -364,7 +364,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       display: block;
       margin-bottom: 2px;
     }
@@ -396,7 +396,7 @@
 
     .mono-time {
       background: var(--brand-primary);
-      color: var(--text-inverse, #ffffff);
+      color: var(--text-on-brand);
     }
 
     .cue-text {
@@ -430,7 +430,7 @@
     gap: 6px;
     font-size: 12.5px;
     font-weight: 600;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     cursor: pointer;
     padding: 4px 8px;
     border-radius: var(--border-radius-sm);
@@ -479,7 +479,7 @@
     border-bottom: 1px solid var(--border-color);
 
     .text-purple {
-      color: var(--brand-primary);
+      color: var(--brand-text);
     }
   }
 
@@ -520,13 +520,13 @@
         &:hover {
           background: var(--brand-surface);
           border-color: var(--brand-primary);
-          color: var(--brand-primary);
+          color: var(--brand-text);
         }
       }
 
       &--primary {
         background: var(--brand-primary);
-        color: var(--text-inverse, #ffffff);
+        color: var(--text-on-brand);
 
         &:hover {
           background: var(--brand-primary-hover);
@@ -589,7 +589,7 @@
         height: 36px;
         border-radius: var(--border-radius-sm);
         background: var(--brand-surface);
-        color: var(--brand-primary);
+        color: var(--brand-text);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -600,7 +600,7 @@
         height: 36px;
         border-radius: var(--border-radius-sm);
         background: var(--brand-surface);
-        color: var(--brand-primary);
+        color: var(--brand-text);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -654,7 +654,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--brand-primary);
+      color: var(--brand-text);
       background: var(--brand-surface);
       padding: 2px 6px;
       border-radius: var(--border-radius-xs);
@@ -684,7 +684,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--brand-primary);
+      color: var(--brand-text);
     }
 
     .formula-box {
@@ -711,7 +711,7 @@
       code {
         font-family: ui-monospace, monospace;
         font-size: 12px;
-        color: var(--brand-primary);
+        color: var(--brand-text);
       }
     }
 
@@ -747,7 +747,7 @@
 
       &--primary {
         background: var(--brand-primary);
-        color: var(--text-inverse, #ffffff);
+        color: var(--text-on-brand);
 
         &:hover {
           background: var(--brand-primary-hover);

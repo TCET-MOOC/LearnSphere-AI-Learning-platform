@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SidebarService } from '../../../core/services/sidebar.service';
 import { Observable } from 'rxjs';
+import { A11yCopy } from '@core/content/a11y.content';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,6 +13,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent {
+  protected readonly a11y = A11yCopy.text;
   isCollapsed$: Observable<boolean>;
   isMobileOpen$: Observable<boolean>;
 

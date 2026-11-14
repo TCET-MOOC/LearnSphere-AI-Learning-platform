@@ -8,11 +8,13 @@ import { AuthService } from '@core/auth/auth.service';
 import { NotificationService } from '@core/services/notification.service';
 import { WebSocketService } from '@core/services/websocket.service';
 import { Subscription } from 'rxjs';
+import { STUDENT_MESSAGES_COPY } from '@core/content/student-messages.content';
 import { ConversationDto, MessageDto } from '@core/models/social.model';
 import { Course } from '@core/models/course.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { formatClockTime, timeAgo } from '@core/utils/time.util';
 import { LucideAngularModule, Plus, Search, Send, MessageSquare, X, BookOpen } from 'lucide-angular';
+import { DialogDirective } from '@shared/directives/dialog.directive';
 
 interface Message {
   id: string;
@@ -37,11 +39,12 @@ interface Conversation {
 @Component({
   selector: 'app-student-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
+  imports: [DialogDirective, CommonModule, FormsModule, RouterModule, LucideAngularModule],
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss']
 })
 export class MessagesComponent implements OnInit, OnDestroy {
+  protected readonly copy = STUDENT_MESSAGES_COPY;
   searchText = '';
   activeFilter: 'all' | 'unread' | 'courses' = 'all';
   newMessage = '';

@@ -29,7 +29,7 @@
 
   .eyebrow {
     margin: 0 0 6px 0;
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -113,7 +113,7 @@
       flex: none;
       white-space: nowrap;
       background: var(--brand-surface);
-      color: var(--brand-primary);
+      color: var(--brand-text);
       border: 1px solid var(--brand-primary);
       text-decoration: none;
       padding: 9px 14px;
@@ -178,14 +178,14 @@
 
   &--soft {
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     padding: 6px 10px;
   }
 }
 
 .link-btn {
   background: transparent;
-  color: var(--brand-primary);
+  color: var(--brand-text);
   padding: 0;
 }
 
@@ -204,7 +204,7 @@
   &--active {
     background: var(--brand-surface);
     border-color: var(--brand-primary);
-    color: var(--brand-primary);
+    color: var(--brand-text);
   }
 }
 
@@ -240,7 +240,7 @@
     line-height: 1;
   }
 
-  &--purple strong { color: $brand; }
+  &--purple strong { color: $brand-text; }
   &--green strong { color: $green; }
   &--amber strong { color: $amber; }
   &--grey strong { color: $muted; }
@@ -263,7 +263,7 @@
 
   strong {
     display: block;
-    color: $brand;
+    color: $brand-text;
     font-size: 25px;
     line-height: 1;
   }
@@ -379,12 +379,12 @@
 }
 
 .course-thumb--purple,
-.mini-mark--purple { background: var(--brand-surface); color: var(--brand-primary); }
+.mini-mark--purple { background: var(--brand-surface); color: var(--brand-text); }
 .course-thumb--green,
 .mini-mark--green { background: var(--status-green-bg); color: var(--status-green-text); }
 .course-thumb--amber { background: var(--status-amber-bg); color: var(--status-amber-text); }
 .course-thumb--blue,
-.mini-mark--blue { background: var(--brand-surface); color: var(--brand-primary); }
+.mini-mark--blue { background: var(--brand-surface); color: var(--brand-text); }
 .course-thumb--rose { background: var(--status-red-bg); color: var(--status-red-text); }
 .course-thumb--grey { background: var(--status-grey-bg); color: var(--status-grey-text); }
 
@@ -415,7 +415,7 @@
 
 .course-progress {
   min-width: 42px;
-  color: var(--brand-primary);
+  color: var(--brand-text);
   font-size: 14px;
   font-weight: 700;
   text-align: right;
@@ -432,7 +432,7 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 
-  &--purple { background: var(--brand-surface); color: var(--brand-primary); }
+  &--purple { background: var(--brand-surface); color: var(--brand-text); }
   &--green { background: var(--status-green-bg); color: var(--status-green-text); }
   &--grey { background: var(--status-grey-bg); color: var(--status-grey-text); }
 }
@@ -603,7 +603,7 @@
   &.is-active {
     border-color: var(--brand-primary);
     background: var(--brand-surface);
-    color: var(--brand-primary);
+    color: var(--brand-text);
     font-weight: 600;
   }
 }
@@ -612,7 +612,7 @@
   color: var(--text-secondary);
 
   .is-active & {
-    color: var(--brand-primary);
+    color: var(--brand-text);
   }
 }
 
@@ -629,7 +629,7 @@
   min-height: 44px;
   border: 0;
   background: transparent;
-  color: var(--brand-primary);
+  color: var(--brand-text);
   font: 600 14px var(--font-body);
   cursor: pointer;
 }
@@ -696,7 +696,7 @@
 
 .mc-row__action {
   font: 600 14px var(--font-body);
-  color: var(--brand-primary);
+  color: var(--brand-text);
 
   &.is-done {
     color: var(--status-green-text);
@@ -723,7 +723,7 @@
   align-items: center;
   gap: 8px;
   font: 600 15px var(--font-body);
-  color: var(--brand-primary);
+  color: var(--brand-text);
 }
 
 .continue-bar {

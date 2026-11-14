@@ -85,7 +85,7 @@
                [(ngModel)]="newMessage"
                class="chat-input"
                (keydown.enter)="sendMessage()" />
-        <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+        <button class="send-btn" type="button" [attr.aria-label]="copy.send" (click)="sendMessage()" [disabled]="!newMessage.trim()">
           <lucide-icon name="send" style="width: 16px; height: 16px;"></lucide-icon>
         </button>
       </div>
@@ -122,9 +122,9 @@
 
 <!-- Compose New Message Modal -->
 <div class="compose-backdrop" *ngIf="isComposeOpen" (click)="closeCompose()">
-  <div class="compose-card" (click)="$event.stopPropagation()">
+  <div appDialog aria-labelledby="compose-title" (dialogClose)="closeCompose()" class="compose-card" (click)="$event.stopPropagation()">
     <div class="compose-header">
-      <h2>New Message to Instructor</h2>
+      <h2 id="compose-title">New Message to Instructor</h2>
       <button class="close-btn" (click)="closeCompose()" aria-label="Close modal">
         <lucide-icon name="x" style="width: 18px; height: 18px;"></lucide-icon>
       </button>
