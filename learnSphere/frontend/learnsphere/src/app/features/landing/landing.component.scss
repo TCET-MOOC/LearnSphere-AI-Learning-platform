@@ -134,3 +134,9 @@
     padding-top: 8px;
   }
 }
+// Footer brand block spans two columns; on phones the grid has one, so a span would add a track past the screen edge (W7-09).
+.footer-brand { grid-column: span 2; }
+
+@media (max-width: 599px) {
+  .footer-brand { grid-column: auto; }
+}

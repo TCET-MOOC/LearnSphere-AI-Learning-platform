@@ -117,6 +117,25 @@ export async function auditLayout(page: Page): Promise<LayoutIssue[]> {
       const culprit = candidates.find((el) => rects.get(el)!.right > window.innerWidth + 1);
       issues.push({ kind: 'page-overflow', a: culprit ? describe(culprit) : `page wider by ${extra}px`, rect: { x: window.innerWidth, y: 0, w: extra, h: 1 } });
     }
+
+    // 5. Cut off by the screen edge (W7-09). `overflow-x: hidden` on <html>/<body> keeps
+    //    scrollWidth at the viewport, so check 4 cannot see content that runs past the edge.
+    //    Content inside a horizontal scroller (carousel, wide table) is reachable and fine.
+    if (extra <= 0) {
+      const scrollsX = (el: Element) => {
+        for (let n = el.parentElement; n && n !== document.documentElement; n = n.parentElement) {
+          if (n === document.body) break;
+          if (/auto|scroll/.test(getComputedStyle(n).overflowX)) return true;
+        }
+        return false;
+      };
+      for (const el of candidates) {
+        const r = rects.get(el)!;
+        if ((r.right > window.innerWidth + 2 || r.left < -2) && !scrollsX(el)) {
+          issues.push({ kind: 'page-overflow', a: describe(el), b: 'viewport edge', rect: box(r) });
+        }
+      }
+    }
     return issues;
   });
 }

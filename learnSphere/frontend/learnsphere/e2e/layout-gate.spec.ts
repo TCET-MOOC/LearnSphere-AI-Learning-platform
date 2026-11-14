@@ -32,6 +32,19 @@ for (const width of [360, 768, 1280]) {
 }
 
 test.describe('Phone layouts the detector cannot judge (360 px)', () => {
+  test('landing: no section panel is wider than the screen (W7-09)', async ({ page }) => {
+    await open(page, '/', 'public', 360);
+    // Panels hidden by body `overflow-x: hidden` lose their right padding off-screen without
+    // cutting any text, so the detector cannot see them; measure every section's direct panels.
+    const wide = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('section > *, section > * > *, footer > * > * > *'))
+        .map((el) => ({ el, r: el.getBoundingClientRect() }))
+        .filter(({ r }) => r.width > 1 && r.height > 1 && (r.right > window.innerWidth + 0.5 || r.left < -0.5))
+        .map(({ el, r }) => `${el.closest('section')?.id || el.closest('footer')?.tagName.toLowerCase() || 'section'} ${el.tagName.toLowerCase()} ${r.left.toFixed(1)}→${r.right.toFixed(1)}`),
+    );
+    expect(wide).toEqual([]);
+  });
+
   test('bookmarks: the title gets the row width and Jump to lecture opens that lecture at the time', async ({ page }) => {
     await open(page, '/student/bookmarks', 'student', 360);
     const row = page.locator('.bookmark-row').first();
