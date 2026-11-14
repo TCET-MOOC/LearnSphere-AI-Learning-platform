@@ -1,14 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { catchError, forkJoin, of } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
+import { User } from '../../../core/models/user.model';
 import { ReportsService } from '../services/reports.service';
 import { AdminService } from '../services/admin.service';
 import { NotificationService } from '@core/services/notification.service';
 import { getInitials } from '@core/utils/avatar.util';
+import { ADMIN_PROFILE_COPY as PROFILE_COPY } from '@core/content/admin-profile.content';
 
+/**
+ * Admin profile (SCR-61; W7-11, AUD-12 / audit.md D3). Reads the profile fresh from
+ * `GET /users/me`, shows real platform figures only, and saves name/bio through `PUT /users/me`.
+ */
 @Component({
   selector: 'app-admin-profile',
   standalone: true,
@@ -17,34 +24,39 @@ import { getInitials } from '@core/utils/avatar.util';
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
-  displayName = 'Admin';
+  protected readonly copy = PROFILE_COPY;
+
+  displayName = '';
   email = '';
-  detail = 'Super Admin · LearnSphere Platform';
-  bio = 'Platform administrator responsible for trust, quality, institutional onboarding, and healthy learning operations.';
-  
+  readonly detail = PROFILE_COPY.role;
+  bio = '';
+
   stats: [string, string][] = [
-    ['—', 'Users'],
-    ['—', 'Courses'],
-    ['—', 'Colleges'],
-    ['99.9%', 'Uptime']
+    ['—', PROFILE_COPY.stats.users],
+    ['—', PROFILE_COPY.stats.courses],
+    ['—', PROFILE_COPY.stats.colleges],
+    ['—', PROFILE_COPY.stats.openFlags],
   ];
-  
+
   editing = false;
+  saving = false;
   saved = false;
 
   constructor(
     private authService: AuthService,
     private reportsService: ReportsService,
     private adminService: AdminService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    const user = this.authService.currentUser;
-    if (user) {
-      this.displayName = user.fullName || 'Admin';
-      this.email = user.email || '';
-    }
+    const cached = this.authService.currentUser;
+    if (cached) this.email = cached.email || '';
+    this.authService.fetchCurrentUser().subscribe({
+      next: (user) => this.apply(user),
+      error: () => this.cdr.markForCheck(),
+    });
     this.loadStats();
   }
 
@@ -53,43 +65,63 @@ export class ProfileComponent implements OnInit {
   }
 
   loadStats(): void {
-    this.reportsService.getSummary().subscribe({
-      next: (summary) => {
-        this.adminService.getColleges().subscribe({
-          next: (colleges) => {
-            this.stats = [
-              [summary.totalUsers.toLocaleString(), 'Users'],
-              [summary.totalCourses.toLocaleString(), 'Courses'],
-              [colleges.length.toLocaleString(), 'Colleges'],
-              ['99.9%', 'Platform Health']
-            ];
-          },
-          error: () => {
-            this.stats = [
-              [summary.totalUsers.toLocaleString(), 'Users'],
-              [summary.totalCourses.toLocaleString(), 'Courses'],
-              ['—', 'Colleges'],
-              ['99.9%', 'Platform Health']
-            ];
-          }
-        });
-      },
-      error: () => {}
+    forkJoin({
+      summary: this.reportsService.getSummary().pipe(catchError(() => of(null))),
+      colleges: this.adminService.getColleges().pipe(catchError(() => of(null))),
+    }).subscribe(({ summary, colleges }) => {
+      const n = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('en-IN'));
+      this.stats = [
+        [n(summary?.totalUsers), PROFILE_COPY.stats.users],
+        [n(summary?.totalCourses), PROFILE_COPY.stats.courses],
+        [n(colleges?.length), PROFILE_COPY.stats.colleges],
+        [n(summary?.flaggedContentPending), PROFILE_COPY.stats.openFlags],
+      ];
+      this.cdr.markForCheck();
     });
   }
 
+  toggleEdit(): void {
+    if (!this.editing) {
+      this.editing = true;
+      return;
+    }
+    this.save();
+  }
+
   save(): void {
-    this.editing = false;
-    this.saved = true;
-    this.notificationService.success('Administrator profile updated successfully.');
-    window.setTimeout(() => (this.saved = false), 2000);
+    if (this.saving) return;
+    this.saving = true;
+    this.authService.updateProfile({ fullName: this.displayName.trim(), bio: this.bio.trim() }).subscribe({
+      next: (user) => {
+        this.apply(user);
+        this.saving = false;
+        this.editing = false;
+        this.saved = true;
+        this.notificationService.success(PROFILE_COPY.saved);
+        window.setTimeout(() => { this.saved = false; this.cdr.markForCheck(); }, 2000);
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.saving = false;
+        this.notificationService.error(PROFILE_COPY.saveFailed);
+        this.cdr.markForCheck();
+      },
+    });
   }
 
+  /** There is no signed-in password change endpoint; send the real reset link instead. */
   changePassword(): void {
-    this.notificationService.info('Password reset instructions have been dispatched to your email address.');
+    if (!this.email) return;
+    this.authService.forgotPassword({ email: this.email }).subscribe({
+      next: (res) => this.notificationService.success(res?.message || PROFILE_COPY.resetSent(this.email)),
+      error: () => this.notificationService.error(PROFILE_COPY.resetFailed),
+    });
   }
 
-  onAvatarUpload(): void {
-    this.notificationService.info('Custom avatar upload dialog activated.');
+  private apply(user: User): void {
+    this.displayName = user.fullName || '';
+    this.bio = user.bio || '';
+    this.email = user.email || this.email;
+    this.cdr.markForCheck();
   }
 }
