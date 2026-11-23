@@ -76,7 +76,7 @@ describe('PurchasesComponent receipt (W6-13)', () => {
     expect(orderFor(7).receipt).toBeTruthy();
     expect(orderFor(8).receipt).toBeNull();
     const buttons = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'))
-      .filter((b) => b.textContent?.includes('Receipt'));
+      .filter((b) => b.textContent?.includes('View receipt'));
     expect(buttons.length).toBe(1);
   });
 

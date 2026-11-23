@@ -78,7 +78,7 @@ import { Course, CourseStatus } from '@core/models/course.model';
     label.full { grid-column: 1 / -1; }
     input, textarea, select {
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
       padding: 10px 12px;
       font: 13px 'Inter', sans-serif;
       color: var(--text-primary);
@@ -95,8 +95,8 @@ import { Course, CourseStatus } from '@core/models/course.model';
       background: var(--bg-surface);
     }
     .form-actions { display: flex; justify-content: flex-end; }
-    .btn { border: none; border-radius: 8px; padding: 10px 20px; font: 600 13px 'Inter', sans-serif; cursor: pointer; transition: all 0.15s ease; }
-    .btn--primary { background: var(--brand-primary); color: #fff; }
+    .btn { border: none; border-radius: var(--border-radius-md); padding: 10px 20px; font: 600 13px 'Inter', sans-serif; cursor: pointer; transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease; }
+    .btn--primary { background: var(--brand-primary); color: var(--palette-white); }
     .btn--primary:hover:not(:disabled) { background: var(--brand-primary-hover); }
     .btn--primary:disabled { opacity: 0.6; cursor: not-allowed; }
   `]

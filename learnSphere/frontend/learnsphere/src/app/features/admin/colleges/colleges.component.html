@@ -56,13 +56,13 @@
           
           <ng-container *ngIf="college.verificationStatus === 'VERIFIED'">
             <button class="action-btn manage-btn" (click)="manageCollege(college)">
-              Manage
+              Manage college
             </button>
           </ng-container>
           
           <ng-container *ngIf="college.verificationStatus === 'PENDING'">
             <button class="action-btn verify-btn" (click)="verifyCollege(college)">
-              Verify
+              Verify college
             </button>
             <button class="action-btn reject-btn" (click)="rejectCollege(college)">
               Reject

@@ -17,7 +17,7 @@
     "check:static-cache": "node scripts/check-static-cache.mjs",
     "check:toolchain": "node scripts/check-toolchain.mjs",
     "lint:a11y": "node scripts/a11y-lint.mjs",
-    "lint:copy": "node scripts/copy-ratchet.mjs",
+    "lint:copy": "node scripts/copy-ratchet.mjs && node scripts/cta-lint.mjs",
     "lint:styles": "node scripts/stylelint-ratchet.mjs",
     "lint:styles:update": "node scripts/stylelint-ratchet.mjs --update"
   },

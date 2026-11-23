@@ -72,7 +72,7 @@
     font-weight: 500;
     color: $text-secondary;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
     border: none;
     background: transparent;
     font-family: inherit;
@@ -107,7 +107,7 @@
   box-shadow: var(--card-shadow);
   transition: box-shadow 0.15s, transform 0.15s;
 
-  &:hover { box-shadow: var(--card-shadow); transform: translateY(-1px); border-color: $brand-purple; }
+  &:hover { box-shadow: var(--card-shadow); border-color: $brand-purple; } // DS-13: no lift on a static card
 
   &__icon {
     width: 40px;
@@ -185,7 +185,7 @@
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 
   &:hover:not(:disabled) {
     background: var(--brand-surface);
@@ -229,7 +229,7 @@
   cursor: pointer;
   font-family: inherit;
   font-weight: 600;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
   border-radius: $radius-sm;
 
   &--primary {

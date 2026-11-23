@@ -92,7 +92,7 @@
   background: var(--bg-hover);
   cursor: pointer;
   font-size: 13px;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
 
   &:hover {
     border-color: $brand;
@@ -110,7 +110,7 @@
   padding: 9px 18px;
   font: 600 13px inherit;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
 }
 
 // W7-08: "Back to assessments" became a real link (focusable); keep the look it had without an href.

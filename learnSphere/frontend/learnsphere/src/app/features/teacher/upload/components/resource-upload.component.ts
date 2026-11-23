@@ -33,14 +33,14 @@ import { NotificationService } from '@core/services/notification.service';
     .upload-box {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: var(--border-radius-lg);
       padding: 18px;
       box-shadow: var(--card-shadow);
     }
     h3 { margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
     .hint { margin: 0 0 10px; font-size: 12px; color: var(--text-muted); }
     input[type=file] { font-size: 12px; color: var(--text-primary); }
-    .progress-track { height: 6px; border-radius: 4px; background: var(--bg-hover); overflow: hidden; margin-top: 10px; }
+    .progress-track { height: 6px; border-radius: var(--border-radius-sm); background: var(--bg-hover); overflow: hidden; margin-top: 10px; }
     .progress-track span { display: block; height: 100%; background: var(--brand-primary); }
     .status { margin: 8px 0 0; font-size: 12px; color: var(--text-secondary); word-break: break-all; }
     .status--done { color: var(--status-green-text); font-weight: 600; }

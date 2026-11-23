@@ -119,7 +119,7 @@ test('purchase: buy a paid course, the server verifies it, and the receipt carri
 
   await page.goto('/student/purchases', { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('pay_SMOKE0001')).toBeVisible();
-  await page.getByRole('button', { name: /Receipt/ }).first().click();
+  await page.getByRole('button', { name: /receipt/i }).first().click();
   const receipt = page.getByRole('dialog');
   await expect(receipt).toContainText('pay_SMOKE0001');
   await expect(receipt).toContainText('Design Systems in Practice');

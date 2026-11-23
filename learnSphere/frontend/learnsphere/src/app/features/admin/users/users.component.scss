@@ -374,6 +374,7 @@
 
 .action-set {
   justify-content: flex-start;
+  flex-wrap: wrap; // W7-15: verb + object labels are longer; wrap instead of running off the row
   gap: 6px;
 }
 

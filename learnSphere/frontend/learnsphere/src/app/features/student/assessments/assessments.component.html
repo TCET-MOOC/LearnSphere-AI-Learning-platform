@@ -18,7 +18,7 @@
             <strong>{{ a.title }}</strong>
             <small>{{ a.courseTitle }} · {{ a.questionCount }} question{{ a.questionCount === 1 ? '' : 's' }} · {{ a.durationMinutes }} min</small>
           </div>
-          <a class="btn btn--primary" [routerLink]="['/student/assessments', a.id]">Start</a>
+          <a class="btn btn--primary" [routerLink]="['/student/assessments', a.id]">Start assessment</a>
         </article>
       </div>
       <ng-template #emptyStandard>
@@ -47,7 +47,7 @@
             <strong>{{ a.title }}</strong>
             <small>{{ a.courseTitle }} · {{ a.questionCount }} question{{ a.questionCount === 1 ? '' : 's' }} · {{ a.durationMinutes }} min</small>
           </div>
-          <a class="btn btn--amber" [routerLink]="['/student/assessments', a.id]">Start</a>
+          <a class="btn btn--amber" [routerLink]="['/student/assessments', a.id]">Start assessment</a>
         </article>
       </div>
     </section>

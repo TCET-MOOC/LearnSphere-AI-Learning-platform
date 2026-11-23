@@ -4,7 +4,7 @@
     <div class="left-info">
       <button class="back-btn" (click)="leaveRoom()">
         <lucide-icon name="arrow-left" [size]="18"></lucide-icon>
-        <span>Exit Room</span>
+        <span>Leave session</span>
       </button>
       <div class="session-meta">
         <span class="live-indicator" *ngIf="session.status === 'LIVE'">
@@ -23,7 +23,7 @@
         <lucide-icon name="users" [size]="16"></lucide-icon>
         <span>{{ viewerCount }} Learners</span>
       </div>
-      <button class="leave-btn" (click)="leaveRoom()">Leave</button>
+      <button class="leave-btn" (click)="leaveRoom()">Leave session</button>
     </div>
   </div>
 

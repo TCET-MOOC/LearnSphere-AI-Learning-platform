@@ -51,7 +51,7 @@
           <lucide-icon name="smile" [size]="16" class="stat-icon"></lucide-icon>
         </div>
         <span class="stat-value tnum">{{ positivePercent }}%</span>
-        <span class="stat-subtext text-success">Autonomous sentiment score</span>
+        <span class="stat-subtext text-success">Sentiment score</span>
       </div>
 
       <div class="stat-box stat-box--amber">
@@ -155,7 +155,7 @@
               <p class="action-desc">{{ rec.description }}</p>
             </div>
             <button class="btn btn--primary action-btn" (click)="onRecommendationAction(rec)">
-              {{ rec.action }} →
+              {{ rec.action }}
             </button>
           </div>
         </div>

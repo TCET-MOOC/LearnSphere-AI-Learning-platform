@@ -14,7 +14,7 @@
         <small>{{ lecture.duration | duration }} · {{ lecture.status }}</small>
       </div>
       <div class="lecture-row-actions">
-        <button class="link-btn link-btn--quiz" type="button" (click)="openQuizModal(lecture)">Quiz</button>
+        <button class="link-btn link-btn--quiz" type="button" (click)="openQuizModal(lecture)">Edit quiz</button>
         <button class="link-btn" type="button" (click)="openEditForm(lecture)">Edit</button>
         <button class="link-btn link-btn--danger" type="button" (click)="remove(lecture)">Delete</button>
       </div>

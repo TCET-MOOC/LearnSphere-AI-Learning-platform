@@ -23,7 +23,7 @@ import { Course } from '@core/models/course.model';
       </div>
 
       <div class="course-actions">
-        <a class="btn btn--soft" [routerLink]="['/teacher/courses', course.id, 'manage']">Manage</a>
+        <a class="btn btn--soft" [routerLink]="['/teacher/courses', course.id, 'manage']">Manage course</a>
         <button class="btn btn--danger" type="button" (click)="remove.emit(course.id)">Delete</button>
       </div>
     </article>
@@ -32,19 +32,18 @@ import { Course } from '@core/models/course.model';
     .course-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: var(--border-radius-lg);
       padding: 16px;
       margin-bottom: 12px;
       box-shadow: var(--card-shadow);
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
     }
     .course-card:hover {
-      border-color: var(--brand-primary);
-      transform: translateY(-1px);
+      border-color: var(--brand-primary); /* DS-13: no lift on a static card */
     }
     .course-card__head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .course-id {
-      width: 40px; height: 40px; border-radius: 10px;
+      width: 40px; height: 40px; border-radius: var(--border-radius-lg);
       background: var(--brand-surface); color: var(--brand-text);
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 12px; flex: 0 0 auto;
@@ -53,12 +52,12 @@ import { Course } from '@core/models/course.model';
     .course-title h2 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
     .course-title p { margin: 4px 0 0; font-size: 11.5px; color: var(--text-muted); }
     .course-actions { display: flex; gap: 8px; }
-    .btn { border: 1px solid transparent; border-radius: 8px; padding: 8px 14px; font: 600 12px 'Inter', sans-serif; cursor: pointer; text-decoration: none; transition: all 0.15s ease; }
+    .btn { border: 1px solid transparent; border-radius: var(--border-radius-md); padding: 8px 14px; font: 600 12px 'Inter', sans-serif; cursor: pointer; text-decoration: none; transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease; }
     .btn--soft { background: var(--brand-surface); color: var(--brand-text); border-color: var(--border-color); }
-    .btn--soft:hover { background: var(--brand-primary); color: #fff; }
+    .btn--soft:hover { background: var(--brand-primary); color: var(--palette-white); }
     .btn--danger { background: var(--status-red-bg); color: var(--status-red-text); }
-    .btn--danger:hover { background: var(--status-red-text); color: #fff; }
-    .pill { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; text-transform: capitalize; }
+    .btn--danger:hover { background: var(--status-red-text); color: var(--palette-white); }
+    .pill { font-size: 11px; padding: 3px 10px; border-radius: var(--border-radius-round); font-weight: 600; text-transform: capitalize; }
     .pill--live { background: var(--status-green-bg); color: var(--status-green-text); }
     .pill--draft { background: var(--status-amber-bg); color: var(--status-amber-text); }
     .pill--pending { background: var(--status-red-bg); color: var(--status-red-text); }

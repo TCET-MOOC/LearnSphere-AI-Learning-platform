@@ -9,10 +9,6 @@
       <h1 class="page-title">Platform Overview</h1>
       <p class="subtitle">Real-time telemetry across affiliated colleges, faculty payouts, user growth, and active courses.</p>
     </div>
-    <div class="header-badge">
-      <span class="pulse-indicator"></span>
-      <span>Autonomous Cluster Active</span>
-    </div>
   </header>
 
   <!-- Skeleton Loading -->
@@ -51,7 +47,7 @@
               <lucide-icon name="graduation-cap" [size]="16" class="hd-icon"></lucide-icon>
               <span>Top Faculty This Month</span>
             </div>
-            <span appActivate role="link" class="card-link" (click)="goToUsers()">All teachers →</span>
+            <span appActivate role="link" class="card-link" (click)="goToUsers()">View all teachers</span>
           </div>
           <div class="list-row" *ngFor="let t of topTeachers">
             <div class="rank-badge-wrap">
@@ -78,7 +74,7 @@
               <lucide-icon name="award" [size]="16" class="hd-icon"></lucide-icon>
               <span>Top Academic Learners</span>
             </div>
-            <span appActivate role="link" class="card-link" (click)="goToUsers()">All students →</span>
+            <span appActivate role="link" class="card-link" (click)="goToUsers()">View all students</span>
           </div>
           <div class="list-row" *ngFor="let s of topStudents">
             <div class="rank-badge-wrap">
@@ -168,7 +164,7 @@
               <lucide-icon name="check-square" [size]="16" class="hd-icon"></lucide-icon>
               <span>Curriculum Verification</span>
             </div>
-            <span appActivate role="link" class="card-link" (click)="goToCourses()">All ({{ courseApprovals.length }}) →</span>
+            <span appActivate role="link" class="card-link" (click)="goToCourses()">Review all ({{ courseApprovals.length }})</span>
           </div>
 
           <div class="list-row" *ngFor="let app of courseApprovals">

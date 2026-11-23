@@ -25,7 +25,7 @@ import { timeAgo } from '@core/utils/time.util';
 
       <div class="new-post">
         <textarea rows="2" placeholder="Ask a question about this lecture…" [(ngModel)]="newPostText"></textarea>
-        <button class="post-btn" type="button" [disabled]="!newPostText.trim() || !courseId" (click)="submitPost()">Post</button>
+        <button class="post-btn" type="button" [disabled]="!newPostText.trim() || !courseId" (click)="submitPost()">Post question</button>
       </div>
 
       <p class="hint" *ngIf="loading">Loading discussion…</p>

@@ -84,10 +84,10 @@
           </span>
           <div class="action-set" role="cell">
             <button class="btn btn--ghost" type="button" (click)="viewUser(user)">
-              <lucide-icon name="eye" [size]="13"></lucide-icon> Inspect
+              <lucide-icon name="eye" [size]="13"></lucide-icon> Inspect account
             </button>
             <button class="btn btn--ghost" type="button" [disabled]="updatingId === user.id" (click)="warnOrSuspend(user)">
-              Flag
+              Flag account
             </button>
             <button class="btn" [class.btn--danger]="user.status !== 'Blacklisted'" [class.btn--success]="user.status === 'Blacklisted'" type="button"
               [disabled]="updatingId === user.id" (click)="toggleBlacklist(user)">

@@ -106,7 +106,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
             class="btn btn--primary"
             [disabled]="!courseId || !title || !durationMinutes || creatingTest"
             (click)="createTest()">
-            <span>{{ creatingTest ? 'Creating Test…' : 'Next: Add Questions →' }}</span>
+            <span>{{ creatingTest ? 'Creating Test…' : 'Next: add questions' }}</span>
           </button>
         </div>
       </div>
@@ -211,13 +211,13 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
     .quiz-builder {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
+      border-radius: var(--border-radius-lg);
       padding: 22px;
       display: flex;
       flex-direction: column;
       gap: 18px;
       box-shadow: var(--card-shadow);
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
     }
 
     .builder-header {
@@ -246,7 +246,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
     .test-card {
       background: var(--bg-surface-elevated);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
+      border-radius: var(--border-radius-lg);
       padding: 14px 18px;
       transition: border-color 0.15s ease;
 
@@ -275,7 +275,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
       font-size: 11px;
       font-weight: 600;
       padding: 3px 8px;
-      border-radius: 6px;
+      border-radius: var(--border-radius-md);
       background: var(--bg-hover);
       color: var(--text-secondary);
 
@@ -301,7 +301,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
       gap: 10px;
       color: var(--text-muted);
       border: 1px dashed var(--border-color);
-      border-radius: 10px;
+      border-radius: var(--border-radius-lg);
 
       .empty-icon { opacity: 0.5; }
       p { margin: 0; font-size: 13px; }
@@ -326,12 +326,12 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
 
     input[type=text], input[type=number], select, textarea {
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
       padding: 9px 12px;
       font: 13px 'Inter', sans-serif;
       color: var(--text-primary);
       background: var(--bg-input);
-      transition: all 0.15s ease;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
       outline: none;
       resize: vertical;
 
@@ -364,7 +364,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
       background: var(--brand-surface);
       border: 1px solid var(--brand-primary);
       padding: 12px 16px;
-      border-radius: 10px;
+      border-radius: var(--border-radius-lg);
       color: var(--brand-text);
 
       .active-label { font-size: 12px; font-weight: 500; opacity: 0.85; margin-right: 6px; }
@@ -377,7 +377,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
       gap: 8px;
       background: var(--bg-surface-elevated);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
+      border-radius: var(--border-radius-lg);
       padding: 14px;
 
       h5 { margin: 0 0 6px 0; font-size: 13px; font-weight: 700; color: var(--text-primary); }
@@ -413,7 +413,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
       .opt-chip {
         font-size: 11px;
         padding: 2px 8px;
-        border-radius: 4px;
+        border-radius: var(--border-radius-sm);
         background: var(--bg-hover);
         color: var(--text-secondary);
 
@@ -428,7 +428,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
     .add-q-card {
       background: var(--bg-hover);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: var(--border-radius-lg);
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -480,26 +480,26 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
 
     .btn {
       border: 1px solid transparent;
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
       padding: 9px 16px;
       font: 600 12.5px 'Inter', sans-serif;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.15s ease;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
       text-decoration: none;
 
       &--sm { padding: 6px 12px; font-size: 11.5px; }
-      &--primary { background: var(--brand-primary); color: #fff; }
+      &--primary { background: var(--brand-primary); color: var(--palette-white); }
       &--primary:hover:not(:disabled) { background: var(--brand-primary-hover); }
       &--primary:disabled { opacity: 0.5; cursor: not-allowed; }
       &--soft { background: var(--brand-surface); color: var(--brand-text); border-color: var(--border-color); }
-      &--soft:hover { background: var(--brand-primary); color: #fff; }
+      &--soft:hover { background: var(--brand-primary); color: var(--palette-white); }
       &--ghost { background: var(--bg-surface-elevated); border-color: var(--border-color); color: var(--text-primary); }
       &--ghost:hover { background: var(--bg-hover); }
       &--danger-outline { background: transparent; border-color: var(--status-red-bg); color: var(--status-red-text); }
-      &--danger-outline:hover { background: var(--status-red-text); color: #fff; }
+      &--danger-outline:hover { background: var(--status-red-text); color: var(--palette-white); }
     }
   `]
 })

@@ -118,11 +118,13 @@ async function collect() {
 
   const scssFiles = [];
   const htmlFiles = [];
+  const tsFiles = [];
   for (const file of await walk(SRC)) {
     const relative = rel(file);
     if (EXEMPT.has(relative)) continue;
     if (file.endsWith('.scss')) scssFiles.push(file);
     else if (file.endsWith('.html')) htmlFiles.push(file);
+    else if (file.endsWith('.ts') && !file.endsWith('.spec.ts')) tsFiles.push(file);
   }
 
   // The three DS-01 bans come from stylelint itself (SCSS-aware parsing).
@@ -148,6 +150,27 @@ async function collect() {
     throw new Error(
       `stylelint could not parse ${parseErrors} SCSS file(s); fix the syntax before measuring the ratchet.`,
     );
+  }
+
+  // W7-15: inline component styles (`styles: [`...`]` / `styles: `...``) get the same three
+  // bans. Before W7-15 they were invisible to every DS gate.
+  for (const file of tsFiles) {
+    const source = await readFile(file, 'utf8');
+    const block = /styles\s*:\s*\[?\s*`([\s\S]*?)`/g;
+    let m;
+    while ((m = block.exec(source))) {
+      const inline = await stylelint.lint({
+        code: m[1],
+        codeFilename: file.replace(/\.ts$/, '.inline.scss'),
+        configFile: path.join(ROOT, 'stylelint.config.mjs'),
+      });
+      for (const result of inline.results) {
+        for (const warning of result.warnings) {
+          const metric = metricForWarning(warning);
+          if (metric) bump(counts.get(metric), rel(file));
+        }
+      }
+    }
   }
 
   // The remaining F24 inventory is textual: stylelint cannot parse templates.
@@ -272,9 +295,13 @@ for (const id of ['color-no-hex', 'radius-literal', 'transition-all']) {
     if (CONSOLE_ZONE.test(file)) failures.push(`console zone (DS-12): ${file} has ${count} ${id}`);
   }
 }
+// DS-13 (W7-15): `transition: all` is banned everywhere (NFR-04(e)) — zero, app-wide.
+for (const [file, count] of Object.entries(metrics['transition-all'].files)) {
+  if (!CONSOLE_ZONE.test(file)) failures.push(`motion (DS-13): ${file} has ${count} transition-all`);
+}
 for (const file of await walk(path.join(SRC, 'app', 'features'))) {
   const relative = rel(file);
-  if (!file.endsWith('.scss') || !CONSOLE_ZONE.test(relative)) continue;
+  if (!/\.(scss|ts)$/.test(file) || file.endsWith('.spec.ts') || !CONSOLE_ZONE.test(relative)) continue;
   const text = (await readFile(file, 'utf8')).replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
   const fns = countMatches(text, /(?:rgba?|hsla?)\(/g);
   if (fns) failures.push(`console zone (DS-12): ${relative} has ${fns} raw colour function(s)`);

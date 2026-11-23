@@ -7,7 +7,7 @@
     </div>
     <button class="btn btn--secondary" type="button" (click)="loadOrders()">
       <lucide-icon name="refresh-cw" [size]="15"></lucide-icon>
-      <span>Refresh</span>
+      <span>Refresh purchases</span>
     </button>
   </header>
 
@@ -105,7 +105,7 @@
                 title="View & Download Payment Receipt"
                 (click)="openReceipt(order)">
                 <lucide-icon name="file-text" [size]="14"></lucide-icon>
-                <span>Receipt</span>
+                <span>View receipt</span>
               </button>
 
               <a 
@@ -221,7 +221,7 @@
         <button class="btn btn--outline" type="button" (click)="closeReceipt()">Close</button>
         <button class="btn btn--secondary" type="button" (click)="printReceipt()">
           <lucide-icon name="printer" [size]="15"></lucide-icon>
-          <span>Print</span>
+          <span>Print receipt</span>
         </button>
         <button class="btn btn--primary" type="button" (click)="downloadPdfReceipt()">
           <lucide-icon name="download" [size]="15"></lucide-icon>

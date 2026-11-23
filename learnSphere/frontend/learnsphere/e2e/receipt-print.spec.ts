@@ -47,7 +47,7 @@ async function openReceipt(page: Page) {
   await page.getByRole('button', { name: 'Sign In' }).click();
   await page.waitForURL(/\/student\//);
   await page.locator('a[href="/student/purchases"]').first().click();
-  await page.getByRole('button', { name: /Receipt/ }).click();
+  await page.getByRole('button', { name: /receipt/i }).click();
   await expect(page.locator('#printable-receipt')).toContainText('RCPT-42');
 }
 
