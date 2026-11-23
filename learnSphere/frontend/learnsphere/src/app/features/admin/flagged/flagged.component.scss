@@ -25,9 +25,9 @@
     color: var(--status-red-text);
     background: var(--status-red-bg);
     padding: 3px 10px;
-    border-radius: 20px;
+    border-radius: var(--border-radius-round);
     margin-bottom: 8px;
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    border: 1px solid color-mix(in srgb, var(--palette-red-500) 20%, transparent);
   }
 
   .page-title {
@@ -54,12 +54,12 @@
 
   .skeleton-card {
     height: 105px;
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
   }
 
   .skeleton-card-lg {
     height: 160px;
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
   }
 }
 
@@ -74,21 +74,21 @@
 .stat-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 18px 20px;
   box-shadow: var(--card-shadow);
   position: relative;
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 16px -4px color-mix(in srgb, var(--palette-black) 8%, transparent);
   }
 
   &--primary::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--brand-primary); }
-  &--amber::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #f59e0b; }
-  &--blue::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #3b82f6; }
+  &--amber::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--palette-amber-500); }
+  &--blue::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--palette-blue-500); }
 
   .stat-top {
     display: flex;
@@ -135,12 +135,12 @@
     padding: 8px 16px;
     font-size: 13px;
     font-weight: 600;
-    border-radius: 8px;
+    border-radius: var(--border-radius-md);
     border: 1px solid var(--border-color);
     background: var(--bg-surface);
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
     white-space: nowrap;
 
     &:hover {
@@ -150,12 +150,12 @@
 
     &--active {
       background: var(--brand-primary);
-      color: #ffffff;
+      color: var(--palette-white);
       border-color: var(--brand-primary);
 
       &:hover {
         background: var(--brand-primary-hover);
-        color: #ffffff;
+        color: var(--palette-white);
       }
     }
   }
@@ -171,14 +171,14 @@
 .flag-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 20px;
   box-shadow: var(--card-shadow);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 
   &--high {
-    border-left: 4px solid #ef4444;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+    border-left: 4px solid var(--palette-red-500);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--palette-red-500) 10%, transparent);
   }
 
   &__header {
@@ -196,7 +196,7 @@
     .ava {
       width: 36px;
       height: 36px;
-      border-radius: 50%;
+      border-radius: var(--border-radius-full);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -229,7 +229,7 @@
 
   &__content {
     background: var(--bg-surface-elevated);
-    border-radius: 8px;
+    border-radius: var(--border-radius-md);
     padding: 14px 16px;
     margin-bottom: 16px;
     border: 1px solid var(--border-color);
@@ -252,8 +252,8 @@
     }
 
     &--danger {
-      background: rgba(239, 68, 68, 0.06);
-      border-color: rgba(239, 68, 68, 0.2);
+      background: color-mix(in srgb, var(--palette-red-500) 6%, transparent);
+      border-color: color-mix(in srgb, var(--palette-red-500) 20%, transparent);
     }
   }
 
@@ -271,13 +271,13 @@
   padding: 50px 24px;
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--card-shadow);
 
   .empty-icon-shield {
     width: 64px;
     height: 64px;
-    border-radius: 50%;
+    border-radius: var(--border-radius-full);
     background: var(--status-green-bg);
     color: var(--status-green-text);
     display: flex;

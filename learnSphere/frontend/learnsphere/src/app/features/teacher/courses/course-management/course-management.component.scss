@@ -43,7 +43,7 @@
 .card {
   background: var(--bg-surface);
   border: 1px solid $border;
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 18px;
   margin-bottom: 14px;
   box-shadow: var(--card-shadow);
@@ -58,7 +58,7 @@
 
 .btn {
   border: none;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   padding: 9px 14px;
   font: 600 12px inherit;
   cursor: pointer;
@@ -66,7 +66,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
 
   &--ghost {
     background: var(--bg-surface-elevated);
@@ -80,7 +80,7 @@
 
   &--primary {
     background: $brand;
-    color: #fff;
+    color: var(--palette-white);
 
     &:hover {
       background: var(--brand-primary-hover);
@@ -90,7 +90,7 @@
   &--youtube {
     background: var(--youtube-red);
     color: var(--text-on-brand);
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 
     &:hover {
       background: var(--youtube-red-hover);
@@ -108,7 +108,7 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: color-mix(in srgb, var(--palette-black) 75%, transparent);
   backdrop-filter: blur(8px);
   z-index: 9999;
   display: flex;
@@ -119,8 +119,8 @@
   .modal-card.youtube-import-modal {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: var(--border-radius-xl);
+    box-shadow: 0 25px 50px -12px color-mix(in srgb, var(--palette-black) 50%, transparent);
     max-width: 680px;
     width: 100%;
     overflow: hidden;
@@ -185,7 +185,7 @@
           border: 1px solid var(--border-color);
           background: var(--bg-input);
           color: var(--text-primary);
-          border-radius: 8px;
+          border-radius: var(--border-radius-md);
           padding: 10px 14px;
           font-size: 0.85rem;
           outline: none;
@@ -200,7 +200,7 @@
           color: white;
           border: none;
           padding: 10px 16px;
-          border-radius: 8px;
+          border-radius: var(--border-radius-md);
           font-weight: 600;
           font-size: 0.85rem;
           cursor: pointer;
@@ -234,7 +234,7 @@
             font-size: 0.75rem;
             font-weight: 700;
             padding: 3px 8px;
-            border-radius: 9999px;
+            border-radius: var(--border-radius-full);
           }
         }
 
@@ -245,7 +245,7 @@
           flex-direction: column;
           gap: 8px;
           border: 1px solid var(--border-color);
-          border-radius: 8px;
+          border-radius: var(--border-radius-md);
           padding: 8px;
 
           .lec-preview-item {
@@ -254,7 +254,7 @@
             gap: 10px;
             padding: 6px 10px;
             background: var(--bg-hover);
-            border-radius: 6px;
+            border-radius: var(--border-radius-md);
 
             .lec-order {
               font-weight: 700;
@@ -267,7 +267,7 @@
               width: 54px;
               height: 34px;
               object-fit: cover;
-              border-radius: 4px;
+              border-radius: var(--border-radius-sm);
             }
 
             .lec-details {

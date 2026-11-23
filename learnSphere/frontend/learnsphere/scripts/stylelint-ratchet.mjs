@@ -261,6 +261,25 @@ try {
 const base = flatten(baseline);
 const failures = describeRegressions(metrics, base);
 
+/**
+ * DS-12 (W7-14) console zone: the teacher and admin consoles are on the token layer, so
+ * their stylesheets hold no raw colour (hex or rgba()/hsl()), no literal radius and no
+ * `transition: all` at all — zero, not just "no more than before".
+ */
+const CONSOLE_ZONE = /^src\/app\/features\/(teacher|admin)\//;
+for (const id of ['color-no-hex', 'radius-literal', 'transition-all']) {
+  for (const [file, count] of Object.entries(metrics[id].files)) {
+    if (CONSOLE_ZONE.test(file)) failures.push(`console zone (DS-12): ${file} has ${count} ${id}`);
+  }
+}
+for (const file of await walk(path.join(SRC, 'app', 'features'))) {
+  const relative = rel(file);
+  if (!file.endsWith('.scss') || !CONSOLE_ZONE.test(relative)) continue;
+  const text = (await readFile(file, 'utf8')).replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
+  const fns = countMatches(text, /(?:rgba?|hsla?)\(/g);
+  if (fns) failures.push(`console zone (DS-12): ${relative} has ${fns} raw colour function(s)`);
+}
+
 console.log('DS-01 style ratchet');
 for (const metric of METRICS) {
   const current = metrics[metric.id];

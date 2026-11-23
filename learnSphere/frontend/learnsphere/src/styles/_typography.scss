@@ -17,6 +17,20 @@ body, p, span, input, select, textarea, button,
   -moz-osx-font-smoothing: grayscale;
 }
 
+// DS-12 (W7-14): console numbers (money, scores, percentages, counts) use tabular figures so
+// stat tiles and columns do not jitter. Figures only — no spacing change, the look is kept.
+.stat strong,
+.metric-card strong,
+.stat-card__value,
+.kpi-card__val,
+.lecture-num,
+.bar-value,
+.session-date-chip__day,
+.row-amount,
+.breakdown-percent {
+  font-variant-numeric: tabular-nums;
+}
+
 // ── Tabular Numerals & Metric Display ────────────────────
 .tnum,
 .font-tnum,

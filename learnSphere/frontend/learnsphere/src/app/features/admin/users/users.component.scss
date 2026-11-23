@@ -63,19 +63,19 @@
 .btn,
 .tab {
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   font: inherit;
   font-size: 12px;
   font-weight: 600;
   padding: 7px 11px;
   white-space: nowrap;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
 }
 
 .btn--primary {
   background: $brand;
-  color: #fff;
+  color: var(--palette-white);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -98,23 +98,23 @@
 
 .btn--danger {
   background: $red-soft;
-  border-color: #f09595;
+  border-color: var(--palette-red-300);
   color: $red;
 
   &:hover {
     background: $red;
-    color: #fff;
+    color: var(--palette-white);
   }
 }
 
 .btn--success {
   background: $green-soft;
-  border-color: #9ad9bd;
-  color: #27500a;
+  border-color: var(--palette-mint-300);
+  color: var(--palette-green-900);
 
   &:hover {
-    background: #27500a;
-    color: #fff;
+    background: var(--palette-green-900);
+    color: var(--palette-white);
   }
 }
 
@@ -132,8 +132,8 @@
 
   &--active {
     background: $brand-soft;
-    border-color: #afa9ec;
-    color: #3c3489;
+    border-color: var(--palette-violet-300);
+    color: var(--palette-violet-900);
   }
 }
 
@@ -154,7 +154,7 @@
 .card {
   background: $surface;
   border: 1px solid $border;
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--card-shadow);
 }
 
@@ -206,7 +206,7 @@
   align-items: center;
   gap: 8px;
   border: 1px solid $border;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   background: var(--bg-input);
   padding: 6px 10px;
   min-width: 240px;
@@ -283,7 +283,7 @@
     margin: 0 -8px;
     padding-right: 8px;
     padding-left: 8px;
-    border-radius: 8px;
+    border-radius: var(--border-radius-md);
     background: var(--status-red-bg);
   }
 }
@@ -361,7 +361,7 @@
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  border-radius: 50%;
+  border-radius: var(--border-radius-full);
   font-size: 11px;
   font-weight: 700;
 
@@ -403,7 +403,7 @@
   flex: 1;
   height: 7px;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: var(--border-radius-full);
   background: var(--bg-hover);
 }
 
@@ -414,7 +414,7 @@
 
   &--purple { background: $brand; }
   &--green { background: $green; }
-  &--red { background: #e5453a; }
+  &--red { background: var(--palette-vermilion-500); }
 }
 
 .queue-item {
@@ -455,23 +455,23 @@
 .pill {
   display: inline-flex;
   width: fit-content;
-  border-radius: 999px;
+  border-radius: var(--border-radius-full);
   font-size: 11px;
   font-weight: 600;
   padding: 3px 8px;
   white-space: nowrap;
 
-  &--green { background: $green-soft; color: #27500a; }
-  &--purple { background: $brand-soft; color: #3c3489; }
+  &--green { background: $green-soft; color: var(--palette-green-900); }
+  &--purple { background: $brand-soft; color: var(--palette-violet-900); }
   &--red { background: $red-soft; color: $red; }
-  &--dark { background: $red; color: #fff; }
+  &--dark { background: $red; color: var(--palette-white); }
 }
 
 /* Modal Backdrop & User Inspection Drawer */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.7);
+  background: color-mix(in srgb, var(--palette-slate-900) 70%, transparent);
   backdrop-filter: blur(4px);
   z-index: 9999;
   display: flex;
@@ -483,8 +483,8 @@
 .modal-container.user-inspect-modal {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border-radius: var(--border-radius-xl);
+  box-shadow: 0 25px 50px -12px color-mix(in srgb, var(--palette-black) 35%, transparent);
   max-width: 580px;
   width: 100%;
   max-height: calc(100vh - 40px);
@@ -540,7 +540,7 @@
       color: var(--text-secondary);
       cursor: pointer;
       padding: 6px;
-      border-radius: 6px;
+      border-radius: var(--border-radius-md);
       display: flex;
       align-items: center;
 
@@ -565,7 +565,7 @@
       .kpi-box {
         background: var(--bg-surface-elevated);
         border: 1px solid var(--border-color);
-        border-radius: 10px;
+        border-radius: var(--border-radius-lg);
         padding: 12px 14px;
         display: flex;
         flex-direction: column;

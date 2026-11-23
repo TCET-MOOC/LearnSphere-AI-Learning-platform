@@ -68,7 +68,7 @@
     font-weight: 500;
     color: $text-secondary;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
     border: none;
     background: transparent;
     font-family: inherit;
@@ -80,8 +80,8 @@
 
     &--active {
       background: $brand-purple;
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+      color: var(--palette-white);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--palette-indigo-500) 30%, transparent);
     }
   }
 }
@@ -184,7 +184,7 @@
       color: $text-secondary;
       background: var(--bg-hover);
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: var(--border-radius-sm);
     }
 
     .post-meta {
@@ -257,7 +257,7 @@
 .ava {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: var(--border-radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -272,7 +272,7 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: var(--border-radius-round);
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
@@ -310,13 +310,13 @@
     flex: 1;
     background: var(--bg-input);
     border: 1px solid var(--border-color);
-    border-radius: 30px;
+    border-radius: var(--border-radius-full);
     padding: 10px 20px;
     font-size: 14px;
     color: $text-primary;
     font-family: inherit;
     cursor: text;
-    transition: all 0.2s;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s, opacity 0.2s;
 
     &:focus {
       outline: none;
@@ -331,7 +331,7 @@
 
   .new-post-btn {
     background: $brand-purple;
-    color: #fff;
+    color: var(--palette-white);
     border: none;
     border-radius: $radius-md;
     padding: 0 18px;
@@ -376,10 +376,10 @@
 
   button {
     background: var(--brand-primary);
-    color: #fff;
+    color: var(--palette-white);
     border: none;
     padding: 0 16px;
-    border-radius: 6px;
+    border-radius: var(--border-radius-md);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;

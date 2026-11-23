@@ -74,7 +74,7 @@
   &__icon {
     width: 44px;
     height: 44px;
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
     background: var(--brand-surface);
     color: var(--brand-text);
     display: flex;
@@ -83,8 +83,8 @@
     flex-shrink: 0;
 
     &.is-active {
-      background: rgba(239, 68, 68, 0.15);
-      color: #ef4444;
+      background: color-mix(in srgb, var(--palette-red-500) 15%, transparent);
+      color: var(--palette-red-500);
     }
 
     &.is-completed {
@@ -224,7 +224,7 @@
     &:focus {
       outline: none;
       border-color: var(--brand-primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--palette-indigo-500) 15%, transparent);
     }
   }
 }
@@ -251,7 +251,7 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 
   &:hover {
     background: var(--bg-hover);
@@ -260,8 +260,8 @@
   }
 
   &.is-live-now {
-    background: rgba(239, 68, 68, 0.05);
-    border-color: rgba(239, 68, 68, 0.4);
+    background: color-mix(in srgb, var(--palette-red-500) 5%, transparent);
+    border-color: color-mix(in srgb, var(--palette-red-500) 40%, transparent);
   }
 
   &--past {
@@ -324,7 +324,7 @@
 .session-date-chip {
   width: 44px;
   height: 44px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   background: var(--brand-surface);
   color: var(--brand-text);
   display: flex;
@@ -348,9 +348,9 @@
   }
 
   &.is-live {
-    background: #ef4444;
-    color: #ffffff;
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+    background: var(--palette-red-500);
+    color: var(--palette-white);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--palette-red-500) 40%, transparent);
   }
 
   &--past {
@@ -366,17 +366,17 @@
   gap: 5px;
   font-size: 10.5px;
   font-weight: 800;
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.12);
+  color: var(--palette-red-500);
+  background: color-mix(in srgb, var(--palette-red-500) 12%, transparent);
   padding: 2px 7px;
-  border-radius: 99px;
+  border-radius: var(--border-radius-full);
   letter-spacing: 0.05em;
 
   .pulse-dot {
     width: 6px;
     height: 6px;
-    border-radius: 50%;
-    background: #ef4444;
+    border-radius: var(--border-radius-full);
+    background: var(--palette-red-500);
     animation: livePulse 1.5s infinite;
   }
 }

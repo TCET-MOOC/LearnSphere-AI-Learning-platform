@@ -56,7 +56,7 @@
 .btn,
 .tab {
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   font: inherit;
   font-size: 12px;
@@ -66,7 +66,7 @@
 
 .btn--primary {
   background: $brand;
-  color: #fff;
+  color: var(--palette-white);
 }
 
 .btn--soft {
@@ -82,7 +82,7 @@
 
 .btn--danger {
   background: $red-soft;
-  border-color: #f09595;
+  border-color: var(--palette-red-300);
   color: $red;
 }
 
@@ -100,7 +100,7 @@
 
   &--active {
     background: $brand-soft;
-    border-color: #afa9ec;
+    border-color: var(--palette-violet-300);
     color: var(--status-purple-text);
   }
 }
@@ -117,7 +117,7 @@
 .card {
   background: $surface;
   border: 1px solid $border;
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
 }
 
 .metric-card {
@@ -169,13 +169,13 @@
   width: 42px;
   height: 34px;
   flex-shrink: 0;
-  border-radius: 7px;
+  border-radius: var(--border-radius-md);
   font-size: 11px;
   font-weight: 700;
 
   &--purple { background: $brand-soft; color: $brand-text; }
   &--blue { background: $blue-soft; color: $blue; }
-  &--amber { background: $amber-soft; color: #633806; }
+  &--amber { background: $amber-soft; color: var(--palette-amber-900); }
   &--red { background: $red-soft; color: $red; }
   &--grey { background: $grey-soft; color: $muted; }
 }
@@ -211,7 +211,7 @@
   margin: 14px 0 10px;
 
   div {
-    border-radius: 8px;
+    border-radius: var(--border-radius-md);
     background: $bg;
     padding: 10px;
   }
@@ -236,7 +236,7 @@
   height: 6px;
   overflow: hidden;
   background: $border;
-  border-radius: 99px;
+  border-radius: var(--border-radius-full);
 
   span {
     display: block;
@@ -309,14 +309,14 @@
 
 .pill {
   display: inline-flex;
-  border-radius: 999px;
+  border-radius: var(--border-radius-full);
   font-size: 11px;
   font-weight: 600;
   padding: 3px 8px;
   white-space: nowrap;
 
-  &--green { background: $green-soft; color: #27500a; }
-  &--amber { background: $amber-soft; color: #633806; }
+  &--green { background: $green-soft; color: var(--palette-green-900); }
+  &--amber { background: $amber-soft; color: var(--palette-amber-900); }
   &--red { background: $red-soft; color: $red; }
   &--grey { background: $grey-soft; color: $muted; }
 }

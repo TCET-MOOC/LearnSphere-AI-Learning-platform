@@ -232,3 +232,52 @@
   --space-10: 40px;
   --space-12: 48px;
 }
+
+// DS-12 (W7-14): fixed palette for the teacher/admin consoles. Same values the console
+// stylesheets used as raw literals, now named here so the screens hold no colour literal.
+// Theme-independent on purpose: the consoles looked the same in both themes before.
+:root {
+  --palette-amber-400: #fbbf24;
+  --palette-amber-500: #f59e0b;
+  --palette-amber-600: #d97706;
+  --palette-amber-700: #b45309;
+  --palette-amber-900: #633806;
+  --palette-amber-950: #78350f;
+  --palette-black: #000000;
+  --palette-blue-500: #3b82f6;
+  --palette-blue-600: #2563eb;
+  --palette-bronze: #cd7f32;
+  --palette-cream: #fffdf0;
+  --palette-emerald-400: #34d399;
+  --palette-emerald-500: #10b981;
+  --palette-gold: #ffd700;
+  --palette-gray-50: #f8f9fa;
+  --palette-green-500: #22c55e;
+  --palette-green-900: #27500a;
+  --palette-indigo-400: #818cf8;
+  --palette-indigo-500: #6366f1;
+  --palette-ink-950: #0a0a0f;
+  --palette-linen: #faf5f0;
+  --palette-mint-300: #9ad9bd;
+  --palette-pink-500: #ec4899;
+  --palette-purple-500: #a855f7;
+  --palette-red-300: #f09595;
+  --palette-red-500: #ef4444;
+  --palette-silver: #c0c0c0;
+  --palette-slate-400: #94a3b8;
+  --palette-slate-500: #64748b;
+  --palette-slate-900: #0f172a;
+  --palette-vermilion-500: #e5453a;
+  --palette-violet-200: #c5c0f3;
+  --palette-violet-300: #afa9ec;
+  --palette-violet-500: #8b5cf6;
+  --palette-violet-600: #7c3aed;
+  --palette-violet-900: #3c3489;
+  --palette-white: #ffffff;
+  --palette-yellow-500: #eab308;
+  --palette-zinc-100: #f4f4f5;
+  --palette-zinc-500: #71717a;
+  --palette-zinc-800: #27272a;
+  --palette-zinc-900: #18181b;
+  --palette-zinc-925: #1c1c20;
+}

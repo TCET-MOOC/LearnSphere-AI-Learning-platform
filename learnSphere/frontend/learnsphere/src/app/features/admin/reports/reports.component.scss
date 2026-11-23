@@ -25,9 +25,9 @@
     color: var(--brand-text);
     background: var(--brand-surface);
     padding: 3px 10px;
-    border-radius: 20px;
+    border-radius: var(--border-radius-round);
     margin-bottom: 8px;
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    border: 1px solid color-mix(in srgb, var(--palette-indigo-500) 20%, transparent);
   }
 
   .page-title {
@@ -59,8 +59,8 @@
       color: var(--status-green-text);
       background: var(--status-green-bg);
       padding: 6px 12px;
-      border-radius: 20px;
-      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: var(--border-radius-round);
+      border: 1px solid color-mix(in srgb, var(--palette-green-500) 20%, transparent);
     }
   }
 }
@@ -73,7 +73,7 @@
 
   .skeleton-card {
     height: 105px;
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
   }
 
   .split-grid {
@@ -87,7 +87,7 @@
 
     .skeleton-box {
       height: 260px;
-      border-radius: 12px;
+      border-radius: var(--border-radius-lg);
     }
   }
 }
@@ -103,7 +103,7 @@
 .stat-box {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
@@ -111,18 +111,18 @@
   box-shadow: var(--card-shadow);
   position: relative;
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 16px -4px color-mix(in srgb, var(--palette-black) 8%, transparent);
   }
 
   &--indigo::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--brand-primary); }
-  &--blue::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #3b82f6; }
-  &--emerald::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #10b981; }
-  &--purple::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #a855f7; }
-  &--amber::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #f59e0b; }
+  &--blue::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--palette-blue-500); }
+  &--emerald::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--palette-emerald-500); }
+  &--purple::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--palette-purple-500); }
+  &--amber::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--palette-amber-500); }
 
   .stat-top {
     display: flex;
@@ -169,7 +169,7 @@
 .section-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 22px;
   box-shadow: var(--card-shadow);
 }
@@ -232,19 +232,19 @@
   .bar-track {
     height: 8px;
     background: var(--bg-surface-elevated);
-    border-radius: 6px;
+    border-radius: var(--border-radius-md);
     overflow: hidden;
     border: 1px solid var(--border-color);
   }
 
   .bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--brand-primary) 0%, #818cf8 100%);
-    border-radius: 6px;
+    background: linear-gradient(90deg, var(--brand-primary) 0%, var(--palette-indigo-400) 100%);
+    border-radius: var(--border-radius-md);
     transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 
     &--status {
-      background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+      background: linear-gradient(90deg, var(--palette-emerald-500) 0%, var(--palette-emerald-400) 100%);
     }
   }
 }

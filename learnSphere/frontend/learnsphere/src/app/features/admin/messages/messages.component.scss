@@ -57,9 +57,9 @@
 
 .new-msg-btn {
   background: $brand;
-  color: #fff;
+  color: var(--palette-white);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   padding: 9px 16px;
   font-size: 13px;
   font-weight: 600;
@@ -69,9 +69,9 @@
   justify-content: center;
   gap: 8px;
   line-height: normal;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.18);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--palette-indigo-500) 18%, transparent);
 
   lucide-icon {
     width: 16px;
@@ -94,7 +94,7 @@
   gap: 8px;
   background: var(--bg-input);
   border: 1px solid $border;
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   padding: 8px 14px;
   width: 280px;
 
@@ -135,7 +135,7 @@
 .conv-panel {
   background: var(--bg-surface);
   border: 1px solid $border;
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -153,11 +153,11 @@
     font-size: 12.5px;
     font-weight: 600;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--border-radius-md);
     cursor: pointer;
     background: transparent;
     color: $text-secondary;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.15s, opacity 0.15s;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -171,10 +171,10 @@
 
     .badge {
       background: $brand;
-      color: #fff;
+      color: var(--palette-white);
       font-size: 10px;
       padding: 1px 6px;
-      border-radius: 10px;
+      border-radius: var(--border-radius-lg);
       font-weight: 600;
     }
   }
@@ -208,7 +208,7 @@
 .conv-ava {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: var(--border-radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -260,12 +260,12 @@
 
 .conv-unread {
   background: $brand;
-  color: #fff;
+  color: var(--palette-white);
   font-size: 10px;
   font-weight: 600;
   min-width: 18px;
   height: 18px;
-  border-radius: 9px;
+  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -285,7 +285,7 @@
 .chat-panel {
   background: var(--bg-surface);
   border: 1px solid $border;
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -304,7 +304,7 @@
 .chat-ava {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: var(--border-radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -350,10 +350,10 @@
 
     .chat-bubble {
       background: $brand;
-      color: #fff;
-      border-radius: 12px 12px 4px 12px;
+      color: var(--palette-white);
+      border-radius: var(--border-radius-lg) var(--border-radius-lg) var(--border-radius-sm) var(--border-radius-lg);
     }
-    .chat-time { color: rgba(255, 255, 255, 0.7); }
+    .chat-time { color: color-mix(in srgb, var(--palette-white) 70%, transparent); }
   }
 
   &--other {
@@ -363,7 +363,7 @@
       background: var(--bg-surface);
       color: $text-primary;
       border: 1px solid var(--border-color);
-      border-radius: 12px 12px 12px 4px;
+      border-radius: var(--border-radius-lg) var(--border-radius-lg) var(--border-radius-lg) var(--border-radius-sm);
     }
     .chat-time { color: var(--text-muted); }
   }
@@ -397,7 +397,7 @@
 .chat-input {
   flex: 1;
   border: 1px solid $border;
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   padding: 10px 14px;
   font-size: 13px;
   font-family: inherit;
@@ -413,10 +413,10 @@
 .send-btn {
   width: 38px;
   height: 38px;
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   border: none;
   background: $brand;
-  color: #fff;
+  color: var(--palette-white);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -464,7 +464,7 @@
   font-weight: 700;
   text-transform: uppercase;
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   margin-right: 4px;
 
   &--teacher {

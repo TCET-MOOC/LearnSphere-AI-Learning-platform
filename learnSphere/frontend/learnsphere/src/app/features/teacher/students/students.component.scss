@@ -63,7 +63,7 @@
     border: 1px solid transparent;
     border-bottom: none;
     margin-bottom: -1px;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
     white-space: nowrap;
 
     &.on {
@@ -127,7 +127,7 @@
   .student-card {
     background: var(--bg-hover);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-lg); // DS-12: one card radius
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -174,7 +174,7 @@
     .ava {
       width: 36px;
       height: 36px;
-      border-radius: 50%;
+      border-radius: var(--border-radius-full);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -183,18 +183,18 @@
       border: 2px solid transparent;
 
       &.gold {
-        background-color: #FFFDF0;
-        border-color: #FFD700;
+        background-color: var(--palette-cream);
+        border-color: var(--palette-gold);
       }
 
       &.silver {
-        background-color: #F8F9FA;
-        border-color: #C0C0C0;
+        background-color: var(--palette-gray-50);
+        border-color: var(--palette-silver);
       }
 
       &.bronze {
-        background-color: #FAF5F0;
-        border-color: #CD7F32;
+        background-color: var(--palette-linen);
+        border-color: var(--palette-bronze);
       }
     }
   }
@@ -229,7 +229,7 @@
     border-radius: var(--border-radius-md);
     background: var(--bg-hover);
     border: 1px solid transparent;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 
     &:hover {
       border-color: var(--border-color);
@@ -239,7 +239,7 @@
     .ava.risk-avatar {
       width: 36px;
       height: 36px;
-      border-radius: 50%;
+      border-radius: var(--border-radius-full);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -276,11 +276,11 @@
       background: transparent;
       color: var(--brand-text);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
 
       &:hover:not(:disabled) {
         background: var(--brand-primary);
-        color: #fff;
+        color: var(--palette-white);
       }
 
       &:disabled {

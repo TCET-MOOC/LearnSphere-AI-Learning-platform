@@ -33,9 +33,9 @@
     color: var(--brand-text);
     background: var(--brand-surface);
     padding: 3px 10px;
-    border-radius: 20px;
+    border-radius: var(--border-radius-round);
     margin-bottom: 8px;
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    border: 1px solid color-mix(in srgb, var(--palette-indigo-500) 20%, transparent);
   }
 
   .page-title {
@@ -62,24 +62,24 @@
     color: var(--brand-text);
     background: var(--brand-surface);
     padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: var(--border-radius-round);
+    border: 1px solid color-mix(in srgb, var(--palette-indigo-500) 25%, transparent);
 
     .pulse-indicator {
       width: 7px;
       height: 7px;
-      border-radius: 50%;
+      border-radius: var(--border-radius-full);
       background: var(--brand-primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--palette-indigo-500) 35%, transparent);
       animation: pulse 2s infinite;
     }
   }
 }
 
 @keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 color-mix(in srgb, var(--palette-indigo-500) 70%, transparent); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px color-mix(in srgb, var(--palette-indigo-500) 0%, transparent); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 color-mix(in srgb, var(--palette-indigo-500) 0%, transparent); }
 }
 
 /* Skeleton Loaders */
@@ -95,7 +95,7 @@
 
     .skeleton-kpi {
       height: 105px;
-      border-radius: 12px;
+      border-radius: var(--border-radius-lg);
     }
   }
 
@@ -106,7 +106,7 @@
 
     .skeleton-col {
       height: 350px;
-      border-radius: 12px;
+      border-radius: var(--border-radius-lg);
     }
   }
 }
@@ -129,22 +129,22 @@
 .kpi-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 18px 20px;
   box-shadow: var(--card-shadow);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   position: relative;
   overflow: hidden;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 16px -4px color-mix(in srgb, var(--palette-black) 8%, transparent);
   }
 
   &--primary::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--brand-primary); }
-  &--blue::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #3b82f6; }
-  &--amber::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #f59e0b; }
-  &--red::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #ef4444; }
+  &--blue::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--palette-blue-500); }
+  &--amber::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--palette-amber-500); }
+  &--red::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--palette-red-500); }
 
   .kpi-top {
     display: flex;
@@ -201,7 +201,7 @@
 .card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 20px;
   box-shadow: var(--card-shadow);
 
@@ -261,22 +261,22 @@
     flex-shrink: 0;
 
     .rank-badge {
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--palette-black) 10%, transparent));
       transition: transform 0.2s ease;
 
       &--gold {
-        color: #eab308;
-        filter: drop-shadow(0 2px 6px rgba(234, 179, 8, 0.35));
+        color: var(--palette-yellow-500);
+        filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--palette-yellow-500) 35%, transparent));
       }
 
       &--silver {
-        color: #94a3b8;
-        filter: drop-shadow(0 2px 6px rgba(148, 163, 184, 0.3));
+        color: var(--palette-slate-400);
+        filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--palette-slate-400) 30%, transparent));
       }
 
       &--bronze {
-        color: #d97706;
-        filter: drop-shadow(0 2px 6px rgba(217, 119, 6, 0.3));
+        color: var(--palette-amber-600);
+        filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--palette-amber-600) 30%, transparent));
       }
     }
 
@@ -290,7 +290,7 @@
   .ava {
     width: 34px;
     height: 34px;
-    border-radius: 50%;
+    border-radius: var(--border-radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -301,7 +301,7 @@
     &.course-ava {
       background: var(--brand-surface);
       color: var(--brand-text);
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
     }
   }
 
@@ -345,7 +345,7 @@
   .split-track {
     height: 12px;
     background: var(--bg-surface-elevated);
-    border-radius: 6px;
+    border-radius: var(--border-radius-md);
     overflow: hidden;
     display: flex;
     border: 1px solid var(--border-color);
@@ -356,11 +356,11 @@
     transition: width 0.4s ease;
 
     &--faculty {
-      background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+      background: linear-gradient(90deg, var(--palette-amber-500) 0%, var(--palette-amber-400) 100%);
     }
 
     &--platform {
-      background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+      background: linear-gradient(90deg, var(--palette-emerald-500) 0%, var(--palette-emerald-400) 100%);
     }
   }
 
@@ -378,10 +378,10 @@
       .legend-dot {
         width: 8px;
         height: 8px;
-        border-radius: 50%;
+        border-radius: var(--border-radius-full);
 
-        &--amber { background: #f59e0b; }
-        &--green { background: #10b981; }
+        &--amber { background: var(--palette-amber-500); }
+        &--green { background: var(--palette-emerald-500); }
       }
     }
   }
@@ -431,12 +431,12 @@
     padding: 10px 12px;
     font-size: 12.5px;
     font-weight: 600;
-    border-radius: 8px;
+    border-radius: var(--border-radius-md);
     cursor: pointer;
     border: 1px solid var(--border-color);
     background: var(--bg-surface-elevated);
     color: var(--text-primary);
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
 
     &:hover {
       background: var(--border-color);
@@ -446,7 +446,7 @@
     &.prim {
       background: var(--brand-primary);
       border-color: var(--brand-primary);
-      color: #ffffff;
+      color: var(--palette-white);
 
       &:hover {
         background: var(--brand-primary-hover);
@@ -455,12 +455,12 @@
 
     &.danger {
       background: var(--status-red-bg);
-      border-color: rgba(239, 68, 68, 0.2);
+      border-color: color-mix(in srgb, var(--palette-red-500) 20%, transparent);
       color: var(--status-red-text);
 
       &:hover {
-        background: #ef4444;
-        color: #ffffff;
+        background: var(--palette-red-500);
+        color: var(--palette-white);
       }
     }
   }
@@ -475,31 +475,31 @@
   .btn-icon {
     width: 30px;
     height: 30px;
-    border-radius: 6px;
+    border-radius: var(--border-radius-md);
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
 
     &.check {
-      color: #10b981;
+      color: var(--palette-emerald-500);
       background: var(--status-green-bg);
 
       &:hover {
-        background: #10b981;
-        color: #ffffff;
+        background: var(--palette-emerald-500);
+        color: var(--palette-white);
       }
     }
 
     &.cross {
-      color: #ef4444;
+      color: var(--palette-red-500);
       background: var(--status-red-bg);
 
       &:hover {
-        background: #ef4444;
-        color: #ffffff;
+        background: var(--palette-red-500);
+        color: var(--palette-white);
       }
     }
   }
