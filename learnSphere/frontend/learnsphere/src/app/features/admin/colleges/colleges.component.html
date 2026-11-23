@@ -1,12 +1,12 @@
 <div class="colleges-page">
   <div class="colleges-page__header">
     <div>
-      <p class="colleges-page__eyebrow">Campus & Partnership Directory</p>
-      <h1 class="colleges-page__title">College Management</h1>
-      <p class="colleges-page__sub">Verify institutional affiliations, departments, autonomous university accreditations, and Dean approvals.</p>
+      <p class="colleges-page__eyebrow">{{ ui.campusPartnershipDirectory }}</p>
+      <h1 class="colleges-page__title">{{ ui.collegeManagement }}</h1>
+      <p class="colleges-page__sub">{{ ui.verifyInstitutionalAffiliationsDepartments }}</p>
     </div>
     <button class="btn btn--primary add-btn" (click)="openAddCollegeDialog()">
-      <lucide-icon name="plus" class="btn-icon"></lucide-icon> Add College
+      <lucide-icon name="plus" class="btn-icon"></lucide-icon> {{ ui.addCollege }}
     </button>
   </div>
 
@@ -36,7 +36,7 @@
   <!-- Registered Colleges List Card -->
   <div class="card font-card">
     <div class="card-hd">
-      <span>Registered colleges</span>
+      <span>{{ ui.registeredColleges }}</span>
     </div>
     
     <div class="colleges-list">
@@ -45,9 +45,9 @@
           <div class="college-name">{{ college.name }}</div>
           <div class="college-sub">
             <span class="meta-item"><lucide-icon name="map-pin" class="meta-icon"></lucide-icon> {{ college.city }}</span><span class="meta-sep" aria-hidden="true"> &middot; </span>
-            <span class="meta-item"><lucide-icon name="graduation-cap" class="meta-icon"></lucide-icon> {{ college.studentCount }} students</span><span class="meta-sep" aria-hidden="true"> &middot; </span>
-            <span class="meta-item"><lucide-icon name="users" class="meta-icon"></lucide-icon> {{ college.teacherCount }} teachers</span><span class="meta-sep" aria-hidden="true"> &middot; </span>
-            <span class="meta-item"><lucide-icon name="book-open" class="meta-icon"></lucide-icon> {{ college.courseCount }} courses</span>
+            <span class="meta-item"><lucide-icon name="graduation-cap" class="meta-icon"></lucide-icon> {{ college.studentCount }} {{ ui.students }}</span><span class="meta-sep" aria-hidden="true"> &middot; </span>
+            <span class="meta-item"><lucide-icon name="users" class="meta-icon"></lucide-icon> {{ college.teacherCount }} {{ ui.teachers }}</span><span class="meta-sep" aria-hidden="true"> &middot; </span>
+            <span class="meta-item"><lucide-icon name="book-open" class="meta-icon"></lucide-icon> {{ college.courseCount }} {{ ui.courses }}</span>
           </div>
         </div>
         
@@ -56,23 +56,23 @@
           
           <ng-container *ngIf="college.verificationStatus === 'VERIFIED'">
             <button class="action-btn manage-btn" (click)="manageCollege(college)">
-              Manage college
+              {{ ui.manageCollege }}
             </button>
           </ng-container>
           
           <ng-container *ngIf="college.verificationStatus === 'PENDING'">
             <button class="action-btn verify-btn" (click)="verifyCollege(college)">
-              Verify college
+              {{ ui.verifyCollege }}
             </button>
             <button class="action-btn reject-btn" (click)="rejectCollege(college)">
-              Reject
+              {{ ui.reject }}
             </button>
           </ng-container>
         </div>
       </div>
       
       <div class="no-colleges" *ngIf="colleges.length === 0">
-        <lucide-icon name="search" class="empty-icon"></lucide-icon> No colleges registered. Click "+ Add College" to register one.
+        <lucide-icon name="search" class="empty-icon"></lucide-icon> {{ ui.noCollegesRegisteredClick }}
       </div>
     </div>
   </div>
@@ -80,7 +80,7 @@
   <!-- Teacher Affiliation Requests Card -->
   <div class="card font-card requests-panel">
     <div class="card-hd">
-      <span>Teacher affiliation requests</span>
+      <span>{{ ui.teacherAffiliationRequests }}</span>
       <app-status-pill *ngIf="affiliationRequests.length > 0" [status]="affiliationRequests.length + ' pending'"></app-status-pill>
     </div>
     
@@ -93,25 +93,25 @@
         <div class="request-info">
           <div class="teacher-name">{{ req.teacherName }}</div>
           <div class="teacher-details">
-            Claiming: <strong>{{ req.claimedDepartment }}</strong> at <em>{{ req.claimedCollegeName }}</em>
+            {{ ui.claiming }} <strong>{{ req.claimedDepartment }}</strong> {{ ui.at }} <em>{{ req.claimedCollegeName }}</em>
           </div>
         </div>
         
         <div class="request-actions">
           <button class="action-btn review-btn" (click)="reviewDocument(req.idDocumentUrl)">
-            Review ID
+            {{ ui.reviewId }}
           </button>
           <button class="action-btn approve-btn" (click)="approveRequest(req)">
-            Approve
+            {{ ui.approve }}
           </button>
           <button class="action-btn reject-btn" (click)="rejectRequest(req)">
-            Reject
+            {{ ui.reject }}
           </button>
         </div>
       </div>
       
       <div class="no-requests" *ngIf="affiliationRequests.length === 0">
-        <lucide-icon name="party-popper" class="empty-icon"></lucide-icon> No pending affiliation requests. All clear!
+        <lucide-icon name="party-popper" class="empty-icon"></lucide-icon> {{ ui.noPendingAffiliationRequests }}
       </div>
     </div>
   </div>
@@ -122,9 +122,9 @@
   <div appDialog aria-labelledby="add-college-title" (dialogClose)="closeAddCollegeModal()" class="modal-container add-college-dialog" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div>
-        <div class="dialog-tag">New Institution</div>
-        <h2 id="add-college-title" class="dialog-title">Register New College</h2>
-        <p class="dialog-sub">Add a verified campus partner or university to LearnSphere.</p>
+        <div class="dialog-tag">{{ ui.newInstitution }}</div>
+        <h2 id="add-college-title" class="dialog-title">{{ ui.registerNewCollege }}</h2>
+        <p class="dialog-sub">{{ ui.addAVerifiedCampus }}</p>
       </div>
       <button [attr.aria-label]="a11y.closeDialog" type="button" class="close-btn" (click)="closeAddCollegeModal()">
         <lucide-icon name="x" [size]="18"></lucide-icon>
@@ -134,7 +134,7 @@
     <form [formGroup]="collegeForm" (ngSubmit)="onSubmitCollege()" class="dialog-form">
       <div class="form-group">
         <label for="college-name" class="form-label">
-          College / University Name <span class="req">*</span>
+          {{ ui.collegeUniversityName }} <span class="req">*</span>
         </label>
         <div class="input-wrapper">
           <input 
@@ -142,17 +142,17 @@
             id="college-name" 
             formControlName="name" 
             class="dialog-input" 
-            placeholder="e.g. Thakur College of Engineering & Technology"
+            [attr.placeholder]="ui.eGThakurCollege"
           />
         </div>
         <div class="form-error" *ngIf="collegeForm.get('name')?.touched && collegeForm.get('name')?.invalid">
-          Please enter at least 3 characters for the college name.
+          {{ ui.pleaseEnterAtLeast }}
         </div>
       </div>
       
       <div class="form-group">
         <label for="college-city" class="form-label">
-          Campus Location / City <span class="req">*</span>
+          {{ ui.campusLocationCity }} <span class="req">*</span>
         </label>
         <div class="input-wrapper">
           <input 
@@ -160,20 +160,20 @@
             id="college-city" 
             formControlName="city" 
             class="dialog-input" 
-            placeholder="e.g. Mumbai, Maharashtra"
+            [attr.placeholder]="ui.eGMumbaiMaharashtra"
           />
         </div>
         <div class="form-error" *ngIf="collegeForm.get('city')?.touched && collegeForm.get('city')?.invalid">
-          Please specify the city/location (min 2 characters).
+          {{ ui.pleaseSpecifyTheCity }}
         </div>
       </div>
       
       <div class="dialog-actions">
         <button type="button" class="btn-dialog btn--cancel" (click)="closeAddCollegeModal()">
-          Cancel
+          {{ ui.cancel }}
         </button>
         <button type="submit" class="btn-dialog btn--submit" [disabled]="collegeForm.invalid">
-          <span>Register College</span>
+          <span>{{ ui.registerCollege }}</span>
         </button>
       </div>
     </form>
@@ -185,10 +185,10 @@
   <div appDialog aria-labelledby="college-detail-title" (dialogClose)="closeManageDrawer()" class="modal-container college-detail-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div>
-        <div class="inst-tag">Institutional Dashboard</div>
+        <div class="inst-tag">{{ ui.institutionalDashboard }}</div>
         <h2 id="college-detail-title" class="inst-name">{{ selectedCollegeForManage.name }}</h2>
         <p class="inst-location">
-          <lucide-icon name="map-pin" class="inline-icon"></lucide-icon> {{ selectedCollegeForManage.city }} · Verified Campus Partner
+          <lucide-icon name="map-pin" class="inline-icon"></lucide-icon> {{ selectedCollegeForManage.city }} {{ ui.verifiedCampusPartner }}
         </p>
       </div>
       <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="closeManageDrawer()">
@@ -200,46 +200,46 @@
       <!-- Quick Metric Tiles -->
       <div class="inst-kpi-grid">
         <div class="kpi-box">
-          <span class="label">Total Students</span>
+          <span class="label">{{ ui.totalStudents }}</span>
           <span class="val">{{ selectedCollegeForManage.studentCount || 1420 }}</span>
-          <span class="sub text-success">Active learners</span>
+          <span class="sub text-success">{{ ui.activeLearners }}</span>
         </div>
         <div class="kpi-box">
-          <span class="label">Faculty Roster</span>
+          <span class="label">{{ ui.facultyRoster }}</span>
           <span class="val">{{ selectedCollegeForManage.teacherCount || 58 }}</span>
-          <span class="sub text-purple">Verified teachers</span>
+          <span class="sub text-purple">{{ ui.verifiedTeachers }}</span>
         </div>
         <div class="kpi-box">
-          <span class="label">Hosted Courses</span>
+          <span class="label">{{ ui.hostedCourses }}</span>
           <span class="val">{{ selectedCollegeForManage.courseCount || 24 }}</span>
-          <span class="sub text-blue">Curriculum modules</span>
+          <span class="sub text-blue">{{ ui.curriculumModules }}</span>
         </div>
         <div class="kpi-box">
-          <span class="label">Subscription Tier</span>
-          <span class="val tier-badge">Enterprise</span>
-          <span class="sub text-amber">Active partner</span>
+          <span class="label">{{ ui.subscriptionTier }}</span>
+          <span class="val tier-badge">{{ ui.enterprise }}</span>
+          <span class="sub text-amber">{{ ui.activePartner }}</span>
         </div>
       </div>
 
       <!-- Department Distribution Breakdown -->
       <div class="detail-section">
-        <h3>Academic Departments & Enrollment</h3>
+        <h3>{{ ui.academicDepartmentsEnrollment }}</h3>
         <div class="dept-list">
           <div class="dept-row">
-            <span class="d-name">Computer Engineering (CMPN)</span>
-            <span class="d-stats">480 Students · 18 Faculty · 8 Courses</span>
+            <span class="d-name">{{ ui.computerEngineeringCmpn }}</span>
+            <span class="d-stats">{{ ui.t480Students18Faculty }}</span>
           </div>
           <div class="dept-row">
-            <span class="d-name">Information Technology (INFT)</span>
-            <span class="d-stats">420 Students · 16 Faculty · 7 Courses</span>
+            <span class="d-name">{{ ui.informationTechnologyInft }}</span>
+            <span class="d-stats">{{ ui.t420Students16Faculty }}</span>
           </div>
           <div class="dept-row">
-            <span class="d-name">Electronics & Telecommunication (EXTC)</span>
-            <span class="d-stats">310 Students · 14 Faculty · 5 Courses</span>
+            <span class="d-name">{{ ui.electronicsTelecommunicationExtc }}</span>
+            <span class="d-stats">{{ ui.t310Students14Faculty }}</span>
           </div>
           <div class="dept-row">
-            <span class="d-name">Mechanical & Civil Engineering</span>
-            <span class="d-stats">210 Students · 10 Faculty · 4 Courses</span>
+            <span class="d-name">{{ ui.mechanicalCivilEngineering }}</span>
+            <span class="d-stats">{{ ui.t210Students10Faculty }}</span>
           </div>
         </div>
       </div>
@@ -247,10 +247,10 @@
       <!-- Actions Bar -->
       <div class="detail-actions">
         <button class="btn-inst-action" (click)="exportCollegeRoster(selectedCollegeForManage)">
-          <lucide-icon name="file-text" [size]="14"></lucide-icon> Export Institutional Roster (CSV)
+          <lucide-icon name="file-text" [size]="14"></lucide-icon> {{ ui.exportInstitutionalRosterCsv }}
         </button>
         <button class="btn-inst-action secondary" (click)="sendCollegeAnnouncement(selectedCollegeForManage)">
-          <lucide-icon name="megaphone" [size]="14"></lucide-icon> Send College-Wide Notice
+          <lucide-icon name="megaphone" [size]="14"></lucide-icon> {{ ui.sendCollegeWideNotice }}
         </button>
       </div>
     </div>

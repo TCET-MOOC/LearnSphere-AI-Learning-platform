@@ -7,6 +7,7 @@ import { TeacherAssessmentService } from '../../services/assessment.service';
 import { Course } from '@core/models/course.model';
 import { QuestionDraft } from '@core/models/assessment.model';
 import { NotificationService } from '@core/services/notification.service';
+import { TEACHER_UPLOAD_QUIZ_BUILDER_UI } from '@core/content/teacher-upload-quiz-builder.ui';
 
 const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
 
@@ -18,29 +19,29 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
     <div class="quiz-builder">
       <div class="builder-header">
         <div>
-          <h3>Course Assessments & Quiz Manager</h3>
-          <p class="hint">Create assessments, add auto-graded MCQ questions, or manage existing tests.</p>
+          <h3>{{ ui.courseAssessmentsQuizManager }}</h3>
+          <p class="hint">{{ ui.createAssessmentsAddAuto }}</p>
         </div>
         <button 
           class="btn btn--primary" 
           *ngIf="!showCreateForm && !createdTestId" 
           (click)="openNewTestForm()">
           <lucide-icon name="plus" [size]="15"></lucide-icon>
-          <span>Build New Test</span>
+          <span>{{ ui.buildNewTest }}</span>
         </button>
         <button 
           class="btn btn--ghost" 
           *ngIf="showCreateForm || createdTestId" 
           (click)="cancelOrFinish()">
           <lucide-icon name="arrow-left" [size]="15"></lucide-icon>
-          <span>Back to Tests List</span>
+          <span>{{ ui.backToTestsList }}</span>
         </button>
       </div>
 
       <!-- Existing Tests List View -->
       <div class="existing-tests-view" *ngIf="!showCreateForm && !createdTestId">
         <div class="loading-state" *ngIf="loadingTests">
-          <span>Loading course tests...</span>
+          <span>{{ ui.loadingCourseTests }}</span>
         </div>
 
         <div class="tests-grid" *ngIf="!loadingTests && existingTests.length > 0">
@@ -51,15 +52,15 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
                 <div class="test-badges">
                   <span class="badge duration-badge">
                     <lucide-icon name="clock" [size]="12"></lucide-icon>
-                    {{ t.durationMinutes }} mins
+                    {{ t.durationMinutes }} {{ ui.mins }}
                   </span>
-                  <span class="badge remedial-badge" *ngIf="t.isRemedial">Remedial / Makeup</span>
+                  <span class="badge remedial-badge" *ngIf="t.isRemedial">{{ ui.remedialMakeup }}</span>
                 </div>
               </div>
               <div class="test-card-actions">
                 <button class="btn btn--soft btn--sm" (click)="manageTest(t)">
                   <lucide-icon name="plus" [size]="13"></lucide-icon>
-                  <span>Add Questions</span>
+                  <span>{{ ui.addQuestions }}</span>
                 </button>
                 <button class="btn btn--danger-outline btn--sm" (click)="deleteTest(t)">
                   <lucide-icon name="trash-2" [size]="13"></lucide-icon>
@@ -71,8 +72,8 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
 
         <div class="empty-tests" *ngIf="!loadingTests && existingTests.length === 0">
           <lucide-icon name="file-question" [size]="32" class="empty-icon"></lucide-icon>
-          <p>No tests created for this course yet.</p>
-          <button class="btn btn--primary btn--sm" (click)="openNewTestForm()">Create First Test</button>
+          <p>{{ ui.noTestsCreatedFor }}</p>
+          <button class="btn btn--primary btn--sm" (click)="openNewTestForm()">{{ ui.createFirstTest }}</button>
         </div>
       </div>
 
@@ -80,23 +81,23 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
       <div class="test-form-panel" *ngIf="showCreateForm && !createdTestId">
         <div class="form-grid">
           <label *ngIf="!initialCourseId">
-            Target Course
+            {{ ui.targetCourse }}
             <select [(ngModel)]="courseId" [disabled]="courses.length === 0">
-              <option [ngValue]="null" disabled>Select a course…</option>
+              <option [ngValue]="null" disabled>{{ ui.selectACourse }}</option>
               <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
             </select>
           </label>
           <label [class.full]="!!initialCourseId">
-            Test Title
-            <input type="text" [(ngModel)]="title" placeholder="e.g. Midterm Assessment: Neural Networks" />
+            {{ ui.testTitle }}
+            <input type="text" [(ngModel)]="title" [attr.placeholder]="ui.eGMidtermAssessment" />
           </label>
           <label>
-            Duration (Minutes)
+            {{ ui.durationMinutes }}
             <input type="number" min="1" [(ngModel)]="durationMinutes" placeholder="e.g. 30" />
           </label>
           <label class="checkbox-row">
             <input type="checkbox" [(ngModel)]="isRemedial" id="remedial-check" />
-            <span>Mark as Remedial / Makeup Credit Test (Pass threshold $\\ge 40\%$)</span>
+            <span>{{ ui.markAsRemedialMakeup }}</span>
           </label>
         </div>
 
@@ -115,20 +116,20 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
       <div class="questions-section" *ngIf="createdTestId">
         <div class="active-test-banner">
           <div>
-            <span class="active-label">Active Test:</span>
+            <span class="active-label">{{ ui.activeTest }}</span>
             <strong>{{ title }}</strong>
-            <span class="badge" *ngIf="durationMinutes">({{ durationMinutes }} mins)</span>
+            <span class="badge" *ngIf="durationMinutes">({{ durationMinutes }} {{ ui.mins2 }}</span>
           </div>
-          <button class="btn btn--ghost btn--sm" (click)="cancelOrFinish()">Finish & Save</button>
+          <button class="btn btn--ghost btn--sm" (click)="cancelOrFinish()">{{ ui.finishSave }}</button>
         </div>
 
         <!-- Saved Questions List -->
         <div class="saved-questions-box" *ngIf="savedQuestions.length > 0">
-          <h5>Saved Questions ({{ savedQuestions.length }})</h5>
+          <h5>{{ ui.savedQuestions }}{{ savedQuestions.length }})</h5>
           <div class="saved-question" *ngFor="let q of savedQuestions; let i = index">
             <div class="saved-q-head">
               <strong>{{ i + 1 }}. {{ q.body }}</strong>
-              <span class="saved-q-meta">{{ q.questionType }} · {{ q.marks }} mark{{ q.marks === 1 ? '' : 's' }}</span>
+              <span class="saved-q-meta">{{ q.questionType }} · {{ q.marks }} {{ ui.mark }}{{ q.marks === 1 ? '' : 's' }}</span>
             </div>
             <div class="saved-q-options" *ngIf="q.options?.length">
               <span 
@@ -143,28 +144,28 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
 
         <!-- Add Question Card -->
         <div class="add-q-card">
-          <h4>Add New Question</h4>
+          <h4>{{ ui.addNewQuestion }}</h4>
 
           <div class="form-grid">
             <label class="full">
-              Question Text / Problem Statement
-              <textarea rows="2" [(ngModel)]="draftBody" placeholder="e.g. What is the time complexity of Dijkstra's algorithm with a binary heap?"></textarea>
+              {{ ui.questionTextProblemStatement }}
+              <textarea rows="2" [(ngModel)]="draftBody" [attr.placeholder]="ui.eGWhatIs"></textarea>
             </label>
             <label>
-              Question Type
+              {{ ui.questionType }}
               <select [(ngModel)]="draftType">
                 <option *ngFor="let t of questionTypes" [value]="t">{{ t }}</option>
               </select>
             </label>
             <label>
-              Marks
+              {{ ui.marks }}
               <input type="number" min="1" [(ngModel)]="draftMarks" />
             </label>
           </div>
 
           <!-- MCQ Options Selector -->
           <div class="options-section" *ngIf="draftType === 'MCQ'">
-            <label class="full">Answer Options (Select the correct choice):</label>
+            <label class="full">{{ ui.answerOptionsSelectThe }}</label>
             <div class="option-row" *ngFor="let opt of draftOptions; let i = index">
               <input type="text" [(ngModel)]="draftOptions[i]" [placeholder]="'Option ' + (i + 1)" />
               <label class="correct-toggle">
@@ -174,22 +175,22 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
                   [checked]="draftCorrectAnswer === draftOptions[i] && draftOptions[i] !== ''" 
                   (change)="draftCorrectAnswer = draftOptions[i]" 
                 />
-                <span>Correct Answer</span>
+                <span>{{ ui.correctAnswer }}</span>
               </label>
-              <button type="button" class="btn-icon" (click)="removeOption(i)" title="Remove option">
+              <button type="button" class="btn-icon" (click)="removeOption(i)" [attr.title]="ui.removeOption">
                 <lucide-icon name="x" [size]="14"></lucide-icon>
               </button>
             </div>
             <button type="button" class="btn btn--ghost btn--sm" (click)="addOption()">
               <lucide-icon name="plus" [size]="13"></lucide-icon>
-              <span>Add Option</span>
+              <span>{{ ui.addOption }}</span>
             </button>
           </div>
 
           <!-- Non-MCQ Key -->
           <label class="full" *ngIf="draftType !== 'MCQ'">
-            Model Answer Key (Optional reference for instructor grading):
-            <input type="text" [(ngModel)]="draftCorrectAnswer" placeholder="Reference answer phrase" />
+            {{ ui.modelAnswerKeyOptional }}
+            <input type="text" [(ngModel)]="draftCorrectAnswer" [attr.placeholder]="ui.referenceAnswerPhrase" />
           </label>
 
           <div class="actions">
@@ -201,7 +202,7 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
               <lucide-icon name="plus" [size]="14"></lucide-icon>
               <span>{{ addingQuestion ? 'Adding Question…' : 'Add Question' }}</span>
             </button>
-            <button type="button" class="btn btn--ghost" (click)="cancelOrFinish()">Done — Finish Test</button>
+            <button type="button" class="btn btn--ghost" (click)="cancelOrFinish()">{{ ui.doneFinishTest }}</button>
           </div>
         </div>
       </div>
@@ -504,6 +505,8 @@ const QUESTION_TYPES = ['MCQ', 'SHORT_ANSWER', 'ESSAY'];
   `]
 })
 export class QuizBuilderComponent implements OnInit, OnChanges {
+  /** Template copy (Wave 7 gate): `core/content/teacher-upload-quiz-builder.ui.ts`. */
+  protected readonly ui = TEACHER_UPLOAD_QUIZ_BUILDER_UI;
   @Input() initialCourseId: number | null = null;
 
   courses: Course[] = [];

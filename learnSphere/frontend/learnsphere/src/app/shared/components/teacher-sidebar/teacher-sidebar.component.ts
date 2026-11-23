@@ -5,6 +5,7 @@ import { SidebarService } from '../../../core/services/sidebar.service';
 import { Observable } from 'rxjs';
 import { A11yCopy } from '@core/content/a11y.content';
 import { TEACHER_SIDEBAR_COPY } from '@core/content/teacher-sidebar.content';
+import { TEACHER_SIDEBAR_UI } from '@core/content/teacher-sidebar.ui';
 
 @Component({
   selector: 'app-teacher-sidebar',
@@ -14,6 +15,8 @@ import { TEACHER_SIDEBAR_COPY } from '@core/content/teacher-sidebar.content';
   styleUrls: ['../sidebar/sidebar.component.scss'] // Reusing the exact same SCSS as the student sidebar!
 })
 export class TeacherSidebarComponent {
+  /** Template copy (Wave 7 gate): `core/content/teacher-sidebar.ui.ts`. */
+  protected readonly ui = TEACHER_SIDEBAR_UI;
   protected readonly a11y = A11yCopy.text;
   protected readonly nav = TEACHER_SIDEBAR_COPY;
   isCollapsed$: Observable<boolean>;

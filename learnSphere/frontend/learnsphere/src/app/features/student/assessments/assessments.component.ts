@@ -9,6 +9,7 @@ import { Assessment } from '@core/models/assessment.model';
 import { NotificationService } from '@core/services/notification.service';
 
 import { LucideAngularModule } from 'lucide-angular';
+import { STUDENT_ASSESSMENTS_UI } from '@core/content/student-assessments.ui';
 
 /**
  * AssessmentsComponent lists the tests/quizzes available across every course
@@ -23,6 +24,8 @@ import { LucideAngularModule } from 'lucide-angular';
   styleUrls: ['./assessments.component.scss']
 })
 export class AssessmentsComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/student-assessments.ui.ts`. */
+  protected readonly ui = STUDENT_ASSESSMENTS_UI;
   assessments: Assessment[] = [];
   loading = true;
 

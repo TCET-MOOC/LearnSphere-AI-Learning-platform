@@ -8,6 +8,7 @@ import { DiscussionThreadDto, ThreadPostDto } from '@core/models/social.model';
 import { UserRole } from '@core/models/user.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { timeAgo } from '@core/utils/time.util';
+import { STUDENT_COURSES_LECTURE_LECTURE_DISCUSSION_UI } from '@core/content/student-courses-lecture-lecture-discussion.ui';
 
 /**
  * LectureDiscussionComponent is a per-lecture/course discussion widget embedded in the
@@ -20,15 +21,15 @@ import { timeAgo } from '@core/utils/time.util';
   template: `
     <section class="card">
       <div class="card-head">
-        <h2>Lecture discussion</h2>
+        <h2>{{ ui.lectureDiscussion }}</h2>
       </div>
 
       <div class="new-post">
-        <textarea rows="2" placeholder="Ask a question about this lecture…" [(ngModel)]="newPostText"></textarea>
-        <button class="post-btn" type="button" [disabled]="!newPostText.trim() || !courseId" (click)="submitPost()">Post question</button>
+        <textarea rows="2" [attr.placeholder]="ui.askAQuestionAbout" [(ngModel)]="newPostText"></textarea>
+        <button class="post-btn" type="button" [disabled]="!newPostText.trim() || !courseId" (click)="submitPost()">{{ ui.postQuestion }}</button>
       </div>
 
-      <p class="hint" *ngIf="loading">Loading discussion…</p>
+      <p class="hint" *ngIf="loading">{{ ui.loadingDiscussion }}</p>
       <div class="posts" *ngIf="!loading">
         <div class="post" *ngFor="let thread of threads">
           <div class="post-ava" [style.background]="getBg(thread.authorName)" [style.color]="getColor(thread.authorName)">{{ getInitials(thread.authorName) }}</div>
@@ -36,7 +37,7 @@ import { timeAgo } from '@core/utils/time.util';
             <div class="post-head">
               <span class="post-author">{{ thread.authorName }}</span>
               <span class="post-time">{{ timeAgo(thread.createdAt) }}</span>
-              <button class="del-btn" type="button" *ngIf="canDeleteThread(thread)" (click)="removeThread(thread)">Delete</button>
+              <button class="del-btn" type="button" *ngIf="canDeleteThread(thread)" (click)="removeThread(thread)">{{ ui.delete }}</button>
             </div>
             <p class="post-text" style="font-weight: 600; margin-bottom: 2px;">{{ thread.title }}</p>
             <p class="post-text">{{ thread.content }}</p>
@@ -48,7 +49,7 @@ import { timeAgo } from '@core/utils/time.util';
                   <div class="post-head">
                     <span class="post-author">{{ reply.authorName }}</span>
                     <span class="post-time">{{ timeAgo(reply.createdAt) }}</span>
-                    <button class="del-btn" type="button" *ngIf="canDeletePost(reply)" (click)="removePost(thread, reply)">Delete</button>
+                    <button class="del-btn" type="button" *ngIf="canDeletePost(reply)" (click)="removePost(thread, reply)">{{ ui.delete }}</button>
                   </div>
                   <p class="post-text">{{ reply.body }}</p>
                 </div>
@@ -59,12 +60,12 @@ import { timeAgo } from '@core/utils/time.util';
               {{ replyingTo === thread.threadId ? 'Cancel' : 'Reply' }}
             </button>
             <div class="reply-input" *ngIf="replyingTo === thread.threadId">
-              <input type="text" placeholder="Write a reply…" [(ngModel)]="replyText" (keydown.enter)="submitReply(thread)" />
-              <button class="post-btn" type="button" [disabled]="!replyText.trim()" (click)="submitReply(thread)">Reply</button>
+              <input type="text" [attr.placeholder]="ui.writeAReply" [(ngModel)]="replyText" (keydown.enter)="submitReply(thread)" />
+              <button class="post-btn" type="button" [disabled]="!replyText.trim()" (click)="submitReply(thread)">{{ ui.reply }}</button>
             </div>
           </div>
         </div>
-        <p class="hint" *ngIf="threads.length === 0">No discussion yet for this lecture. Be the first to ask a question.</p>
+        <p class="hint" *ngIf="threads.length === 0">{{ ui.noDiscussionYetFor }}</p>
       </div>
     </section>
   `,
@@ -98,6 +99,8 @@ import { timeAgo } from '@core/utils/time.util';
   `]
 })
 export class LectureDiscussionComponent implements OnChanges {
+  /** Template copy (Wave 7 gate): `core/content/student-courses-lecture-lecture-discussion.ui.ts`. */
+  protected readonly ui = STUDENT_COURSES_LECTURE_LECTURE_DISCUSSION_UI;
   @Input() courseId?: number;
   @Input() courseName = '';
   @Input() lectureId?: number;

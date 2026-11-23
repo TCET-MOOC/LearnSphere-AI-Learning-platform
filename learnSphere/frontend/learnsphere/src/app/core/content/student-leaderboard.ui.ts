@@ -1,0 +1,38 @@
+/**
+ * UI copy for `features/student/leaderboard/leaderboard.component.html` (Wave 7 gate, DS-13: copy lives in content files).
+ * Moved verbatim from the template; wording changes go here. One file per component (W7-07).
+ */
+export const STUDENT_LEADERBOARD_UI = {
+  academicXp: "Academic XP",
+  allCollege: "All College",
+  beat: "Beat",
+  byCourse: "By Course",
+  collegeDepartmentRankings: "College & Department Rankings",
+  completeALecture: "Complete a lecture",
+  couldNotLoadThe: "Could not load the leaderboard.",
+  helpfulDiscussionPost: "Helpful discussion post",
+  howPointsAreEarned: "How Points Are Earned",
+  leaderboard: "Leaderboard",
+  leaderboardRankings: "Leaderboard Rankings",
+  loadingLeaderboardRankings: "Loading leaderboard rankings…",
+  monthly: "Monthly",
+  myBatch: "My Batch",
+  noStudentRankingsRecorded: "No student rankings recorded yet for this view.",
+  of: "of",
+  pts: "pts",
+  refreshLeaderboard: "Refresh Leaderboard",
+  refreshLeaderboard2: "Refresh leaderboard",
+  scoreAbove90: "Score above 90%",
+  seeHowYouRank: "See how you rank against your batchmates, course peers, and college cohort.",
+  students: "students",
+  submitAnAssessment: "Submit an assessment",
+  t10Pts: "+10 pts",
+  t25Pts: "+25 pts",
+  t50Pts: "+50 pts",
+  t5Pts: "+5 pts",
+  toNextRank: "To Next Rank",
+  tryAgain: "Try Again",
+  you: "You",
+  yourPoints: "Your Points",
+  yourRank: "Your Rank",
+} as const;

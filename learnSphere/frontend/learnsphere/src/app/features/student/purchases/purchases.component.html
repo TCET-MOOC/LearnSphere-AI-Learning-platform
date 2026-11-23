@@ -1,32 +1,32 @@
 <div class="purchases-page">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Student workspace</p>
-      <h1>Order History & Purchases</h1>
-      <p class="sub-head">Track your course enrollments, Razorpay payment receipts, and billing history.</p>
+      <p class="eyebrow">{{ ui.studentWorkspace }}</p>
+      <h1>{{ ui.orderHistoryPurchases }}</h1>
+      <p class="sub-head">{{ ui.trackYourCourseEnrollments }}</p>
     </div>
     <button class="btn btn--secondary" type="button" (click)="loadOrders()">
       <lucide-icon name="refresh-cw" [size]="15"></lucide-icon>
-      <span>Refresh purchases</span>
+      <span>{{ ui.refreshPurchases }}</span>
     </button>
   </header>
 
   <!-- Summary Stats -->
   <div class="stats-grid">
     <div class="stat-box">
-      <span class="stat-label">Total Invested</span>
+      <span class="stat-label">{{ ui.totalInvested }}</span>
       <span class="stat-value">₹{{ summary.totalPaidRupees.toLocaleString('en-IN') }}</span>
-      <span class="stat-subtext text-success">Lifetime learning spend</span>
+      <span class="stat-subtext text-success">{{ ui.lifetimeLearningSpend }}</span>
     </div>
     <div class="stat-box">
-      <span class="stat-label">Paid Courses</span>
+      <span class="stat-label">{{ ui.paidCourses }}</span>
       <span class="stat-value">{{ summary.paidCourses }}</span>
-      <span class="stat-subtext text-purple">Active lifetime access</span>
+      <span class="stat-subtext text-purple">{{ ui.activeLifetimeAccess }}</span>
     </div>
     <div class="stat-box">
-      <span class="stat-label">Pending / Processing</span>
+      <span class="stat-label">{{ ui.pendingProcessing }}</span>
       <span class="stat-value">{{ summary.pending }}</span>
-      <span class="stat-subtext text-amber">Awaiting webhook / payment</span>
+      <span class="stat-subtext text-amber">{{ ui.awaitingWebhookPayment }}</span>
     </div>
   </div>
 
@@ -39,33 +39,33 @@
           class="tab-btn" 
           [class.active]="selectedFilter === 'ALL'" 
           (click)="setFilter('ALL')">
-          All Orders ({{ summary.all }})
+          {{ ui.allOrders }}{{ summary.all }})
         </button>
         <button 
           type="button" 
           class="tab-btn" 
           [class.active]="selectedFilter === 'PAID'" 
           (click)="setFilter('PAID')">
-          Successful ({{ summary.paid }})
+          {{ ui.successful }}{{ summary.paid }})
         </button>
         <button 
           type="button" 
           class="tab-btn" 
           [class.active]="selectedFilter === 'PENDING'" 
           (click)="setFilter('PENDING')">
-          Pending ({{ summary.pending }})
+          {{ ui.pending }}{{ summary.pending }})
         </button>
         <button 
           type="button" 
           class="tab-btn" 
           [class.active]="selectedFilter === 'FAILED'" 
           (click)="setFilter('FAILED')">
-          Failed ({{ summary.failed }})
+          {{ ui.failed }}{{ summary.failed }})
         </button>
       </div>
     </div>
 
-    <p class="hint" *ngIf="loading">Loading your order history…</p>
+    <p class="hint" *ngIf="loading">{{ ui.loadingYourOrderHistory }}</p>
 
     <!-- Orders Table / List -->
     <ng-container *ngIf="!loading">
@@ -84,8 +84,8 @@
               </div>
               <p class="order-meta">
                 <span *ngIf="order.courseDepartment" class="dept-tag">{{ order.courseDepartment }}</span>
-                <span *ngIf="order.gatewayOrderId" class="order-id">Order Ref: <code>{{ order.gatewayOrderId }}</code></span>
-                <span *ngIf="order.gatewayPaymentId" class="order-id">Payment ID: <code>{{ order.gatewayPaymentId }}</code></span>
+                <span *ngIf="order.gatewayOrderId" class="order-id">{{ ui.orderRef }} <code>{{ order.gatewayOrderId }}</code></span>
+                <span *ngIf="order.gatewayPaymentId" class="order-id">{{ ui.paymentId }} <code>{{ order.gatewayPaymentId }}</code></span>
                 <span *ngIf="order.displayAtLabel" class="order-date">{{ order.displayAtLabel }}</span>
               </p>
             </div>
@@ -102,24 +102,24 @@
                 *ngIf="order.receipt"
                 type="button"
                 class="btn btn--sm btn--outline mr-8"
-                title="View & Download Payment Receipt"
+                [attr.title]="ui.viewDownloadPaymentReceipt"
                 (click)="openReceipt(order)">
                 <lucide-icon name="file-text" [size]="14"></lucide-icon>
-                <span>View receipt</span>
+                <span>{{ ui.viewReceipt }}</span>
               </button>
 
               <a 
                 *ngIf="order.status === 'PAID'" 
                 [routerLink]="['/student/courses', order.courseId]" 
                 class="btn btn--sm btn--primary">
-                <span>Go to Course</span>
+                <span>{{ ui.goToCourse }}</span>
                 <lucide-icon name="arrow-up-right" [size]="14"></lucide-icon>
               </a>
               <a 
                 *ngIf="order.status !== 'PAID'" 
                 [routerLink]="['/student/courses', order.courseId]" 
                 class="btn btn--sm btn--outline">
-                <span>View Details</span>
+                <span>{{ ui.viewDetails }}</span>
               </a>
             </div>
           </div>
@@ -132,15 +132,15 @@
           <div class="empty-icon-wrap">
             <lucide-icon name="credit-card" [size]="36"></lucide-icon>
           </div>
-          <h3>No transactions found</h3>
+          <h3>{{ ui.noTransactionsFound }}</h3>
           <p class="empty-desc">
-            <span *ngIf="selectedFilter === 'ALL'">You haven't initiated or completed any course transactions yet.</span>
-            <span *ngIf="selectedFilter === 'PAID'">You haven't completed any course purchases yet.</span>
-            <span *ngIf="selectedFilter === 'PENDING'">You have no pending or awaiting checkout transactions.</span>
-            <span *ngIf="selectedFilter === 'FAILED'">No failed payment attempts recorded.</span>
+            <span *ngIf="selectedFilter === 'ALL'">{{ ui.youHavenTInitiated }}</span>
+            <span *ngIf="selectedFilter === 'PAID'">{{ ui.youHavenTCompleted }}</span>
+            <span *ngIf="selectedFilter === 'PENDING'">{{ ui.youHaveNoPending }}</span>
+            <span *ngIf="selectedFilter === 'FAILED'">{{ ui.noFailedPaymentAttempts }}</span>
           </p>
           <a routerLink="/student/courses" class="btn btn--primary mt-16">
-            Explore Courses
+            {{ ui.exploreCourses }}
           </a>
         </div>
       </ng-template>
@@ -218,14 +218,14 @@
       </div>
 
       <div class="receipt-footer">
-        <button class="btn btn--outline" type="button" (click)="closeReceipt()">Close</button>
+        <button class="btn btn--outline" type="button" (click)="closeReceipt()">{{ ui.close }}</button>
         <button class="btn btn--secondary" type="button" (click)="printReceipt()">
           <lucide-icon name="printer" [size]="15"></lucide-icon>
-          <span>Print receipt</span>
+          <span>{{ ui.printReceipt }}</span>
         </button>
         <button class="btn btn--primary" type="button" (click)="downloadPdfReceipt()">
           <lucide-icon name="download" [size]="15"></lucide-icon>
-          <span>Download PDF</span>
+          <span>{{ ui.downloadPdf }}</span>
         </button>
       </div>
     </div>

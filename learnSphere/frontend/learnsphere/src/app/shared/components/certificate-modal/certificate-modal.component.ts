@@ -4,6 +4,7 @@ import { LucideAngularModule, Download, Share2, X, Check, Copy, ExternalLink, Aw
 import { NotificationService } from '@core/services/notification.service';
 import { DialogDirective } from '@shared/directives/dialog.directive';
 import { A11yCopy } from '@core/content/a11y.content';
+import { CERTIFICATE_MODAL_UI } from '@core/content/certificate-modal.ui';
 
 export interface CertificateModalData {
   id?: number;
@@ -25,6 +26,8 @@ export interface CertificateModalData {
   styleUrls: ['./certificate-modal.component.scss']
 })
 export class CertificateModalComponent {
+  /** Template copy (Wave 7 gate): `core/content/certificate-modal.ui.ts`. */
+  protected readonly ui = CERTIFICATE_MODAL_UI;
   protected readonly a11y = A11yCopy.text;
   @Input() certificate: CertificateModalData | null = null;
   @Output() close = new EventEmitter<void>();

@@ -12,9 +12,7 @@ import com.MOOC.OnlineLearningPlatfrom.Service.NotificationOutboxService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,8 +91,8 @@ public class NotificationOutboxServiceImpl implements NotificationOutboxService 
     @Override
     @Transactional
     public int processOutbox() {
-        List<NotificationOutbox> pending = outboxRepository.findByStatusOrderByCreatedAtAsc(
-                OutboxStatus.PENDING, PageRequest.of(0, 100));
+        // Claim rows (FOR UPDATE SKIP LOCKED): a concurrent run skips them instead of delivering twice.
+        List<NotificationOutbox> pending = outboxRepository.claimPending(100);
 
         int processed = 0;
         for (NotificationOutbox item : pending) {
@@ -137,11 +135,6 @@ public class NotificationOutboxServiceImpl implements NotificationOutboxService 
             }
         }
         return processed;
-    }
-
-    @Scheduled(fixedDelay = 5000)
-    public void scheduledOutboxProcessor() {
-        processOutbox();
     }
 
     @Override

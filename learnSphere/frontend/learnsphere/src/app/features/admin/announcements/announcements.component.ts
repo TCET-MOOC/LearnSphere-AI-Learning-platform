@@ -7,6 +7,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { timeAgo } from '@core/utils/time.util';
 import { A11yCopy } from '@core/content/a11y.content';
 import { DialogDirective } from '@shared/directives/dialog.directive';
+import { ADMIN_ANNOUNCEMENTS_UI } from '@core/content/admin-announcements.ui';
 
 interface AnnouncementItem {
   id: number;
@@ -30,6 +31,8 @@ interface AnnouncementItem {
   styleUrls: ['./announcements.component.scss'] 
 })
 export class AnnouncementsComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/admin-announcements.ui.ts`. */
+  protected readonly ui = ADMIN_ANNOUNCEMENTS_UI;
   protected readonly a11y = A11yCopy.text;
   query = '';
   activeFilter = 'All';

@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UploadService } from '../../services/upload.service';
 import { NotificationService } from '@core/services/notification.service';
+import { TEACHER_UPLOAD_VIDEO_UPLOAD_UI } from '@core/content/teacher-upload-video-upload.ui';
 
 /**
  * VideoUploadComponent is a self-contained file picker + progress bar for
@@ -14,14 +15,14 @@ import { NotificationService } from '@core/services/notification.service';
   imports: [CommonModule],
   template: `
     <div class="upload-box">
-      <h3 id="video-upload-heading">Upload video</h3>
-      <p class="hint">MP4, MOV, or WebM. Copy the resulting URL into a lecture's video field in course management.</p>
+      <h3 id="video-upload-heading">{{ ui.uploadVideo }}</h3>
+      <p class="hint">{{ ui.mp4MovOrWebm }}</p>
       <input type="file" accept="video/*" aria-labelledby="video-upload-heading" (change)="onSelect($event)" [disabled]="uploading" />
       <div class="progress-track" *ngIf="uploading">
         <span [style.width.%]="percent"></span>
       </div>
-      <p class="status" *ngIf="uploading">Uploading… {{ percent }}%</p>
-      <p class="status status--done" *ngIf="lastUrl && !uploading">Uploaded: {{ lastUrl }}</p>
+      <p class="status" *ngIf="uploading">{{ ui.uploading }} {{ percent }}%</p>
+      <p class="status status--done" *ngIf="lastUrl && !uploading">{{ ui.uploaded }} {{ lastUrl }}</p>
     </div>
   `,
   styles: [`
@@ -42,6 +43,8 @@ import { NotificationService } from '@core/services/notification.service';
   `]
 })
 export class VideoUploadComponent {
+  /** Template copy (Wave 7 gate): `core/content/teacher-upload-video-upload.ui.ts`. */
+  protected readonly ui = TEACHER_UPLOAD_VIDEO_UPLOAD_UI;
   @Output() uploaded = new EventEmitter<string>();
 
   uploading = false;

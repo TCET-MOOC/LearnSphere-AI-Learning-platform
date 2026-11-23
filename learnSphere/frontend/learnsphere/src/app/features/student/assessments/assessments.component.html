@@ -1,24 +1,24 @@
 <div class="assessments-page">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Academic Evaluations & Remedial Tests</p>
-      <h1>Assessments</h1>
-      <p class="subtitle">Complete chapter quizzes, midterms, and attendance recovery examinations.</p>
+      <p class="eyebrow">{{ ui.academicEvaluationsRemedialTests }}</p>
+      <h1>{{ ui.assessments }}</h1>
+      <p class="subtitle">{{ ui.completeChapterQuizzesMidterms }}</p>
     </div>
   </header>
 
-  <p class="hint" *ngIf="loading">Loading assessments…</p>
+  <p class="hint" *ngIf="loading">{{ ui.loadingAssessments }}</p>
 
   <ng-container *ngIf="!loading">
     <section class="card">
-      <h2 class="section-title">Course tests</h2>
+      <h2 class="section-title">{{ ui.courseTests }}</h2>
       <div class="assessment-list" *ngIf="standardAssessments.length > 0; else emptyStandard">
         <article class="assessment-row" *ngFor="let a of standardAssessments">
           <div class="assessment-main">
             <strong>{{ a.title }}</strong>
-            <small>{{ a.courseTitle }} · {{ a.questionCount }} question{{ a.questionCount === 1 ? '' : 's' }} · {{ a.durationMinutes }} min</small>
+            <small>{{ a.courseTitle }} · {{ a.questionCount }} {{ ui.question }}{{ a.questionCount === 1 ? '' : 's' }} · {{ a.durationMinutes }} {{ ui.min }}</small>
           </div>
-          <a class="btn btn--primary" [routerLink]="['/student/assessments', a.id]">Start assessment</a>
+          <a class="btn btn--primary" [routerLink]="['/student/assessments', a.id]">{{ ui.startAssessment }}</a>
         </article>
       </div>
       <ng-template #emptyStandard>
@@ -26,28 +26,28 @@
           <div class="empty-state-icon">
             <lucide-icon name="file-text" [size]="22"></lucide-icon>
           </div>
-          <h3 class="empty-state-title">No Tests Available</h3>
+          <h3 class="empty-state-title">{{ ui.noTestsAvailable }}</h3>
           <p class="empty-state-sub">
-            You do not have any active course assessments or quizzes pending. Enroll in courses to access assessments.
+            {{ ui.youDoNotHave }}
           </p>
           <a [routerLink]="['/student/courses']" class="btn btn--primary empty-btn">
             <lucide-icon name="book-open" [size]="15"></lucide-icon>
-            <span>Explore Courses</span>
+            <span>{{ ui.exploreCourses }}</span>
           </a>
         </div>
       </ng-template>
     </section>
 
     <section class="card mt-16" *ngIf="remedialAssessments.length > 0">
-      <h2 class="section-title">Remedial tests</h2>
-      <p class="hint">Passing one of these (40%+) unlocks a remedial certificate for that course.</p>
+      <h2 class="section-title">{{ ui.remedialTests }}</h2>
+      <p class="hint">{{ ui.passingOneOfThese }}</p>
       <div class="assessment-list">
         <article class="assessment-row assessment-row--remedial" *ngFor="let a of remedialAssessments">
           <div class="assessment-main">
             <strong>{{ a.title }}</strong>
-            <small>{{ a.courseTitle }} · {{ a.questionCount }} question{{ a.questionCount === 1 ? '' : 's' }} · {{ a.durationMinutes }} min</small>
+            <small>{{ a.courseTitle }} · {{ a.questionCount }} {{ ui.question }}{{ a.questionCount === 1 ? '' : 's' }} · {{ a.durationMinutes }} {{ ui.min }}</small>
           </div>
-          <a class="btn btn--amber" [routerLink]="['/student/assessments', a.id]">Start assessment</a>
+          <a class="btn btn--amber" [routerLink]="['/student/assessments', a.id]">{{ ui.startAssessment }}</a>
         </article>
       </div>
     </section>

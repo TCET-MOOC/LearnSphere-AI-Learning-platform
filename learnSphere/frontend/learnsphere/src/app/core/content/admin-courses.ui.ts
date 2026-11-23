@@ -1,0 +1,35 @@
+/**
+ * UI copy for `features/admin/courses/courses.component.html` (Wave 7 gate, DS-13: copy lives in content files).
+ * Moved verbatim from the template; wording changes go here. One file per component (W7-07).
+ */
+export const ADMIN_COURSES_UI = {
+  actions: "Actions",
+  approveLive: "Approve Live",
+  approvePublishLive: "Approve & Publish Live",
+  archiveCourse: "Archive course",
+  by: "By",
+  clearSearch: "Clear search",
+  close: "Close",
+  courseApprovals: "Course Approvals",
+  courseStatusFilters: "Course status filters",
+  curriculumCatalogAudit: "Curriculum & Catalog Audit",
+  curriculumLectures: "Curriculum Lectures (",
+  curriculumTitle: "Curriculum Title",
+  description: "Description:",
+  facultyMember: "Faculty Member",
+  inspectCourse: "Inspect course",
+  lectures: "Lectures",
+  loadingSyllabusModules: "Loading syllabus modules...",
+  modules: "modules",
+  noCoursesCurrentlyIn: "No courses currently in this status category.",
+  noCoursesFound: "No courses found",
+  noCurriculumSubmissionsMatch: "No curriculum submissions match \"",
+  noLectureVideosUploaded: "No lecture videos uploaded to this course yet.",
+  pricing: "Pricing:",
+  reactivateCourse: "Reactivate course",
+  reject: "Reject",
+  rejectToDraft: "Reject to Draft",
+  reviewFacultyCurriculumSubmissions: "Review faculty curriculum submissions, syllabus structure, video lessons, and publication status.",
+  searchCoursesOrFaculty: "Search courses or faculty...",
+  status: "Status",
+} as const;

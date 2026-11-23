@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { Course } from '@core/models/course.model';
+import { STUDENT_COURSES_EXPLORE_SECTION_UI } from '@core/content/student-courses-explore-section.ui';
 
 @Component({
   selector: 'app-explore-section',
@@ -36,7 +37,7 @@ import { Course } from '@core/models/course.model';
       </article>
 
       <p class="explore-empty" *ngIf="!courses || courses.length === 0">
-        No additional courses available to explore right now.
+        {{ ui.noAdditionalCoursesAvailable }}
       </p>
     </div>
   `,
@@ -175,6 +176,8 @@ import { Course } from '@core/models/course.model';
   `]
 })
 export class ExploreSectionComponent {
+  /** Template copy (Wave 7 gate): `core/content/student-courses-explore-section.ui.ts`. */
+  protected readonly ui = STUDENT_COURSES_EXPLORE_SECTION_UI;
   @Input() courses: Course[] = [];
   @Input() enrollingId: number | null = null;
   @Output() enroll = new EventEmitter<number>();

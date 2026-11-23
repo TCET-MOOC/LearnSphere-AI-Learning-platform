@@ -4,9 +4,9 @@
     <div class="landing-bar" style="display:flex;align-items:center;justify-content:space-between;height:60px;border-bottom:0.5px solid rgba(255,255,255,0.08);">
       <div style="display:flex;align-items:center;gap:32px;min-width:0;">
         <a routerLink="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <img src="/logo-mark.svg" alt="LearnSphere AI Mark" style="width:32px;height:32px;" />
-          <span style="font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.3px;font-family:'Plus Jakarta Sans',sans-serif;">Learn<span style="font-weight:500;">Sphere</span></span>
-          <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:linear-gradient(135deg, #4F46E5, #8B5CF6);color:#fff;letter-spacing:0.5px;">AI</span>
+          <img src="/logo-mark.svg" [attr.alt]="ui.learnsphereAiMark" style="width:32px;height:32px;" />
+          <span style="font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.3px;font-family:'Plus Jakarta Sans',sans-serif;">{{ ui.learn }}<span style="font-weight:500;">{{ ui.sphere }}</span></span>
+          <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:linear-gradient(135deg, #4F46E5, #8B5CF6);color:#fff;letter-spacing:0.5px;">{{ ui.ai }}</span>
         </a>
         <nav class="desktop-nav">
           @for (link of copy.links; track link.label) {
@@ -47,12 +47,12 @@
 
     
     <div id="departments" style="display:flex;align-items:center;gap:24px;height:48px;overflow-x:auto;">
-      <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);white-space:nowrap;">Browse:</span>
-      <a href="#courses" style="font-size:12px;font-weight:500;color:#fff;white-space:nowrap;border-bottom:2px solid #534AB7;padding-bottom:2px;text-decoration:none;">All departments</a>
-      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">Computer Science</a>
-      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">Mechanical</a>
-      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">Electronics</a>
-      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">Civil</a>
+      <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);white-space:nowrap;">{{ ui.browse }}</span>
+      <a href="#courses" style="font-size:12px;font-weight:500;color:#fff;white-space:nowrap;border-bottom:2px solid #534AB7;padding-bottom:2px;text-decoration:none;">{{ ui.allDepartments }}</a>
+      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">{{ ui.computerScience }}</a>
+      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">{{ ui.mechanical }}</a>
+      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">{{ ui.electronics }}</a>
+      <a href="#courses" style="font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;text-decoration:none;">{{ ui.civil }}</a>
     </div>
   </header>
   
@@ -61,85 +61,85 @@
       <div style="margin-bottom:20px;">
         <span class="verified-seal-badge">
           <lucide-icon name="shield-check" aria-hidden="true" style="width:14px;height:14px;"></lucide-icon>
-          Institutional Verification Standard
+          {{ ui.institutionalVerificationStandard }}
         </span>
       </div>
       <h1 class="hero-title">
-        Learn from real professors.<br>
-        <span class="hero-highlight">Earn credits that actually matter.</span>
+        {{ ui.learnFromRealProfessors }}<br>
+        <span class="hero-highlight">{{ ui.earnCreditsThatActually }}</span>
       </h1>
       <p class="hero-sub">
-        Access engineering and higher-ed courses taught by verified faculty from registered colleges across India. Free for enrolled students. Affordable for everyone else.
+        {{ ui.accessEngineeringAndHigher }}
       </p>
       
       <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:40px;">
-        <a routerLink="/register" class="btn-primary" style="font-size:15px;padding:14px 28px;text-decoration:none;display:inline-flex;align-items:center;">Start learning for free</a>
-        <a href="#faq" class="btn-outline-dark" style="font-size:15px;padding:14px 28px;text-decoration:none;display:inline-flex;align-items:center;">Is your college registered?</a>
+        <a routerLink="/register" class="btn-primary" style="font-size:15px;padding:14px 28px;text-decoration:none;display:inline-flex;align-items:center;">{{ ui.startLearningForFree }}</a>
+        <a href="#faq" class="btn-outline-dark" style="font-size:15px;padding:14px 28px;text-decoration:none;display:inline-flex;align-items:center;">{{ ui.isYourCollegeRegistered }}</a>
       </div>
   
       <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;">
-        <div style="display:flex;align-items:center;gap:8px;"><span class="check">✓</span><span style="font-size:13px;color:rgba(255,255,255,0.7);">Free for same-college students</span></div>
-        <div style="display:flex;align-items:center;gap:8px;"><span class="check">✓</span><span style="font-size:13px;color:rgba(255,255,255,0.7);">Verified faculty credentials</span></div>
-        <div style="display:flex;align-items:center;gap:8px;"><span class="check">✓</span><span style="font-size:13px;color:rgba(255,255,255,0.7);">Remedial credit fulfilment</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="check">✓</span><span style="font-size:13px;color:rgba(255,255,255,0.7);">{{ ui.freeForSameCollege }}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="check">✓</span><span style="font-size:13px;color:rgba(255,255,255,0.7);">{{ ui.verifiedFacultyCredentials }}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="check">✓</span><span style="font-size:13px;color:rgba(255,255,255,0.7);">{{ ui.remedialCreditFulfilment }}</span></div>
       </div>
     </div>
   </div>
   
   <div style="background:#1e1a4a;padding:24px 28px;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">
     <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:20px;text-align:center;max-width:1000px;margin:0 auto;">
-      <div><div style="font-size:22px;font-weight:700;color:#fff;">Curated</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Courses live</div></div>
-      <div><div style="font-size:22px;font-weight:700;color:#fff;">Verified</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Colleges registered</div></div>
-      <div><div style="font-size:22px;font-weight:700;color:#fff;">Active</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Student community</div></div>
-      <div><div style="font-size:22px;font-weight:700;color:#fff;">4.8 ★</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Platform rating</div></div>
-      <div><div style="font-size:22px;font-weight:700;color:#fff;">₹0</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">Cost for internal students</div></div>
+      <div><div style="font-size:22px;font-weight:700;color:#fff;">{{ ui.curated }}</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">{{ ui.coursesLive }}</div></div>
+      <div><div style="font-size:22px;font-weight:700;color:#fff;">{{ ui.verified }}</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">{{ ui.collegesRegistered }}</div></div>
+      <div><div style="font-size:22px;font-weight:700;color:#fff;">{{ ui.active }}</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">{{ ui.studentCommunity }}</div></div>
+      <div><div style="font-size:22px;font-weight:700;color:#fff;">4.8 ★</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">{{ ui.platformRating }}</div></div>
+      <div><div style="font-size:22px;font-weight:700;color:#fff;">₹0</div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-top:4px;">{{ ui.costForInternalStudents }}</div></div>
     </div>
   </div>
   
   <div style="padding:60px 28px;background:var(--bg-surface);">
     <div style="text-align:center;margin-bottom:40px;">
-      <div class="sec-label" style="text-align:center;">Who is this for?</div>
-      <h2 class="h2 text-title">One platform, built for every learner</h2>
-      <p class="sub text-subtitle">Whether you're catching up, levelling up, or learning for fun — LearnSphere has a path.</p>
+      <div class="sec-label" style="text-align:center;">{{ ui.whoIsThisFor }}</div>
+      <h2 class="h2 text-title">{{ ui.onePlatformBuiltFor }}</h2>
+      <p class="sub text-subtitle">{{ ui.whetherYouReCatching }}</p>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:24px;max-width:1100px;margin:0 auto;">
       <div class="card" style="padding:32px;display:flex;flex-direction:column;gap:16px;">
         <div style="display:flex; align-items:center;"><lucide-icon name="graduation-cap" style="width:28px; height:28px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div>
-          <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Same-college student</h3>
-          <div style="font-size:13px;color:var(--text-secondary);line-height:1.65;">Your college is registered on LearnSphere. Access every single course across every department — completely free.</div>
+          <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.sameCollegeStudent }}</h3>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.65;">{{ ui.yourCollegeIsRegistered }}</div>
         </div>
         <div style="border-top:1px solid var(--border-color);padding-top:16px;display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>All departments unlocked</div>
-          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>Leaderboards & Certificates</div>
+          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>{{ ui.allDepartmentsUnlocked }}</div>
+          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>{{ ui.leaderboardsCertificates }}</div>
         </div>
-        <span class="pill pill-g" style="align-self:flex-start;margin-top:auto;">Free access</span>
+        <span class="pill pill-g" style="align-self:flex-start;margin-top:auto;">{{ ui.freeAccess }}</span>
       </div>
   
       <div style="border:2px solid var(--brand-primary);border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:16px;position:relative;background:var(--bg-surface);">
-        <div style="position:absolute;top:-12px;left:24px;background:var(--brand-primary);color:var(--text-inverse);font-size:11px;font-weight:600;padding:4px 16px;border-radius:99px;">Most popular</div>
+        <div style="position:absolute;top:-12px;left:24px;background:var(--brand-primary);color:var(--text-inverse);font-size:11px;font-weight:600;padding:4px 16px;border-radius:99px;">{{ ui.mostPopular }}</div>
         <div style="display:flex; align-items:center;"><lucide-icon name="globe" style="width:28px; height:28px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div>
-          <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">External student</h3>
-          <div style="font-size:13px;color:var(--text-secondary);line-height:1.65;">Your college isn't on LearnSphere yet. Buy individual courses from top faculty at prices far below any other platform.</div>
+          <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.externalStudent }}</h3>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.65;">{{ ui.yourCollegeIsnT }}</div>
         </div>
         <div style="border-top:1px solid var(--border-color);padding-top:16px;display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>Lifetime access on purchase</div>
-          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>Downloadable certificate</div>
+          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>{{ ui.lifetimeAccessOnPurchase }}</div>
+          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>{{ ui.downloadableCertificate }}</div>
         </div>
-        <span class="pill pill-p" style="align-self:flex-start;margin-top:auto;">Pay per course</span>
+        <span class="pill pill-p" style="align-self:flex-start;margin-top:auto;">{{ ui.payPerCourse }}</span>
       </div>
   
       <div class="card" style="padding:32px;display:flex;flex-direction:column;gap:16px;">
         <div style="display:flex; align-items:center;"><lucide-icon name="file-text" style="width:28px; height:28px; color:var(--color-text-secondary);"></lucide-icon></div>
         <div>
-          <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Remedial student</h3>
-          <div style="font-size:13px;color:var(--text-secondary);line-height:1.65;">Assigned by your college due to attendance shortfall. Complete courses and pass the exam to recover academic credit.</div>
+          <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.remedialStudent }}</h3>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.65;">{{ ui.assignedByYourCollege }}</div>
         </div>
         <div style="border-top:1px solid var(--border-color);padding-top:16px;display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>30-question certification exam</div>
-          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>Attendance credit on pass</div>
+          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>{{ ui.t30QuestionCertificationExam }}</div>
+          <div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;"><span class="check" style="color:var(--status-green-text);">✓</span>{{ ui.attendanceCreditOnPass }}</div>
         </div>
-        <span class="pill pill-a" style="align-self:flex-start;margin-top:auto;">Assigned by college</span>
+        <span class="pill pill-a" style="align-self:flex-start;margin-top:auto;">{{ ui.assignedByCollege }}</span>
       </div>
     </div>
   </div>
@@ -148,10 +148,10 @@
     <div style="max-width:1100px;margin:0 auto;">
       <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div class="sec-label">Trending this week</div>
-          <h2 class="h2 text-title">Top courses students are watching right now</h2>
+          <div class="sec-label">{{ ui.trendingThisWeek }}</div>
+          <h2 class="h2 text-title">{{ ui.topCoursesStudentsAre }}</h2>
         </div>
-        <a routerLink="/register" style="font-size:13px;font-weight:600;color:var(--brand-text);text-decoration:none;cursor:pointer;">View all courses</a>
+        <a routerLink="/register" style="font-size:13px;font-weight:600;color:var(--brand-text);text-decoration:none;cursor:pointer;">{{ ui.viewAllCourses }}</a>
       </div>
       
       <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:20px;">
@@ -159,18 +159,18 @@
         <div appActivate class="card" routerLink="/register" tabindex="0" role="link" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
           <div style="background:#1e1a4a;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
             <div style="display:flex; align-items:center;"><lucide-icon name="monitor" style="width:48px; height:48px; color:rgba(255,255,255,0.7);"></lucide-icon></div>
-            <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(255,255,255,0.15);color:#fff;">Lecture preview free</span></div>
+            <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(255,255,255,0.15);color:#fff;">{{ ui.lecturePreviewFree }}</span></div>
           </div>
           <div style="padding:20px;">
-            <div style="font-size:11px;font-weight:700;color:var(--brand-text);margin-bottom:6px;">COMPUTER SCIENCE</div>
-            <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 6px 0;">Data Structures &amp; Algorithms</h3>
-            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Prof. R. Sharma · VJTI Mumbai</div>
+            <div style="font-size:11px;font-weight:700;color:var(--brand-text);margin-bottom:6px;">{{ ui.computerScience2 }}</div>
+            <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 6px 0;">{{ ui.dataStructuresAlgorithms }}</h3>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">{{ ui.profRSharmaVjti }}</div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);">
-              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.8</span> (312) · Active curriculum
+              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.8</span> {{ ui.t312ActiveCurriculum }}
             </div>
             <div style="border-top:1px solid var(--border-color);padding-top:16px;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:14px;font-weight:700;color:var(--status-green-text);">Free for your college</span>
-              <span class="pill pill-p">₹799 external</span>
+              <span style="font-size:14px;font-weight:700;color:var(--status-green-text);">{{ ui.freeForYourCollege }}</span>
+              <span class="pill pill-p">{{ ui.t799External }}</span>
             </div>
           </div>
         </div>
@@ -178,18 +178,18 @@
         <div appActivate class="card" routerLink="/register" tabindex="0" role="link" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
           <div style="background:#1a2e1a;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
             <div style="display:flex; align-items:center;"><lucide-icon name="settings" style="width:48px; height:48px; color:rgba(255,255,255,0.7);"></lucide-icon></div>
-            <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(15,110,86,0.35);color:#9FE1CB;">Bestseller</span></div>
+            <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(15,110,86,0.35);color:#9FE1CB;">{{ ui.bestseller }}</span></div>
           </div>
           <div style="padding:20px;">
-            <div style="font-size:11px;font-weight:700;color:var(--status-green-text);margin-bottom:6px;">MECHANICAL</div>
-            <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 6px 0;">Thermodynamics — Complete</h3>
-            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Prof. A. Kulkarni · COEP Pune</div>
+            <div style="font-size:11px;font-weight:700;color:var(--status-green-text);margin-bottom:6px;">{{ ui.mechanical2 }}</div>
+            <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 6px 0;">{{ ui.thermodynamicsComplete }}</h3>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">{{ ui.profAKulkarniCoep }}</div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);">
-              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.6</span> (178) · Active curriculum
+              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.6</span> {{ ui.t178ActiveCurriculum }}
             </div>
             <div style="border-top:1px solid var(--border-color);padding-top:16px;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:14px;font-weight:700;color:var(--status-green-text);">Free for your college</span>
-              <span class="pill pill-p">₹499 external</span>
+              <span style="font-size:14px;font-weight:700;color:var(--status-green-text);">{{ ui.freeForYourCollege }}</span>
+              <span class="pill pill-p">{{ ui.t499External }}</span>
             </div>
           </div>
         </div>
@@ -197,18 +197,18 @@
         <div appActivate class="card" routerLink="/register" tabindex="0" role="link" style="overflow:hidden;transition:transform 0.2s;cursor:pointer;">
           <div style="background:#2e1a2e;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
             <div style="display:flex; align-items:center;"><lucide-icon name="ruler" style="width:48px; height:48px; color:rgba(255,255,255,0.7);"></lucide-icon></div>
-            <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(153,53,86,0.35);color:#ED93B1;">GATE 2026</span></div>
+            <div style="position:absolute;top:12px;left:12px;"><span class="pill" style="background:rgba(153,53,86,0.35);color:#ED93B1;">{{ ui.gate2026 }}</span></div>
           </div>
           <div style="padding:20px;">
-            <div style="font-size:11px;font-weight:700;color:var(--status-purple-text);margin-bottom:6px;">MATHEMATICS</div>
-            <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 6px 0;">Engineering Maths — GATE</h3>
-            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Prof. M. Patel · IIT Bombay</div>
+            <div style="font-size:11px;font-weight:700;color:var(--status-purple-text);margin-bottom:6px;">{{ ui.mathematics }}</div>
+            <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 6px 0;">{{ ui.engineeringMathsGate }}</h3>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">{{ ui.profMPatelIit }}</div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);">
-              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.9</span> (540) · Active curriculum
+              <span style="color:var(--status-amber-text);font-weight:600;">★ 4.9</span> {{ ui.t540ActiveCurriculum }}
             </div>
             <div style="border-top:1px solid var(--border-color);padding-top:16px;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:14px;font-weight:700;color:var(--status-green-text);">Free for your college</span>
-              <span class="pill pill-p">₹299 external</span>
+              <span style="font-size:14px;font-weight:700;color:var(--status-green-text);">{{ ui.freeForYourCollege }}</span>
+              <span class="pill pill-p">{{ ui.t299External }}</span>
             </div>
           </div>
         </div>
@@ -220,29 +220,29 @@
   
   <div style="padding:60px 28px;background:var(--bg-surface);">
     <div style="text-align:center;margin-bottom:40px;">
-      <div class="sec-label" style="text-align:center;">How it works</div>
-      <h2 class="h2 text-title">From browsing to certified in 4 steps</h2>
+      <div class="sec-label" style="text-align:center;">{{ ui.howItWorks }}</div>
+      <h2 class="h2 text-title">{{ ui.fromBrowsingToCertified }}</h2>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:32px;max-width:1000px;margin:0 auto;">
       <div style="text-align:center;">
         <div style="margin-bottom:16px; display:flex; align-items:center; justify-content:center;"><lucide-icon name="search" style="width:40px; height:40px; color:var(--color-text-secondary);"></lucide-icon></div>
-        <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Browse freely</h3>
-        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">No login needed. Search and watch the first lecture of any course completely free.</div>
+        <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.browseFreely }}</h3>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">{{ ui.noLoginNeededSearch }}</div>
       </div>
       <div style="text-align:center;">
         <div style="margin-bottom:16px; display:flex; align-items:center; justify-content:center;"><lucide-icon name="user" style="width:40px; height:40px; color:var(--color-text-secondary);"></lucide-icon></div>
-        <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Sign up</h3>
-        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Register with your college email. The system automatically detects your college to grant free access.</div>
+        <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.signUp }}</h3>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">{{ ui.registerWithYourCollege }}</div>
       </div>
       <div style="text-align:center;">
         <div style="margin-bottom:16px; display:flex; align-items:center; justify-content:center;"><lucide-icon name="play" style="width:40px; height:40px; color:var(--color-text-secondary);"></lucide-icon></div>
-        <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Learn at your pace</h3>
-        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Watch lectures, take timestamped notes, attempt quizzes, and join class discussions.</div>
+        <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.learnAtYourPace }}</h3>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">{{ ui.watchLecturesTakeTimestamped }}</div>
       </div>
       <div style="text-align:center;">
         <div style="margin-bottom:16px; display:flex; align-items:center; justify-content:center;"><lucide-icon name="graduation-cap" style="width:40px; height:40px; color:var(--color-text-secondary);"></lucide-icon></div>
-        <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Get certified</h3>
-        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Pass the final exam, earn a shareable certificate, and fulfill your academic credit.</div>
+        <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.getCertified }}</h3>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">{{ ui.passTheFinalExam }}</div>
       </div>
     </div>
   </div>
@@ -252,32 +252,32 @@
   <section id="preview-lecture" style="padding:60px 28px;background:var(--bg-app);">
     <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit, minmax(min(350px, 100%), 1fr));gap:48px;align-items:center;">
       <div>
-        <div class="sec-label">Try before you enroll</div>
-        <h2 class="h2 text-title" style="font-size:32px;margin-bottom:16px;">Every course has a free preview lecture</h2>
-        <p class="sub text-subtitle" style="font-size:15px;margin-bottom:24px;">No account needed. Watch the first lecture of any course right here on the landing page. If you like what you see, sign up and keep going.</p>
+        <div class="sec-label">{{ ui.tryBeforeYouEnroll }}</div>
+        <h2 class="h2 text-title" style="font-size:32px;margin-bottom:16px;">{{ ui.everyCourseHasA }}</h2>
+        <p class="sub text-subtitle" style="font-size:15px;margin-bottom:24px;">{{ ui.noAccountNeededWatch }}</p>
         <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
           <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text-secondary);font-weight:500;">
-            <span class="check" style="color:var(--brand-text);">✓</span> No login required for lecture 1
+            <span class="check" style="color:var(--brand-text);">✓</span> {{ ui.noLoginRequiredFor }}
           </div>
           <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text-secondary);font-weight:500;">
-            <span class="check" style="color:var(--brand-text);">✓</span> Preview is the full lecture, not a trailer
+            <span class="check" style="color:var(--brand-text);">✓</span> {{ ui.previewIsTheFull }}
           </div>
           <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text-secondary);font-weight:500;">
-            <span class="check" style="color:var(--brand-text);">✓</span> Course notes PDF also available
+            <span class="check" style="color:var(--brand-text);">✓</span> {{ ui.courseNotesPdfAlso }}
           </div>
         </div>
-        <a href="#preview-lecture" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;">Watch preview lecture</a>
+        <a href="#preview-lecture" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;">{{ ui.watchPreviewLecture }}</a>
       </div>
       
       <div class="card" style="overflow:hidden;background:#0d0b1e;border-color:var(--border-color);">
         <div style="height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#12102e;position:relative;">
-          <div role="button" tabindex="0" aria-label="Play preview lecture" style="width:64px;height:64px;border-radius:50%;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <div role="button" tabindex="0" [attr.aria-label]="ui.playPreviewLecture" style="width:64px;height:64px;border-radius:50%;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;cursor:pointer;">
             <div style="width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 15px solid white; margin-left: 5px;"></div>
           </div>
           <div style="position:absolute;bottom:16px;left:16px;right:16px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
               <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);">0:00 / 42:00</span>
-              <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);">Lecture 1 — Introduction to DSA</span>
+              <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);">{{ ui.lecture1IntroductionTo }}</span>
             </div>
             <div style="height:4px;background:rgba(255,255,255,0.2);border-radius:2px;">
                <div style="width:0%;height:100%;background:#AFA9EC;border-radius:2px;"></div>
@@ -285,7 +285,7 @@
           </div>
         </div>
         <div style="padding:20px;text-align:center;background:#1e1a4a;border-top:1px solid rgba(255,255,255,0.05);">
-          <a routerLink="/register" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.8);text-decoration:none;cursor:pointer;">Sign up to unlock all lectures</a>
+          <a routerLink="/register" style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.8);text-decoration:none;cursor:pointer;">{{ ui.signUpToUnlock }}</a>
         </div>
       </div>
     </div>
@@ -297,21 +297,21 @@
     <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:48px;">
       
       <div style="text-align:center;max-width:700px;margin:0 auto;">
-        <div class="sec-label">FAQ</div>
-        <h2 class="h2 text-title">Common Questions</h2>
+        <div class="sec-label">{{ ui.faq }}</div>
+        <h2 class="h2 text-title">{{ ui.commonQuestions }}</h2>
         
         <div style="text-align:left;margin-top:32px;">
           <div style="padding:20px 0;border-bottom:1px solid var(--border-color);">
-            <h3 style="font-size:15px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">How do I know if my college is registered?</h3>
-            <div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">During registration, enter your college email address. The platform automatically checks if your college domain is registered and instantly unlocks free access if it is.</div>
+            <h3 style="font-size:15px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.howDoIKnow }}</h3>
+            <div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">{{ ui.duringRegistrationEnterYour }}</div>
           </div>
           <div style="padding:20px 0;border-bottom:1px solid var(--border-color);">
-            <h3 style="font-size:15px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">My college isn't registered — can I still use LearnSphere?</h3>
-            <div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">Yes. You can purchase any individual course as an external student. Prices start from ₹199 and you get lifetime access plus a certificate on completion.</div>
+            <h3 style="font-size:15px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.myCollegeIsnT }}</h3>
+            <div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">{{ ui.yesYouCanPurchase }}</div>
           </div>
           <div style="padding:20px 0;">
-            <h3 style="font-size:15px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Will my college accept the remedial certificate?</h3>
-            <div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">Only if your college has assigned you the remedial course via LearnSphere. If they assigned it here, the certificate is automatically sent to their system on your pass.</div>
+            <h3 style="font-size:15px;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">{{ ui.willMyCollegeAccept }}</h3>
+            <div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">{{ ui.onlyIfYourCollege }}</div>
           </div>
         </div>
       </div>
@@ -322,20 +322,20 @@
   <section id="colleges" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(400px, 100%), 1fr));">
     
     <div style="padding:60px 40px;background:#12102e;display:flex;flex-direction:column;justify-content:center;">
-      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">For colleges & institutions</div>
-      <h2 class="h2" style="font-size:28px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3;">Help your faculty monetise their content.</h2>
-      <div style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:32px;max-width:400px;">Register your college to give all your students free access. Your faculty earns royalties, and you earn a new revenue stream from external students.</div>
+      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">{{ ui.forCollegesInstitutions }}</div>
+      <h2 class="h2" style="font-size:28px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3;">{{ ui.helpYourFacultyMonetise }}</h2>
+      <div style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:32px;max-width:400px;">{{ ui.registerYourCollegeTo }}</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;">
-        <button routerLink="/register" class="btn-primary" style="background:#fff;color:#12102e;">Register your college</button>
+        <button routerLink="/register" class="btn-primary" style="background:#fff;color:#12102e;">{{ ui.registerYourCollege }}</button>
       </div>
     </div>
   
     <div style="padding:60px 40px;background:#1e1a4a;display:flex;flex-direction:column;justify-content:center;">
-      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">For faculty members</div>
-      <h2 class="h2" style="font-size:28px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3;">Reach thousands of students across India.</h2>
-      <div style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:32px;max-width:400px;">Upload your lectures, manage your students digitally, and earn monthly royalties for external enrollments — starting at ₹0 cost to you.</div>
+      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">{{ ui.forFacultyMembers }}</div>
+      <h2 class="h2" style="font-size:28px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3;">{{ ui.reachThousandsOfStudents }}</h2>
+      <div style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:32px;max-width:400px;">{{ ui.uploadYourLecturesManage }}</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;">
-        <button routerLink="/register" class="btn-outline-dark">Start teaching</button>
+        <button routerLink="/register" class="btn-outline-dark">{{ ui.startTeaching }}</button>
       </div>
     </div>
   
@@ -347,37 +347,37 @@
         
         <div class="footer-brand">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-            <img src="/logo-mark.svg" alt="LearnSphere AI Mark" style="width:32px;height:32px;" />
-            <span style="font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.3px;font-family:'Plus Jakarta Sans',sans-serif;">Learn<span style="font-weight:500;">Sphere</span></span>
-            <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:linear-gradient(135deg, #4F46E5, #8B5CF6);color:#fff;letter-spacing:0.5px;">AI</span>
+            <img src="/logo-mark.svg" [attr.alt]="ui.learnsphereAiMark" style="width:32px;height:32px;" />
+            <span style="font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.3px;font-family:'Plus Jakarta Sans',sans-serif;">{{ ui.learn }}<span style="font-weight:500;">{{ ui.sphere }}</span></span>
+            <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:linear-gradient(135deg, #4F46E5, #8B5CF6);color:#fff;letter-spacing:0.5px;">{{ ui.ai }}</span>
           </div>
-          <div style="font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7;max-width:280px;margin-bottom:24px;">India's college-first e-learning platform. Built for engineers. Trusted by faculty.</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7;max-width:280px;margin-bottom:24px;">{{ ui.indiaSCollegeFirst }}</div>
         </div>
   
         <div>
-          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;">Platform</div>
+          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;">{{ ui.platform }}</div>
           <div style="display:flex;flex-direction:column;gap:12px;">
-            <a href="#courses" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Explore courses</a>
-            <a href="#departments" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Departments</a>
-            <a routerLink="/register" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Leaderboard</a>
+            <a href="#courses" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">{{ ui.exploreCourses }}</a>
+            <a href="#departments" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">{{ ui.departments }}</a>
+            <a routerLink="/register" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">{{ ui.leaderboard }}</a>
           </div>
         </div>
   
         <div>
-          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;">Company</div>
+          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;">{{ ui.company }}</div>
           <div style="display:flex;flex-direction:column;gap:12px;">
-            <a href="#faq" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">FAQ &amp; Support</a>
-            <a href="#colleges" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">College Partnerships</a>
-            <a routerLink="/verify-certificate" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">Verify Certificate</a>
+            <a href="#faq" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">{{ ui.faqSupport }}</a>
+            <a href="#colleges" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">{{ ui.collegePartnerships }}</a>
+            <a routerLink="/verify-certificate" style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;">{{ ui.verifyCertificate }}</a>
           </div>
         </div>
   
       </div>
       
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
-        <span style="font-size:13px;color:rgba(255,255,255,0.6);">© 2026 LearnSphere. All rights reserved.</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.6);">{{ ui.t2026LearnsphereAllRights }}</span>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:13px;color:rgba(255,255,255,0.6);">Made with pride for Indian higher education</span>
+          <span style="font-size:13px;color:rgba(255,255,255,0.6);">{{ ui.madeWithPrideFor }}</span>
           <span style="font-size:16px;">🇮🇳</span>
         </div>
       </div>

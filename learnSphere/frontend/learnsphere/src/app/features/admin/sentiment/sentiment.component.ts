@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { SentimentService } from '../services/sentiment.service';
 import { NotificationService } from '@core/services/notification.service';
+import { ADMIN_SENTIMENT_UI } from '@core/content/admin-sentiment.ui';
 
 @Component({
   selector: 'app-sentiment',
@@ -13,6 +14,8 @@ import { NotificationService } from '@core/services/notification.service';
   styleUrls: ['./sentiment.component.scss']
 })
 export class SentimentComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/admin-sentiment.ui.ts`. */
+  protected readonly ui = ADMIN_SENTIMENT_UI;
 
   activeTab = 'Platform-wide';
   tabs = ['Platform-wide', 'By course', 'By teacher', 'By college'];

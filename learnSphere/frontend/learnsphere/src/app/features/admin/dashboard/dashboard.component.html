@@ -4,10 +4,10 @@
     <div>
       <div class="eyebrow-pill">
         <lucide-icon name="target" [size]="12"></lucide-icon>
-        <span>Institutional Command Desk</span>
+        <span>{{ ui.institutionalCommandDesk }}</span>
       </div>
-      <h1 class="page-title">Platform Overview</h1>
-      <p class="subtitle">Real-time telemetry across affiliated colleges, faculty payouts, user growth, and active courses.</p>
+      <h1 class="page-title">{{ ui.platformOverview }}</h1>
+      <p class="subtitle">{{ ui.realTimeTelemetryAcross }}</p>
     </div>
   </header>
 
@@ -45,15 +45,15 @@
           <div class="card-hd">
             <div class="hd-left">
               <lucide-icon name="graduation-cap" [size]="16" class="hd-icon"></lucide-icon>
-              <span>Top Faculty This Month</span>
+              <span>{{ ui.topFacultyThisMonth }}</span>
             </div>
-            <span appActivate role="link" class="card-link" (click)="goToUsers()">View all teachers</span>
+            <span appActivate role="link" class="card-link" (click)="goToUsers()">{{ ui.viewAllTeachers }}</span>
           </div>
           <div class="list-row" *ngFor="let t of topTeachers">
             <div class="rank-badge-wrap">
-              <lucide-icon *ngIf="t.rank === 1" name="medal" class="rank-badge rank-badge--gold" [size]="20" title="Gold Medal · 1st Place"></lucide-icon>
-              <lucide-icon *ngIf="t.rank === 2" name="medal" class="rank-badge rank-badge--silver" [size]="19" title="Silver Medal · 2nd Place"></lucide-icon>
-              <lucide-icon *ngIf="t.rank === 3" name="medal" class="rank-badge rank-badge--bronze" [size]="18" title="Bronze Medal · 3rd Place"></lucide-icon>
+              <lucide-icon *ngIf="t.rank === 1" name="medal" class="rank-badge rank-badge--gold" [size]="20" [title]="ui.goldMedal1stPlace"></lucide-icon>
+              <lucide-icon *ngIf="t.rank === 2" name="medal" class="rank-badge rank-badge--silver" [size]="19" [title]="ui.silverMedal2ndPlace"></lucide-icon>
+              <lucide-icon *ngIf="t.rank === 3" name="medal" class="rank-badge rank-badge--bronze" [size]="18" [title]="ui.bronzeMedal3rdPlace"></lucide-icon>
               <span *ngIf="t.rank > 3" class="rank-num">#{{ t.rank }}</span>
             </div>
             <div class="ava" [style.background]="t.bg" [style.color]="t.color">{{ t.initials }}</div>
@@ -64,7 +64,7 @@
             <span class="pill pill--amber tnum">{{ t.earnings }}</span>
           </div>
           <div class="empty-list-hint" *ngIf="topTeachers.length === 0">
-            No faculty royalty activity recorded yet.
+            {{ ui.noFacultyRoyaltyActivity }}
           </div>
         </div>
 
@@ -72,15 +72,15 @@
           <div class="card-hd">
             <div class="hd-left">
               <lucide-icon name="award" [size]="16" class="hd-icon"></lucide-icon>
-              <span>Top Academic Learners</span>
+              <span>{{ ui.topAcademicLearners }}</span>
             </div>
-            <span appActivate role="link" class="card-link" (click)="goToUsers()">View all students</span>
+            <span appActivate role="link" class="card-link" (click)="goToUsers()">{{ ui.viewAllStudents }}</span>
           </div>
           <div class="list-row" *ngFor="let s of topStudents">
             <div class="rank-badge-wrap">
-              <lucide-icon *ngIf="s.rank === 1" name="medal" class="rank-badge rank-badge--gold" [size]="20" title="Gold Medal · 1st Place"></lucide-icon>
-              <lucide-icon *ngIf="s.rank === 2" name="medal" class="rank-badge rank-badge--silver" [size]="19" title="Silver Medal · 2nd Place"></lucide-icon>
-              <lucide-icon *ngIf="s.rank === 3" name="medal" class="rank-badge rank-badge--bronze" [size]="18" title="Bronze Medal · 3rd Place"></lucide-icon>
+              <lucide-icon *ngIf="s.rank === 1" name="medal" class="rank-badge rank-badge--gold" [size]="20" [title]="ui.goldMedal1stPlace"></lucide-icon>
+              <lucide-icon *ngIf="s.rank === 2" name="medal" class="rank-badge rank-badge--silver" [size]="19" [title]="ui.silverMedal2ndPlace"></lucide-icon>
+              <lucide-icon *ngIf="s.rank === 3" name="medal" class="rank-badge rank-badge--bronze" [size]="18" [title]="ui.bronzeMedal3rdPlace"></lucide-icon>
               <span *ngIf="s.rank > 3" class="rank-num">#{{ s.rank }}</span>
             </div>
             <div class="ava" [style.background]="s.bg" [style.color]="s.color">{{ s.initials }}</div>
@@ -90,7 +90,7 @@
             <span class="pill pill--green tnum">{{ s.pts }}</span>
           </div>
           <div class="empty-list-hint" *ngIf="topStudents.length === 0">
-            No student learning points earned this term.
+            {{ ui.noStudentLearningPoints }}
           </div>
         </div>
       </div>
@@ -101,9 +101,9 @@
           <div class="card-hd">
             <div class="hd-left">
               <lucide-icon name="percent" [size]="16" class="hd-icon"></lucide-icon>
-              <span>Settlement Architecture</span>
+              <span>{{ ui.settlementArchitecture }}</span>
             </div>
-            <span class="badge badge--green">Active Split</span>
+            <span class="badge badge--green">{{ ui.activeSplit }}</span>
           </div>
 
           <div class="split-visual">
@@ -114,11 +114,11 @@
             <div class="split-legend">
               <div class="legend-item">
                 <span class="legend-dot legend-dot--amber"></span>
-                <span>Faculty: <strong class="tnum">{{ platformSplit.teacherPercent }}%</strong></span>
+                <span>{{ ui.faculty }} <strong class="tnum">{{ platformSplit.teacherPercent }}%</strong></span>
               </div>
               <div class="legend-item">
                 <span class="legend-dot legend-dot--green"></span>
-                <span>Platform: <strong class="tnum">{{ platformSplit.platformPercent }}%</strong></span>
+                <span>{{ ui.platform }} <strong class="tnum">{{ platformSplit.platformPercent }}%</strong></span>
               </div>
             </div>
           </div>
@@ -126,9 +126,9 @@
           <div class="divider"></div>
 
           <div class="payout-box">
-            <div class="payout-lbl">Outstanding Faculty Royalties</div>
+            <div class="payout-lbl">{{ ui.outstandingFacultyRoyalties }}</div>
             <div class="payout-val tnum">₹{{ pendingPayoutTotal | number:'1.0-0' }}</div>
-            <div class="payout-sub">Pending disbursement to {{ pendingPayouts.length }} eligible teacher(s)</div>
+            <div class="payout-sub">{{ ui.pendingDisbursementTo }} {{ pendingPayouts.length }} {{ ui.eligibleTeacherS }}</div>
           </div>
         </div>
 
@@ -136,21 +136,21 @@
           <div class="card-hd">
             <div class="hd-left">
               <lucide-icon name="zap" [size]="16" class="hd-icon"></lucide-icon>
-              <span>Administrative Actions</span>
+              <span>{{ ui.administrativeActions }}</span>
             </div>
           </div>
           <div class="action-grid">
             <button class="action-btn prim" (click)="goToCourses()">
-              <lucide-icon name="book-open" [size]="14"></lucide-icon> Review Courses
+              <lucide-icon name="book-open" [size]="14"></lucide-icon> {{ ui.reviewCourses }}
             </button>
             <button class="action-btn" (click)="goToUsers()">
-              <lucide-icon name="users" [size]="14"></lucide-icon> Manage Users
+              <lucide-icon name="users" [size]="14"></lucide-icon> {{ ui.manageUsers }}
             </button>
             <button class="action-btn" (click)="goToPayouts()">
-              <lucide-icon name="banknote" [size]="14"></lucide-icon> Process Payouts
+              <lucide-icon name="banknote" [size]="14"></lucide-icon> {{ ui.processPayouts }}
             </button>
             <button class="action-btn danger" (click)="goToFlags()">
-              <lucide-icon name="flag" [size]="14"></lucide-icon> Open Flags ({{ openFlags }})
+              <lucide-icon name="flag" [size]="14"></lucide-icon> {{ ui.openFlags }}{{ openFlags }})
             </button>
           </div>
         </div>
@@ -162,9 +162,9 @@
           <div class="card-hd">
             <div class="hd-left">
               <lucide-icon name="check-square" [size]="16" class="hd-icon"></lucide-icon>
-              <span>Curriculum Verification</span>
+              <span>{{ ui.curriculumVerification }}</span>
             </div>
-            <span appActivate role="link" class="card-link" (click)="goToCourses()">Review all ({{ courseApprovals.length }})</span>
+            <span appActivate role="link" class="card-link" (click)="goToCourses()">{{ ui.reviewAll }}{{ courseApprovals.length }})</span>
           </div>
 
           <div class="list-row" *ngFor="let app of courseApprovals">
@@ -173,13 +173,13 @@
             </div>
             <div class="info">
               <div class="title">{{ app.title }}</div>
-              <div class="meta">By {{ app.teacherName || 'Faculty' }} · {{ app.lectureCount || 0 }} lectures</div>
+              <div class="meta">{{ ui.by }} {{ app.teacherName || 'Faculty' }} · {{ app.lectureCount || 0 }} {{ ui.lectures }}</div>
             </div>
             <div class="btn-group">
-              <button class="btn-icon check" (click)="approveCourse(app)" title="Approve and publish live">
+              <button class="btn-icon check" (click)="approveCourse(app)" [attr.title]="ui.approveAndPublishLive">
                 <lucide-icon name="check" [size]="14"></lucide-icon>
               </button>
-              <button class="btn-icon cross" (click)="rejectCourse(app)" title="Reject back to draft">
+              <button class="btn-icon cross" (click)="rejectCourse(app)" [attr.title]="ui.rejectBackToDraft">
                 <lucide-icon name="x" [size]="14"></lucide-icon>
               </button>
             </div>
@@ -187,7 +187,7 @@
 
           <div class="empty-list-hint" *ngIf="courseApprovals.length === 0">
             <lucide-icon name="check-circle-2" [size]="20" class="hint-icon text-success"></lucide-icon>
-            <span>All curriculum submissions audited. Queue clean!</span>
+            <span>{{ ui.allCurriculumSubmissionsAudited }}</span>
           </div>
         </div>
       </div>

@@ -18,6 +18,7 @@ import {
   X, 
   BookOpen 
 } from 'lucide-angular';
+import { TEACHER_COURSES_COURSE_MANAGEMENT_LECTURE_LIST_UI } from '@core/content/teacher-courses-course-management-lecture-list.ui';
 
 /**
  * LectureListComponent manages the lectures belonging to a single course:
@@ -31,6 +32,8 @@ import {
   styleUrls: ['./lecture-list.component.scss']
 })
 export class LectureListComponent implements OnChanges {
+  /** Template copy (Wave 7 gate): `core/content/teacher-courses-course-management-lecture-list.ui.ts`. */
+  protected readonly ui = TEACHER_COURSES_COURSE_MANAGEMENT_LECTURE_LIST_UI;
   @Input() courseId!: number;
 
   lectures: Lecture[] = [];

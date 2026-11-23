@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Course } from '@core/models/course.model';
+import { TEACHER_COURSES_COURSE_CARD_UI } from '@core/content/teacher-courses-course-card.ui';
 
 /**
  * CourseCardComponent (teacher variant) renders a single course the teacher
@@ -17,14 +18,14 @@ import { Course } from '@core/models/course.model';
         <div class="course-id">{{ initials }}</div>
         <div class="course-title">
           <h2>{{ course.title }}</h2>
-          <p>{{ course.lectureCount || 0 }} lectures · {{ course.department }}</p>
+          <p>{{ course.lectureCount || 0 }} {{ ui.lectures }} {{ course.department }}</p>
         </div>
         <span class="pill" [ngClass]="'pill--' + (course.status || '').toLowerCase()">{{ course.status }}</span>
       </div>
 
       <div class="course-actions">
-        <a class="btn btn--soft" [routerLink]="['/teacher/courses', course.id, 'manage']">Manage course</a>
-        <button class="btn btn--danger" type="button" (click)="remove.emit(course.id)">Delete</button>
+        <a class="btn btn--soft" [routerLink]="['/teacher/courses', course.id, 'manage']">{{ ui.manageCourse }}</a>
+        <button class="btn btn--danger" type="button" (click)="remove.emit(course.id)">{{ ui.delete }}</button>
       </div>
     </article>
   `,
@@ -65,6 +66,8 @@ import { Course } from '@core/models/course.model';
   `]
 })
 export class CourseCardComponent {
+  /** Template copy (Wave 7 gate): `core/content/teacher-courses-course-card.ui.ts`. */
+  protected readonly ui = TEACHER_COURSES_COURSE_CARD_UI;
   @Input() course: Course | null = null;
   @Output() remove = new EventEmitter<number>();
 

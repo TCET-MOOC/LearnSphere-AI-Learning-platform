@@ -1,0 +1,37 @@
+/**
+ * UI copy for `features/admin/dashboard/dashboard.component.html` (Wave 7 gate, DS-13: copy lives in content files).
+ * Moved verbatim from the template; wording changes go here. One file per component (W7-07).
+ */
+export const ADMIN_DASHBOARD_UI = {
+  activeSplit: "Active Split",
+  administrativeActions: "Administrative Actions",
+  allCurriculumSubmissionsAudited: "All curriculum submissions audited. Queue clean!",
+  approveAndPublishLive: "Approve and publish live",
+  bronzeMedal3rdPlace: "Bronze Medal · 3rd Place",
+  by: "By",
+  curriculumVerification: "Curriculum Verification",
+  eligibleTeacherS: "eligible teacher(s)",
+  faculty: "Faculty:",
+  goldMedal1stPlace: "Gold Medal · 1st Place",
+  institutionalCommandDesk: "Institutional Command Desk",
+  lectures: "lectures",
+  manageUsers: "Manage Users",
+  noFacultyRoyaltyActivity: "No faculty royalty activity recorded yet.",
+  noStudentLearningPoints: "No student learning points earned this term.",
+  openFlags: "Open Flags (",
+  outstandingFacultyRoyalties: "Outstanding Faculty Royalties",
+  pendingDisbursementTo: "Pending disbursement to",
+  platform: "Platform:",
+  platformOverview: "Platform Overview",
+  processPayouts: "Process Payouts",
+  realTimeTelemetryAcross: "Real-time telemetry across affiliated colleges, faculty payouts, user growth, and active courses.",
+  rejectBackToDraft: "Reject back to draft",
+  reviewAll: "Review all (",
+  reviewCourses: "Review Courses",
+  settlementArchitecture: "Settlement Architecture",
+  silverMedal2ndPlace: "Silver Medal · 2nd Place",
+  topAcademicLearners: "Top Academic Learners",
+  topFacultyThisMonth: "Top Faculty This Month",
+  viewAllStudents: "View all students",
+  viewAllTeachers: "View all teachers",
+} as const;

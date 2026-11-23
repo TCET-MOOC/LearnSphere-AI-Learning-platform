@@ -13,6 +13,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { A11yCopy } from '@core/content/a11y.content';
 import { DialogDirective } from '@shared/directives/dialog.directive';
+import { STUDENT_CERTIFICATES_UI } from '@core/content/student-certificates.ui';
 
 export interface EarnedCertView {
   courseId: number;
@@ -48,6 +49,8 @@ export interface RemedialCertView {
   styleUrls: ['./certificates.component.scss']
 })
 export class CertificatesComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/student-certificates.ui.ts`. */
+  protected readonly ui = STUDENT_CERTIFICATES_UI;
   protected readonly a11y = A11yCopy.text;
   loading = true;
 

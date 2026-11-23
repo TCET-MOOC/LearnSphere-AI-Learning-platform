@@ -14,6 +14,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { HistoryRow, HistorySummary, PaymentStatus, mergeHistory, summarize } from './payment-history';
 import { A11yCopy } from '@core/content/a11y.content';
 import { DialogDirective } from '@shared/directives/dialog.directive';
+import { STUDENT_PURCHASES_UI } from '@core/content/student-purchases.ui';
 
 /** One row of the purchases list (W6-14): see payment-history.ts for the rules. */
 export type OrderWithCourse = HistoryRow;
@@ -28,6 +29,8 @@ export type PaymentFilterType = 'ALL' | PaymentStatus;
   styleUrls: ['./purchases.component.scss']
 })
 export class PurchasesComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/student-purchases.ui.ts`. */
+  protected readonly ui = STUDENT_PURCHASES_UI;
   protected readonly a11y = A11yCopy.text;
   orders: OrderWithCourse[] = [];
   summary: HistorySummary = summarize([]);

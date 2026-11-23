@@ -6,18 +6,18 @@
     <div class="modal-top">
       <div id="certificate-title" class="top-title">
         <lucide-icon name="award" [size]="18" class="award-head-icon"></lucide-icon>
-        <span>Official Course Certificate</span>
+        <span>{{ ui.officialCourseCertificate }}</span>
       </div>
       <div class="top-actions">
         <button class="action-btn share-top-btn" (click)="showShareSubmodal = true" type="button">
           <lucide-icon name="share-2" [size]="15"></lucide-icon>
-          <span>Share certificate</span>
+          <span>{{ ui.shareCertificate }}</span>
         </button>
         <button class="action-btn print-btn" (click)="printCertificate()" type="button">
           <lucide-icon name="download" [size]="15"></lucide-icon>
-          <span>Download / Print PDF</span>
+          <span>{{ ui.downloadPrintPdf }}</span>
         </button>
-        <button class="close-btn" (click)="close.emit()" type="button" aria-label="Close">
+        <button class="close-btn" (click)="close.emit()" type="button" [attr.aria-label]="ui.close">
           <lucide-icon name="x" [size]="18"></lucide-icon>
         </button>
       </div>
@@ -29,16 +29,16 @@
         <div class="diploma-inner">
           <div class="diploma-seal">
             <div class="seal-icon">🎓</div>
-            <div class="seal-text">LEARNSPHERE ACADEMY</div>
+            <div class="seal-text">{{ ui.learnsphereAcademy }}</div>
           </div>
 
-          <p class="diploma-eyebrow">CERTIFICATE OF {{ certificate.type === 'REMEDIAL' ? 'ATTENDANCE FULFILLMENT' : 'ACADEMIC ACHIEVEMENT' }}</p>
-          <p class="presented-to">This is to certify that</p>
+          <p class="diploma-eyebrow">{{ ui.certificateOf }} {{ certificate.type === 'REMEDIAL' ? 'ATTENDANCE FULFILLMENT' : 'ACADEMIC ACHIEVEMENT' }}</p>
+          <p class="presented-to">{{ ui.thisIsToCertify }}</p>
           <h1 class="student-name">{{ certificate.studentName }}</h1>
-          <p class="college-affiliation">of {{ certificate.collegeName }}</p>
+          <p class="college-affiliation">{{ ui.of }} {{ certificate.collegeName }}</p>
 
           <p class="cert-body-text">
-            has successfully completed all required coursework, lecture modules, and verified academic assessments for
+            {{ ui.hasSuccessfullyCompletedAll }}
           </p>
 
           <h2 class="course-title">{{ certificate.courseName }}</h2>
@@ -46,20 +46,20 @@
           <div class="diploma-signatures">
             <div class="sig-block">
               <div class="sig-line cursive-font">{{ certificate.teacher }}</div>
-              <div class="sig-title">Course Instructor</div>
+              <div class="sig-title">{{ ui.courseInstructor }}</div>
             </div>
 
             <div class="sig-qr-block">
               <div class="qr-box">
-                <img [src]="getQrCodeUrl(certificate)" alt="Verification QR Code" class="qr-img" />
+                <img [src]="getQrCodeUrl(certificate)" [attr.alt]="ui.verificationQrCode" class="qr-img" />
               </div>
-              <div class="cred-id">ID: {{ certificate.certId }}</div>
-              <div class="cred-date">Issued: {{ certificate.date }}</div>
+              <div class="cred-id">{{ ui.id }} {{ certificate.certId }}</div>
+              <div class="cred-date">{{ ui.issued }} {{ certificate.date }}</div>
             </div>
 
             <div class="sig-block">
-              <div class="sig-line cursive-font">Academic Dean</div>
-              <div class="sig-title">Director of Accreditation</div>
+              <div class="sig-line cursive-font">{{ ui.academicDean }}</div>
+              <div class="sig-title">{{ ui.directorOfAccreditation }}</div>
             </div>
           </div>
         </div>
@@ -72,24 +72,24 @@
 <div class="modal-backdrop" *ngIf="showShareSubmodal && certificate" (click)="showShareSubmodal = false">
   <div appDialog aria-labelledby="certificate-share-title" (dialogClose)="showShareSubmodal = false" class="modal-container share-modal" (click)="$event.stopPropagation()">
     <div class="modal-top">
-      <div id="certificate-share-title" class="top-title">Share Certificate</div>
+      <div id="certificate-share-title" class="top-title">{{ ui.shareCertificate2 }}</div>
       <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="showShareSubmodal = false" type="button">
         <lucide-icon name="x" [size]="18"></lucide-icon>
       </button>
     </div>
 
     <div class="share-body">
-      <p class="share-desc">Showcase your achievement in <strong>{{ certificate.courseName }}</strong> on your professional profile.</p>
+      <p class="share-desc">{{ ui.showcaseYourAchievementIn }} <strong>{{ certificate.courseName }}</strong> {{ ui.onYourProfessionalProfile }}</p>
 
       <div class="share-actions-list">
         <button class="linkedin-share-btn" (click)="shareOnLinkedIn(certificate)" type="button">
-          <span class="li-icon">in</span>
-          <span>Add Certificate to LinkedIn Profile</span>
+          <span class="li-icon">{{ ui.in }}</span>
+          <span>{{ ui.addCertificateToLinkedin }}</span>
           <lucide-icon name="external-link" [size]="16"></lucide-icon>
         </button>
 
         <div class="copy-link-section">
-          <label>Public Verification Link</label>
+          <label>{{ ui.publicVerificationLink }}</label>
           <div class="copy-row">
             <input type="text" readonly [value]="getShareUrl(certificate)">
             <button class="copy-btn" (click)="copyShareLink(certificate)" type="button">

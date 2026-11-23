@@ -11,6 +11,7 @@ import { Course } from '@core/models/course.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { timeAgo } from '@core/utils/time.util';
 import { LucideAngularModule } from 'lucide-angular';
+import { STUDENT_DISCUSSION_UI } from '@core/content/student-discussion.ui';
 
 @Component({
   selector: 'app-discussion',
@@ -25,6 +26,8 @@ import { LucideAngularModule } from 'lucide-angular';
   styleUrls: ['./discussion.component.scss']
 })
 export class DiscussionComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/student-discussion.ui.ts`. */
+  protected readonly ui = STUDENT_DISCUSSION_UI;
   courses: Course[] = [];
   activeCourseId: number | null = null;
   mineOnly = false;

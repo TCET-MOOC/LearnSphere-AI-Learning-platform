@@ -1,13 +1,13 @@
 <div class="bookmarks-page">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Saved Lecture Moments</p>
-      <h1>Bookmarks</h1>
-      <p class="subtitle">Quickly jump back to important timestamps, definitions, and slide bookmarks.</p>
+      <p class="eyebrow">{{ ui.savedLectureMoments }}</p>
+      <h1>{{ ui.bookmarks }}</h1>
+      <p class="subtitle">{{ ui.quicklyJumpBackTo }}</p>
     </div>
   </header>
 
-  <p class="hint" *ngIf="loading">Loading bookmarks…</p>
+  <p class="hint" *ngIf="loading">{{ ui.loadingBookmarks }}</p>
 
   <section class="card" *ngIf="!loading">
     <div class="bookmark-list" *ngIf="bookmarks.length > 0; else empty">
@@ -23,15 +23,15 @@
             *ngIf="bookmark.courseId && bookmark.lectureId"
             [routerLink]="['/student/courses', bookmark.courseId, 'lectures', bookmark.lectureId]"
             [queryParams]="{ t: bookmark.timestampSeconds }">
-            Jump to lecture
+            {{ ui.jumpToLecture }}
           </a>
-          <button class="btn btn--ghost" type="button" (click)="remove(bookmark)">Remove bookmark</button>
+          <button class="btn btn--ghost" type="button" (click)="remove(bookmark)">{{ ui.removeBookmark }}</button>
         </div>
       </article>
     </div>
 
     <ng-template #empty>
-      <p class="hint">No bookmarks yet. Save a moment while watching a lecture to see it here.</p>
+      <p class="hint">{{ ui.noBookmarksYetSave }}</p>
     </ng-template>
   </section>
 </div>

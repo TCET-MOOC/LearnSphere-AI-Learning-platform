@@ -17,6 +17,7 @@ import { getInitials } from '@core/utils/avatar.util';
 import { A11yCopy } from '@core/content/a11y.content';
 import { ADMIN_USERS_COPY } from '@core/content/admin-users.content';
 import { DialogDirective } from '@shared/directives/dialog.directive';
+import { ADMIN_USERS_UI } from '@core/content/admin-users.ui';
 
 type DisplayStatus = 'Active' | 'Flagged' | 'Blacklisted';
 type TabKey = 'all' | 'students' | 'teachers' | 'flagged' | 'blacklisted';
@@ -56,6 +57,8 @@ export interface AdminUserRow {
   styleUrls: ['./users.component.scss']
 })
 export class UsersComponent implements OnInit, OnDestroy {
+  /** Template copy (Wave 7 gate): `core/content/admin-users.ui.ts`. */
+  protected readonly ui = ADMIN_USERS_UI;
   protected readonly a11y = A11yCopy.text;
   protected readonly copy = ADMIN_USERS_COPY;
   readonly pageSize = 20;

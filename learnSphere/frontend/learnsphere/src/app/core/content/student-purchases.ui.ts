@@ -1,0 +1,36 @@
+/**
+ * UI copy for `features/student/purchases/purchases.component.html` (Wave 7 gate, DS-13: copy lives in content files).
+ * Moved verbatim from the template; wording changes go here. One file per component (W7-07).
+ */
+export const STUDENT_PURCHASES_UI = {
+  activeLifetimeAccess: "Active lifetime access",
+  allOrders: "All Orders (",
+  awaitingWebhookPayment: "Awaiting webhook / payment",
+  close: "Close",
+  downloadPdf: "Download PDF",
+  exploreCourses: "Explore Courses",
+  failed: "Failed (",
+  goToCourse: "Go to Course",
+  lifetimeLearningSpend: "Lifetime learning spend",
+  loadingYourOrderHistory: "Loading your order history…",
+  noFailedPaymentAttempts: "No failed payment attempts recorded.",
+  noTransactionsFound: "No transactions found",
+  orderHistoryPurchases: "Order History & Purchases",
+  orderRef: "Order Ref:",
+  paidCourses: "Paid Courses",
+  paymentId: "Payment ID:",
+  pending: "Pending (",
+  pendingProcessing: "Pending / Processing",
+  printReceipt: "Print receipt",
+  refreshPurchases: "Refresh purchases",
+  studentWorkspace: "Student workspace",
+  successful: "Successful (",
+  totalInvested: "Total Invested",
+  trackYourCourseEnrollments: "Track your course enrollments, Razorpay payment receipts, and billing history.",
+  viewDetails: "View Details",
+  viewDownloadPaymentReceipt: "View & Download Payment Receipt",
+  viewReceipt: "View receipt",
+  youHaveNoPending: "You have no pending or awaiting checkout transactions.",
+  youHavenTCompleted: "You haven't completed any course purchases yet.",
+  youHavenTInitiated: "You haven't initiated or completed any course transactions yet.",
+} as const;

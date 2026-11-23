@@ -12,6 +12,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { Course } from '@core/models/course.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { ActivateDirective } from '@shared/directives/activate.directive';
+import { ADMIN_DASHBOARD_UI } from '@core/content/admin-dashboard.ui';
 
 interface KpiCard {
   label: string;
@@ -42,6 +43,8 @@ interface RankedPerson {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/admin-dashboard.ui.ts`. */
+  protected readonly ui = ADMIN_DASHBOARD_UI;
   loading = false;
   kpiCards: KpiCard[] = [
     { label: 'Gross Volume', value: '₹1,499', sub: '30% platform cut', subColor: 'var(--status-green-text)', icon: 'dollar-sign', tone: 'primary' },

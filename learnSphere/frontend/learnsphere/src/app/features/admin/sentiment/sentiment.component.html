@@ -4,19 +4,19 @@
     <div>
       <div class="eyebrow-pill">
         <lucide-icon name="sparkles" [size]="12"></lucide-icon>
-        <span>NLP Sentiment & Course Quality Telemetry</span>
+        <span>{{ ui.nlpSentimentCourseQuality }}</span>
       </div>
-      <h1 class="page-title">Sentiment Analysis</h1>
-      <p class="subtitle">Natural language analysis across student discussion forums, messages, and course feedback.</p>
+      <h1 class="page-title">{{ ui.sentimentAnalysis }}</h1>
+      <p class="subtitle">{{ ui.naturalLanguageAnalysisAcross }}</p>
     </div>
     <div class="header-badge">
       <span class="pulse-indicator"></span>
-      <span>NLP Inference Active</span>
+      <span>{{ ui.nlpInferenceActive }}</span>
     </div>
   </header>
 
   <!-- Navigation Tabs -->
-  <nav class="tabs-container" aria-label="Sentiment view filters">
+  <nav class="tabs-container" [attr.aria-label]="ui.sentimentViewFilters">
     <button *ngFor="let tab of tabs" 
             class="tab-btn" 
             [class.active]="tab === activeTab"
@@ -38,29 +38,29 @@
     <div class="stats-grid">
       <div class="stat-box stat-box--indigo">
         <div class="stat-top">
-          <span class="stat-label">Comments Analysed</span>
+          <span class="stat-label">{{ ui.commentsAnalysed }}</span>
           <lucide-icon name="message-square" [size]="16" class="stat-icon"></lucide-icon>
         </div>
         <span class="stat-value tnum">{{ totalAnalyzed | number }}</span>
-        <span class="stat-subtext">Discussion posts + direct chats</span>
+        <span class="stat-subtext">{{ ui.discussionPostsDirectChats }}</span>
       </div>
 
       <div class="stat-box stat-box--emerald">
         <div class="stat-top">
-          <span class="stat-label">Positive Sentiment Rate</span>
+          <span class="stat-label">{{ ui.positiveSentimentRate }}</span>
           <lucide-icon name="smile" [size]="16" class="stat-icon"></lucide-icon>
         </div>
         <span class="stat-value tnum">{{ positivePercent }}%</span>
-        <span class="stat-subtext text-success">Sentiment score</span>
+        <span class="stat-subtext text-success">{{ ui.sentimentScore }}</span>
       </div>
 
       <div class="stat-box stat-box--amber">
         <div class="stat-top">
-          <span class="stat-label">Negative Keywords Found</span>
+          <span class="stat-label">{{ ui.negativeKeywordsFound }}</span>
           <lucide-icon name="flag" [size]="16" class="stat-icon"></lucide-icon>
         </div>
         <span class="stat-value tnum">{{ negativeKeywords.length }}</span>
-        <span class="stat-subtext">Flagged lexicon matches</span>
+        <span class="stat-subtext">{{ ui.flaggedLexiconMatches }}</span>
       </div>
     </div>
 
@@ -68,8 +68,8 @@
     <section class="section-card">
       <div class="section-header">
         <div>
-          <h2 class="section-title">Overall Platform Sentiment Distribution</h2>
-          <p class="section-desc">Computed with natural language heuristics across all academic forum discussions.</p>
+          <h2 class="section-title">{{ ui.overallPlatformSentimentDistribution }}</h2>
+          <p class="section-desc">{{ ui.computedWithNaturalLanguage }}</p>
         </div>
       </div>
 
@@ -77,7 +77,7 @@
         <div class="block positive">
           <div class="block-top">
             <lucide-icon name="smile" [size]="18"></lucide-icon>
-            <span class="block-label">Positive Tone</span>
+            <span class="block-label">{{ ui.positiveTone }}</span>
           </div>
           <span class="block-value tnum">{{ positivePercent }}%</span>
           <div class="block-bar"><div class="block-fill" [style.width.%]="positivePercent"></div></div>
@@ -86,7 +86,7 @@
         <div class="block neutral">
           <div class="block-top">
             <lucide-icon name="minus-circle" [size]="18"></lucide-icon>
-            <span class="block-label">Neutral / Inquiries</span>
+            <span class="block-label">{{ ui.neutralInquiries }}</span>
           </div>
           <span class="block-value tnum">{{ neutralPercent }}%</span>
           <div class="block-bar"><div class="block-fill" [style.width.%]="neutralPercent"></div></div>
@@ -95,7 +95,7 @@
         <div class="block negative">
           <div class="block-top">
             <lucide-icon name="frown" [size]="18"></lucide-icon>
-            <span class="block-label">Critical / Issues</span>
+            <span class="block-label">{{ ui.criticalIssues }}</span>
           </div>
           <span class="block-value tnum">{{ negativePercent }}%</span>
           <div class="block-bar"><div class="block-fill" [style.width.%]="negativePercent"></div></div>
@@ -103,14 +103,14 @@
       </div>
 
       <!-- Department Distribution Breakdown -->
-      <h2 class="section-title mt-28">Sentiment by Academic Department</h2>
+      <h2 class="section-title mt-28">{{ ui.sentimentByAcademicDepartment }}</h2>
       <div class="course-type-bars">
         <div class="bar-row" *ngFor="let course of courseTypeSentiment">
           <span class="bar-label">{{ course.type }}</span>
           <div class="bar-track">
             <div class="bar-fill" [style.width.%]="course.positive" [style.backgroundColor]="course.color"></div>
           </div>
-          <span class="bar-percent tnum">{{ course.positive }}% Positive</span>
+          <span class="bar-percent tnum">{{ course.positive }}{{ ui.positive }}</span>
         </div>
       </div>
     </section>
@@ -120,8 +120,8 @@
       <section class="section-card">
         <div class="section-header">
           <div>
-            <h2 class="section-title">Flagged Lexicon Themes</h2>
-            <p class="section-desc">Top negative terms triggering content moderation warnings.</p>
+            <h2 class="section-title">{{ ui.flaggedLexiconThemes }}</h2>
+            <p class="section-desc">{{ ui.topNegativeTermsTriggering }}</p>
           </div>
         </div>
 
@@ -135,7 +135,7 @@
         <ng-template #noKeywords>
           <div class="empty-list-hint">
             <lucide-icon name="check-circle-2" [size]="18" class="text-success"></lucide-icon>
-            <span>No negative keywords flagged in current window.</span>
+            <span>{{ ui.noNegativeKeywordsFlagged }}</span>
           </div>
         </ng-template>
       </section>
@@ -143,8 +143,8 @@
       <section class="section-card">
         <div class="section-header">
           <div>
-            <h2 class="section-title">Action Recommendations</h2>
-            <p class="section-desc">Prescriptive operational interventions derived from student telemetry.</p>
+            <h2 class="section-title">{{ ui.actionRecommendations }}</h2>
+            <p class="section-desc">{{ ui.prescriptiveOperationalInterventionsDerived }}</p>
           </div>
         </div>
 
@@ -163,7 +163,7 @@
         <ng-template #noRecs>
           <div class="empty-list-hint">
             <lucide-icon name="check-circle-2" [size]="18" class="text-success"></lucide-icon>
-            <span>All sentiment metrics healthy. No actions required.</span>
+            <span>{{ ui.allSentimentMetricsHealthy }}</span>
           </div>
         </ng-template>
       </section>

@@ -3,15 +3,15 @@
     <div>
       <div class="eyebrow-pill">
         <lucide-icon name="book-open" [size]="12"></lucide-icon>
-        <span>Curriculum & Catalog Audit</span>
+        <span>{{ ui.curriculumCatalogAudit }}</span>
       </div>
-      <h1 class="page-title">Course Approvals</h1>
-      <p class="subtitle">Review faculty curriculum submissions, syllabus structure, video lessons, and publication status.</p>
+      <h1 class="page-title">{{ ui.courseApprovals }}</h1>
+      <p class="subtitle">{{ ui.reviewFacultyCurriculumSubmissions }}</p>
     </div>
   </header>
 
   <div class="controls-bar">
-    <nav class="tabs" aria-label="Course status filters">
+    <nav class="tabs" [attr.aria-label]="ui.courseStatusFilters">
       <button
         class="tab"
         *ngFor="let f of filters"
@@ -28,9 +28,9 @@
         type="text" 
         [(ngModel)]="searchQuery" 
         (ngModelChange)="onSearchChange()" 
-        placeholder="Search courses or faculty..." 
+        [attr.placeholder]="ui.searchCoursesOrFaculty" 
       />
-      <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()" title="Clear search">
+      <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()" [attr.title]="ui.clearSearch">
         <lucide-icon name="x" [size]="14"></lucide-icon>
       </button>
     </div>
@@ -45,11 +45,11 @@
   <div class="card table-card" *ngIf="!loading && courses.length > 0">
     <div class="course-table">
       <div class="course-row course-row--head">
-        <span>Curriculum Title</span>
-        <span>Faculty Member</span>
-        <span>Lectures</span>
-        <span>Status</span>
-        <span class="text-right">Actions</span>
+        <span>{{ ui.curriculumTitle }}</span>
+        <span>{{ ui.facultyMember }}</span>
+        <span>{{ ui.lectures }}</span>
+        <span>{{ ui.status }}</span>
+        <span class="text-right">{{ ui.actions }}</span>
       </div>
       <div class="course-row" *ngFor="let course of courses">
         <div class="course-info-cell">
@@ -62,7 +62,7 @@
           </div>
         </div>
         <span class="teacher-name">{{ course.teacherName || 'Faculty' }}</span>
-        <span class="tnum font-medium">{{ course.lectureCount ?? 0 }} modules</span>
+        <span class="tnum font-medium">{{ course.lectureCount ?? 0 }} {{ ui.modules }}</span>
         <span>
           <span class="pill" [ngClass]="statusClass(course.status)">
             <span class="status-dot"></span>
@@ -71,21 +71,21 @@
         </span>
         <div class="action-set">
           <button class="btn btn--ghost" (click)="inspectCourse(course)">
-            <lucide-icon name="eye" [size]="13"></lucide-icon> Inspect course
+            <lucide-icon name="eye" [size]="13"></lucide-icon> {{ ui.inspectCourse }}
           </button>
           <ng-container *ngIf="course.status === 'PENDING'">
             <button class="btn btn--primary" [disabled]="actingId === course.id" (click)="approve(course)">
-              Approve Live
+              {{ ui.approveLive }}
             </button>
             <button class="btn btn--danger" [disabled]="actingId === course.id" (click)="reject(course)">
-              Reject
+              {{ ui.reject }}
             </button>
           </ng-container>
           <button class="btn btn--ghost" *ngIf="course.status === 'LIVE'" [disabled]="actingId === course.id" (click)="archive(course)">
-            Archive course
+            {{ ui.archiveCourse }}
           </button>
           <button class="btn btn--ghost" *ngIf="course.status === 'ARCHIVED'" [disabled]="actingId === course.id" (click)="reactivate(course)">
-            Reactivate course
+            {{ ui.reactivateCourse }}
           </button>
         </div>
       </div>
@@ -97,9 +97,9 @@
     <div class="empty-icon-box">
       <lucide-icon name="book-open" [size]="32"></lucide-icon>
     </div>
-    <h3>No courses found</h3>
-    <p *ngIf="searchQuery">No curriculum submissions match "{{ searchQuery }}".</p>
-    <p *ngIf="!searchQuery">No courses currently in this status category.</p>
+    <h3>{{ ui.noCoursesFound }}</h3>
+    <p *ngIf="searchQuery">{{ ui.noCurriculumSubmissionsMatch }}{{ searchQuery }}".</p>
+    <p *ngIf="!searchQuery">{{ ui.noCoursesCurrentlyIn }}</p>
   </div>
 
   <!-- Course Inspection Modal -->
@@ -112,7 +112,7 @@
             {{ selectedCourseForInspect.status || 'LIVE' }}
           </span>
           <h2 id="course-inspect-title" class="modal-title">{{ selectedCourseForInspect.title || 'Course Details' }}</h2>
-          <p class="modal-sub">By {{ selectedCourseForInspect.teacherName || 'Faculty' }} · {{ selectedCourseForInspect.department || 'General' }}</p>
+          <p class="modal-sub">{{ ui.by }} {{ selectedCourseForInspect.teacherName || 'Faculty' }} · {{ selectedCourseForInspect.department || 'General' }}</p>
         </div>
         <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="closeInspect()">
           <lucide-icon name="x" [size]="18"></lucide-icon>
@@ -121,13 +121,13 @@
 
       <div class="modal-body">
         <div class="course-summary-box">
-          <p><strong>Description:</strong> {{ selectedCourseForInspect.description || 'No description provided.' }}</p>
-          <p><strong>Pricing:</strong> {{ selectedCourseForInspect.price ? '₹' + selectedCourseForInspect.price : 'Free (TCET Internal Learners)' }}</p>
+          <p><strong>{{ ui.description }}</strong> {{ selectedCourseForInspect.description || 'No description provided.' }}</p>
+          <p><strong>{{ ui.pricing }}</strong> {{ selectedCourseForInspect.price ? '₹' + selectedCourseForInspect.price : 'Free (TCET Internal Learners)' }}</p>
         </div>
 
         <div class="curriculum-review">
-          <h3>Curriculum Lectures ({{ inspectLectures.length }})</h3>
-          <div class="inspect-loading" *ngIf="loadingLectures">Loading syllabus modules...</div>
+          <h3>{{ ui.curriculumLectures }}{{ inspectLectures.length }})</h3>
+          <div class="inspect-loading" *ngIf="loadingLectures">{{ ui.loadingSyllabusModules }}</div>
           <div class="inspect-lecture-list" *ngIf="!loadingLectures && inspectLectures.length > 0">
             <div class="inspect-lec-row" *ngFor="let lec of inspectLectures; let i = index">
               <span class="lec-num">#{{ i + 1 }}</span>
@@ -136,17 +136,17 @@
             </div>
           </div>
           <div class="empty-lec" *ngIf="!loadingLectures && inspectLectures.length === 0">
-            No lecture videos uploaded to this course yet.
+            {{ ui.noLectureVideosUploaded }}
           </div>
         </div>
 
         <div class="modal-actions-bar">
-          <button class="btn btn--ghost" (click)="closeInspect()">Close</button>
+          <button class="btn btn--ghost" (click)="closeInspect()">{{ ui.close }}</button>
           <button class="btn btn--danger" *ngIf="selectedCourseForInspect.status === 'PENDING'" (click)="reject(selectedCourseForInspect); closeInspect()">
-            Reject to Draft
+            {{ ui.rejectToDraft }}
           </button>
           <button class="btn btn--primary" *ngIf="selectedCourseForInspect.status === 'PENDING'" (click)="approve(selectedCourseForInspect); closeInspect()">
-            Approve & Publish Live
+            {{ ui.approvePublishLive }}
           </button>
         </div>
       </div>

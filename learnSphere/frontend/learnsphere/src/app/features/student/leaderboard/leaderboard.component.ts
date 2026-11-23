@@ -7,6 +7,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { LeaderboardEntryDto, LeaderboardScope } from '@core/models/social.model';
 import { getAvatarBg, getAvatarColor, getInitials } from '@core/utils/avatar.util';
 import { LucideAngularModule, Trophy, Medal, Star, Rocket, CheckCircle, FileText, MessageCircle, Loader2, RotateCcw } from 'lucide-angular';
+import { STUDENT_LEADERBOARD_UI } from '@core/content/student-leaderboard.ui';
 
 @Component({
   selector: 'app-leaderboard',
@@ -19,6 +20,8 @@ import { LucideAngularModule, Trophy, Medal, Star, Rocket, CheckCircle, FileText
   styleUrls: ['./leaderboard.component.scss']
 })
 export class LeaderboardComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/student-leaderboard.ui.ts`. */
+  protected readonly ui = STUDENT_LEADERBOARD_UI;
   activeTab = 'monthly';
   entries: LeaderboardEntryDto[] = [];
   loading = false;

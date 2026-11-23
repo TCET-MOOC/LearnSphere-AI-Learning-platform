@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { VideoPlayerComponent } from '@shared/components/video-player/video-player.component';
+import { STUDENT_LIVE_LIVE_ROOM_UI } from '@core/content/student-live-live-room.ui';
 
 interface ChatMessage {
   id: string;
@@ -36,6 +37,8 @@ interface ChatMessage {
   styleUrls: ['./live-room.component.scss']
 })
 export class StudentLiveRoomComponent implements OnInit, OnDestroy {
+  /** Template copy (Wave 7 gate): `core/content/student-live-live-room.ui.ts`. */
+  protected readonly ui = STUDENT_LIVE_LIVE_ROOM_UI;
   sessionId!: number;
   session: any = null;
   loading = true;

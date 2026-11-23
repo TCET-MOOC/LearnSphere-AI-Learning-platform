@@ -1,35 +1,35 @@
 <div class="certificates-page">
   <header class="page-head">
     <div>
-      <p class="eyebrow">Student workspace</p>
-      <h1>Certificates & Credentials</h1>
-      <p class="sub-head">Verified academic diploma credentials, attendance recoveries, and course completion badges.</p>
+      <p class="eyebrow">{{ ui.studentWorkspace }}</p>
+      <h1>{{ ui.certificatesCredentials }}</h1>
+      <p class="sub-head">{{ ui.verifiedAcademicDiplomaCredentials }}</p>
     </div>
   </header>
 
-  <p class="hint" *ngIf="loading">Loading certificates…</p>
+  <p class="hint" *ngIf="loading">{{ ui.loadingCertificates }}</p>
 
   <ng-container *ngIf="!loading">
     <div class="stats-grid">
       <div class="stat-box">
-        <span class="stat-label">Certificates earned</span>
+        <span class="stat-label">{{ ui.certificatesEarned }}</span>
         <span class="stat-value">{{ earnedCerts.length }}</span>
-        <span class="stat-subtext text-success">Verified & downloadable</span>
+        <span class="stat-subtext text-success">{{ ui.verifiedDownloadable }}</span>
       </div>
       <div class="stat-box">
-        <span class="stat-label">In progress</span>
+        <span class="stat-label">{{ ui.inProgress }}</span>
         <span class="stat-value">{{ inProgressCerts.length }}</span>
-        <span class="stat-subtext text-purple">Complete to unlock</span>
+        <span class="stat-subtext text-purple">{{ ui.completeToUnlock }}</span>
       </div>
       <div class="stat-box">
-        <span class="stat-label">Remedial certs</span>
+        <span class="stat-label">{{ ui.remedialCerts }}</span>
         <span class="stat-value">{{ remedialCerts.length }}</span>
-        <span class="stat-subtext text-amber">Attendance recovery</span>
+        <span class="stat-subtext text-amber">{{ ui.attendanceRecovery }}</span>
       </div>
     </div>
 
     <div class="section-card">
-      <h2 class="section-title">Earned certificates</h2>
+      <h2 class="section-title">{{ ui.earnedCertificates }}</h2>
       <div class="certs-grid" *ngIf="earnedCerts.length > 0; else noEarned">
         <div class="cert-card" *ngFor="let cert of earnedCerts">
           <div class="cert-header">
@@ -38,33 +38,33 @@
             </div>
             <div class="cert-info">
               <h3 class="course-name">{{ cert.courseName }}</h3>
-              <p class="issue-details">Issued {{ cert.date }} · {{ cert.teacher }}</p>
-              <span class="credential-id">ID: {{ cert.certId }}</span>
+              <p class="issue-details">{{ ui.issued }} {{ cert.date }} · {{ cert.teacher }}</p>
+              <span class="credential-id">{{ ui.id }} {{ cert.certId }}</span>
             </div>
           </div>
           <div class="cert-actions">
-            <span class="status-pill completed">Completed</span>
+            <span class="status-pill completed">{{ ui.completed }}</span>
             <button class="btn-link" (click)="download(cert)">
               <lucide-icon name="download" [size]="14"></lucide-icon>
-              <span>View & PDF</span>
+              <span>{{ ui.viewPdf }}</span>
             </button>
             <button class="btn-text" (click)="share(cert)">
               <lucide-icon name="share-2" [size]="14"></lucide-icon>
-              <span>Share certificate</span>
+              <span>{{ ui.shareCertificate }}</span>
             </button>
           </div>
         </div>
       </div>
       <ng-template #noEarned>
-        <p class="requirement-text">No certificates earned yet — complete a course or pass a remedial test to earn one.</p>
+        <p class="requirement-text">{{ ui.noCertificatesEarnedYet }}</p>
       </ng-template>
     </div>
 
     <div class="section-card mt-24">
-      <h2 class="section-title">Certificates in progress</h2>
+      <h2 class="section-title">{{ ui.certificatesInProgress }}</h2>
 
       <div *ngIf="inProgressCerts.length === 0 && remedialCerts.length === 0" class="requirement-text">
-        Nothing pending — you're all caught up.
+        {{ ui.nothingPendingYouRe }}
       </div>
 
       <div class="progress-item" *ngFor="let prog of inProgressCerts">
@@ -76,11 +76,11 @@
 
       <div class="remedial-item" *ngFor="let rem of remedialCerts">
         <div class="remedial-content">
-          <h3 class="course-name">Remedial — {{ rem.courseName }}</h3>
+          <h3 class="course-name">{{ ui.remedial }} {{ rem.courseName }}</h3>
           <p class="requirement-text">{{ rem.requirement }}</p>
           <p class="remedial-status text-danger">{{ rem.statusText }}</p>
         </div>
-        <button class="btn-primary" (click)="attemptRemedial(rem)">Attempt now</button>
+        <button class="btn-primary" (click)="attemptRemedial(rem)">{{ ui.attemptNow }}</button>
       </div>
     </div>
   </ng-container>
@@ -90,11 +90,11 @@
 <div class="modal-backdrop" *ngIf="selectedCertForPreview" (click)="closePreview()">
   <div appDialog aria-labelledby="cert-preview-title" (dialogClose)="closePreview()" class="modal-container cert-modal" (click)="$event.stopPropagation()">
     <div class="modal-top">
-      <div id="cert-preview-title" class="top-title">Official Credential Document</div>
+      <div id="cert-preview-title" class="top-title">{{ ui.officialCredentialDocument }}</div>
       <div class="top-actions">
         <button class="action-btn print-btn" (click)="printCertificate()">
           <lucide-icon name="download" [size]="16"></lucide-icon>
-          <span>Download / Print PDF</span>
+          <span>{{ ui.downloadPrintPdf }}</span>
         </button>
         <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="closePreview()">
           <lucide-icon name="x" [size]="18"></lucide-icon>
@@ -108,16 +108,16 @@
         <div class="diploma-inner">
           <div class="diploma-seal">
             <div class="seal-icon">🎓</div>
-            <div class="seal-text">LEARNSPHERE ACADEMY</div>
+            <div class="seal-text">{{ ui.learnsphereAcademy }}</div>
           </div>
 
-          <p class="diploma-eyebrow">CERTIFICATE OF {{ selectedCertForPreview.type === 'REMEDIAL' ? 'ATTENDANCE FULFILLMENT' : 'ACADEMIC ACHIEVEMENT' }}</p>
-          <p class="presented-to">This is to certify that</p>
+          <p class="diploma-eyebrow">{{ ui.certificateOf }} {{ selectedCertForPreview.type === 'REMEDIAL' ? 'ATTENDANCE FULFILLMENT' : 'ACADEMIC ACHIEVEMENT' }}</p>
+          <p class="presented-to">{{ ui.thisIsToCertify }}</p>
           <h1 class="student-name">{{ selectedCertForPreview.studentName }}</h1>
-          <p class="college-affiliation">of {{ selectedCertForPreview.collegeName }}</p>
+          <p class="college-affiliation">{{ ui.of }} {{ selectedCertForPreview.collegeName }}</p>
 
           <p class="cert-body-text">
-            has successfully completed all required coursework, lecture modules, and rigorous assessments for
+            {{ ui.hasSuccessfullyCompletedAll }}
           </p>
 
           <h2 class="course-title">{{ selectedCertForPreview.courseName }}</h2>
@@ -125,20 +125,20 @@
           <div class="diploma-signatures">
             <div class="sig-block">
               <div class="sig-line cursive-font">{{ selectedCertForPreview.teacher }}</div>
-              <div class="sig-title">Course Instructor</div>
+              <div class="sig-title">{{ ui.courseInstructor }}</div>
             </div>
 
             <div class="sig-qr-block">
               <div class="qr-box">
-                <img [src]="getQrCodeUrl(selectedCertForPreview)" alt="Verification QR Code" class="qr-img" />
+                <img [src]="getQrCodeUrl(selectedCertForPreview)" [attr.alt]="ui.verificationQrCode" class="qr-img" />
               </div>
-              <div class="cred-id">ID: {{ selectedCertForPreview.certId }}</div>
-              <div class="cred-date">Issued: {{ selectedCertForPreview.date }}</div>
+              <div class="cred-id">{{ ui.id }} {{ selectedCertForPreview.certId }}</div>
+              <div class="cred-date">{{ ui.issued2 }} {{ selectedCertForPreview.date }}</div>
             </div>
 
             <div class="sig-block">
-              <div class="sig-line cursive-font">Academic Dean</div>
-              <div class="sig-title">Director of Accreditation</div>
+              <div class="sig-line cursive-font">{{ ui.academicDean }}</div>
+              <div class="sig-title">{{ ui.directorOfAccreditation }}</div>
             </div>
           </div>
         </div>
@@ -151,24 +151,24 @@
 <div class="modal-backdrop" *ngIf="selectedCertForShare" (click)="closeShare()">
   <div appDialog aria-labelledby="cert-share-title" (dialogClose)="closeShare()" class="modal-container share-modal" (click)="$event.stopPropagation()">
     <div class="modal-top">
-      <div id="cert-share-title" class="top-title">Share Certificate</div>
+      <div id="cert-share-title" class="top-title">{{ ui.shareCertificate2 }}</div>
       <button [attr.aria-label]="a11y.closeDialog" class="close-btn" (click)="closeShare()">
         <lucide-icon name="x" [size]="18"></lucide-icon>
       </button>
     </div>
 
     <div class="share-body">
-      <p class="share-desc">Showcase your achievement in <strong>{{ selectedCertForShare.courseName }}</strong> on your professional profile.</p>
+      <p class="share-desc">{{ ui.showcaseYourAchievementIn }} <strong>{{ selectedCertForShare.courseName }}</strong> {{ ui.onYourProfessionalProfile }}</p>
 
       <div class="share-actions-list">
         <button class="linkedin-share-btn" (click)="shareOnLinkedIn(selectedCertForShare)">
-          <span class="li-icon">in</span>
-          <span>Add Certificate to LinkedIn Profile</span>
+          <span class="li-icon">{{ ui.in }}</span>
+          <span>{{ ui.addCertificateToLinkedin }}</span>
           <lucide-icon name="external-link" [size]="16"></lucide-icon>
         </button>
 
         <div class="copy-link-section">
-          <label>Verification Link</label>
+          <label>{{ ui.verificationLink }}</label>
           <div class="copy-row">
             <input type="text" readonly [value]="getShareUrl(selectedCertForShare)">
             <button class="copy-btn" (click)="copyShareLink(selectedCertForShare)">

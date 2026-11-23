@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DATA_TABLE_UI } from '@core/content/data-table.ui';
 
 export interface TableColumn {
   key: string;
@@ -74,11 +75,11 @@ export interface TableColumn {
       <!-- Pagination controls -->
       <div class="pagination" *ngIf="totalPages > 1">
         <button class="btn btn--ghost btn--sm" [disabled]="currentPage === 1" (click)="setPage(currentPage - 1)">
-          Previous
+          {{ ui.previous }}
         </button>
-        <span class="pagination-info">Page {{ currentPage }} of {{ totalPages }}</span>
+        <span class="pagination-info">{{ ui.page }} {{ currentPage }} {{ ui.of }} {{ totalPages }}</span>
         <button class="btn btn--ghost btn--sm" [disabled]="currentPage === totalPages" (click)="setPage(currentPage + 1)">
-          Next
+          {{ ui.next }}
         </button>
       </div>
     </div>
@@ -197,6 +198,8 @@ export interface TableColumn {
   `]
 })
 export class DataTableComponent implements OnInit, OnChanges {
+  /** Template copy (Wave 7 gate): `core/content/data-table.ui.ts`. */
+  protected readonly ui = DATA_TABLE_UI;
   @Input() columns: TableColumn[] = [];
   @Input() data: any[] = [];
   @Input() pageSize: number = 20;

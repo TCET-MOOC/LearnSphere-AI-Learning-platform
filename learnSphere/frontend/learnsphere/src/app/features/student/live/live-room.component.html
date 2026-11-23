@@ -4,11 +4,11 @@
     <div class="left-info">
       <button class="back-btn" (click)="leaveRoom()">
         <lucide-icon name="arrow-left" [size]="18"></lucide-icon>
-        <span>Leave session</span>
+        <span>{{ ui.leaveSession }}</span>
       </button>
       <div class="session-meta">
         <span class="live-indicator" *ngIf="session.status === 'LIVE'">
-          <span class="dot"></span> LIVE
+          <span class="dot"></span> {{ ui.live }}
         </span>
         <span class="status-indicator" *ngIf="session.status !== 'LIVE'">
           {{ session.status }}
@@ -21,9 +21,9 @@
     <div class="right-stats">
       <div class="viewer-count">
         <lucide-icon name="users" [size]="16"></lucide-icon>
-        <span>{{ viewerCount }} Learners</span>
+        <span>{{ viewerCount }} {{ ui.learners }}</span>
       </div>
-      <button class="leave-btn" (click)="leaveRoom()">Leave session</button>
+      <button class="leave-btn" (click)="leaveRoom()">{{ ui.leaveSession }}</button>
     </div>
   </div>
 
@@ -46,10 +46,10 @@
             <div class="state-icon-pulse">
               <lucide-icon name="clock" [size]="44"></lucide-icon>
             </div>
-            <h3>Waiting for Instructor</h3>
-            <p>This live session is scheduled. The broadcast will start as soon as the instructor goes live.</p>
+            <h3>{{ ui.waitingForInstructor }}</h3>
+            <p>{{ ui.thisLiveSessionIs }}</p>
             <div class="scheduled-time" *ngIf="session.scheduledAt">
-              <span>Scheduled: {{ session.scheduledAt | date:'medium' }}</span>
+              <span>{{ ui.scheduled }} {{ session.scheduledAt | date:'medium' }}</span>
             </div>
           </div>
 
@@ -58,9 +58,9 @@
             <div class="state-icon-check">
               <lucide-icon name="check-circle" [size]="44"></lucide-icon>
             </div>
-            <h3>This live session has ended</h3>
-            <p>The instructor has concluded this session. Thank you for attending!</p>
-            <button class="back-overview-btn" (click)="leaveRoom()">Return to Live Dashboard</button>
+            <h3>{{ ui.thisLiveSessionHas }}</h3>
+            <p>{{ ui.theInstructorHasConcluded }}</p>
+            <button class="back-overview-btn" (click)="leaveRoom()">{{ ui.returnToLiveDashboard }}</button>
           </div>
 
           <!-- Live but descriptor connecting -->
@@ -68,8 +68,8 @@
             <div class="state-icon-pulse">
               <lucide-icon name="radio" [size]="44"></lucide-icon>
             </div>
-            <h3>Connecting to Live Broadcast...</h3>
-            <p>The stream is initializing. Please wait a moment.</p>
+            <h3>{{ ui.connectingToLiveBroadcast }}</h3>
+            <p>{{ ui.theStreamIsInitializing }}</p>
           </div>
         </div>
       </ng-template>
@@ -83,7 +83,7 @@
           [class.active]="activeTab === 'chat'" 
           (click)="activeTab = 'chat'">
           <lucide-icon name="message-square" [size]="16"></lucide-icon>
-          <span>Chat</span>
+          <span>{{ ui.chat }}</span>
         </button>
         <button 
           class="tab-btn" 
@@ -97,7 +97,7 @@
           [class.active]="activeTab === 'notes'" 
           (click)="activeTab = 'notes'">
           <lucide-icon name="file-text" [size]="16"></lucide-icon>
-          <span>Live Notes</span>
+          <span>{{ ui.liveNotes }}</span>
         </button>
       </div>
 
@@ -111,7 +111,7 @@
             [class.is-question]="msg.isQuestion">
             <div class="bubble-header">
               <span class="sender-name">{{ msg.sender }}</span>
-              <span class="teacher-tag" *ngIf="msg.isTeacher">Faculty</span>
+              <span class="teacher-tag" *ngIf="msg.isTeacher">{{ ui.faculty }}</span>
               <span class="msg-time">{{ msg.time }}</span>
             </div>
             <div class="bubble-content" [class.censored]="msg.isCensored">
@@ -134,7 +134,7 @@
           </div>
           <span class="policy-hint">
             <lucide-icon name="shield" [size]="12"></lucide-icon>
-            Safety Filter Active: Respectful conduct expected at all times.
+            {{ ui.safetyFilterActiveRespectful }}
           </span>
         </div>
       </div>
@@ -142,12 +142,12 @@
       <!-- Live Notes View -->
       <div class="notes-feed" *ngIf="activeTab === 'notes'">
         <div class="notes-header">
-          <h3>Your Private Session Notes</h3>
-          <p>Notes are automatically saved to your course notebook.</p>
+          <h3>{{ ui.yourPrivateSessionNotes }}</h3>
+          <p>{{ ui.notesAreAutomaticallySaved }}</p>
         </div>
         <textarea 
           [(ngModel)]="liveNotes" 
-          placeholder="Jot down formulas, takeaways, and key ideas in real-time..."></textarea>
+          [attr.placeholder]="ui.jotDownFormulasTakeaways"></textarea>
       </div>
     </div>
   </div>

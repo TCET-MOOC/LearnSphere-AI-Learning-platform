@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UploadService } from '../../services/upload.service';
 import { NotificationService } from '@core/services/notification.service';
+import { TEACHER_UPLOAD_RESOURCE_UPLOAD_UI } from '@core/content/teacher-upload-resource-upload.ui';
 
 /**
  * ResourceUploadComponent is a self-contained file picker + progress bar for
@@ -14,8 +15,8 @@ import { NotificationService } from '@core/services/notification.service';
   imports: [CommonModule],
   template: `
     <div class="upload-box">
-      <h3 id="resource-upload-heading">Upload resource</h3>
-      <p class="hint">PDF, DOC, PPT, or image files — handouts, slides, and reading material.</p>
+      <h3 id="resource-upload-heading">{{ ui.uploadResource }}</h3>
+      <p class="hint">{{ ui.pdfDocPptOr }}</p>
       <input
         type="file"
         accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,image/*"
@@ -25,8 +26,8 @@ import { NotificationService } from '@core/services/notification.service';
       <div class="progress-track" *ngIf="uploading">
         <span [style.width.%]="percent"></span>
       </div>
-      <p class="status" *ngIf="uploading">Uploading… {{ percent }}%</p>
-      <p class="status status--done" *ngIf="lastUrl && !uploading">Uploaded: {{ lastUrl }}</p>
+      <p class="status" *ngIf="uploading">{{ ui.uploading }} {{ percent }}%</p>
+      <p class="status status--done" *ngIf="lastUrl && !uploading">{{ ui.uploaded }} {{ lastUrl }}</p>
     </div>
   `,
   styles: [`
@@ -47,6 +48,8 @@ import { NotificationService } from '@core/services/notification.service';
   `]
 })
 export class ResourceUploadComponent {
+  /** Template copy (Wave 7 gate): `core/content/teacher-upload-resource-upload.ui.ts`. */
+  protected readonly ui = TEACHER_UPLOAD_RESOURCE_UPLOAD_UI;
   @Output() uploaded = new EventEmitter<string>();
 
   uploading = false;

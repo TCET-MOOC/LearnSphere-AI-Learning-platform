@@ -5,6 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { StudentService } from '../../services/student.service';
 import { Note } from '@core/models/course.model';
 import { LucideAngularModule, Video, Clock } from 'lucide-angular';
+import { STUDENT_NOTES_NOTE_EDITOR_UI } from '@core/content/student-notes-note-editor.ui';
 
 /**
  * NoteEditorComponent is a reactive form modal displayed inside MatDialog.
@@ -24,6 +25,8 @@ import { LucideAngularModule, Video, Clock } from 'lucide-angular';
   styleUrls: ['./note-editor.component.scss']
 })
 export class NoteEditorComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/student-notes-note-editor.ui.ts`. */
+  protected readonly ui = STUDENT_NOTES_NOTE_EDITOR_UI;
   /**
    * Reactive form tracking title and content validation.
    */

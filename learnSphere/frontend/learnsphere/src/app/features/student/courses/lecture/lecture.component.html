@@ -3,7 +3,7 @@
   <!-- Loading State -->
   <div class="workspace-loading" *ngIf="loading">
     <div class="spinner"></div>
-    <p>Loading your lecture workspace…</p>
+    <p>{{ ui.loadingYourLectureWorkspace }}</p>
   </div>
 
   <ng-container *ngIf="!loading">
@@ -13,11 +13,11 @@
       <div class="empty-icon-box">
         <lucide-icon name="video" [size]="28"></lucide-icon>
       </div>
-      <h3>No Lecture Selected</h3>
-      <p>You haven't enrolled in any courses with active video lectures yet.</p>
+      <h3>{{ ui.noLectureSelected }}</h3>
+      <p>{{ ui.youHavenTEnrolled }}</p>
       <a [routerLink]="['/student/courses']" class="btn btn--primary">
         <lucide-icon name="book-open" [size]="16"></lucide-icon>
-        Explore Courses
+        {{ ui.exploreCourses }}
       </a>
     </section>
 
@@ -57,9 +57,9 @@
           <div class="meta-main">
             <div class="meta-tags">
               <span class="badge-tag">{{ course?.department || 'Computer Engineering' }}</span>
-              <span class="badge-tag badge-tag--purple">Lec {{ currentLecture.number }}</span>
+              <span class="badge-tag badge-tag--purple">{{ ui.lec }} {{ currentLecture.number }}</span>
               <span class="badge-tag badge-tag--outline">{{ completedIds.has(currentLecture.id) ? 'Completed' : (watchedPercent + '% watched') }}</span>
-              <span class="badge-tag badge-tag--quiz" *ngIf="hasLectureQuiz">Quiz Available</span>
+              <span class="badge-tag badge-tag--quiz" *ngIf="hasLectureQuiz">{{ ui.quizAvailable }}</span>
             </div>
 
             <h1 class="lecture-title">{{ currentLecture.title }}</h1>
@@ -82,7 +82,7 @@
               class="action-btn action-btn--cert" 
               type="button" 
               (click)="openCertificateModal()" 
-              title="Claim or view official course certificate">
+              [attr.title]="ui.claimOrViewOfficial">
               <lucide-icon name="award" [size]="15"></lucide-icon>
               <span>{{ hasEarnedCertificate ? 'View Certificate' : 'Claim Certificate' }}</span>
             </button>
@@ -92,9 +92,9 @@
               class="action-btn action-btn--quiz" 
               type="button" 
               (click)="openQuizModal()" 
-              title="Take lecture assessment quiz">
+              [attr.title]="ui.takeLectureAssessmentQuiz">
               <lucide-icon name="help-circle" [size]="15"></lucide-icon>
-              <span>Take Quiz</span>
+              <span>{{ ui.takeQuiz }}</span>
             </button>
 
             <button 
@@ -174,7 +174,7 @@
               type="button" 
               (click)="activeBottomTab = 'discussion'">
               <lucide-icon name="message-square" [size]="15"></lucide-icon>
-              <span>Discussion & Q&A</span>
+              <span>{{ ui.discussionQA }}</span>
             </button>
 
             <button 
@@ -183,7 +183,7 @@
               type="button" 
               (click)="activeBottomTab = 'notes'">
               <lucide-icon name="file-text" [size]="15"></lucide-icon>
-              <span>Timestamp Notes</span>
+              <span>{{ ui.timestampNotes }}</span>
             </button>
 
             <button 
@@ -192,7 +192,7 @@
               type="button" 
               (click)="activeBottomTab = 'assignments'">
               <lucide-icon name="award" [size]="15"></lucide-icon>
-              <span>Assignments</span>
+              <span>{{ ui.assignments }}</span>
               <span class="tab-count-pill" *ngIf="assignments.length > 0">{{ assignments.length }}</span>
             </button>
 
@@ -202,7 +202,7 @@
               type="button" 
               (click)="activeBottomTab = 'resources'">
               <lucide-icon name="layers" [size]="15"></lucide-icon>
-              <span>Course Resources</span>
+              <span>{{ ui.courseResources }}</span>
             </button>
           </div>
 
@@ -260,18 +260,18 @@
                       </span>
                     </div>
                     <div class="assign-card-meta">
-                      <span>{{ a.maxMarks }} Marks</span>
-                      <span *ngIf="a.dueDate">Due: {{ a.dueDate | date:'shortDate' }}</span>
+                      <span>{{ a.maxMarks }} {{ ui.marks }}</span>
+                      <span *ngIf="a.dueDate">{{ ui.due }} {{ a.dueDate | date:'shortDate' }}</span>
                     </div>
                   </div>
-                  <p class="empty-assign-hint" *ngIf="assignments.length === 0">No assignments assigned for this course yet.</p>
+                  <p class="empty-assign-hint" *ngIf="assignments.length === 0">{{ ui.noAssignmentsAssignedFor }}</p>
                 </div>
 
                 <div class="assign-detail-col" *ngIf="selectedAssignment">
                   <div class="assign-header">
                     <div>
                       <h3 class="assign-active-title">{{ selectedAssignment.title }}</h3>
-                      <p class="assign-meta-sub">Max Marks: <strong>{{ selectedAssignment.maxMarks }}</strong> <span *ngIf="selectedAssignment.dueDate">· Due: {{ selectedAssignment.dueDate | date:'medium' }}</span></p>
+                      <p class="assign-meta-sub">{{ ui.maxMarks }} <strong>{{ selectedAssignment.maxMarks }}</strong> <span *ngIf="selectedAssignment.dueDate">{{ ui.due2 }} {{ selectedAssignment.dueDate | date:'medium' }}</span></p>
                     </div>
                   </div>
 
@@ -280,10 +280,10 @@
                   <!-- Graded Banner -->
                   <div class="grade-banner" *ngIf="mySubmissions.get(selectedAssignment.assignmentId!)?.marksAwarded != null">
                     <div class="grade-pill">
-                      <strong>Score: {{ mySubmissions.get(selectedAssignment.assignmentId!)?.marksAwarded }} / {{ selectedAssignment.maxMarks }}</strong>
+                      <strong>{{ ui.score }} {{ mySubmissions.get(selectedAssignment.assignmentId!)?.marksAwarded }} / {{ selectedAssignment.maxMarks }}</strong>
                     </div>
                     <p class="feedback-text" *ngIf="mySubmissions.get(selectedAssignment.assignmentId!)?.feedback">
-                      Instructor Feedback: "{{ mySubmissions.get(selectedAssignment.assignmentId!)?.feedback }}"
+                      {{ ui.instructorFeedback }}{{ mySubmissions.get(selectedAssignment.assignmentId!)?.feedback }}"
                     </p>
                   </div>
 
@@ -293,14 +293,14 @@
                     <textarea 
                       rows="4" 
                       class="submission-textarea"
-                      placeholder="Write your explanation, solution text, or paste code here…" 
+                      [attr.placeholder]="ui.writeYourExplanationSolution" 
                       [(ngModel)]="submissionText">
                     </textarea>
 
                     <input 
                       type="text" 
                       class="submission-input"
-                      placeholder="Submission File URL / Google Drive / GitHub Link (optional)" 
+                      [attr.placeholder]="ui.submissionFileUrlGoogle" 
                       [(ngModel)]="submissionFileUrl" />
 
                     <button 
@@ -322,12 +322,12 @@
                   <lucide-icon name="file-text" [size]="18"></lucide-icon>
                 </div>
                 <div class="res-info">
-                  <div class="res-title">Lecture Handout & Formula Reference</div>
-                  <div class="res-meta">PDF · 2.4 MB · Verified Course Material</div>
+                  <div class="res-title">{{ ui.lectureHandoutFormulaReference }}</div>
+                  <div class="res-meta">{{ ui.pdf24Mb }}</div>
                 </div>
                 <button class="res-btn" type="button">
                   <lucide-icon name="download" [size]="14"></lucide-icon>
-                  Download handout
+                  {{ ui.downloadHandout }}
                 </button>
               </div>
 
@@ -336,12 +336,12 @@
                   <lucide-icon name="code" [size]="18"></lucide-icon>
                 </div>
                 <div class="res-info">
-                  <div class="res-title">PyTorch Code Implementation Notebook</div>
-                  <div class="res-meta">IPYNB · 1.1 MB · Colab Ready</div>
+                  <div class="res-title">{{ ui.pytorchCodeImplementationNotebook }}</div>
+                  <div class="res-meta">{{ ui.ipynb11Mb }}</div>
                 </div>
                 <button class="res-btn" type="button">
                   <lucide-icon name="download" [size]="14"></lucide-icon>
-                  Download notebook
+                  {{ ui.downloadNotebook }}
                 </button>
               </div>
             </div>
@@ -362,7 +362,7 @@
             type="button" 
             (click)="activeSidebarTab = 'playlist'">
             <lucide-icon name="book-open" [size]="15"></lucide-icon>
-            <span>Course Playlist</span>
+            <span>{{ ui.coursePlaylist }}</span>
             <span class="tab-count">{{ lectures.length }}</span>
           </button>
 
@@ -372,7 +372,7 @@
             type="button" 
             (click)="activeSidebarTab = 'transcript'">
             <lucide-icon name="file-text" [size]="15"></lucide-icon>
-            <span>Interactive Transcript</span>
+            <span>{{ ui.interactiveTranscript }}</span>
           </button>
         </div>
 
@@ -393,8 +393,8 @@
           
           <div class="playlist-header">
             <div class="header-titles">
-              <h3>Course Playlist</h3>
-              <p class="playlist-meta">{{ completedIds.size }}/{{ lectures.length }} completed ({{ courseCompletionPercent }}%) · {{ totalCourseDuration }}</p>
+              <h3>{{ ui.coursePlaylist }}</h3>
+              <p class="playlist-meta">{{ completedIds.size }}/{{ lectures.length }} {{ ui.completed }}{{ courseCompletionPercent }}%) · {{ totalCourseDuration }}</p>
             </div>
 
             <!-- Progress Bar -->
@@ -407,8 +407,8 @@
               <div class="banner-top">
                 <lucide-icon name="award" [size]="18" class="award-icon"></lucide-icon>
                 <div class="banner-text">
-                  <span class="banner-title">Course 100% Completed!</span>
-                  <span class="banner-sub">Your verified certificate is ready.</span>
+                  <span class="banner-title">{{ ui.course100Completed }}</span>
+                  <span class="banner-sub">{{ ui.yourVerifiedCertificateIs }}</span>
                 </div>
               </div>
               <button class="claim-cert-btn" type="button" (click)="openCertificateModal()">
@@ -443,7 +443,7 @@
                     <span class="bar bar-1"></span>
                     <span class="bar bar-2"></span>
                     <span class="bar bar-3"></span>
-                    Playing
+                    {{ ui.playing }}
                   </span>
                 </div>
               </div>

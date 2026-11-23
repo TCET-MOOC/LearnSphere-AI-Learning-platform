@@ -1,13 +1,13 @@
 <section class="portal-page">
   <header class="page-header">
     <div>
-      <div class="eyebrow">Administration</div>
-      <h1>Announcements</h1>
-      <p>Broadcast platform updates, maintenance windows, and institution-wide notices.</p>
+      <div class="eyebrow">{{ ui.administration }}</div>
+      <h1>{{ ui.announcements }}</h1>
+      <p>{{ ui.broadcastPlatformUpdatesMaintenance }}</p>
     </div>
     <div class="header-actions">
       <button class="primary-btn" (click)="openCreateModal()">
-        <lucide-icon name="megaphone" [size]="14"></lucide-icon> New Announcement
+        <lucide-icon name="megaphone" [size]="14"></lucide-icon> {{ ui.newAnnouncement }}
       </button>
     </div>
   </header>
@@ -15,7 +15,7 @@
   <div class="feed-toolbar">
     <label class="search-control">
       <lucide-icon name="search" [size]="16"></lucide-icon>
-      <input [(ngModel)]="query" placeholder="Search announcements…" />
+      <input [(ngModel)]="query" [attr.placeholder]="ui.searchAnnouncements" />
     </label>
     <div class="filters">
       <button 
@@ -36,7 +36,7 @@
         <div class="feed-copy">
           <div class="feed-title-row">
             <h2>{{ item.title }}</h2>
-            <span class="pin" *ngIf="item.pinned">Pinned</span>
+            <span class="pin" *ngIf="item.pinned">{{ ui.pinned }}</span>
           </div>
           <p>{{ item.body }}</p>
           <div class="feed-meta">
@@ -48,21 +48,21 @@
 
       <div class="empty-state" *ngIf="!filteredItems.length">
         <lucide-icon name="megaphone" class="empty-icon"></lucide-icon>
-        <h3>No matching announcements</h3>
-        <p>Try searching for another topic or create a new announcement.</p>
+        <h3>{{ ui.noMatchingAnnouncements }}</h3>
+        <p>{{ ui.trySearchingForAnother }}</p>
       </div>
     </div>
 
     <aside class="summary-card">
-      <span class="summary-label">At a glance</span>
+      <span class="summary-label">{{ ui.atAGlance }}</span>
       <strong class="tnum">{{ items.length }}</strong>
-      <p>announcements published</p>
+      <p>{{ ui.announcementsPublished }}</p>
       <div class="summary-line">
-        <span>Categories</span>
+        <span>{{ ui.categories }}</span>
         <b class="tnum">{{ filters.length - 1 }}</b>
       </div>
       <div class="summary-line">
-        <span>Pinned</span>
+        <span>{{ ui.pinned }}</span>
         <b class="tnum">{{ pinnedCount }}</b>
       </div>
     </aside>
@@ -74,9 +74,9 @@
   <div appDialog aria-labelledby="create-announcement-title" (dialogClose)="closeCreateModal()" class="modal-container create-ann-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div>
-        <div class="modal-tag">Platform Notice</div>
-        <h2 id="create-announcement-title" class="modal-title">Publish Announcement</h2>
-        <p class="modal-sub">Broadcast to all students, teachers, and campus partners.</p>
+        <div class="modal-tag">{{ ui.platformNotice }}</div>
+        <h2 id="create-announcement-title" class="modal-title">{{ ui.publishAnnouncement }}</h2>
+        <p class="modal-sub">{{ ui.broadcastToAllStudents }}</p>
       </div>
       <button [attr.aria-label]="a11y.closeDialog" type="button" class="close-btn" (click)="closeCreateModal()">
         <lucide-icon name="x" [size]="18"></lucide-icon>
@@ -86,56 +86,56 @@
     <form [formGroup]="announcementForm" (ngSubmit)="submitAnnouncement()" class="dialog-form">
       <div class="form-group">
         <label for="ann-title" class="form-label">
-          Title <span class="req">*</span>
+          {{ ui.title }} <span class="req">*</span>
         </label>
         <input 
           type="text" 
           id="ann-title" 
           formControlName="title" 
           class="dialog-input" 
-          placeholder="e.g. Scheduled Maintenance or New Feature Release"
+          [attr.placeholder]="ui.eGScheduledMaintenance"
         />
         <div class="form-error" *ngIf="announcementForm.get('title')?.touched && announcementForm.get('title')?.invalid">
-          Please enter a descriptive title (min 4 characters).
+          {{ ui.pleaseEnterADescriptive }}
         </div>
       </div>
 
       <div class="form-group">
-        <label for="ann-category" class="form-label">Category</label>
+        <label for="ann-category" class="form-label">{{ ui.category }}</label>
         <select id="ann-category" formControlName="category" class="dialog-input">
-          <option value="General">General</option>
-          <option value="Maintenance">Maintenance</option>
-          <option value="Update">Platform Update</option>
-          <option value="Academic">Academic</option>
+          <option value="General">{{ ui.general }}</option>
+          <option value="Maintenance">{{ ui.maintenance }}</option>
+          <option value="Update">{{ ui.platformUpdate }}</option>
+          <option value="Academic">{{ ui.academic }}</option>
         </select>
       </div>
 
       <div class="form-group">
         <label for="ann-body" class="form-label">
-          Message Body <span class="req">*</span>
+          {{ ui.messageBody }} <span class="req">*</span>
         </label>
         <textarea 
           id="ann-body" 
           rows="4" 
           formControlName="body" 
           class="dialog-input" 
-          placeholder="Detailed announcement content...">
+          [attr.placeholder]="ui.detailedAnnouncementContent">
         </textarea>
         <div class="form-error" *ngIf="announcementForm.get('body')?.touched && announcementForm.get('body')?.invalid">
-          Please enter at least 10 characters.
+          {{ ui.pleaseEnterAtLeast }}
         </div>
       </div>
 
       <div class="form-check-group">
         <label class="check-label">
           <input type="checkbox" formControlName="pinned" />
-          <span>Pin to top of announcement feed</span>
+          <span>{{ ui.pinToTopOf }}</span>
         </label>
       </div>
 
       <div class="dialog-actions">
         <button type="button" class="btn btn--ghost" (click)="closeCreateModal()">
-          Cancel
+          {{ ui.cancel }}
         </button>
         <button type="submit" class="btn btn--primary" [disabled]="announcementForm.invalid || creating">
           <span>{{ creating ? 'Publishing…' : 'Publish Announcement' }}</span>

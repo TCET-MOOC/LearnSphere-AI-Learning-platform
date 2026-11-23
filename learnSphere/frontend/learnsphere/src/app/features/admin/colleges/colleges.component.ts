@@ -12,6 +12,7 @@ import { A11yCopy } from '@core/content/a11y.content';
 import { DialogDirective } from '@shared/directives/dialog.directive';
 
 import { LucideAngularModule, Plus, MapPin, GraduationCap, Users, BookOpen, Search, PartyPopper } from 'lucide-angular';
+import { ADMIN_COLLEGES_UI } from '@core/content/admin-colleges.ui';
 
 /**
  * CollegesComponent enables platform-wide college database management.
@@ -33,6 +34,8 @@ import { LucideAngularModule, Plus, MapPin, GraduationCap, Users, BookOpen, Sear
   styleUrls: ['./colleges.component.scss']
 })
 export class CollegesComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/admin-colleges.ui.ts`. */
+  protected readonly ui = ADMIN_COLLEGES_UI;
   protected readonly a11y = A11yCopy.text;
   /**
    * Reference to the inline template used for the manual college-addition modal.

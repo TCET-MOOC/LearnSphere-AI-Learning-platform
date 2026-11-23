@@ -18,6 +18,14 @@ public interface NotificationOutboxRepository extends JpaRepository<Notification
     @Query("SELECT o FROM NotificationOutbox o LEFT JOIN FETCH o.recipient WHERE o.status = :status ORDER BY o.createdAt ASC")
     List<NotificationOutbox> findByStatusOrderByCreatedAtAsc(@Param("status") OutboxStatus status, Pageable pageable);
 
+    /**
+     * Claims up to {@code limit} PENDING rows for this transaction (Wave 7 gate fix): rows another
+     * processor already holds are skipped, so two schedulers/instances never deliver a row twice.
+     */
+    @Query(value = "SELECT * FROM notification_outbox WHERE status = 'PENDING' ORDER BY created_at ASC, id ASC "
+            + "LIMIT :limit FOR UPDATE SKIP LOCKED", nativeQuery = true)
+    List<NotificationOutbox> claimPending(@Param("limit") int limit);
+
     @Query("SELECT o FROM NotificationOutbox o LEFT JOIN FETCH o.recipient WHERE o.status = :status ORDER BY o.createdAt ASC")
     List<NotificationOutbox> findByStatusOrderByCreatedAtAsc(@Param("status") OutboxStatus status);
 

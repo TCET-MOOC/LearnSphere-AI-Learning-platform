@@ -6,6 +6,7 @@ import { Bookmark } from '@core/models/course.model';
 import { DurationPipe } from '@shared/pipes/duration.pipe';
 import { TimeAgoPipe } from '@shared/pipes/time-ago.pipe';
 import { NotificationService } from '@core/services/notification.service';
+import { STUDENT_BOOKMARKS_UI } from '@core/content/student-bookmarks.ui';
 
 /**
  * BookmarksComponent lists the student's saved lecture timestamps and lets
@@ -19,6 +20,8 @@ import { NotificationService } from '@core/services/notification.service';
   styleUrls: ['./bookmarks.component.scss']
 })
 export class BookmarksComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/student-bookmarks.ui.ts`. */
+  protected readonly ui = STUDENT_BOOKMARKS_UI;
   bookmarks: Bookmark[] = [];
   loading = true;
 

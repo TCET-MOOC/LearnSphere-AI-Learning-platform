@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Course, CourseStatus } from '@core/models/course.model';
+import { TEACHER_COURSES_COURSE_MANAGEMENT_COURSE_EDITOR_UI } from '@core/content/teacher-courses-course-management-course-editor.ui';
 
 /**
  * CourseEditorComponent is the reactive form for creating/editing a course's
@@ -16,37 +17,37 @@ import { Course, CourseStatus } from '@core/models/course.model';
   template: `
     <form class="course-form" [formGroup]="form" (ngSubmit)="onSubmit()">
       <label>
-        Title
-        <input type="text" formControlName="title" placeholder="e.g. Engineering Mathematics III" />
+        {{ ui.title }}
+        <input type="text" formControlName="title" [attr.placeholder]="ui.eGEngineeringMathematics" />
       </label>
 
       <label class="full">
-        Description
-        <textarea formControlName="description" rows="4" placeholder="What will students learn?"></textarea>
+        {{ ui.description }}
+        <textarea formControlName="description" rows="4" [attr.placeholder]="ui.whatWillStudentsLearn"></textarea>
       </label>
 
       <label>
-        Department
-        <input type="text" formControlName="department" placeholder="e.g. Mathematics" />
+        {{ ui.department }}
+        <input type="text" formControlName="department" [attr.placeholder]="ui.eGMathematics" />
       </label>
 
       <label>
-        Thumbnail URL
-        <input type="text" formControlName="thumbnail" placeholder="https://…" />
+        {{ ui.thumbnailUrl }}
+        <input type="text" formControlName="thumbnail" [attr.placeholder]="ui.https" />
       </label>
 
       <label>
-        Price (0 = free)
+        {{ ui.price0Free }}
         <input type="number" min="0" formControlName="price" />
       </label>
 
       <label *ngIf="isEditMode">
-        Status
+        {{ ui.status }}
         <select formControlName="status">
-          <option value="DRAFT">Draft</option>
-          <option value="PENDING">Pending review</option>
-          <option value="LIVE">Live</option>
-          <option value="ARCHIVED">Archived</option>
+          <option value="DRAFT">{{ ui.draft }}</option>
+          <option value="PENDING">{{ ui.pendingReview }}</option>
+          <option value="LIVE">{{ ui.live }}</option>
+          <option value="ARCHIVED">{{ ui.archived }}</option>
         </select>
       </label>
 
@@ -102,6 +103,8 @@ import { Course, CourseStatus } from '@core/models/course.model';
   `]
 })
 export class CourseEditorComponent implements OnChanges {
+  /** Template copy (Wave 7 gate): `core/content/teacher-courses-course-management-course-editor.ui.ts`. */
+  protected readonly ui = TEACHER_COURSES_COURSE_MANAGEMENT_COURSE_EDITOR_UI;
   @Input() course: Course | null = null;
   @Input() saving = false;
   @Output() save = new EventEmitter<Partial<Course>>();

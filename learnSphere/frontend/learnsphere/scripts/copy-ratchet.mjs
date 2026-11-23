@@ -26,7 +26,7 @@ const BASELINE_PATH = path.join(ROOT, 'copy.baseline.json');
 const UPDATE = process.argv.includes('--update');
 const LIST = process.argv.includes('--list') ? process.argv[process.argv.indexOf('--list') + 1] : null;
 
-/** Screens whose copy W7-07 moved into core/content: they must stay at zero. */
+/** Screens whose copy moved into core/content (W7-07, Wave 7 gate): they must stay at zero. */
 const EXTRACTED = [
   'src/app/features/auth/login/login.component.html',
   'src/app/features/auth/register/register.component.html',
@@ -35,6 +35,35 @@ const EXTRACTED = [
   'src/app/features/public/verify-certificate/verify-certificate.component.html',
   'src/app/features/payment/checkout.component.ts',
   'src/app/features/payment/payment-success.component.ts',
+  // Wave 7 gate (2026-11-24): every template W7-14…W7-16 changed moved its copy to core/content.
+  'src/app/features/admin/announcements/announcements.component.html',
+  'src/app/features/admin/colleges/colleges.component.html',
+  'src/app/features/admin/courses/courses.component.html',
+  'src/app/features/admin/dashboard/dashboard.component.html',
+  'src/app/features/admin/sentiment/sentiment.component.html',
+  'src/app/features/admin/users/users.component.html',
+  'src/app/features/landing/landing.component.html',
+  'src/app/features/student/assessments/assessments.component.html',
+  'src/app/features/student/bookmarks/bookmarks.component.html',
+  'src/app/features/student/certificates/certificates.component.html',
+  'src/app/features/student/courses/components/explore-section.component.ts',
+  'src/app/features/student/courses/lecture/components/lecture-discussion.component.ts',
+  'src/app/features/student/courses/lecture/lecture.component.html',
+  'src/app/features/student/discussion/discussion.component.html',
+  'src/app/features/student/leaderboard/leaderboard.component.html',
+  'src/app/features/student/live/live-room.component.html',
+  'src/app/features/student/notes/components/note-editor.component.html',
+  'src/app/features/student/purchases/purchases.component.html',
+  'src/app/features/teacher/courses/components/course-card.component.ts',
+  'src/app/features/teacher/courses/course-management/components/course-editor.component.ts',
+  'src/app/features/teacher/courses/course-management/components/lecture-list.component.html',
+  'src/app/features/teacher/discussion/discussion.component.html',
+  'src/app/features/teacher/upload/components/quiz-builder.component.ts',
+  'src/app/features/teacher/upload/components/resource-upload.component.ts',
+  'src/app/features/teacher/upload/components/video-upload.component.ts',
+  'src/app/shared/components/certificate-modal/certificate-modal.component.html',
+  'src/app/shared/components/data-table/data-table.component.ts',
+  'src/app/shared/components/teacher-sidebar/teacher-sidebar.component.html',
 ];
 
 const COPY_ATTRS = /\s(placeholder|title|aria-label|alt)="([^"]*)"/g;
@@ -97,7 +126,7 @@ for (const [file, copy] of [...found].sort()) {
   const n = copy.length;
   total += n;
   if (EXTRACTED.includes(file)) {
-    if (n) problems.push(`${file}: ${n} hard-coded (extracted in W7-07, must be 0): ${copy.slice(0, 3).join(' | ')}`);
+    if (n) problems.push(`${file}: ${n} hard-coded (copy lives in core/content, must be 0): ${copy.slice(0, 3).join(' | ')}`);
   } else if (!(file in baseline)) {
     if (n) problems.push(`${file}: new template with ${n} hard-coded (use core/content/*.ts): ${copy.slice(0, 3).join(' | ')}`);
   } else if (n > baseline[file]) {

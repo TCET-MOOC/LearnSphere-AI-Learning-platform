@@ -38,6 +38,7 @@ import {
 import { progressPayload, shouldReport } from './watch-progress';
 import { COMPLETION_THRESHOLD, CompleteAction, completeAction, lessonPosition, nextLectureId, recordedPercent } from './player-mobile';
 import { PLAYER_MOBILE_COPY } from '@core/content/player-mobile.content';
+import { STUDENT_COURSES_LECTURE_UI } from '@core/content/student-courses-lecture.ui';
 
 /** Phones get the focus-mode player (approved 360 px redesign); desktop keeps its layout. */
 const PHONE_QUERY = '(max-width: 767.98px)';
@@ -61,6 +62,8 @@ const PHONE_QUERY = '(max-width: 767.98px)';
   styleUrls: ['./lecture.component.scss']
 })
 export class LectureComponent implements OnInit, OnDestroy {
+  /** Template copy (Wave 7 gate): `core/content/student-courses-lecture.ui.ts`. */
+  protected readonly ui = STUDENT_COURSES_LECTURE_UI;
   @ViewChild(VideoPlayerComponent) videoPlayer?: VideoPlayerComponent;
   @ViewChild(NotesDrawerComponent) notesDrawer?: NotesDrawerComponent;
 

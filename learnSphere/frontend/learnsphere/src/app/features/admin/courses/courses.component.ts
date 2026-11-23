@@ -11,6 +11,7 @@ import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confir
 import { Course, CourseStatus } from '@core/models/course.model';
 import { A11yCopy } from '@core/content/a11y.content';
 import { DialogDirective } from '@shared/directives/dialog.directive';
+import { ADMIN_COURSES_UI } from '@core/content/admin-courses.ui';
 
 @Component({
   selector: 'app-admin-courses',
@@ -25,6 +26,8 @@ import { DialogDirective } from '@shared/directives/dialog.directive';
   styleUrls: ['./courses.component.scss']
 })
 export class CoursesComponent implements OnInit {
+  /** Template copy (Wave 7 gate): `core/content/admin-courses.ui.ts`. */
+  protected readonly ui = ADMIN_COURSES_UI;
   protected readonly a11y = A11yCopy.text;
   loading = false;
   allCourses: Course[] = [];
