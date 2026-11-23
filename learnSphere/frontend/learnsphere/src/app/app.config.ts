@@ -14,7 +14,7 @@ import {
   LucideAngularModule,
   Play, Pause, Users, BookOpen, ShieldAlert, GraduationCap, Award, DollarSign, Clock, Folder, BarChart, BarChart2, Radio, Calendar, Target, Clapperboard, Megaphone, Square, Medal, Trophy, Crown, PartyPopper, Flame, MessageCircle, CornerDownLeft, Trash2, CheckCircle2, Search, Plus, Video, Star, Rocket, CheckCircle, FileText, Globe, Monitor, Ruler, User, Settings, Flag, Siren, Banknote, Zap, Hourglass, MapPin, Send, MessageSquare, X, Eye, PieChart, Percent, ExternalLink, CheckSquare, FileSpreadsheet, Activity, TrendingUp, AlertTriangle, AlertCircle, Shield, Mail, Lock, Key,
   RotateCcw, RotateCw, Volume2, VolumeX, Maximize, Minimize, PictureInPicture2, Sparkles,
-  Subtitles, MoreVertical, Download, ChevronRight, ChevronDown, SlidersHorizontal, Layers, Share2, Bookmark, Code, Check,
+  Subtitles, MoreVertical, Download, ChevronLeft, ChevronRight, ChevronDown, SlidersHorizontal, Layers, Share2, Bookmark, Code, Check,
   Sun, Moon, SunMoon, Languages, Bell, BellRing, HelpCircle, CheckCheck, Loader2, Menu,
   CreditCard, ArrowUpRight, Printer, ShoppingBag, Calculator, Pencil, Hand, PlayCircle,
   House, Compass, ClipboardList, LayoutGrid, LogOut, Upload, Building2, ArrowLeft, Info, ShieldCheck,
@@ -38,7 +38,7 @@ export const appConfig: ApplicationConfig = {
       LucideAngularModule.pick({
         Play, Pause, Users, BookOpen, ShieldAlert, GraduationCap, Award, DollarSign, Clock, Folder, BarChart, BarChart2, Radio, Calendar, Target, Clapperboard, Megaphone, Square, Medal, Trophy, Crown, PartyPopper, Flame, MessageCircle, CornerDownLeft, Trash2, CheckCircle2, Search, Plus, Video, Star, Rocket, CheckCircle, FileText, Globe, Monitor, Ruler, User, Settings, Flag, Siren, Banknote, Zap, Hourglass, MapPin, Send, MessageSquare, X, Eye, PieChart, Percent, ExternalLink, CheckSquare, FileSpreadsheet, Activity, TrendingUp, AlertTriangle, AlertCircle, Shield, Mail, Lock, Key,
         RotateCcw, RotateCw, Volume2, VolumeX, Maximize, Minimize, PictureInPicture2, Sparkles,
-        Subtitles, MoreVertical, Download, ChevronRight, ChevronDown, SlidersHorizontal, Layers, Share2, Bookmark, Code, Check,
+        Subtitles, MoreVertical, Download, ChevronLeft, ChevronRight, ChevronDown, SlidersHorizontal, Layers, Share2, Bookmark, Code, Check,
         Sun, Moon, SunMoon, Languages, Bell, BellRing, HelpCircle, CheckCheck, Loader2, Menu,
         CreditCard, ArrowUpRight, Printer, ShoppingBag, Calculator, Pencil, Hand, PlayCircle,
   House, Compass, ClipboardList, LayoutGrid, LogOut, Upload, Building2, ArrowLeft, Info, ShieldCheck,

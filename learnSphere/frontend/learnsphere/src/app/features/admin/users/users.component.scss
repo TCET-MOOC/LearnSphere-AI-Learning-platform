@@ -137,6 +137,12 @@
   }
 }
 
+// W7-12: the active tab now actually renders (it never matched its label before); its light
+// ink is too dark on the dark brand surface, so dark mode uses the AA brand text token (W7-08).
+:host-context(.dark-theme) .tab--active {
+  color: $brand-text;
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -481,7 +487,9 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
   max-width: 580px;
   width: 100%;
-  overflow: hidden;
+  max-height: calc(100vh - 40px);
+  overflow-x: hidden;
+  overflow-y: auto;
   animation: modalPop 0.2s ease-out;
 
   .modal-header {
@@ -585,6 +593,154 @@
       border-top: 1px solid var(--border-color);
       padding-top: 16px;
     }
+  }
+}
+
+// W7-12: server pager under the table.
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.pager-status {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+// W7-12: Inspect sections (roles, payments, account history).
+.inspect-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  h3 {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+}
+
+.inspect-state {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+
+  &--error {
+    color: $red;
+  }
+}
+
+.inspect-empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px 3px 10px;
+  border-radius: var(--border-radius-full);
+  background: var(--brand-surface);
+  color: var(--brand-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.role-revoke {
+  display: inline-flex;
+  padding: 3px;
+  border: 0;
+  border-radius: var(--border-radius-full);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--bg-hover);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.role-assign {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  select {
+    min-width: 0;
+    flex: 1 1 160px;
+    padding: 7px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 12px;
+  }
+}
+
+.inspect-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    min-width: 0;
+
+    & + li {
+      border-top: 1px solid var(--border-color);
+    }
+  }
+}
+
+.inspect-main {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.inspect-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+
+  &.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 }
 

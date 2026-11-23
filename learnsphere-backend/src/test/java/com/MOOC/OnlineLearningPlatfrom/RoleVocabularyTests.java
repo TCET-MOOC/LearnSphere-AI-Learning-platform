@@ -120,7 +120,7 @@ class RoleVocabularyTests extends PostgresIntegrationTest {
                         .param("role", "INSTRUCTOR")
                         .with(as("admin@learnsphere.com")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].email", hasItem("teacher@learnsphere.com")));
+                .andExpect(jsonPath("$.content[*].email", hasItem("teacher@learnsphere.com")));
     }
 
     @Test

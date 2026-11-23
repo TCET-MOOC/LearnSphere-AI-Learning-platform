@@ -1,0 +1,46 @@
+<section class="portal-page">
+  <header class="page-header"><div><div class="eyebrow">{{ copy.eyebrow }}</div><h1>{{ copy.title }}</h1><p>{{ copy.intro }}</p></div></header>
+  <div class="settings-layout">
+    <nav class="settings-nav" [attr.aria-label]="copy.navLabel">
+      @for (t of copy.tabs; track t.name) {
+        <button type="button" [class.active]="activeTab === t.name" (click)="activeTab = t.name">{{ t.name }}</button>
+      }
+      <div class="settings-user"><div>{{ initials }}</div><span><b>{{ name }}</b><small>{{ email }}</small></span></div>
+    </nav>
+    <div class="settings-content">
+      <section class="settings-card">
+        <div class="settings-heading"><h2>{{ tab.title }}</h2><p>{{ tab.description }}</p></div>
+        @for (row of tab.rows; track row.label) {
+          <div class="setting-row" [class.setting-row--unavailable]="row.kind === 'unavailable'">
+            <div><h3>{{ row.label }}</h3><p>{{ row.hint }}</p></div>
+            <div class="setting-action">
+              @switch (row.kind) {
+                @case ('theme') {
+                  <button type="button" class="toggle" role="switch" [attr.aria-label]="row.label" [attr.aria-checked]="isDark" [class.on]="isDark" (click)="toggleTheme()"><span></span></button>
+                }
+                @case ('password') {
+                  <button type="button" class="text-btn" [disabled]="sendingReset" (click)="changePassword()">{{ row.action }}</button>
+                }
+                @case ('fact') {
+                  <span class="setting-value">{{ factValue(row.fact) }}</span>
+                }
+                @case ('link') {
+                  <a class="text-btn" [routerLink]="row.route">{{ row.action }}</a>
+                }
+                @case ('unavailable') {
+                  <span class="setting-note">{{ copy.unavailable }}</span>
+                  @if (row.value) { <span class="setting-value">{{ row.value }}</span> }
+                  @if (row.action) { <button type="button" class="text-btn" disabled>{{ row.action }}</button> }
+                  @if (row.toggle) { <button type="button" class="toggle" role="switch" aria-checked="false" [attr.aria-label]="row.label" disabled><span></span></button> }
+                }
+              }
+            </div>
+          </div>
+        }
+      </section>
+      @if (activeTab === copy.tabs[copy.tabs.length - 1].name) {
+        <section class="settings-card danger-card"><div><h2>{{ copy.signOut.title }}</h2><p>{{ copy.signOut.body }}</p></div><button type="button" class="danger-btn" (click)="signOut()">{{ copy.signOut.button }}</button></section>
+      }
+    </div>
+  </div>
+</section>

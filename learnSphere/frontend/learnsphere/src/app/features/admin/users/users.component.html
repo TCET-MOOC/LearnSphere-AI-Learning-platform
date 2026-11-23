@@ -17,10 +17,10 @@
     <button
       class="tab"
       *ngFor="let tab of tabs"
-      [class.tab--active]="tab === activeTab"
+      [class.tab--active]="tab.key === activeTab"
       (click)="setTab(tab)"
       type="button">
-      {{ tab }}
+      {{ tab.label }}
     </button>
   </nav>
 
@@ -103,6 +103,16 @@
           <p *ngIf="!searchQuery">No accounts registered under this tab category.</p>
         </div>
       </div>
+
+      <nav class="pager" *ngIf="totalPages > 1" [attr.aria-label]="copy.pager.label">
+        <button class="btn btn--ghost" type="button" [attr.aria-label]="copy.pager.previous" [disabled]="page === 0" (click)="goToPage(page - 1)">
+          <lucide-icon name="chevron-left" [size]="14"></lucide-icon>
+        </button>
+        <span class="pager-status tnum">{{ copy.pager.status(page + 1, totalPages) }}</span>
+        <button class="btn btn--ghost" type="button" [attr.aria-label]="copy.pager.next" [disabled]="page >= totalPages - 1" (click)="goToPage(page + 1)">
+          <lucide-icon name="chevron-right" [size]="14"></lucide-icon>
+        </button>
+      </nav>
     </section>
 
     <aside class="side-stack">
@@ -171,6 +181,56 @@
           <span class="val-text">{{ selectedUserForInspect.createdAt ? (selectedUserForInspect.createdAt | date:'mediumDate') : '—' }}</span>
         </div>
       </div>
+
+      <p class="inspect-state" *ngIf="detailLoading && !detail">{{ copy.inspect.loading }}</p>
+      <p class="inspect-state inspect-state--error" role="alert" *ngIf="detailError">{{ copy.inspect.loadFailed }}</p>
+
+      <ng-container *ngIf="detail">
+        <section class="inspect-section inspect-roles">
+          <h3>{{ copy.inspect.roles }}</h3>
+          <div class="role-chips">
+            <span class="role-chip" *ngFor="let r of detail.roles">
+              {{ roleName(r.roleName) }}
+              <button type="button" class="role-revoke" [attr.aria-label]="copy.inspect.revoke(roleName(r.roleName))"
+                [disabled]="roleBusy" (click)="revokeRole(r.roleId, r.roleName)">
+                <lucide-icon name="x" [size]="12"></lucide-icon>
+              </button>
+            </span>
+            <span class="inspect-empty" *ngIf="detail.roles.length === 0">{{ copy.inspect.noRoles }}</span>
+          </div>
+          <div class="role-assign" *ngIf="assignableRoles.length">
+            <select [attr.aria-label]="copy.inspect.assignLabel" [(ngModel)]="roleToAssign" [disabled]="roleBusy">
+              <option [ngValue]="null">{{ copy.inspect.assignPlaceholder }}</option>
+              <option *ngFor="let r of assignableRoles" [ngValue]="r.roleId">{{ roleName(r.name) }}</option>
+            </select>
+            <button type="button" class="btn btn--ghost" [disabled]="roleBusy || roleToAssign === null" (click)="assignRole()">{{ copy.inspect.assign }}</button>
+          </div>
+        </section>
+
+        <section class="inspect-section inspect-payments">
+          <h3>{{ copy.inspect.payments }}</h3>
+          <ul class="inspect-list" *ngIf="detail.payments.length; else noPayments">
+            <li *ngFor="let p of detail.payments">
+              <span class="inspect-main">{{ p.courseTitle || copy.inspect.unknownCourse }}</span>
+              <span class="inspect-meta tnum">{{ p.amount | currency:(p.currency || 'INR'):'symbol':'1.0-2' }} · {{ p.status }}</span>
+              <span class="inspect-meta mono">{{ p.gatewayPaymentId || '—' }} · {{ (p.paidAt || p.createdAt) | date:'mediumDate' }}</span>
+            </li>
+          </ul>
+          <ng-template #noPayments><p class="inspect-empty">{{ copy.inspect.noPayments }}</p></ng-template>
+        </section>
+
+        <section class="inspect-section inspect-audit">
+          <h3>{{ copy.inspect.audit }}</h3>
+          <ul class="inspect-list" *ngIf="detail.audit.length; else noAudit">
+            <li *ngFor="let a of detail.audit">
+              <span class="inspect-main">{{ auditLabel(a.action) }}</span>
+              <span class="inspect-meta">{{ auditChange(a) }}</span>
+              <span class="inspect-meta">{{ a.createdAt | date:'medium' }}</span>
+            </li>
+          </ul>
+          <ng-template #noAudit><p class="inspect-empty">{{ copy.inspect.noAudit }}</p></ng-template>
+        </section>
+      </ng-container>
 
       <div class="inspect-actions-bar">
         <button class="btn btn--ghost" (click)="closeUserInspect()">Close</button>

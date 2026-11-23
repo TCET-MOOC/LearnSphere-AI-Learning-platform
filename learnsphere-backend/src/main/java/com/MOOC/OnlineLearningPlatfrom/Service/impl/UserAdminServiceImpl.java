@@ -1,20 +1,27 @@
 package com.MOOC.OnlineLearningPlatfrom.Service.impl;
 
+import com.MOOC.OnlineLearningPlatfrom.Dto.PageResponse;
 import com.MOOC.OnlineLearningPlatfrom.Dto.TopTeacherDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserActivitySummaryDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.UserAdminDetailDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserAdminDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.UserCountsDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.UserRoleDto;
 import com.MOOC.OnlineLearningPlatfrom.Entity.Course;
 import com.MOOC.OnlineLearningPlatfrom.Entity.RoleVocabulary;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserAccount;
 import com.MOOC.OnlineLearningPlatfrom.Entity.UserRole;
 import com.MOOC.OnlineLearningPlatfrom.Exception.BadRequestException;
 import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
+import com.MOOC.OnlineLearningPlatfrom.Repository.AuditLogRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.CourseRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.EnrollmentRepository;
+import com.MOOC.OnlineLearningPlatfrom.Repository.PaymentRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserRoleRepository;
 import com.MOOC.OnlineLearningPlatfrom.Service.AuditService;
 import com.MOOC.OnlineLearningPlatfrom.Service.UserAdminService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,17 +41,23 @@ public class UserAdminServiceImpl implements UserAdminService {
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final AuditService auditService;
+    private final PaymentRepository paymentRepository;
+    private final AuditLogRepository auditLogRepository;
 
     public UserAdminServiceImpl(UserAccountRepository userAccountRepository,
                                  UserRoleRepository userRoleRepository,
                                  CourseRepository courseRepository,
                                  EnrollmentRepository enrollmentRepository,
-                                 AuditService auditService) {
+                                 AuditService auditService,
+                                 PaymentRepository paymentRepository,
+                                 AuditLogRepository auditLogRepository) {
         this.userAccountRepository = userAccountRepository;
         this.userRoleRepository = userRoleRepository;
         this.courseRepository = courseRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.auditService = auditService;
+        this.paymentRepository = paymentRepository;
+        this.auditLogRepository = auditLogRepository;
     }
 
     private Map<Long, List<String>> rolesByUserId() {
@@ -56,8 +69,55 @@ public class UserAdminServiceImpl implements UserAdminService {
         return map;
     }
 
+    /**
+     * Filters first, then pages (W7-12). Ordered by id so a page is stable between
+     * requests. The filter runs in memory over the account table, as before; a
+     * database-side query waits for a measured need (NFR-02).
+     */
     @Override
-    public List<UserAdminDto> getUsers(String role, String status, String search) {
+    public PageResponse<UserAdminDto> getUsers(String role, String status, String search, Pageable pageable) {
+        List<UserAdminDto> matches = filterUsers(role, status, search);
+        int size = pageable.getPageSize();
+        int page = pageable.getPageNumber();
+        int from = (int) Math.min((long) page * size, matches.size());
+        int to = Math.min(from + size, matches.size());
+        int totalPages = size == 0 ? 0 : (matches.size() + size - 1) / size;
+        return new PageResponse<>(List.copyOf(matches.subList(from, to)),
+                page, size, matches.size(), totalPages);
+    }
+
+    @Override
+    public UserCountsDto getCounts() {
+        Map<Long, List<String>> roleMap = rolesByUserId();
+        List<UserAccount> all = userAccountRepository.findAll();
+        long students = all.stream().filter(u -> roleMap.getOrDefault(u.getUserId(), List.of()).contains("STUDENT")).count();
+        long teachers = all.stream().filter(u -> roleMap.getOrDefault(u.getUserId(), List.of()).contains("TEACHER")).count();
+        long flagged = all.stream().filter(u -> u.getStatus() == UserAccount.Status.FLAGGED).count();
+        long blacklisted = all.stream().filter(u -> u.getStatus() == UserAccount.Status.BLACKLISTED).count();
+        return new UserCountsDto(all.size(), students, teachers, flagged, blacklisted);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserAdminDetailDto getUserDetail(Long userId) {
+        UserAccount user = userAccountRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        List<UserRoleDto> roles = userRoleRepository.findByUser_UserId(userId).stream()
+                .map(UserRoleDto::from)
+                .toList();
+        List<String> roleNames = roles.stream().map(UserRoleDto::roleName).toList();
+        return new UserAdminDetailDto(
+                UserAdminDto.from(user, roleNames),
+                roles,
+                paymentRepository.findTop10ByUser_UserIdOrderByCreatedAtDescIdDesc(userId).stream()
+                        .map(UserAdminDetailDto.PaymentEntry::from)
+                        .toList(),
+                auditLogRepository.findTop10ByResourceTypeAndResourceIdOrderByIdDesc(AuditService.RESOURCE_USER, userId).stream()
+                        .map(UserAdminDetailDto.AuditEntry::from)
+                        .toList());
+    }
+
+    private List<UserAdminDto> filterUsers(String role, String status, String search) {
         Map<Long, List<String>> roleMap = rolesByUserId();
         String roleFilter = (role != null && !role.isBlank())
                 ? (RoleVocabulary.isValid(role) ? RoleVocabulary.canonicalize(role) : role.trim().toUpperCase())
@@ -71,6 +131,7 @@ public class UserAdminServiceImpl implements UserAdminService {
                 .filter(u -> searchFilter == null
                         || (u.getFullName() != null && u.getFullName().toLowerCase().contains(searchFilter))
                         || (u.getEmail() != null && u.getEmail().toLowerCase().contains(searchFilter)))
+                .sorted(Comparator.comparing(UserAccount::getUserId))
                 .map(u -> UserAdminDto.from(u, roleMap.get(u.getUserId())))
                 .toList();
     }

@@ -1,11 +1,16 @@
 package com.MOOC.OnlineLearningPlatfrom.Controller;
 
+import com.MOOC.OnlineLearningPlatfrom.Dto.PageResponse;
 import com.MOOC.OnlineLearningPlatfrom.Dto.TopTeacherDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UpdateStatusRequest;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserActivitySummaryDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.UserAdminDetailDto;
 import com.MOOC.OnlineLearningPlatfrom.Dto.UserAdminDto;
+import com.MOOC.OnlineLearningPlatfrom.Dto.UserCountsDto;
 import com.MOOC.OnlineLearningPlatfrom.Service.UserAdminService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,12 +39,26 @@ public class UserAdminController {
         this.userAdminService = userAdminService;
     }
 
+    /** Paginated since W7-12 ({@code PageResponse}, zero-based, ordered by id). */
     @GetMapping
-    public ResponseEntity<List<UserAdminDto>> getUsers(
+    public ResponseEntity<PageResponse<UserAdminDto>> getUsers(
             @RequestParam(required = false) String role,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String search) {
-        return privateNoStore(userAdminService.getUsers(role, status, search));
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return privateNoStore(userAdminService.getUsers(role, status, search, pageable));
+    }
+
+    /** Tab counts over every account (W7-12). */
+    @GetMapping("/counts")
+    public ResponseEntity<UserCountsDto> getCounts() {
+        return privateNoStore(userAdminService.getCounts());
+    }
+
+    /** Inspect: account, roles, recent payments and audit history (W7-12, audit D5). */
+    @GetMapping("/{id:\\d+}")
+    public ResponseEntity<UserAdminDetailDto> getUserDetail(@PathVariable Long id) {
+        return privateNoStore(userAdminService.getUserDetail(id));
     }
 
     @PutMapping("/{id}/status")

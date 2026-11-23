@@ -1,0 +1,24 @@
+@use '../../../../styles/portal-pages';
+@use '../../../../styles/portal-account';
+
+:host {
+  display: block;
+}
+
+// W7-12 (BR-24): a preference the server cannot store yet stays in place, disabled and labelled.
+.setting-note {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.setting-row--unavailable {
+  .text-btn:disabled,
+  .toggle:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .text-btn:disabled:hover {
+    text-decoration: none;
+  }
+}

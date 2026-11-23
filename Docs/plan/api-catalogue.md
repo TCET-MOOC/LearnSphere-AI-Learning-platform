@@ -110,7 +110,7 @@ Companion to [`../PLAN.md`](../PLAN.md) §6.2 (API conventions), [`waves.md`](wa
 | GET | `/api/admin/colleges/affiliations` | admin | Harden |  |
 | PUT | `/api/admin/colleges/affiliations/{requestId}/approve` | admin | Harden |  |
 | PUT | `/api/admin/colleges/affiliations/{requestId}/reject` | admin | Harden |  |
-| GET | `/api/admin/users` | admin | Harden |  |
+| GET | `/api/admin/users` | admin | Harden | W7-12: `PageResponse` (`page`, `size` ≤ 100, ordered by id); filters `role`/`status`/`search` apply before paging; `private, no-store` |
 | PUT | `/api/admin/users/{id}/status` | admin | Harden |  |
 | GET | `/api/admin/users/activity-summary` | admin | Harden |  |
 | GET | `/api/admin/users/top-teachers` | admin | Harden |  |
@@ -125,7 +125,7 @@ Companion to [`../PLAN.md`](../PLAN.md) §6.2 (API conventions), [`waves.md`](wa
 | PUT | `/api/users/{id}` | admin | Retire | Generic safe-patch can change e-mail/department; use `/users/me` or admin flow (audit D6; W1-11) |
 | GET | `/api/users/{id}/roles` | admin | Harden | Admin-only; audited |
 | POST | `/api/users/{id}/roles` | admin | Harden | Admin-only; unique constraint; audited (W1-07/W1-11) |
-| DELETE | `/api/users/{id}/roles/{roleId}` | admin | Harden | Admin-only; audited (W1-07/W1-11) |
+| DELETE | `/api/users/{id}/roles/{roleId}` | admin | Harden | Admin-only; audited (W1-07/W1-11); an admin cannot revoke their own `ADMIN` role → 409 (W7-12) |
 | PATCH | `/api/users/{id}/status` | admin | Retire | Ambiguous `isActive` mapping; use `/api/admin/users/{id}/status` (audit D8; W1-03/W1-11) |
 | GET | `/api/users/me` | self | Harden | Self only; real profile read; `private, no-store` (NFR-03) |
 | PUT | `/api/users/me` | self | Harden | Self only; profile save used by all roles (BR-24); invalidates public teacher-name cache if the teacher is visible in a course |
@@ -371,6 +371,8 @@ These are the only new endpoints this phase adds. They are ordered by wave.
 | W6-09 | GET | `/api/teacher/payouts/statement` | teacher | New | Own monthly statement + payout history (A-22) |
 | W6-11 | POST | `/api/admin/entitlements` | admin | New | Grant/revoke same-college override; audit (A-20) |
 | W6-11 | DELETE | `/api/admin/entitlements/{id}` | admin | New | Revoke an override; audit |
+| W7-12 | GET | `/api/admin/users/counts` | admin | New | Tab counts over every account (`all`, `students`, `teachers`, `flagged`, `blacklisted`); `private, no-store` |
+| W7-12 | GET | `/api/admin/users/{id}` | admin | New | Inspect: account row, role assignments, latest 10 ledger payments, latest 10 `USER` audit entries (no IP); 404 problem+json; `private, no-store` (audit D5) |
 | W8-10 | GET | `/api/courses/{id}` | public | Harden | Adds overview fields, server-computed stats and instructor summary (id, name, avatar, headline); `LIVE` only; public cache + `ETag`; invalidated after commit on course edit, enrolment, feedback, teacher-profile update; never e-mail/source/key (A-29; AC-25, AC-27) |
 | W8-10 | PUT | `/api/courses/{id}` | staff | Harden | Accepts overview fields; validates lengths, ≤10 list items, `previewContentId` is a `VIDEO` of this course; ownership helper; invalidates detail/outline cache (BR-28) |
 | W8-10 | PUT | `/api/teacher/courses/{id}` | staff | Harden | Same overview-field contract as `PUT /api/courses/{id}` (alias mapping) |

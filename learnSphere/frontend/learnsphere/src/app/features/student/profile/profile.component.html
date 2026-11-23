@@ -1,19 +1,19 @@
 <section class="portal-page">
   <header class="page-header">
     <div>
-      <div class="eyebrow">Student workspace</div>
-      <h1>Profile</h1>
-      <p>Manage how your identity and activity appear across LearnSphere.</p>
+      <div class="eyebrow">{{ copy.eyebrow }}</div>
+      <h1>{{ copy.title }}</h1>
+      <p>{{ copy.intro }}</p>
     </div>
     <div class="header-actions">
-      <span class="saved-toast" *ngIf="saved">Profile saved ✓</span>
+      <span class="saved-toast" *ngIf="saved">{{ copy.savedToast }}</span>
       <ng-container *ngIf="!editing">
-        <button id="profile-edit-btn" class="primary-btn" (click)="startEdit()" [disabled]="loading">Edit profile</button>
+        <button id="profile-edit-btn" class="primary-btn" (click)="startEdit()" [disabled]="loading">{{ copy.edit }}</button>
       </ng-container>
       <ng-container *ngIf="editing">
-        <button id="profile-cancel-btn" class="secondary-btn" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
+        <button id="profile-cancel-btn" class="secondary-btn" (click)="cancelEdit()" [disabled]="saving">{{ copy.cancel }}</button>
         <button id="profile-save-btn" class="primary-btn" (click)="save()" [disabled]="saving">
-          {{ saving ? 'Saving…' : 'Save profile' }}
+          {{ saving ? copy.saving : copy.save }}
         </button>
       </ng-container>
     </div>
@@ -26,9 +26,9 @@
   </div>
 
   <!-- Error alert -->
-  <div *ngIf="error" class="error-alert">
+  <div *ngIf="error" class="error-alert" role="alert">
     <span>⚠ {{ error }}</span>
-    <button (click)="error = null">✕</button>
+    <button type="button" [attr.aria-label]="copy.dismiss" (click)="error = null">✕</button>
   </div>
 
   <div class="profile-grid" *ngIf="user">
@@ -37,10 +37,10 @@
       <div class="profile-avatar">{{ initials }}</div>
       <h2>{{ name }}</h2>
       <p class="identity-detail">{{ detail }}</p>
-      <span class="verified" *ngIf="user.collegeVerificationStatus === 'VERIFIED'">✓ College verified</span>
+      <span class="verified" *ngIf="user.collegeVerificationStatus === 'VERIFIED'">{{ copy.verifiedBadge }}</span>
       <div class="profile-links">
-        <a routerLink="/student/settings">Account settings</a>
-        <a routerLink="/student/notifications">Notification centre</a>
+        <a routerLink="/student/settings">{{ copy.accountSettings }}</a>
+        <a routerLink="/student/notifications">{{ copy.notificationCentre }}</a>
       </div>
     </aside>
 
@@ -56,32 +56,32 @@
       <!-- Personal information card -->
       <section class="profile-card info-card">
         <div class="card-heading">
-          <h2>Personal information</h2>
-          <p>Your core account and public details.</p>
+          <h2>{{ copy.info.title }}</h2>
+          <p>{{ copy.info.intro }}</p>
         </div>
         <div class="form-grid">
           <label>
-            <span>Display name</span>
+            <span>{{ copy.info.name }}</span>
             <input id="profile-name-input"
                    [disabled]="!editing"
                    [(ngModel)]="editName"
-                   placeholder="Your name">
+                   [placeholder]="copy.info.namePlaceholder">
           </label>
           <label>
-            <span>Email address</span>
-            <input disabled [value]="email" placeholder="Email">
+            <span>{{ copy.info.email }}</span>
+            <input disabled [value]="email" [placeholder]="copy.info.emailPlaceholder">
           </label>
           <label class="full">
-            <span>Department · College</span>
-            <input disabled [value]="detail" placeholder="Department info">
+            <span>{{ copy.info.detail }}</span>
+            <input disabled [value]="detail" [placeholder]="copy.info.detailPlaceholder">
           </label>
           <label class="full">
-            <span>About</span>
+            <span>{{ copy.info.about }}</span>
             <textarea id="profile-bio-input"
                       rows="4"
                       [disabled]="!editing"
                       [(ngModel)]="editBio"
-                      placeholder="Write a short bio…"></textarea>
+                      [placeholder]="copy.info.aboutPlaceholder"></textarea>
           </label>
         </div>
       </section>
@@ -89,10 +89,10 @@
       <!-- Security card -->
       <section class="profile-card security-card">
         <div>
-          <h2>Account security</h2>
-          <p>Keep your account safe and up to date.</p>
+          <h2>{{ copy.security.title }}</h2>
+          <p>{{ copy.security.intro }}</p>
         </div>
-        <a routerLink="/student/settings" class="secondary-btn">Manage security</a>
+        <a routerLink="/student/settings" class="secondary-btn">{{ copy.security.manage }}</a>
       </section>
     </div>
   </div>

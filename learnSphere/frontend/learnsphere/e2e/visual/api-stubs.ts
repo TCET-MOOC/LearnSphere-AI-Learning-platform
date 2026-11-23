@@ -581,7 +581,7 @@ const AFFILIATIONS = [
   },
 ];
 
-const ADMIN_USERS = [
+export const ADMIN_USERS = [
   {
     id: 1,
     name: 'Aarav Sharma',
@@ -616,6 +616,31 @@ const ADMIN_USERS = [
     createdAt: '2026-02-11T09:00:00Z',
   },
 ];
+
+/** Role vocabulary with ids (`GET /roles`). */
+export const ROLES = [
+  { roleId: 1, name: 'STUDENT' },
+  { roleId: 2, name: 'TEACHER' },
+  { roleId: 3, name: 'ADMIN' },
+];
+
+/** Inspect detail (`GET /admin/users/{id}`, W7-12): roles, recent payments, audit history. */
+export function adminUserDetail(user: (typeof ADMIN_USERS)[number]) {
+  const role = ROLES.find((r) => r.name === user.role) ?? ROLES[0];
+  return {
+    user,
+    roles: [{ id: 100 + user.id, userId: user.id, roleId: role.roleId, roleName: role.name }],
+    payments: user.role === 'STUDENT'
+      ? [{
+          id: 900 + user.id, courseId: 1, courseTitle: 'Applied Machine Learning', amount: 499, currency: 'INR',
+          status: 'SUCCESS', gatewayPaymentId: `pay_visual${user.id}`, createdAt: '2026-09-01T10:00:00Z', paidAt: '2026-09-01T10:01:00Z',
+        }]
+      : [],
+    audit: user.status === 'FLAGGED'
+      ? [{ id: 70, actorId: 3, action: 'USER_STATUS_CHANGED', before: { status: 'ACTIVE' }, after: { status: 'FLAGGED' }, createdAt: '2026-10-01T09:00:00Z' }]
+      : [],
+  };
+}
 
 const FLAGGED = [
   {
@@ -812,7 +837,12 @@ function resolveFixture(path: string): unknown {
     case '/admin/colleges/affiliations':
       return AFFILIATIONS;
     case '/admin/users':
-      return ADMIN_USERS;
+      // W7-12: the list is a PageResponse; tabs read /admin/users/counts.
+      return { content: ADMIN_USERS, page: 0, size: 20, totalElements: ADMIN_USERS.length, totalPages: 1 };
+    case '/admin/users/counts':
+      return { all: 3, students: 2, teachers: 1, flagged: 1, blacklisted: 0 };
+    case '/roles':
+      return ROLES;
     case '/admin/users/activity-summary':
       return { totalUsers: 6452, dailyActive: 812, weeklyActive: 3240, inactive30Days: 418 };
     case '/admin/users/top-teachers':
@@ -873,6 +903,10 @@ function resolveFixture(path: string): unknown {
   }
 
   if (path === '/student/courses/1' || path === '/courses/1') return COURSES[0];
+  if (/^\/admin\/users\/\d+$/.test(path)) {
+    const id = Number(path.split('/').pop());
+    return adminUserDetail(ADMIN_USERS.find((u) => u.id === id) ?? ADMIN_USERS[0]);
+  }
   if (/^\/student\/courses\/\d+$/.test(path)) return COURSES[0];
   if (/^\/courses\/\d+$/.test(path)) return COURSES[0];
   if (/^\/courses\/\d+\/modules$/.test(path)) return MODULES;

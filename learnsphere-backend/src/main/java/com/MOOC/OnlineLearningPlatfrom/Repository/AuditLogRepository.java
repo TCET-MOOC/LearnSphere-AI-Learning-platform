@@ -11,4 +11,7 @@ import java.util.List;
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long>, JpaSpecificationExecutor<AuditLog> {
 
     List<AuditLog> findByResourceTypeAndResourceIdOrderByIdAsc(String resourceType, Long resourceId);
+
+    /** Latest entries for one resource, newest first (admin Inspect, W7-12). */
+    List<AuditLog> findTop10ByResourceTypeAndResourceIdOrderByIdDesc(String resourceType, Long resourceId);
 }

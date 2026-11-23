@@ -9,8 +9,11 @@ import com.MOOC.OnlineLearningPlatfrom.Exception.ResourceNotFoundException;
 import com.MOOC.OnlineLearningPlatfrom.Repository.RoleRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserAccountRepository;
 import com.MOOC.OnlineLearningPlatfrom.Repository.UserRoleRepository;
+import com.MOOC.OnlineLearningPlatfrom.Security.CustomUserDetails;
 import com.MOOC.OnlineLearningPlatfrom.Service.AuditService;
 import com.MOOC.OnlineLearningPlatfrom.Service.UserRoleService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,6 +90,7 @@ public class UserRoleServiceImpl implements UserRoleService {
     public void removeRoleFromUser(Long userId, Long roleId) {
         UserRole assignment = userRoleRepository.findByUser_UserIdAndRole_RoleId(userId, roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role assignment not found"));
+        refuseOwnAdminRevoke(assignment);
         auditService.record(
                 AuditService.USER_ROLE_REVOKED,
                 AuditService.RESOURCE_USER,
@@ -100,6 +104,7 @@ public class UserRoleServiceImpl implements UserRoleService {
     @Transactional
     public void deleteUserRole(Long id) {
         UserRole assignment = findAssignment(id);
+        refuseOwnAdminRevoke(assignment);
         UserAccount user = assignment.getUser();
         Role role = assignment.getRole();
         auditService.record(
@@ -109,6 +114,24 @@ public class UserRoleServiceImpl implements UserRoleService {
                 roleSnapshot(user, role),
                 null);
         userRoleRepository.delete(assignment);
+    }
+
+    /**
+     * An administrator may not remove their own ADMIN role (W7-12): the role UI sits
+     * in Inspect, and a slip there would lock the acting admin out with no way back.
+     */
+    private static void refuseOwnAdminRevoke(UserRole assignment) {
+        if (assignment.getUser() == null || assignment.getRole() == null
+                || !"ADMIN".equals(assignment.getRole().getName())) {
+            return;
+        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null
+                && authentication.getPrincipal() instanceof CustomUserDetails details
+                && details.getUser() != null
+                && assignment.getUser().getUserId().equals(details.getUser().getUserId())) {
+            throw new ConflictException("You cannot remove your own admin role.");
+        }
     }
 
     private UserRole findAssignment(Long id) {

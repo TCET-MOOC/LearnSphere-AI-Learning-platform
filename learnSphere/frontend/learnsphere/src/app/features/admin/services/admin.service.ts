@@ -15,6 +15,67 @@ export interface AdminUserRecord {
   createdAt: string;
 }
 
+/** The backend's standard page envelope (`Dto/PageResponse`, P0-09). */
+export interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface AdminUserQuery {
+  role?: string;
+  status?: string;
+  search?: string;
+  page: number;
+  size: number;
+}
+
+export interface AdminUserCounts {
+  all: number;
+  students: number;
+  teachers: number;
+  flagged: number;
+  blacklisted: number;
+}
+
+export interface RoleRecord {
+  roleId: number;
+  name: string;
+}
+
+export interface RoleAssignment {
+  id: number;
+  userId: number;
+  roleId: number;
+  roleName: string;
+}
+
+export interface AdminUserDetail {
+  user: AdminUserRecord;
+  roles: RoleAssignment[];
+  payments: {
+    id: number;
+    courseId: number | null;
+    courseTitle: string | null;
+    amount: number | null;
+    currency: string | null;
+    status: string | null;
+    gatewayPaymentId: string | null;
+    createdAt: string | null;
+    paidAt: string | null;
+  }[];
+  audit: {
+    id: number;
+    actorId: number | null;
+    action: string;
+    before: Record<string, unknown> | null;
+    after: Record<string, unknown> | null;
+    createdAt: string;
+  }[];
+}
+
 export interface UserActivitySummary {
   totalUsers: number;
   dailyActive: number;
@@ -89,15 +150,41 @@ export class AdminService {
   }
 
   /**
-   * Fetches users for the User Management screen, optionally filtered.
+   * One page of users for User Management (W7-12: `PageResponse`; filters apply before paging).
    */
-  getUsers(filters?: { role?: string; status?: string; search?: string }): Observable<AdminUserRecord[]> {
+  getUsers(query: AdminUserQuery): Observable<PageResponse<AdminUserRecord>> {
     const params = new URLSearchParams();
-    if (filters?.role) params.set('role', filters.role);
-    if (filters?.status) params.set('status', filters.status);
-    if (filters?.search) params.set('search', filters.search);
-    const query = params.toString();
-    return this.apiService.get<AdminUserRecord[]>(`/admin/users${query ? '?' + query : ''}`);
+    if (query.role) params.set('role', query.role);
+    if (query.status) params.set('status', query.status);
+    if (query.search) params.set('search', query.search);
+    params.set('page', String(query.page));
+    params.set('size', String(query.size));
+    return this.apiService.get<PageResponse<AdminUserRecord>>(`/admin/users?${params.toString()}`);
+  }
+
+  /** Tab counts over every account (W7-12). */
+  getUserCounts(): Observable<AdminUserCounts> {
+    return this.apiService.get<AdminUserCounts>('/admin/users/counts');
+  }
+
+  /** Inspect: account, role assignments, recent payments and audit history (W7-12, audit D5). */
+  getUserDetail(userId: number): Observable<AdminUserDetail> {
+    return this.apiService.get<AdminUserDetail>(`/admin/users/${userId}`);
+  }
+
+  /** The role vocabulary with ids, for assigning roles. */
+  getRoles(): Observable<RoleRecord[]> {
+    return this.apiService.get<RoleRecord[]>('/roles');
+  }
+
+  /** Assigns a role (admin-only, audited; BR-03). */
+  assignRole(userId: number, roleId: number): Observable<RoleAssignment> {
+    return this.apiService.post<RoleAssignment>(`/users/${userId}/roles`, { roleId });
+  }
+
+  /** Revokes a role (admin-only, audited; an admin cannot revoke their own ADMIN role). */
+  revokeRole(userId: number, roleId: number): Observable<void> {
+    return this.apiService.delete<void>(`/users/${userId}/roles/${roleId}`);
   }
 
   /**

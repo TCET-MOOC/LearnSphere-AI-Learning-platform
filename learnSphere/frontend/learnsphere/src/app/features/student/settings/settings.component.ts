@@ -1,112 +1,14 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { AuthService } from '../../../core/auth/auth.service';
-import { getInitials } from '../../../core/utils/avatar.util';
+import { AccountSettingsComponent } from '@shared/components/account-settings/account-settings.component';
+import { STUDENT_SETTINGS_COPY } from '@core/content/student-settings.content';
 
-interface SettingRow { label: string; hint: string; value?: string; action?: string; enabled?: boolean; }
-interface SettingsPanel { title: string; description: string; rows: SettingRow[]; }
-
-@Component({ selector: 'app-student-settings', standalone: true, imports: [CommonModule], templateUrl: './settings.component.html', styleUrls: ['./settings.component.scss'] })
+/** Student settings (W7-12): the shared account settings with this role's rows and copy. */
+@Component({
+  selector: 'app-student-settings',
+  standalone: true,
+  imports: [AccountSettingsComponent],
+  template: '<app-account-settings [copy]="copy"></app-account-settings>',
+})
 export class SettingsComponent {
-  constructor(private authService: AuthService) {}
-  
-  get name(): string { return this.authService.currentUser?.fullName || 'Student'; }
-  get email(): string { return this.authService.currentUser?.email || ''; }
-  get initials(): string { return getInitials(this.name); }
-  
-  readonly tabs = ['General', 'Notifications', 'Privacy & security', 'Account'];
-  activeTab = 'General';
-  saved = false;
-  panels: Record<string, SettingsPanel> = {
-  "General": {
-    "title": "Learning preferences",
-    "description": "Choose defaults for your classroom experience.",
-    "rows": [
-      {
-        "label": "Video quality",
-        "hint": "Default streaming quality",
-        "value": "Auto",
-        "action": "Change"
-      },
-      {
-        "label": "Playback speed",
-        "hint": "Default lecture speed",
-        "value": "1×",
-        "action": "Change"
-      },
-      {
-        "label": "Language",
-        "hint": "Interface and captions",
-        "value": "English",
-        "action": "Change"
-      }
-    ]
-  },
-  "Notifications": {
-    "title": "Notification preferences",
-    "description": "Choose which learning updates reach you.",
-    "rows": [
-      {
-        "label": "New lecture uploaded",
-        "hint": "When an enrolled teacher uploads",
-        "enabled": true
-      },
-      {
-        "label": "Assessment reminders",
-        "hint": "48 and 24 hours before a deadline",
-        "enabled": true
-      },
-      {
-        "label": "Leaderboard changes",
-        "hint": "When your rank moves",
-        "enabled": false
-      }
-    ]
-  },
-  "Privacy & security": {
-    "title": "Privacy & security",
-    "description": "Control visibility and protect your account.",
-    "rows": [
-      {
-        "label": "Leaderboard visibility",
-        "hint": "Visible to batchmates",
-        "enabled": true
-      },
-      {
-        "label": "Profile discoverability",
-        "hint": "Allow classmates to find your profile",
-        "enabled": true
-      },
-      {
-        "label": "Two-factor authentication",
-        "hint": "Add an extra sign-in step",
-        "enabled": false
-      }
-    ]
-  },
-  "Account": {
-    "title": "Account management",
-    "description": "Manage data and account access.",
-    "rows": [
-      {
-        "label": "College email",
-        "hint": "Verified academic identity",
-        "value": "Verified"
-      },
-      {
-        "label": "Download my data",
-        "hint": "Receive a copy of your LearnSphere data",
-        "action": "Request"
-      },
-      {
-        "label": "Password",
-        "hint": "Last changed 30 days ago",
-        "action": "Change"
-      }
-    ]
-  }
-};
-  toggle(row: SettingRow): void { row.enabled = !row.enabled; this.showSaved(); }
-  showSaved(): void { this.saved = true; window.setTimeout(() => this.saved = false, 1600); }
+  readonly copy = STUDENT_SETTINGS_COPY;
 }
-

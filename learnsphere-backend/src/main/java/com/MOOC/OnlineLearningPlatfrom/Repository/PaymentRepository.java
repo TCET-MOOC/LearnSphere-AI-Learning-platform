@@ -11,6 +11,8 @@ import java.util.Optional;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByUser_UserIdOrderByCreatedAtDesc(Long userId);
+    /** Latest ledger rows for one account, newest first (admin Inspect, W7-12). */
+    List<Payment> findTop10ByUser_UserIdOrderByCreatedAtDescIdDesc(Long userId);
     Optional<Payment> findByGatewayOrderId(String gatewayOrderId);
     Optional<Payment> findByGatewayPaymentId(String gatewayPaymentId);
     boolean existsByGatewayPaymentId(String gatewayPaymentId);
