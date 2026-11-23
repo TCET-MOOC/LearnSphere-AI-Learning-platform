@@ -471,3 +471,55 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+// W7-13 (responsive fix, user-approved): below 768 px the room stacked nothing — the chat ran
+// off the right edge and the header chips overflowed. Phones get a scrolling page: the header
+// wraps, the stream sits on top and the chat takes the full width underneath. 768/1280 unchanged.
+@media (max-width: 767.98px) {
+  .live-room-container {
+    height: auto;
+    min-height: calc(100vh - 70px);
+
+    .room-topbar {
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px 16px;
+
+      .left-info {
+        flex-wrap: wrap;
+        gap: 10px;
+        min-width: 0;
+
+        .session-meta {
+          flex-wrap: wrap;
+          gap: 8px;
+          min-width: 0;
+        }
+      }
+
+      .right-stats {
+        margin-left: auto;
+      }
+    }
+
+    .room-body {
+      flex-direction: column;
+      overflow: visible;
+
+      .stream-viewport {
+        flex: none;
+        padding: 12px;
+
+        .video-container {
+          min-height: 260px;
+        }
+      }
+
+      .interactive-sidebar {
+        width: 100%;
+        min-height: 420px;
+        border-left: 0;
+      }
+    }
+  }
+}

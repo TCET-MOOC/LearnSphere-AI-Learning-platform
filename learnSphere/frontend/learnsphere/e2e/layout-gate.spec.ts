@@ -6,14 +6,15 @@
  */
 import { test, expect, Page } from '@playwright/test';
 import { CAPTURED_CONTRACTS } from './visual/screen-contracts';
-import { installApiStubs, seedSession } from './visual/api-stubs';
+import { LIVE_ROOM_STATES, installApiStubs, seedSession, stubLiveSession } from './visual/api-stubs';
 import { auditLayout } from './layout-audit';
 
 type Role = 'student' | 'teacher' | 'admin';
 
-async function open(page: Page, route: string, role: Role | 'public', width = 1280) {
+async function open(page: Page, route: string, role: Role | 'public', width = 1280, stub?: (page: Page) => Promise<void>) {
   await page.setViewportSize({ width, height: width === 360 ? 800 : width === 768 ? 1024 : 900 });
   await installApiStubs(page, role);
+  if (stub) await stub(page); // layered after the table: later routes win
   await seedSession(page, role, 'light');
   await page.goto(route, { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('networkidle');
@@ -30,6 +31,29 @@ for (const width of [360, 768, 1280]) {
     }
   });
 }
+
+// W7-13: the live room (`/student/live/:id`) is not a route contract, so its states are gated here.
+for (const width of [360, 768, 1280]) {
+  test.describe(`Live room at ${width} px: no overlaps, cut-offs or sideways scroll`, () => {
+    for (const [name, state] of Object.entries(LIVE_ROOM_STATES)) {
+      test(`live room — ${name}`, async ({ page }) => {
+        await open(page, '/student/live/1', 'student', width, (p) => stubLiveSession(p, state));
+        expect(await auditLayout(page)).toEqual([]);
+      });
+    }
+  });
+}
+
+test('live room at 360 px: the stream sits above a full-width chat (W7-13)', async ({ page }) => {
+  await open(page, '/student/live/1', 'student', 360, (p) => stubLiveSession(p, LIVE_ROOM_STATES.connecting));
+  const stage = (await page.locator('.session-state-card').first().boundingBox())!;
+  const tabs = page.locator('.live-room-container .sidebar-tabs');
+  const tabsBox = (await tabs.boundingBox())!;
+  expect(tabsBox.y).toBeGreaterThanOrEqual(stage.y + stage.height - 1); // chat below the stream
+  expect(tabsBox.x).toBeGreaterThanOrEqual(0);
+  expect(tabsBox.x + tabsBox.width).toBeLessThanOrEqual(360 + 0.5); // and inside the screen
+  await expect(page.getByRole('button', { name: /Live Notes/ })).toBeInViewport();
+});
 
 test.describe('Phone layouts the detector cannot judge (360 px)', () => {
   test('landing: no section panel is wider than the screen (W7-09)', async ({ page }) => {

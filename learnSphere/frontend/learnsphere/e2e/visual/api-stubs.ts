@@ -1112,6 +1112,37 @@ export async function installApiStubs(page: Page, role: keyof typeof VISUAL_USER
   return misses;
 }
 
+/**
+ * One live session in a chosen state for `/student/live/:id` (W7-13 state baselines and the
+ * layout gate): SCHEDULED, ENDED, or LIVE with no playback descriptor yet ("connecting").
+ * Layer it after `installApiStubs` (later routes win).
+ */
+export async function stubLiveSession(page: Page, overrides: Record<string, unknown>): Promise<void> {
+  await page.route(/\/api\/student\/live-sessions\/\d+$/, (route) =>
+    route.request().method() === 'OPTIONS'
+      ? route.fallback()
+      : route.fulfill({
+          headers: {
+            ...CORS_HEADERS,
+            'access-control-allow-origin': route.request().headers()['origin'] ?? 'http://127.0.0.1:4200',
+            'access-control-allow-credentials': 'true',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: 1, courseId: 1, courseTitle: 'Applied Machine Learning', title: 'Model evaluation clinic',
+            instructorName: 'Meera Iyer', scheduledAt: '2026-10-26T15:00:00Z', status: 'SCHEDULED',
+            playbackDescriptor: null, joinUrl: null, ...overrides,
+          }),
+        }));
+}
+
+/** The live-room states captured by the visual and layout gates. */
+export const LIVE_ROOM_STATES = {
+  scheduled: { status: 'SCHEDULED' },
+  ended: { status: 'ENDED', scheduledAt: '2026-10-24T15:00:00Z' },
+  connecting: { status: 'LIVE', scheduledAt: '2026-10-25T08:30:00Z' },
+} as const;
+
 /** Clear the service-worker-free storage between tests. */
 export async function seedSession(
   page: Page,

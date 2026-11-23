@@ -145,6 +145,12 @@ jobs:
       - name: No dev-machine URLs in the production bundle (W7-03)
         run: npm run check:prod-urls
 
+      - name: Bundle budget — initial JS <= 500 kB gzip, lazy chunk <= 250 kB (W7-13, NFR-02)
+        run: npm run check:bundle-budget
+
+      - name: Hashed assets immutable, shell no-cache (W7-13)
+        run: npm run check:static-cache
+
       - name: Upload frontend build
         if: always()
         uses: actions/upload-artifact@v4

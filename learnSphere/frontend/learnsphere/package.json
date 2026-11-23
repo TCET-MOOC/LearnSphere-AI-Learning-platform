@@ -13,6 +13,8 @@
     "e2e:visual": "playwright test --project=visual",
     "e2e:visual:update": "playwright test --project=visual --update-snapshots",
     "check:prod-urls": "node scripts/check-prod-urls.mjs",
+    "check:bundle-budget": "node scripts/check-bundle-budget.mjs",
+    "check:static-cache": "node scripts/check-static-cache.mjs",
     "check:toolchain": "node scripts/check-toolchain.mjs",
     "lint:a11y": "node scripts/a11y-lint.mjs",
     "lint:copy": "node scripts/copy-ratchet.mjs",
