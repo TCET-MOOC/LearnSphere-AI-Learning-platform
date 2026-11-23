@@ -1,0 +1,91 @@
+@use '../../../../styles/portal-pages';
+
+// Teacher assessments (SCR-35, W7-16): the shared portal page shell; tokens only (DS-12 console zone).
+:host {
+  display: block;
+}
+
+.assessments-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+
+  h2 {
+    margin: 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+  }
+}
+
+.assessments-error,
+.grading-card__error {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--status-red-text);
+}
+
+.grading-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+
+  &__block {
+    h3 {
+      margin: 0 0 var(--space-1);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-secondary);
+    }
+
+    p {
+      margin: 0;
+      font-size: var(--font-size-base);
+      color: var(--text-primary);
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__answer {
+    white-space: pre-wrap;
+    padding: var(--space-3);
+    background: var(--bg-surface-elevated);
+    border-radius: var(--border-radius-md);
+  }
+
+  &__grade {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+
+    input {
+      width: 88px;
+      padding: var(--space-2);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font: inherit;
+    }
+  }
+}

@@ -1,0 +1,51 @@
+<section class="portal-page">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">{{ copy.eyebrow }}</div>
+      <h1>{{ copy.title }}</h1>
+      <p>{{ copy.intro }}</p>
+    </div>
+    <div class="header-actions">
+      <a class="primary-btn" routerLink="/teacher/upload">{{ copy.createTest }}</a>
+    </div>
+  </header>
+
+  <p class="assessments-error" role="alert" *ngIf="loadError">{{ copy.loadFailed }}</p>
+
+  <section class="assessments-section" *ngIf="!loading" aria-labelledby="pending-title">
+    <h2 id="pending-title">{{ copy.pendingTitle }}</h2>
+    <app-empty-state *ngIf="pending.length === 0" [title]="copy.pendingEmptyTitle" [subtitle]="copy.pendingEmptyBody"></app-empty-state>
+
+    <article class="grading-card" *ngFor="let a of pending">
+      <div class="grading-card__meta">
+        <strong>{{ a.testTitle }}</strong>
+        <span>{{ a.courseTitle }}</span>
+        <span>{{ copy.submittedBy(a.studentName || copy.unknownStudent) }}<ng-container *ngIf="a.submittedAt"> · {{ a.submittedAt | date:'medium' }}</ng-container></span>
+      </div>
+      <div class="grading-card__block">
+        <h3>{{ copy.questionLabel }}</h3>
+        <p>{{ a.questionText }}</p>
+      </div>
+      <div class="grading-card__block">
+        <h3>{{ copy.answerLabel }}</h3>
+        <p class="grading-card__answer">{{ a.answerText || copy.noAnswer }}</p>
+      </div>
+      <div class="grading-card__grade">
+        <label [for]="'marks-' + a.answerId">{{ copy.marksLabel }}</label>
+        <input type="number" [id]="'marks-' + a.answerId" min="0" [max]="max(a)" step="0.5" class="tnum"
+               [(ngModel)]="marks[a.answerId]" [attr.aria-describedby]="'max-' + a.answerId" />
+        <span class="tnum" [id]="'max-' + a.answerId">{{ copy.outOf(max(a)) }}</span>
+        <button type="button" class="primary-btn" [disabled]="savingId === a.answerId" (click)="save(a)">
+          {{ savingId === a.answerId ? copy.saving : copy.save }}
+        </button>
+      </div>
+      <p class="grading-card__error" role="alert" *ngIf="errors[a.answerId]">{{ errors[a.answerId] }}</p>
+    </article>
+  </section>
+
+  <section class="assessments-section" *ngIf="!loading" aria-labelledby="tests-title">
+    <h2 id="tests-title">{{ copy.testsTitle }}</h2>
+    <app-empty-state *ngIf="tests.length === 0" [title]="copy.testsEmptyTitle" [subtitle]="copy.testsEmptyBody"></app-empty-state>
+    <app-data-table *ngIf="tests.length > 0" [columns]="columns" [data]="tests" [label]="copy.testsTitle"></app-data-table>
+  </section>
+</section>

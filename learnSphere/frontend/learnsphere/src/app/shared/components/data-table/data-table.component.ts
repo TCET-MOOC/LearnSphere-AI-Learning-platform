@@ -17,7 +17,7 @@ export interface TableColumn {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="data-table-container">
+    <div class="data-table-container" tabindex="0" role="region" [attr.aria-label]="label">
       <table class="data-table">
         <thead>
           <tr>
@@ -33,7 +33,7 @@ export interface TableColumn {
         </thead>
         <tbody>
           <tr *ngFor="let row of paginatedData">
-            <td *ngFor="let col of columns">
+            <td *ngFor="let col of columns" [class.data-table__num]="col.type === 'number' || col.type === 'percent' || col.type === 'progress'">
               <ng-container [ngSwitch]="col.type">
                 
                 <ng-container *ngSwitchCase="'avatar'">
@@ -85,6 +85,10 @@ export interface TableColumn {
   `,
   styles: [`
     @import '../../../../styles/variables';
+
+    .data-table__num {
+      font-variant-numeric: tabular-nums; /* DS-12: numbers line up */
+    }
 
     .data-table-container {
       width: 100%;
@@ -196,6 +200,8 @@ export class DataTableComponent implements OnInit, OnChanges {
   @Input() columns: TableColumn[] = [];
   @Input() data: any[] = [];
   @Input() pageSize: number = 20;
+  /** Accessible name of the scrollable table region (W7-16: keyboard users can scroll it). */
+  @Input() label = '';
 
   @Output() rowAction = new EventEmitter<{ row: any; action: string }>();
 

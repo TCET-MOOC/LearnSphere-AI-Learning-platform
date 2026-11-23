@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { SidebarService } from '../../../core/services/sidebar.service';
 import { Observable } from 'rxjs';
 import { A11yCopy } from '@core/content/a11y.content';
+import { TEACHER_SIDEBAR_COPY } from '@core/content/teacher-sidebar.content';
 
 @Component({
   selector: 'app-teacher-sidebar',
@@ -14,6 +15,7 @@ import { A11yCopy } from '@core/content/a11y.content';
 })
 export class TeacherSidebarComponent {
   protected readonly a11y = A11yCopy.text;
+  protected readonly nav = TEACHER_SIDEBAR_COPY;
   isCollapsed$: Observable<boolean>;
   isMobileOpen$: Observable<boolean>;
 
@@ -35,6 +37,7 @@ export class TeacherSidebarComponent {
     { label: 'My courses', icon: 'courses', route: '/teacher/courses' },
     { label: 'Upload content', icon: 'upload', route: '/teacher/upload' },
     { label: 'Student standings', icon: 'standings', route: '/teacher/students' },
+    { label: 'Assessments', icon: 'assessments', route: '/teacher/assessments' },
     { label: 'Messages', icon: 'messages', route: '/teacher/messages' },
     { label: 'Discussion', icon: 'discussion', route: '/teacher/discuss' },
     { label: 'Live sessions', icon: 'live', route: '/teacher/live' },

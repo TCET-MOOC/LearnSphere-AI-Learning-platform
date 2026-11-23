@@ -77,6 +77,7 @@ export const MOBILE_NAV: Record<MobileRole, MobileNavConfig> = {
     groups: [
       { title: 'Teach', layout: 'tiles', items: [
         { label: 'Upload', route: '/teacher/upload', icon: 'upload' },
+        { label: 'Assessments', route: '/teacher/assessments', icon: 'file-question' },
         { label: 'Students', route: '/teacher/students', icon: 'users' },
         { label: 'Discussion', route: '/teacher/discussion', icon: 'message-circle' },
         { label: 'Trending', route: '/teacher/trending', icon: 'trending-up' }

@@ -617,6 +617,21 @@ export const ADMIN_USERS = [
   },
 ];
 
+/** Teacher assessments (SCR-35, W7-16): tests with counts and the TEXT answers to grade. */
+export const TEACHER_TESTS = [
+  { testId: 1, title: 'Supervised learning check', courseId: 1, courseTitle: 'Applied Machine Learning', lectureId: 1,
+    lectureTitle: 'Linear models', questionCount: 4, textQuestionCount: 1, pendingCount: 1 },
+  { testId: 2, title: 'Design tokens quiz', courseId: 2, courseTitle: 'Design Systems in Practice', lectureId: null,
+    lectureTitle: null, questionCount: 6, textQuestionCount: 0, pendingCount: 0 },
+];
+export const PENDING_ANSWERS = [
+  { answerId: 31, attemptId: 7, testId: 1, testTitle: 'Supervised learning check', courseTitle: 'Applied Machine Learning',
+    studentId: 1, studentName: 'Aarav Sharma', questionId: 12,
+    questionText: 'Why do we split the data before scaling it?', maxMarks: 10,
+    answerText: 'So the test set stays unseen: scaling statistics come from the training split only.',
+    submittedAt: '2026-10-24T10:20:00Z' },
+];
+
 /** Role vocabulary with ids (`GET /roles`). */
 export const ROLES = [
   { roleId: 1, name: 'STUDENT' },
@@ -839,6 +854,10 @@ function resolveFixture(path: string): unknown {
     case '/admin/users':
       // W7-12: the list is a PageResponse; tabs read /admin/users/counts.
       return { content: ADMIN_USERS, page: 0, size: 20, totalElements: ADMIN_USERS.length, totalPages: 1 };
+    case '/teacher/assessments':
+      return TEACHER_TESTS;
+    case '/teacher/assessments/pending':
+      return PENDING_ANSWERS;
     case '/admin/users/counts':
       return { all: 3, students: 2, teachers: 1, flagged: 1, blacklisted: 0 };
     case '/roles':

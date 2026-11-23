@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { BarChart2, LucideAngularModule, icons } from 'lucide-angular';
+import { BarChart2, FileQuestion, LucideAngularModule, icons } from 'lucide-angular';
 import { MobileNavComponent } from './mobile-nav.component';
 import { AuthService } from '@core/auth/auth.service';
 import { ThemeService } from '@core/services/theme.service';
@@ -20,7 +20,7 @@ describe('MobileNavComponent (mobile shell)', () => {
     STUDENT: ['/student/dashboard', '/student/courses', '/student/explore', '/student/notes', '/student/assessments',
       '/student/bookmarks', '/student/leaderboard', '/student/discussion', '/student/live', '/student/certificates',
       '/student/purchases', '/student/settings', '/student/profile', '/student/messages', '/student/announcements'],
-    TEACHER: ['/teacher/dashboard', '/teacher/courses', '/teacher/upload', '/teacher/students', '/teacher/messages',
+    TEACHER: ['/teacher/dashboard', '/teacher/courses', '/teacher/upload', '/teacher/assessments', '/teacher/students', '/teacher/messages',
       '/teacher/discussion', '/teacher/live', '/teacher/trending', '/teacher/royalties', '/teacher/settings',
       '/teacher/profile', '/teacher/announcements'],
     ADMIN: ['/admin/dashboard', '/admin/users', '/admin/courses', '/admin/colleges', '/admin/flagged', '/admin/sentiment',
@@ -32,7 +32,7 @@ describe('MobileNavComponent (mobile shell)', () => {
     auth = { logout: vi.fn(), currentUser: { fullName: 'Aarav Sharma', email: 'student@learnsphere.test', role } };
     theme = { toggleTheme: vi.fn(), isDarkMode: false } as any;
     await TestBed.configureTestingModule({
-      imports: [MobileNavComponent, LucideAngularModule.pick({ ...icons, BarChart2 })],
+      imports: [MobileNavComponent, LucideAngularModule.pick({ ...icons, BarChart2, FileQuestion })],
       providers: [
         provideRouter([{ path: '**', children: [] }]),
         { provide: AuthService, useValue: auth },

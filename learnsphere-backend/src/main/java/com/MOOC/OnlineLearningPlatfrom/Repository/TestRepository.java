@@ -10,6 +10,8 @@ import java.util.Optional;
 @Repository
 public interface TestRepository extends JpaRepository<Test, Long> {
     List<Test> findByCourse_Id(Long courseId);
+    /** Tests on the courses one teacher owns (W7-16 teacher assessments screen). */
+    List<Test> findByCourse_Teacher_UserIdOrderByTestIdAsc(Long teacherId);
     List<Test> findByLecture_Id(Long lectureId);
     List<Test> findByCourse_IdAndIsRemedial(Long courseId, Boolean isRemedial);
 

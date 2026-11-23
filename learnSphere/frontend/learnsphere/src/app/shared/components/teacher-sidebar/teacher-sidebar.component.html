@@ -35,6 +35,11 @@
       <span class="nav-label">Student standings</span>
     </a>
 
+    <a routerLink="/teacher/assessments" routerLinkActive="active" class="nav-item" [title]="(isCollapsed$ | async) ? nav.assessments : ''">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="m9 14 2 2 4-4"></path></svg>
+      <span class="nav-label">{{ nav.assessments }}</span>
+    </a>
+
     <div style="width: 100%; height: 1px; background: #E8E7EF; margin: 8px 0;"></div>
 
     <a routerLink="/teacher/messages" routerLinkActive="active" class="nav-item" [title]="(isCollapsed$ | async) ? 'Messages' : ''">

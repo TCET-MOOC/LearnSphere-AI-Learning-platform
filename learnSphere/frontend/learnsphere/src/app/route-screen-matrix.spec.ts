@@ -13,9 +13,7 @@ const SPEC_SCREENS = [
 ].map((n) => `SCR-${String(n).padStart(2, '0')}`);
 
 /** Contracts with no route yet, and why. Remove an entry when its screen gets a route. */
-const KNOWN_GAPS: Record<string, string> = {
-  'SCR-35': 'teacher assessments: authoring lives in Upload (quiz builder); no grading screen calls PATCH /api/answers/{id}/grade',
-};
+const KNOWN_GAPS: Record<string, string> = {};
 
 /** path → screen. `alias` entries are redirects kept for old links; they render no screen of their own. */
 const MATRIX: Record<string, { scr: string; alias?: true }> = {
@@ -62,6 +60,7 @@ const MATRIX: Record<string, { scr: string; alias?: true }> = {
   'teacher/courses/new': { scr: 'SCR-32' },
   'teacher/courses/:id/manage': { scr: 'SCR-32' },
   'teacher/upload': { scr: 'SCR-33' },
+  'teacher/assessments': { scr: 'SCR-35' },
   'teacher/discussion': { scr: 'SCR-19' },
   'teacher/messages': { scr: 'SCR-23' },
   'teacher/live': { scr: 'SCR-36' },

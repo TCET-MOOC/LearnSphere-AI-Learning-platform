@@ -54,6 +54,7 @@ const EXPECTED: Row[] = [
   ['teacher/courses/new', 'CourseManagementComponent', 'authGuard,roleGuard', 'TEACHER'],
   ['teacher/courses/:id/manage', 'CourseManagementComponent', 'authGuard,roleGuard', 'TEACHER'],
   ['teacher/upload', 'UploadComponent', 'authGuard,roleGuard', 'TEACHER'],
+  ['teacher/assessments', 'TeacherAssessmentsComponent', 'authGuard,roleGuard', 'TEACHER'],
   ['teacher/discussion', 'DiscussionComponent', 'authGuard,roleGuard', 'TEACHER'],
   ['teacher/messages', 'MessagesComponent', 'authGuard,roleGuard', 'TEACHER'],
   ['teacher/live', 'LiveComponent', 'authGuard,roleGuard', 'TEACHER'],

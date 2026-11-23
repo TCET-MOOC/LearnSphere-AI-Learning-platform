@@ -373,6 +373,8 @@ These are the only new endpoints this phase adds. They are ordered by wave.
 | W6-11 | DELETE | `/api/admin/entitlements/{id}` | admin | New | Revoke an override; audit |
 | W7-12 | GET | `/api/admin/users/counts` | admin | New | Tab counts over every account (`all`, `students`, `teachers`, `flagged`, `blacklisted`); `private, no-store` |
 | W7-12 | GET | `/api/admin/users/{id}` | admin | New | Inspect: account row, role assignments, latest 10 ledger payments, latest 10 `USER` audit entries (no IP); 404 problem+json; `private, no-store` (audit D5) |
+| W7-16 | GET | `/api/teacher/assessments` | teacher (own courses; admin all) | New | Tests per course/lecture with `questionCount`, `textQuestionCount`, `pendingCount`; DTO, no answer key; `private, no-store` (SCR-35) |
+| W7-16 | GET | `/api/teacher/assessments/pending` | teacher (own courses; admin all) | New | Ungraded TEXT answers on finished attempts (`?testId=` optional; foreign test → 404); DTO without `correctAnswer`; grade via `PATCH /api/answers/{id}/grade`; `private, no-store` (SCR-35; W4-05) |
 | W8-10 | GET | `/api/courses/{id}` | public | Harden | Adds overview fields, server-computed stats and instructor summary (id, name, avatar, headline); `LIVE` only; public cache + `ETag`; invalidated after commit on course edit, enrolment, feedback, teacher-profile update; never e-mail/source/key (A-29; AC-25, AC-27) |
 | W8-10 | PUT | `/api/courses/{id}` | staff | Harden | Accepts overview fields; validates lengths, ≤10 list items, `previewContentId` is a `VIDEO` of this course; ownership helper; invalidates detail/outline cache (BR-28) |
 | W8-10 | PUT | `/api/teacher/courses/{id}` | staff | Harden | Same overview-field contract as `PUT /api/courses/{id}` (alias mapping) |

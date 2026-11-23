@@ -1,8 +1,8 @@
 /**
  * Visual baseline harness (DS-01 / W1-12).
  *
- * 46 captured screen contracts × 3 viewports × 2 themes = 276 PNG baselines.
- * The 47th contract (`SCR-35`) has no route and is skipped with a reason.
+ * 47 captured screen contracts × 3 viewports × 2 themes = 282 PNG baselines.
+ * SCR-35 (teacher assessments) got its route in W7-16; no contract is skipped now.
  *
  * Determinism:
  *   - every `/api/**` response comes from `api-stubs.ts`,
@@ -27,8 +27,8 @@ test.describe.configure({ mode: 'parallel' });
 
 test('inventory covers the 47 spec contracts', () => {
   expect(SCREEN_CONTRACTS).toHaveLength(47);
-  expect(CAPTURED_CONTRACTS).toHaveLength(46);
-  expect(SKIPPED_CONTRACTS.map((c) => c.id)).toEqual(['SCR-35']);
+  expect(CAPTURED_CONTRACTS).toHaveLength(47);
+  expect(SKIPPED_CONTRACTS.map((c) => c.id)).toEqual([]);
   expect(CAPTURED_CONTRACTS.every((c) => c.route?.startsWith('/'))).toBe(true);
 });
 

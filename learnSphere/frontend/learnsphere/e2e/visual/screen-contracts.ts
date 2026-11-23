@@ -57,15 +57,7 @@ export const SCREEN_CONTRACTS: readonly ScreenContract[] = [
   { id: 'SCR-32', slug: 'course-editor', title: 'Course editor', route: '/teacher/courses/1/manage', role: 'teacher' },
   { id: 'SCR-33', slug: 'upload', title: 'Upload', route: '/teacher/upload', role: 'teacher' },
   { id: 'SCR-34', slug: 'students-standings', title: 'Students & standings', route: '/teacher/students', role: 'teacher' },
-  {
-    id: 'SCR-35',
-    slug: 'teacher-assessments',
-    title: 'Teacher assessments',
-    route: null,
-    role: 'teacher',
-    skipReason:
-      'No route exists: assessment authoring is reached from the course editor, and app.routes.ts exposes no teacher assessments screen. DS-01 captures it once the route is defined.',
-  },
+  { id: 'SCR-35', slug: 'teacher-assessments', title: 'Teacher assessments', route: '/teacher/assessments', role: 'teacher' },
   { id: 'SCR-36', slug: 'teacher-live', title: 'Live sessions (teacher)', route: '/teacher/live', role: 'teacher' },
   { id: 'SCR-37', slug: 'trending', title: 'Trending courses', route: '/teacher/trending', role: 'teacher' },
   { id: 'SCR-38', slug: 'royalties', title: 'Royalties', route: '/teacher/royalties', role: 'teacher' },

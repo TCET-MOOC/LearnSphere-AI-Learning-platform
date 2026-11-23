@@ -1,0 +1,36 @@
+/**
+ * Teacher assessments copy (SCR-35; W7-16). One file per screen (see W7-07).
+ */
+export const TEACHER_ASSESSMENTS_COPY = {
+  eyebrow: 'Teacher workspace',
+  title: 'Assessments',
+  intro: 'Your tests by course and lecture, and the written answers waiting for your grade.',
+  createTest: 'Create a test',
+  testsTitle: 'Your tests',
+  testsEmptyTitle: 'No tests yet',
+  testsEmptyBody: 'Create a test in the quiz builder, then attach it to a lecture.',
+  columns: {
+    course: 'Course',
+    lecture: 'Lecture',
+    test: 'Test',
+    questions: 'Questions',
+    pending: 'To grade',
+  },
+  wholeCourse: 'Whole course',
+  pendingTitle: 'Waiting for a grade',
+  pendingEmptyTitle: 'Nothing is waiting for a grade',
+  pendingEmptyBody: 'Written answers appear here when a student finishes a test.',
+  submittedBy: (name: string) => `Submitted by ${name}`,
+  unknownStudent: 'A student',
+  questionLabel: 'Question',
+  answerLabel: 'Answer',
+  noAnswer: 'No answer given.',
+  marksLabel: 'Score',
+  outOf: (max: number) => `out of ${max}`,
+  save: 'Save grade',
+  saving: 'Saving…',
+  outOfRange: (max: number) => `Enter a score from 0 to ${max}.`,
+  graded: (name: string) => `Grade saved for ${name}.`,
+  gradeFailed: 'Could not save the grade. Try again.',
+  loadFailed: 'Could not load your assessments. Refresh to try again.',
+} as const;

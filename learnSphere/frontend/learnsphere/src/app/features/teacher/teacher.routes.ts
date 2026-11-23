@@ -17,6 +17,7 @@ export const TEACHER_ROUTES: Routes = [
   { path: 'courses/new', loadComponent: () => import('./courses/course-management/course-management.component').then((m) => m.CourseManagementComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'courses/:id/manage', loadComponent: () => import('./courses/course-management/course-management.component').then((m) => m.CourseManagementComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'upload', loadComponent: () => import('./upload/upload.component').then((m) => m.UploadComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
+  { path: 'assessments', loadComponent: () => import('./assessments/assessments.component').then((m) => m.TeacherAssessmentsComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'discussion', loadComponent: () => import('./discussion/discussion.component').then((m) => m.DiscussionComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'messages', loadComponent: () => import('./messages/messages.component').then((m) => m.MessagesComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
   { path: 'live', loadComponent: () => import('./live/live.component').then((m) => m.LiveComponent), canActivate: [authGuard, roleGuard], data: { roles: TEACHER } },
